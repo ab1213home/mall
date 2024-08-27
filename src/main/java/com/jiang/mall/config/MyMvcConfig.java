@@ -1,6 +1,8 @@
 package com.jiang.mall.config;
 
+import com.jiang.mall.intercepter.AdminLoginInterceptor;
 import com.jiang.mall.intercepter.LoginIntercepter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -11,17 +13,35 @@ import static com.jiang.mall.controller.CommonController.FILE_UPLOAD_PATH;
 @Configuration
 public class MyMvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private AdminLoginInterceptor adminLoginInterceptor;
+
+    /**
+     * 重写addInterceptors方法，用于添加拦截器
+     *
+     * @param registry InterceptorRegistry对象，用于注册拦截器
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // 添加登录拦截器，拦截所有以"/admin/"开头的请求
         registry.addInterceptor(new LoginIntercepter())
-//        调用InterceptorRegistry的addInterceptor方法，创建一个新的LoginIntercepter实例，并将其添加到拦截器注册表中。
-                .addPathPatterns("/*/admin/**");
-//        调用addPathPatterns方法，为拦截器指定为所有以/admin开头的URL路径
+                //.addPathPatterns("/admin/**")
+                .addPathPatterns("**/admin/**");
+                //.addPathPatterns("/user/**");
+        registry.addInterceptor(adminLoginInterceptor)
+                .addPathPatterns("/admin/**");
     }
 
+    /**
+     * 重写addResourceHandlers方法，用于处理静态资源访问
+     * 该方法主要用于配置静态资源（如图片、CSS、JavaScript文件等）的访问路径
+     *
+     * @param registry 资源处理器注册对象，用于注册静态资源路径
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 将文件上传路径映射到/upload/**，使上传的文件可以通过该路径进行访问
         registry.addResourceHandler("/upload/**").addResourceLocations("file:" + FILE_UPLOAD_PATH);
-//        将URL路径"/upload/**"映射到服务器文件系统中的FILE_UPLOAD_PATH路径下，使得该目录下的文件可通过URL访问。
     }
+
 }

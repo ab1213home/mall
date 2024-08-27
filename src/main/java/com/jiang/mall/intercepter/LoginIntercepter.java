@@ -7,19 +7,29 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class LoginIntercepter implements HandlerInterceptor {
 
-
-//    用于处理Web请求前的预处理工作。
-//    若检测到用户会话中无用户ID，则重定向至登录页面并输出拦截信息，返回false表示请求被拦截；
-//    反之则打印放行日志并返回true，允许请求继续执行。
+    /**
+     * 重写preHandle方法以实现请求预处理
+     * 主要用于检查用户是否已登录
+     * 如果用户未登录，则将其重定向到登录页面
+     *
+     * @param request  HttpServletRequest对象，用于获取会话信息
+     * @param response HttpServletResponse对象，用于执行重定向操作
+     * @param handler  当前处理的请求对象，本方法中未使用
+     * @return boolean值，如果返回true则请求将继续处理，如果返回false则请求被拦截且不再继续
+     * @throws Exception 方法可能抛出的异常
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 检查会话中是否含有用户ID属性，用于判断用户是否已登录
         if (request.getSession().getAttribute("userId") == null) {
+            // 如果用户未登录，执行重定向到登录页面
             response.sendRedirect(request.getContextPath() + "/login.html");
-            //拦截请求
+            // 输出拦截成功的提示信息
             System.out.println("未登录，拦截成功...");
+            // 返回false表示请求被拦截
             return false;
         }
-        //不拦截，放行
+        // 如果用户已登录，返回true表示请求可以继续处理
         return true;
 
     }

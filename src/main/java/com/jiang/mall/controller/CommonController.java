@@ -2,6 +2,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.wf.captcha.ArithmeticCaptcha;
+import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,21 +34,9 @@ public class CommonController {
         // 响应内容是一个PNG格式的图像
         response.setContentType("image/png");
 
-        // 生成不同类型验证码，三个参数分别为宽、高、位数
-        // png类型
-//        SpecCaptcha captcha = new SpecCaptcha(180, 40, 4);
-        // gif类型
-//        GifCaptcha captcha = new GifCaptcha(180, 40, 4);
-        // 中文类型
-//        ChineseCaptcha captcha = new ChineseCaptcha(180, 40, 4);
-        // 中文gif类型
-//        ChineseGifCaptcha captcha = new ChineseGifCaptcha(180, 40, 4);
-        // 算术类型
-        ArithmeticCaptcha captcha = new ArithmeticCaptcha(180, 40, 4);
-
+        SpecCaptcha captcha=new SpecCaptcha(180,40,5);
         // 设置字符类型
-        captcha.setCharType(Captcha.TYPE_DEFAULT);
-
+        captcha.setCharType(Captcha.TYPE_ONLY_NUMBER);
         // 设置字体
 //        captcha.setFont(Captcha.FONT_8, 40);
 
@@ -57,7 +46,6 @@ public class CommonController {
         // 输出图片流
         captcha.out(response.getOutputStream());
     }
-
 
 
     @RequestMapping("/uploadfile")

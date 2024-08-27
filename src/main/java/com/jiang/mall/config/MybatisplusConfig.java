@@ -9,13 +9,20 @@ package com.jiang.mall.config;
 @Configuration
 public class MybatisplusConfig {
 
+    /**
+     * 配置MybatisPlus拦截器
+     * 该方法用于创建并返回一个MybatisPlusInterceptor对象，用于增强MybatisPlus的功能
+     * 主要通过添加PaginationInnerInterceptor实现分页功能
+     *
+     * @return MybatisPlusInterceptor 返回配置好的MybatisPlus拦截器对象
+     */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(){
+        // 创建MybatisPlus拦截器实例
         MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
-//        创建拦截器对象：函数创建一个MybatisPlusInterceptor对象，用于拦截Mybatis-Plus的执行过程。
+        // 添加分页拦截器到MybatisPlus拦截器中，指定数据库类型为MySQL
         mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
-//        添加分页拦截器：向拦截器中添加一个PaginationInnerInterceptor，用于自动分页功能，参数DbType.MYSQL指明数据库类型为MySQL。
+        // 返回配置好的MybatisPlus拦截器对象
         return mybatisPlusInterceptor;
-//        返回拦截器
     }
 }
