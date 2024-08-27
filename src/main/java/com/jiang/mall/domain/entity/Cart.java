@@ -2,7 +2,12 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -12,8 +17,13 @@ import java.io.Serializable;
  *作者： 蒋神 HJL
  * @since 2024-08-05
  */
+@Getter
+@Setter
+@Data
+@TableName("cart")
 public class Cart implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -33,38 +43,6 @@ public class Cart implements Serializable {
      * 用户id
      */
     private Integer userId;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getProdId() {
-        return prodId;
-    }
-
-    public void setProdId(Integer prodId) {
-        this.prodId = prodId;
-    }
-
-    public Integer getNum() {
-        return num;
-    }
-
-    public void setNum(Integer num) {
-        this.num = num;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
 
     @Override
     public String toString() {

@@ -10,7 +10,7 @@ import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
-import com.example.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -99,7 +99,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     @Override
     public ResponseResult deleteCart(List<Integer> ids) {
-        int res = cartMapper.deleteBatchIds(ids);
+        int res = cartMapper.deleteByIds(ids);
         if (res > 0) {
             return ResponseResult.okResult();
         }

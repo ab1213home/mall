@@ -93,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public ResponseResult deleteUser(List<Integer> ids) {
-        int result = userMapper.deleteBatchIds(ids);
+        int result = userMapper.deleteByIds(ids);
         if (result > 0) {
             return ResponseResult.okResult();
         }

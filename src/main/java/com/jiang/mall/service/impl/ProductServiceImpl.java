@@ -81,7 +81,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public ResponseResult deleteProduct(List<Integer> ids) {
-        int res = productMapper.deleteBatchIds(ids);
+        int res = productMapper.deleteByIds(ids);
         if (res > 0) {
             return ResponseResult.okResult();
         }

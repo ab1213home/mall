@@ -65,7 +65,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public ResponseResult deleteCategory(List<Integer> ids) {
-        int res = categoryMapper.deleteBatchIds(ids);
+        int res = categoryMapper.deleteByIds(ids);
         if (res > 0){
             return ResponseResult.okResult();
         }

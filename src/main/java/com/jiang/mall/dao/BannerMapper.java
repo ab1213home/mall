@@ -2,6 +2,7 @@ package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Banner;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -10,6 +11,7 @@ import com.jiang.mall.domain.entity.Banner;
  *作者： 蒋神 HJL
  * @since 2024-08-05
  */
+@Mapper
 public interface BannerMapper extends BaseMapper<Banner> {
 
 }

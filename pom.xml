@@ -51,14 +51,9 @@
         <!--mybatis-plus-->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.7</version>
         </dependency>
-        <dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>3.0.3</version>
-		</dependency>
 
         <!--验证码-->
         <dependency>
@@ -76,9 +71,15 @@
         <dependency>
         	<groupId>javax.servlet</groupId>
         	<artifactId>javax.servlet-api</artifactId>
-       		<version>3.1.0</version>
+       		<version>4.0.1</version>
         	<scope>provided</scope>
     	</dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 

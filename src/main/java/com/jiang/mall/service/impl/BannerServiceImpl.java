@@ -7,7 +7,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
-import com.example.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +84,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 //    函数的功能是删除传入的用户ID列表中的所有用户。
     @Override
     public ResponseResult deleteBanner(List<Integer> ids) {
-        int res = bannerMapper.deleteBatchIds(ids);
+        int res = bannerMapper.deleteByIds(ids);
         if (res > 0){
             return ResponseResult.okResult();
         }
