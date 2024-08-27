@@ -4,4 +4,5 @@ import lombok.Data;
 
 @Data
 public class Propertie {
+	public static int AdminRoleId = 10;
 }

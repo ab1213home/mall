@@ -1,7 +1,12 @@
 package com.jiang.mall.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
+@Getter
+@Setter
 public class ResponseResult<T> implements Serializable {
 
     private int code;
@@ -74,27 +79,4 @@ public class ResponseResult<T> implements Serializable {
     public ResponseResult() {
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
 }

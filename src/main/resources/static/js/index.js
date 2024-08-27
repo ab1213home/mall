@@ -56,7 +56,7 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 		},
 		dataType:"json",
 		success:function(res){
-			if(res.code == '200'){
+			if(res.code === '200'){
 				goodsMap[cgName] = res.data;
 				console.log(goodsMap);
 				let s1 =
@@ -64,19 +64,19 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 					<div class="category_detail">`;
 				let i = 0;
 				for (let val of goodsMap[cgName]) {
-					if(i==0){
+					if(i===0){
 						s1 += "<ul>";
 					}
 					s1 += `<li class="cd_li">
 								<a href="/goods.html?id=`+ val.id +`">`+ val.title + `</a>
 							</li>`
 					i++;
-					if(i==6){
+					if(i===6){
 						s1 += "</ul>";
-						i == 0;
+						i === 0;
 					}
 				}
-				if(i != 0){
+				if(i !== 0){
 					s1 += "</ul>";
 				}
 				s1 +=
@@ -107,18 +107,18 @@ function queryBanner(){
 		data:"",
 		dataType:"json",
 		success:function(res){
-			if(res.code == '200'){
+			if(res.code === '200'){
 				// console.log(res);
 				let count = 0;
 				let s1 = "";
 				let s2 = "";
 				for (let val of res.data) {
-					if(count == 0){
+					if(count === 0){
 						s1 += `<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>`;
 						s2 +=
 						`<div class="carousel-item active">
 							<a href="`+ val.url +`" target="_blank">
-								<img src="`+ val.img +`" class="imgfull">
+								<img src="`+ val.img +`" class="imgfull" alt="">
 							</a>
 						</div>`;
 					}else{
@@ -126,7 +126,7 @@ function queryBanner(){
 						s2 +=
 						`<div class="carousel-item">
 							  <a href="`+ val.url +`" target="_blank">
-								  <img src="`+ val.img +`" class = "imgfull">
+								  <img src="`+ val.img +`" class = "imgfull" alt="">
 							  </a>
 						  </div>`;
 					}
@@ -151,20 +151,20 @@ function listGoods(categoryId, categoryName){
 		<ul>`
 	let count = 0;
 	for(let good of goodsArr){
-		if(count==0){
+		if(count===0){
 			s+=`<li class="glifirst">`
 		}else{
 			s+=`<li class="gli">`
 		}
 		count++;
-		if(count==5){
+		if(count===5){
 			count=0;
 		}
 		s+=
 		`	<div class="glid1">
 				<div class="glid2">
 					<a href="./good.html?id=`+ good.id +`" target="_blank">
-						<img src="`+ good.img +`">
+						<img src="`+ good.img +`" alt="">
 					</a>
 				</div>
 				<a href="./good.html?id=`+ good.id +`" target="_blank" class="ga">
@@ -204,7 +204,7 @@ function isLogin(){
 		async:false,	//设置同步请求
 		dataType:"json",
 		success:function(res){
-			if(res.code == 200){
+			if(res.code === 200){
 				//已登录
 				$("#nickName").html("你好!" + res.data.nickName);
 				sessionStorage.setItem("userId", res.data.id);

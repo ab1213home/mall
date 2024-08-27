@@ -34,7 +34,7 @@ public class CommonController {
         // 响应内容是一个PNG格式的图像
         response.setContentType("image/png");
 
-        SpecCaptcha captcha=new SpecCaptcha(180,40,5);
+        SpecCaptcha captcha=new SpecCaptcha(160,40,4);
         // 设置字符类型
         captcha.setCharType(Captcha.TYPE_ONLY_NUMBER);
         // 设置字体
@@ -42,6 +42,7 @@ public class CommonController {
 
         // 验证码存入 session
         request.getSession().setAttribute("verifyCode", captcha.text().toLowerCase());
+        request.getSession().setAttribute("captcha", captcha.text().toLowerCase());
 
         // 输出图片流
         captcha.out(response.getOutputStream());

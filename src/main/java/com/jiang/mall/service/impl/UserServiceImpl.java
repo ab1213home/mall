@@ -58,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = new User();
         user.setPhone(phone);
         user.setPassword(MD5Util.MD5Encode(password, "UTF-8"));
-        user.setNickName("用户" + phone);
+        //user.setNickName("用户" + phone);
         return userMapper.insert(user);
     }
 

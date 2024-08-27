@@ -8,8 +8,8 @@ import java.time.Instant;
 import java.util.Properties;
 
 public class PropertieUtil {
-	/**
-	 * 从配置文件中读取指定键对应的属性值，并设置到Database类的静态变量中。
+	/*
+	  从配置文件中读取指定键对应的属性值，并设置到Database类的静态变量中。
 	 */
 //	public static boolean getProperties(TextDatabase textDatabase) {
 //	    // 创建Properties类对象，用于读取配置文件
@@ -32,13 +32,13 @@ public class PropertieUtil {
 //	    }
 //	}
 
-	/**
-	 * 将文本数据库的配置信息写入到properties文件中。
-	 * 此方法会创建一个名为"config.properties"的文件，如果文件存在则会覆盖原有内容。
-	 * 配置信息包括数据库名称、主机、端口、用户名和密码。
-	 * 密码将使用AES加密算法进行加密存储。
-	 *
-	 * @param textDatabase 包含数据库配置信息的对象，必须不为空。
+	/*
+	  将文本数据库的配置信息写入到properties文件中。
+	  此方法会创建一个名为"config.properties"的文件，如果文件存在则会覆盖原有内容。
+	  配置信息包括数据库名称、主机、端口、用户名和密码。
+	  密码将使用AES加密算法进行加密存储。
+
+	  @param textDatabase 包含数据库配置信息的对象，必须不为空。
 	 */
 //	public static void writeProperties(TextDatabase textDatabase) {
 //		// 初始化配置信息存储对象

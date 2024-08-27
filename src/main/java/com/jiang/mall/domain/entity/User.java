@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * <p>
@@ -28,49 +29,47 @@ public class User implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-    /**
-     * 手机号，用户名，需唯一
-     */
-    private String phone;
+    private String username;
 
-    /**
-     * 密码
-     */
     private String password;
 
-    /**
-     * 昵称
-     */
-    private String nickName;
+    private String email;
 
-    /**
-     * 创建时间
-     */
+    private String phone;
+
+    private String firstName;
+
+    private String lastName;
+
+	private Date birthDate;
+
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
 
-    /**
-     * 更新时间
-     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedAt;
 
-    /**
-     * 是否删除
-     */
-    private Boolean isDel;
+    private Boolean isActive;
 
+    private Integer roleId;
 
     @Override
     public String toString() {
-        return "User{" +
-            "id = " + id +
-            ", phone = " + phone +
-            ", password = " + password +
-            ", nickName = " + nickName +
-            ", createTime = " + createTime +
-            ", updateTime = " + updateTime +
-            ", isDel = " + isDel +
-        "}";
+        return getClass().getSimpleName() +
+			    " [" +
+			    "Hash = " + hashCode() +
+			    ", id=" + id +
+			    ", username=" + username +
+			    ", email=" + email +
+			    ", phone=" + phone +
+			    ", firstName=" + firstName +
+			    ", lastName=" + lastName +
+			    ", birthDate=" + birthDate +
+			    ", createdAt=" + createdAt +
+			    ", updatedAt=" + updatedAt +
+			    ", isActive=" + isActive +
+			    ", roleId=" + roleId +
+			    "]";
     }
+
 }
