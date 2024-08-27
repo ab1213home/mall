@@ -3,7 +3,7 @@ function submitLoginForm() {
   // 获取表单数据
   const username = $('#username').val();
   const password = $('#password').val();
-  const captcha = $('input[name="captcha"]').val();
+  const captcha = $('#captcha').val();
 
   // 构建请求体
   const data = {
@@ -20,10 +20,10 @@ function submitLoginForm() {
     success: function (data) {
         // 处理成功响应
         if (data.code === 200) {
-            console.log('登录成功:', response);
-            window.location.href = '/admin.html';
+            console.log('登录成功');
+            window.location.href = '../index.html';
         } else {
-            console.log('登录失败:', response);
+            console.log('登录失败');
             alert(data.message);
         }
     },
@@ -31,7 +31,7 @@ function submitLoginForm() {
       // 处理错误响应
       console.fail('登录失败:', error);
       // 显示错误信息给用户
-      alert('登录失败，请联系管理员！');
+      alert('登录失败，请联系管理员！'+error);
     }
   });
 }

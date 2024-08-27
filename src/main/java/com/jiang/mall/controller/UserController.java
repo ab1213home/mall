@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.AdminRoleId;
+import static com.jiang.mall.domain.entity.Propertie.regex_email;
 
 /**
  * <p>
@@ -163,69 +164,58 @@ public class UserController {
 //    }
 
 
-//    @PostMapping("/registerStep1")
-//    public String registerStep1(@RequestParam("username") String username,
-//                                             @RequestParam("password") String password,
-//                                             @RequestParam("confirmPassword") String confirmPassword,
-//                                             @RequestParam("email") String email,
-//                                             @RequestParam("captcha") String captcha,
-//                                             HttpSession session) {
-//        if (!StringUtils.hasText(captcha)) {
-//            session.removeAttribute("captcha");
-//            session.setAttribute("errorMsg", "验证码不能为空");
-//            return "/user/register_step1";
-//        }
-//        if (StringUtils.hasText(email) && !email.matches(regex_email)){
-//            session.setAttribute("errorMsg", "邮箱格式不正确");
-//            return "/user/register_step1";
-//        }
-//
-//        // 获取session中的验证码
-//        ShearCaptcha storedVerCode = (ShearCaptcha) session.getAttribute("captcha");
-//        if (storedVerCode==null) {
-//            return "/user/register_step1";
-//        }
-//        // 判断验证码
-//        if (!storedVerCode.verify(captcha)) {
-//            session.removeAttribute("captcha");
-//            session.setAttribute("errorMsg", "验证码错误");
-//            return "/user/register_step1";
-//        }
-//        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
-//            session.setAttribute("errorMsg", "请输入完整的注册信息");
-//            return "/user/register_step1";
-//        }
-//        if (!password.equals(confirmPassword)) {
-//            session.setAttribute("errorMsg", "两次密码输入不一致");
-//            return "/user/register_step1";
-//        }
-//
-//        if (userService.queryByEmail(email)) {
-//            session.setAttribute("errorMsg", "邮箱已存在");
-//            return "/user/register_step1";
-//        }
-//
-//        if (userService.queryByUserName(username)) {
-//            session.setAttribute("errorMsg", "用户名已存在");
-//            return "/user/register_step1";
-//        }
-//
-//        User user = new User();
-//        user.setUsername(username);
-//        user.setPassword(password);
-//        user.setEmail(email);
-//        int UserId = userService.registerStep(user);
-//        if (UserId>0) {
-//            session.removeAttribute("errorMsg");
-//            session.removeAttribute("captcha");
-//            session.setAttribute("UserId",UserId);
-//            System.out.println(UserId);
-//            return "/user/register_step2";
-//        }else {
-//            session.setAttribute("errorMsg", "注册失败");
-//            return "/user/register_step1";
-//        }
-//    }
+    @PostMapping("/registerStep1")
+    public ResponseResult registerStep1(@RequestParam("username") String username,
+                                             @RequestParam("password") String password,
+                                             @RequestParam("confirmPassword") String confirmPassword,
+                                             @RequestParam("email") String email,
+                                             @RequestParam("captcha") String captcha,
+                                             HttpSession session) {
+        if (session.getAttribute("UserIsLogin")!=null){
+            if (session.getAttribute("UserIsLogin").equals("true"))
+                return ResponseResult.failResult("您已登录，请勿重复注册");
+        }
+        if (!StringUtils.hasText(captcha)) {
+            return ResponseResult.failResult("验证码不能为空");
+        }
+        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+            return ResponseResult.failResult("邮箱格式不正确");
+        }
+
+        // 获取session中的验证码
+        String captchaCode = session.getAttribute("captcha").toString();
+
+        // 判断验证码
+        if (!captchaCode.toLowerCase().equals(captcha)) {
+            return ResponseResult.failResult("验证码错误");
+        }
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
+            return ResponseResult.failResult("请输入完整的注册信息");
+        }
+        if (!password.equals(confirmPassword)) {
+            return ResponseResult.failResult("两次密码输入不一致");
+        }
+
+        if (userService.queryByEmail(email)) {
+            return ResponseResult.failResult("邮箱已存在");
+        }
+
+        if (userService.queryByUserName(username)) {
+            return ResponseResult.failResult("用户名已存在");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+        int UserId = userService.registerStep(user);
+        if (UserId>0) {
+            session.setAttribute("UserId",UserId);
+            return ResponseResult.okResult();
+        }else {
+            return ResponseResult.failResult("未知原因注册失败");
+        }
+    }
 
 //    @PostMapping("/registerStep2")
 //    public String registerStep2(@RequestParam("phone") String phone,
@@ -270,6 +260,10 @@ public class UserController {
                         @RequestParam("password") String password,
                         @RequestParam("captcha") String captcha,
                         HttpSession session) {
+        if (session.getAttribute("UserIsLogin")!=null){
+            if (session.getAttribute("UserIsLogin").equals("true"))
+                return ResponseResult.failResult("您已登录，请勿重复登录");
+        }
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
         }
@@ -287,7 +281,7 @@ public class UserController {
 
         User user = userService.login(username, password);
         if (user != null) {
-            session.removeAttribute("captcha");
+            //session.removeAttribute("captcha");
             session.setAttribute("UserId", user.getId());
             session.setAttribute("UserName", user.getUsername());
             session.setAttribute("UserRole", user.getRoleId());
@@ -311,28 +305,27 @@ public class UserController {
     }
 //
 //    @PostMapping("/modify/password")
-//    public String modifyPassword(@RequestParam("UserId") Integer UserId,
+//    public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
 //                                  @RequestParam("oldPassword") String oldPassword,
 //                                  @RequestParam("newPassword") String newPassword) {
 //        return userService.modifyPassword(UserId, oldPassword, newPassword)? "redirect:/user/index" : "redirect:/user/login";
 //    }
 //
 //    @PostMapping("/modify/info")
-//    public String modifyUserInfo(@RequestParam("UserId") Integer UserId,
+//    public ResponseResult modifyUserInfo(@RequestParam("UserId") Integer UserId,
 //                                  @RequestBody User userInfo) {
 //        userInfo.setId(UserId);
 //        return userService.modifyUserInfo(userInfo)? "redirect:/user/index" : "redirect:/user/login";
 //    }
 //
 //    @PostMapping("/modify/lock")
-//    public String lockUser(@RequestParam("UserId") Integer UserId) {
+//    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId) {
 //        return userService.lockUser(UserId)? "redirect:/user/login" : "redirect:/user/index";
 //    }
 //
 //
 //    @PostMapping("/modify/self-lock")
-//    @ResponseBody
-//    public String selfLock(@RequestParam("UserId") Integer UserId, HttpSession session) {
+//    public ResponseResult selfLock(@RequestParam("UserId") Integer UserId, HttpSession session) {
 //		User user = userService.getUserInfo(UserId);
 //		User adminUser = userService.getUserInfo((Integer) session.getAttribute("UserId"));
 //		if (adminUser.getRoleId() >user.getRoleId()){
@@ -342,44 +335,6 @@ public class UserController {
 //		}
 //    }
 
-    //登录
-//    @PostMapping("/login")
-//    public ResponseResult login(String phone, String password, String verifyCode, HttpSession session) {
-////      1.检查手机号、密码及验证码是否完整
-//        if (phone.isEmpty() || password.isEmpty()) {
-//            return ResponseResult.failResult("手机号或密码不能为空");
-//        }
-//        if (verifyCode.isEmpty()) {
-//            return ResponseResult.failResult("验证码不能为空");
-//        }
-//
-////      2.验证手机号格式正确性。
-//        if (!phone.matches("^\\d{11}$")) {
-////            ^\d{11}$ 十一位整数
-//            return ResponseResult.failResult("请输入正确的手机号");
-//        }
-//
-////      3.校验用户输入的验证码与会话中存储的验证码一致
-//        String captchaCode = session.getAttribute("verifyCode").toString();
-//        if (!verifyCode.toLowerCase().equals(captchaCode)) {
-//            return ResponseResult.failResult("验证码错误");
-//        }
-////      4.调用userService.login方法验证用户信息。
-//        User user = userService.login(phone, password);
-//
-////      5.若登录成功，将用户ID存入会话，并返回用户信息；否则返回失败信息
-//        if (user != null) {
-//            // 用户登录后,往session里保存用户Id,用来后续判断用户是否已登录
-//            session.setAttribute("userId", user.getId());
-//
-//            // 使用UserVo重新封装user
-//            UserVo userVo = new UserVo();
-//            BeanUtils.copyProperties(user, userVo);
-//            return ResponseResult.okResult(userVo);
-//        } else {
-//            return ResponseResult.failResult("登陆失败");
-//        }
-//    }
     /*
     注册
      */

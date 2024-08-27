@@ -20,7 +20,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-@TableName("user")
+@TableName("tb_users")
 public class User implements Serializable {
 
     @Serial

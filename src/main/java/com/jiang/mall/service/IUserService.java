@@ -16,7 +16,23 @@ import java.util.List;
  */
 public interface IUserService extends IService<User> {
 
-    User login(String phone, String password);
+    User login(String username, String password);
+
+    boolean modifyPassword(Integer userId, String oldPassword, String newPassword);
+
+    User getUserInfo(Integer userId);
+
+    boolean modifyUserInfo(User newUser);
+
+    boolean lockUser(Integer userId);
+
+    boolean register(User newUser);
+
+    boolean queryByUserName(String userName);
+
+    boolean queryByEmail(String email);
+
+    int registerStep(User user);
 
     boolean userExists(String phone);
 

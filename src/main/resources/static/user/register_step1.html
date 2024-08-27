@@ -44,18 +44,15 @@
             <div class="circle" style="--x:4"></div>
             <!-- 注册框 -->
             <div class="register-box">
-                <div class="register-logo" style="color: #1baeae;">
-                    <img src="/imgs/logo.png" style="height: 58px; float: left; margin-left: 10px;" alt="">
-                    <h1 class="h3 mb-3 font-weight-normal">统一用户管理系统</h1>
-                </div>
-                <!-- /.register-logo -->
                 <div class="card">
                     <div class="card-body register-card-body">
-                        <p class="login-box-msg"> Jiang MALL , Welcome to Join Us !</p>
-                        <form action="/user/registerStep1" method="post">
-                            <div th:if="${not #strings.isEmpty(session.errorMsg)}" class="form-group">
-                                <div class="alert alert-danger" th:text="${session.errorMsg}"></div>
-                            </div>
+                        <div class="register-logo" style="color: #1baeae;">
+                            <img src="/imgs/logo.png" style="height: 58px; float: left; margin-left: 10px;" alt="">
+                            <h1 class="h3 mb-3 font-weight-normal">统一用户管理系统</h1>
+                        </div>
+                        <!-- /.register-logo -->
+                        <form id="step1">
+
                             <!-- 基本注册信息字段 -->
                             <div class="d-flex flex-column gap-2">
                                 <div class="form-group has-feedback">
@@ -86,13 +83,13 @@
                                     </label>
                                 </div>
                                 <div class="col-6">
-                                    <img alt="单击图片刷新！" class="pointer" th:src="@{/common/captcha}"
+                                    <img alt="单击图片刷新！" class="pointer" src="/common/captcha"
                                          onclick="this.src='/common/captcha?d='+new Date()*1">
                                 </div>
                             </div>
                             <div class="row d-flex justify-content-between mt-2">
                                 <div class="col-4">
-                                    <a href="/user/login" class="text-center">已有账号？去登录</a>
+                                    <a href="/user/login.html" class="text-center">已有账号？去登录</a>
                                 </div>
                                 <div class="col-4">
                                     <button type="submit" class="btn btn-primary btn-block btn-flat">下一步
@@ -115,5 +112,6 @@
 <!-- Bootstrap 4 -->
 <script src="/js/bootstrap.bundle.min.js"></script>
 
+<script src="/js/user/register.js"></script>
 </body>
 </html>

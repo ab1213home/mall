@@ -54,9 +54,6 @@
                         <p class="login-box-msg"> Jiang MALL , Welcome to Join Us !</p>
                         <h1 class="h3 mb-3 font-weight-normal" style="text-align: center;font-size: 1.25rem;">完善用户信息</h1>
                         <form th:action="@{/user/registerStep2}" method="post">
-                            <div th:if="${not #strings.isEmpty(session.errorMsg)}" class="form-group">
-                                <div class="alert alert-danger" th:text="${session.errorMsg}"></div>
-                            </div>
                             <!-- 补充信息字段 -->
                             <div class="form-group has-feedback">
                                 <span class="fa fa-phone form-control-feedback"></span>
@@ -75,7 +72,8 @@
                             </div>
                             <div class="form-group has-feedback">
                                 <span class="fa fa-calendar form-control-feedback"></span>
-                                <label for="birthday"></label><input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
+                                <label for="birthday"></label>
+                                <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
                                                                      required="required">
                             </div>
                             <!-- 提交按钮 -->
