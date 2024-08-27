@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理后台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .b-example-divider {
+            width: 100%;
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .btn-bd-primary {
+            --bd-violet-bg: #712cf9;
+            --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
+
+            --bs-btn-font-weight: 600;
+            --bs-btn-color: var(--bs-white);
+            --bs-btn-bg: var(--bd-violet-bg);
+            --bs-btn-border-color: var(--bd-violet-bg);
+            --bs-btn-hover-color: var(--bs-white);
+            --bs-btn-hover-bg: #6528e0;
+            --bs-btn-hover-border-color: #6528e0;
+            --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
+            --bs-btn-active-color: var(--bs-btn-hover-color);
+            --bs-btn-active-bg: #5a23c8;
+            --bs-btn-active-border-color: #5a23c8;
+        }
+        .bd-mode-toggle {
+            z-index: 1500;
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./css/sidebars.css" rel="stylesheet">
+
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <symbol id="bootstrap" viewBox="0 0 118 94">
+        <title>Bootstrap</title>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z"></path>
+    </symbol>
+    <symbol id="home" viewBox="0 0 16 16">
+        <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z"/>
+    </symbol>
+    <symbol id="speedometer2" viewBox="0 0 16 16">
+        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+    </symbol>
+    <symbol id="table" viewBox="0 0 16 16">
+        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+    </symbol>
+    <symbol id="people-circle" viewBox="0 0 16 16">
+        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+    </symbol>
+    <symbol id="grid" viewBox="0 0 16 16">
+        <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
+    </symbol>
+</svg>
+
+<main class="d-flex flex-nowrap">
+
+    <!--侧边栏-->
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <svg class="bi pe-none me-2" width="40" height="32"><use xlink:href="#bootstrap"/></svg>
+            <span class="fs-4">管理后台</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="#" class="nav-link text-white active" aria-current="page">
+                    <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#home"/></svg>
+                    首页
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
+                    用户管理
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
+                    商品分类管理
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#grid"/></svg>
+                    商品管理
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#people-circle"/></svg>
+                    订单管理
+                </a>
+            </li>
+        </ul>
+        <hr>
+        <div class="dropdown">
+            <a id="loginUser" href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+
+                <li><a class="dropdown-item" href="#" onclick="logout()">登出</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="b-example-divider b-example-vr"></div>
+
+    <!--主体内容区域-->
+    <div class="container-fluid">
+        <div class="row">
+            <!--首页-->
+            <div id="home" class="page">
+                <a href="/index.html" class="btn btn-secondary">点击此处到首页</a>
+            </div>
+            <!--用户管理-->
+            <div id="userManage" class="page">
+                <div class="col-12">
+                    <h3 class="text-center">用户管理</h3>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">手机号</th>
+                            <th scope="col">密码</th>
+                            <th scope="col">昵称</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--分类管理-->
+            <div id="categoryManage" class="page">
+                <div class="col-12">
+                    <h3 class="text-center">商品分类管理</h3>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">商品分类编码</th>
+                            <th scope="col">商品分类名称</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal2" data-bs-type="add">添加商品分类</button>
+                </div>
+            </div>
+            <!--商品管理-->
+            <div id="productManage" class="page">
+                <div class="col-12">
+                    <h3 class="text-center">商品管理</h3>
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">商品名称</th>
+                            <th scope="col">商品价格</th>
+                            <th scope="col">商品库存</th>
+                            <th scope="col">商品描述</th>
+                            <th scope="col">商品分类</th>
+                            <th scope="col">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="add">添加商品</button>
+                </div>
+            </div>
+            <!--订单管理-->
+            <div id="orderManage" class="page"></div>
+
+        </div>
+    </div>
+</main>
+
+<!--用户管理模态框-->
+<div class="modal fade" id="itemModal3" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="itemModalLabel3"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="title" class="col-form-label">手机号:</label>
+                        <input type="text" class="form-control" id="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="code" class="col-form-label">密码:</label>
+                        <input type="text" class="form-control" id="passwd">
+                    </div>
+                    <div class="mb-3">
+                        <label for="code" class="col-form-label">昵称:</label>
+                        <input type="text" class="form-control" id="nickName">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submit3">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--添加/编辑商品分类模态框-->
+<div class="modal fade" id="itemModal2" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="itemModalLabel2"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="title" class="col-form-label">商品分类编码:</label>
+                        <input type="text" class="form-control" id="code2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="code" class="col-form-label">商品分类名称:</label>
+                        <input type="text" class="form-control" id="name">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submit2">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--添加/编辑商品模态框-->
+<div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="itemModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="title" class="col-form-label">商品名称:</label>
+                        <input type="text" class="form-control" id="title">
+                    </div>
+                     <div class="mb-3">
+                        <label for="code" class="col-form-label">商品编码:</label>
+                        <input type="text" class="form-control" id="code">
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="col-form-label">商品价格:</label>
+                        <input type="number" class="form-control" id="price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="stocks" class="col-form-label">商品库存:</label>
+                        <input type="number" class="form-control" id="stocks">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="col-form-label">商品描述:</label>
+                        <textarea class="form-control" id="description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryId" class="col-form-label">商品分类:</label>
+                        <select class="form-select" id="categoryId">
+                            <option selected>选择类型</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="img" class="form-label">商品图片</label>
+                        <div id="img" class="input-group">
+                            <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()">
+                            <img src="" id="imgPreview" alt="商品预览" class="img-thumbnail">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submit">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./js/sidebars.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<script>
+
+
+    function uploadFile() {
+        const file = $('#imgUpload')[0].files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        $.ajax({
+            url: '/common/uploadfile',
+            type: 'post',
+            data:formData,
+            contentType: false,
+            processData: false,
+            success: function (res){
+                $('#imgPreview').attr('src', res.data);
+                $('#img').val(res.data);
+            }
+        });
+    }
+
+    //商品列表
+    function listProduct(){
+        $.ajax({
+            url: '/product/list',   /*不提交参数，只展示第一页，五件商品*/
+            type: 'get',
+            dataType:'json',
+            success: function (res){
+                console.log(res)
+                // res.data渲染为表格的行
+                res.data.forEach(prod => {
+                    const row =
+                        `
+                        <tr>
+                            <th scope="row">${prod.id}</th>
+                            <td>${prod.title}</td>
+                            <td>${prod.price}</td>
+                            <td>${prod.stocks}</td>
+                            <td>${prod.description}</td>
+                            <td>${prod.categoryName}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${prod.id}">编辑</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="delProduct(${prod.id})">删除</button>
+                            </td>
+                        </tr>
+                        `;
+                    $('#productManage tbody').append(row);
+                })
+            }
+        });
+    }
+
+    function addProduct(){
+        const product = {
+            title: $('#title').val(),
+            code: $('#code').val(),
+            price: $('#price').val(),
+            stocks: $('#stocks').val(),
+            description: $('#description').val(),
+            categoryId: $('#categoryId').val(),
+            img: $('#img').val()
+        };
+
+        $.ajax({
+            url: '/product/admin/insert',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(product),
+            success: function (res) {
+                console.log(res);
+                if (res.code === 200) {
+                    alert('添加成功');
+                    $('#itemModal').modal('hide');
+                    $('#productManage tbody').empty();
+                    listProduct();
+                } else {
+                    alert('添加失败');
+                }
+            }
+        });
+    }
+
+    function editProduct(event){
+        const id = event.data.id;
+        const product = {
+            id: id,
+            title: $('#title').val(),
+            code: $('#code').val(),
+            price: $('#price').val(),
+            stocks: $('#stocks').val(),
+            description: $('#description').val(),
+            categoryId: $('#categoryId').val(),
+            img: $('#img').val()
+        };
+        $.ajax({
+            url: '/product/admin/update',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(product),
+            success: function (res) {
+                console.log(res);
+                if (res.code === 200) {
+                    alert('修改成功');
+                    $('#itemModal').modal('hide');
+                    $('#productManage tbody').empty();
+                    listProduct();
+                }else {
+                    alert('修改失败');
+                }
+            }
+        });
+
+    }
+
+    function delProduct(id) {
+        $.ajax({
+            url: '/product/admin/delete',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify([id]),
+            success: function (res) {
+                console.log(res);
+                if (res.code === 200) {
+                    alert('删除成功');
+                    $('#productManage tbody').empty();
+                    listProduct();
+                }else {
+                    alert('删除失败');
+                }
+            }
+        });
+    }
+
+    function listCategory(){
+        $.ajax({
+            url: "/category/list",
+            type: 'get',
+            dataType: 'json',
+            success: function (res) {
+                console.log(res);
+                //res.data渲染为表格的行
+                res.data.forEach(cat => {
+                    const option = `
+                    <option value="${cat.id}">${cat.name}</option>
+                    `;
+                    $('#categoryId').append(option);
+                })
+            }
+        });
+    }
+
+    function getProduct(id){
+        $.ajax({
+            url: '/product/admin/' + id,
+            type: 'get',
+            dataType: 'json',
+            success: function (res) {
+                console.log(res);
+                //res.data渲染为modal初始值
+                const prod = res.data;
+                $('#title').val(prod.title);
+                $('#code').val(prod.code);
+                $('#price').val(prod.price);
+                $('#stocks').val(prod.stocks);
+                $('#description').val(prod.description);
+                $('#categoryId').val(prod.categoryId);
+                $('#imgPreview').attr('src', prod.img);
+            }
+        });
+    }
+
+    function getLoginUser() {
+        $.ajax({
+            url: '/user/isLogin',
+            type: 'get',
+            dataType: 'json',
+            success: function (res) {
+                console.log(res);
+                const user = res.data;
+                $('#loginUser').text(user.nickName);
+            }
+        });
+    }
+
+    function logout() {
+        $.ajax({
+            url: '/user/logout',
+            type: 'get',
+            dataType: 'json',
+            success: function (res) {
+                console.log(res);
+                if (res.code === 200) {
+                    alert('退出成功');
+                    window.location.href = '/login.html';
+                } else {
+                    alert('退出失败')
+                }
+            }
+        })
+    }
+
+    //清空表单
+    function clearModal() {
+        $('#title').val('');
+        $('#code').val('');
+        $('#price').val('');
+        $('#stocks').val('');
+        $('#description').val('');
+        $('#categoryId').val('');
+        $('#img').val('');
+        $('#imgUpload').val('');
+        $('#imgPreview').attr('src', '');
+    }
+
+
+    //初始化
+    $(function () {
+        //侧边栏
+        const navItems =document.querySelectorAll('.nav-link');
+        const pages =document.querySelectorAll('.page');
+        pages.forEach(function (item, index){
+            if (index === 0) {
+                item.style.display = 'block';
+            }else {
+                item.style.display = 'none';
+            }
+        });
+
+        navItems.forEach(function (item, index) {
+            item.addEventListener('click', function (){
+                navItems.forEach(function (item, index){
+                    item.classList.remove('active');
+                    pages[index].style.display = 'none';
+                })
+                item.classList.add('active');
+                pages[index].style.display = 'block';
+            })
+        });
+
+        // TODO: 待删除
+        // $('.nav-link')[3].classList.add('active');
+        // $('.page')[3].style.display = 'block';
+
+        //登录用户
+        getLoginUser();
+
+        //商品管理
+        listProduct();
+
+        //商品分类
+        listCategory();
+
+
+        //Modal显示事件监听器
+        const itemModal = document.querySelector('#itemModal');
+        if (itemModal) {
+            itemModal.addEventListener("show.bs.modal", function (e){
+                const button = e.relatedTarget;
+                const type = button.getAttribute('data-bs-type');
+
+                const modalTitle = $('#itemModalLabel');
+                const submitBtn = $('#submit');
+
+                if (type ==='add') {
+                    modalTitle.text('添加商品');
+                    submitBtn.text('添加');
+                    submitBtn.off('click').on('click', addProduct);
+                    clearModal();
+                } else if (type ==='edit') {
+                    modalTitle.text('编辑商品');
+                    submitBtn.text('保存');
+                    const id = button.getAttribute('data-bs-prod-id');
+                    submitBtn.off('click').on('click', {id: id}, editProduct);
+                    clearModal();
+                    getProduct(id);
+                }
+            })
+        }
+    });
+</script>
+</body>
+</html>

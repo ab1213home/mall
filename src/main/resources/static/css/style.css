@@ -1,0 +1,21 @@
+.fr{
+	float: right;
+}
+
+.fl{
+	float: left;
+}
+
+.w{
+	width: 1100px;
+	margin: 0 auto;
+}
+
+.cls{
+	clear: both;
+}
+
+.imgfull{
+	max-width: 100%;
+	height: auto;
+}
