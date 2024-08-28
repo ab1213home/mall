@@ -11,7 +11,6 @@ function queryCategory(){
 	$.ajax({
 		type:"GET",
 		url:"/category/list",
-		// url:"./testjson/category.json",
 		data:"",
 		dataType:"json",
 		success:function(res){
@@ -48,7 +47,6 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 	$.ajax({
 		type:"GET",
 		url:"/product/list",
-		// url:"./testjson/goods.json",
 		data:{
 			categoryId: cgId,
 			pageNum:pn,
@@ -103,7 +101,6 @@ function queryBanner(){
 	$.ajax({
 		type:"GET",
 		url:"/banner/list",
-		// url:"./testjson/banner.json",
 		data:"",
 		dataType:"json",
 		success:function(res){
