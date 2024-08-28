@@ -234,7 +234,7 @@ ul{
 
 .cc-title::after, .cc-title::before{
 	content: "";
-	background-image: url(../imgs/sprite.png);
+	background-image: url(../images/sprite.png);
 	position: absolute;
 	width: 25px;
 	height: 20px;
