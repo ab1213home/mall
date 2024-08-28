@@ -50,44 +50,6 @@ public class UserController {
 //    }
 
 
-//    @GetMapping({"/login", "/login.html"})
-//    public String login() {
-//        return "user/login";
-//    }
-
-//    @GetMapping({"/register", "/register.html"})
-//    public String getRegistrationPage(@SessionAttribute(name = "UserId", required = false) String UserId) {
-//        if (UserId != null) {
-//            // 如果session中有UserId，表示用户已完成第一步，显示第二步
-//            return "/user/register_step2";
-//        } else {
-//            // 如果session中没有UserId，显示第一步
-//            return "/user/register_step1";
-//        }
-//    }
-//    @GetMapping({"/register_step1", "/register_step1.html,","registerStep1"})
-//    public String getRegister_step1(@SessionAttribute(name = "UserId", required = false) String UserId) {
-//        if (UserId != null) {
-//            // 如果session中有UserId，表示用户已完成第一步，显示第二步
-//            return "/user/register_step2";
-//        } else {
-//            // 如果session中没有UserId，显示第一步
-//            return "/user/register_step1";
-//        }
-//    }
-//
-//    @GetMapping({"/register_step2", "/register_step2.html","/registerStep2"})
-//    public String getRegister_step2(@SessionAttribute(name = "UserId", required = false) String UserId) {
-//        if (UserId != null) {
-//            // 如果session中有UserId，表示用户已完成第一步，显示第二步
-//            return "/user/register_step2";
-//        } else {
-//            // 如果session中没有UserId，显示第一步
-//            return "/user/register_step1";
-//        }
-//    }
-
-
     @PostMapping("/registerStep1")
     public ResponseResult registerStep1(@RequestParam("username") String username,
                                              @RequestParam("password") String password,
@@ -262,58 +224,43 @@ public class UserController {
 //		}
 //    }
 
-    /*
-    注册
-     */
-    @PostMapping("/reg")
-    public ResponseResult register(String phone, String password, String password2, String verifyCode, HttpSession session){
-//        检查手机号和密码是否为空，如果为空则返回提示“手机号或密码不能为空”。
-        if (phone.isEmpty() || password.isEmpty()) {
-            return ResponseResult.failResult("手机号或密码不能为空");
-        }
-
-//        检查验证码是否为空，如果为空则返回提示“验证码不能为空”。
-        if (verifyCode.isEmpty()) {
-            return ResponseResult.failResult("验证码不能为空");
-        }
-
-//        检查手机号格式是否正确（11位数字），如果不符合则返回提示“请输入正确的手机号”。
-        if (!phone.matches("^\\d{11}$")) {
-            return ResponseResult.failResult("请输入正确的手机号");
-        }
-
-//        检查两次输入的密码是否一致，如果不一致则返回提示“确认密码不一致”。
-        if (!password.equals(password2)){
-            return ResponseResult.failResult("确认密码不一致");
-        }
-
-//        从session中获取正确的验证码并转为小写。
-        String captchaCode = session.getAttribute("verifyCode").toString();
-
-//        比较用户输入的验证码与正确的验证码，如果不匹配则返回提示“验证码错误”。
-        if (!verifyCode.toLowerCase().equals(captchaCode)) {
-            return ResponseResult.failResult("验证码错误");
-        }
-
-//        调用userService.userExists(phone)方法检查该手机号是否已注册，如果已注册则返回提示“手机号已注册”,
-//        如果注册失败，则返回注册失败的提示。
-        if (userService.userExists(phone)){
-            return ResponseResult.failResult("手机号已注册");
-        }
-        int result = userService.register(phone, password);
-        if(result == 1){
-            return ResponseResult.okResult();
-        }else {
-            return ResponseResult.failResult("注册失败");
-        }
-    }
-
 
 //    函数用于处理HTTP GET请求"/logout"。它接收一个HTTP会话参数session，
 //    移除其中的"userId"信息，然后返回一个表示操作成功的响应结果。
     @GetMapping("/logout")
     public ResponseResult logout(HttpSession session){
-        session.removeAttribute("UserId");
+        if (session.getAttribute("UserIsAdmin")!=null){
+            if (session.getAttribute("UserIsAdmin").equals("true")){
+                session.removeAttribute("UserIsAdmin");
+            }
+        }
+        if (session.getAttribute("UserName")!=null){
+            session.removeAttribute("UserName");
+        }
+        if (session.getAttribute("UserRole")!=null){
+            session.removeAttribute("UserRole");
+        }
+        if (session.getAttribute("UserEmail")!=null){
+            session.removeAttribute("UserEmail");
+        }
+        if (session.getAttribute("UserPhone")!=null){
+            session.removeAttribute("UserPhone");
+        }
+        if (session.getAttribute("UserFirstName")!=null){
+            session.removeAttribute("UserFirstName");
+        }
+        if (session.getAttribute("UserLastName")!=null){
+            session.removeAttribute("UserLastName");
+        }
+        if (session.getAttribute("UserBirthDate")!=null){
+            session.removeAttribute("UserBirthDate");
+        }
+        if (session.getAttribute("UserIsLogin")!=null){
+            session.removeAttribute("UserIsLogin");
+        }
+        if (session.getAttribute("UserId")!=null){
+            session.removeAttribute("UserId");
+        }
         return ResponseResult.okResult();
     }
 
