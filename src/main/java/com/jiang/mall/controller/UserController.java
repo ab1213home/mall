@@ -21,8 +21,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 
-import static com.jiang.mall.domain.entity.Propertie.AdminRoleId;
-import static com.jiang.mall.domain.entity.Propertie.regex_email;
+import static com.jiang.mall.domain.entity.Propertie.*;
 
 /**
  * <p>
@@ -54,81 +53,6 @@ public class UserController {
 //    @GetMapping({"/login", "/login.html"})
 //    public String login() {
 //        return "user/login";
-//    }
-//    @GetMapping({"/register_new"})
-//    public String register_new() {
-//        return "user/register_new";
-//    }
-
-//    @PostMapping("/register")
-//    public String register(@RequestParam("username") String username,
-//                           @RequestParam("password") String password,
-//                           @RequestParam("confirmPassword") String confirmPassword,
-//                           @RequestParam("email") String email,
-//                           @RequestParam("phone") String phone,
-//                           @RequestParam("firstName") String firstName,
-//                           @RequestParam("lastName") String lastName,
-//                           @RequestParam("birthday") String birthDate,
-//                           @RequestParam("captcha") String captcha,
-//                           HttpSession session) {
-//        if (!StringUtils.hasText(captcha)) {
-//            session.removeAttribute("captcha");
-//            session.setAttribute("errorMsg", "验证码不能为空");
-//            return "user/login";
-//        }
-//        // 获取session中的验证码
-//        ShearCaptcha storedVerCode = (ShearCaptcha) session.getAttribute("captcha");
-//
-//        // 判断验证码
-//        if (!storedVerCode.verify(captcha)) {
-//            session.removeAttribute("captcha");
-//            session.setAttribute("errorMsg", "验证码错误");
-//            return "user/register";
-//        }
-//        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
-//            session.setAttribute("errorMsg", "请输入完整的注册信息");
-//            return "user/register";
-//        }
-//        if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
-//            session.setAttribute("errorMsg", "手机号格式不正确");
-//            return "user/register";
-//        }
-//        if (!password.equals(confirmPassword)) {
-//            session.setAttribute("errorMsg", "两次密码输入不一致");
-//            return "user/register";
-//        }
-//
-//        if (userService.queryByUserName(username)) {
-//            session.setAttribute("errorMsg", "用户名已存在");
-//            return "user/register";
-//        }
-//        if (userService.queryByEmail(email)) {
-//            session.setAttribute("errorMsg", "邮箱已存在");
-//            return "user/register";
-//        }
-//        User user = new User();
-//        user.setUsername(username);
-//        user.setPassword(password);
-//        user.setEmail(email);
-//        user.setFirstName(firstName);
-//        user.setLastName(lastName);
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        try {
-//            LocalDate localDate = LocalDate.parse(birthDate, formatter);
-//            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//            user.setBirthDate(date);
-//        } catch (DateTimeParseException e) {
-//            session.setAttribute("errorMsg", "日期格式不正确，请使用yyyy-MM-dd");
-//            return "user/register";
-//        }
-//        user.setPhone(phone);
-//        if (!userService.register(user)) {
-//            session.setAttribute("errorMsg", "注册失败");
-//            return "user/register";
-//        }else {
-//            session.removeAttribute("errorMsg");
-//            return "/user/login";
-//        }
 //    }
 
 //    @GetMapping({"/register", "/register.html"})
@@ -217,44 +141,47 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/registerStep2")
-//    public String registerStep2(@RequestParam("phone") String phone,
-//                                @RequestParam("firstName") String firstName,
-//                                @RequestParam("lastName") String lastName,
-//                                @RequestParam("birthday") String birthDate,
-//                                HttpSession session) {
-//        // 获取session中的账号id
-//        int UserId = (int) session.getAttribute("UserId");
-//
-//        if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
-//            session.setAttribute("errorMsg", "手机号格式不正确");
-//            return "/user/register_step2";
-//        }
-//
-//        User user = new User();
-//        user.setId(UserId);
-//        user.setFirstName(firstName);
-//        user.setLastName(lastName);
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        try {
-//            LocalDate localDate = LocalDate.parse(birthDate, formatter);
-//            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//            user.setBirthDate(date);
-//        } catch (DateTimeParseException e) {
-//            session.setAttribute("errorMsg", "日期格式不正确，请使用yyyy-MM-dd");
-//            return "user/register_step2";
-//        }
-//        user.setPhone(phone);
-//        if (userService.registerStep(user)>0) {
-//            session.removeAttribute("errorMsg");
-//            session.removeAttribute("UserId");
-//            return "redirect:user/login";
-//        }else {
-//            session.setAttribute("errorMsg", "用户个人信息保存失败");
-//            return "/user/register_step2";
-//        }
-//    }
-//
+    @PostMapping("/registerStep2")
+    public ResponseResult registerStep2(@RequestParam("phone") String phone,
+                                @RequestParam("firstName") String firstName,
+                                @RequestParam("lastName") String lastName,
+                                @RequestParam("birthday") String birthDate,
+                                HttpSession session) {
+        // 获取session中的账号id
+        if (session.getAttribute("UserId")==null){
+            return ResponseResult.failResult("请先完成第一步注册，会话已过期");
+        }
+        if (session.getAttribute("UserIsLogin")!=null){
+            if (session.getAttribute("UserIsLogin").equals("true"))
+                return ResponseResult.failResult("您已登录，请勿重复注册");
+        }
+        int UserId = (int) session.getAttribute("UserId");
+
+        if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
+            return ResponseResult.failResult("手机号格式不正确");
+        }
+
+        User user = new User();
+        user.setId(UserId);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate localDate = LocalDate.parse(birthDate, formatter);
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            user.setBirthDate(date);
+        } catch (DateTimeParseException e) {
+            return ResponseResult.failResult("日期格式不正确，请使用yyyy-MM-dd");
+        }
+        user.setPhone(phone);
+        if (userService.registerStep(user)>0) {
+            session.removeAttribute("UserId");
+            return ResponseResult.okResult();
+        }else {
+            return ResponseResult.failResult("用户个人信息保存失败");
+        }
+    }
+
     @PostMapping(value = "/login")
     public ResponseResult login(@RequestParam("username") String username,
                         @RequestParam("password") String password,
@@ -283,7 +210,7 @@ public class UserController {
         if (user != null) {
             //session.removeAttribute("captcha");
             session.setAttribute("UserId", user.getId());
-            session.setAttribute("UserName", user.getUsername());
+            session.setAttribute("UserName", username);
             session.setAttribute("UserRole", user.getRoleId());
             session.setAttribute("UserEmail", user.getEmail());
             session.setAttribute("UserPhone", user.getPhone());
@@ -291,11 +218,11 @@ public class UserController {
             session.setAttribute("UserLastName", user.getLastName());
             session.setAttribute("UserBirthDate", user.getBirthDate());
             if (user.getRoleId() >= AdminRoleId) {
-                session.setAttribute("UserIsAdmin", true);
+                session.setAttribute("UserIsAdmin", "true");
             } else {
-                session.setAttribute("UserIsAdmin", false);
+                session.setAttribute("UserIsAdmin", "false");
             }
-            session.setAttribute("UserIsLogin",true);
+            session.setAttribute("UserIsLogin","true");
             //session过期时间设置为7200秒
             session.setMaxInactiveInterval(60 * 60 * 2);
             return ResponseResult.okResult();
@@ -386,7 +313,7 @@ public class UserController {
 //    移除其中的"userId"信息，然后返回一个表示操作成功的响应结果。
     @GetMapping("/logout")
     public ResponseResult logout(HttpSession session){
-        session.removeAttribute("userId");
+        session.removeAttribute("UserId");
         return ResponseResult.okResult();
     }
 
@@ -395,7 +322,7 @@ public class UserController {
     @GetMapping("/isLogin")
     public ResponseResult islogin(HttpSession session){
 //        检查userId：从会话中获取名为userId的对象。
-        Object userId = session.getAttribute("userId");
+        Object userId = session.getAttribute("UserId");
 //        如果userId为空，函数返回一个失败的结果，并附带“未登录”的消息。
 //        如果userId非空，函数调用getUser方法，传入userId（转换为整数）作为参数。
         if (userId == null){

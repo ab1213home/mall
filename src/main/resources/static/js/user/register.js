@@ -25,7 +25,13 @@ function submitRegisterStepOneForm() {
         // 处理成功响应
         if (data.code === 200) {
             console.log('注册成功');
-            window.location.href = '/user/register_step2.html';
+            if (document.getElementById('step2')){
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                document.getElementById('step2_title').style.display = 'block';
+            }else {
+                 window.location.href = '/user/register_step2.html';
+            }
         } else {
             console.log('注册失败');
             alert(data.message);

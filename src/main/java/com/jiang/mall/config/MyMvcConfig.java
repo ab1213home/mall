@@ -2,6 +2,7 @@ package com.jiang.mall.config;
 
 import com.jiang.mall.intercepter.AdminLoginInterceptor;
 import com.jiang.mall.intercepter.LoginIntercepter;
+import com.jiang.mall.intercepter.RegistrationIntercepter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -15,7 +16,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
 
     @Autowired
     private AdminLoginInterceptor adminLoginInterceptor;
-
+    @Autowired
+    private RegistrationIntercepter registrationIntercepter;
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -30,6 +32,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 //.addPathPatterns("/user/**");
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin/**");
+//        registry.addInterceptor(registrationIntercepter)
+//                .addPathPatterns("/user/register_step2.html");
     }
 
     /**
