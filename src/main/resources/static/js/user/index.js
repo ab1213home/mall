@@ -1,8 +1,17 @@
-var category_arr = [];
-var goodsMap = {};
+var usersMap = {};
 
 $(document).ready(function(){
-	isLogin();
-	queryCategory();
+	isAdminUser();
+	queryUser();
 	queryBanner();
 })
+
+function queryUser() {
+
+}
+function isAdminUser() {
+
+}
+function queryUserList() {
+
+}
