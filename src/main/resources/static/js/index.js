@@ -164,8 +164,8 @@ function listGoods(categoryId, categoryName){
 		`	<div class="glid1">
 				<div class="glid2">
 					<a href="./good.html?id=`+ good.id +`" target="_blank">
-						<img src="`+ good.img +`">
-					</a>
+						<img src="`+ good.img +`" alt="">
+					</a>	
 				</div>
 				<a href="./good.html?id=`+ good.id +`" target="_blank" class="ga">
 					<div>
@@ -206,7 +206,9 @@ function isLogin(){
 		success:function(res){
 			if(res.code == 200){
 				//已登录
-				$("#nickName").html("你好!" + res.data.nickName);
+				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
+				document.getElementById('register').style.display = 'none';
+				document.getElementById('register_spacer').style.display = 'none';
 				sessionStorage.setItem("userId", res.data.id);
 				result = true;
 			}else{

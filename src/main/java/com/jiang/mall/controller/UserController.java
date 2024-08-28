@@ -267,16 +267,21 @@ public class UserController {
 
 //    检查用户是否已登录。
     @GetMapping("/isLogin")
-    public ResponseResult islogin(HttpSession session){
+    public ResponseResult isLogin(HttpSession session){
 //        检查userId：从会话中获取名为userId的对象。
-        Object userId = session.getAttribute("UserId");
-//        如果userId为空，函数返回一个失败的结果，并附带“未登录”的消息。
-//        如果userId非空，函数调用getUser方法，传入userId（转换为整数）作为参数。
-        if (userId == null){
-            return  ResponseResult.failResult("未登录");
-        }else {
-            return this.getUser(Integer.valueOf(userId.toString()));
+        if (session.getAttribute("UserId") == null){
+            return ResponseResult.failResult("未登录");
         }
+        if (session.getAttribute("UserIsLogin") == null){
+            return ResponseResult.failResult("未登录");
+        }
+        if (session.getAttribute("UserIsLogin").equals("false")){
+            return ResponseResult.failResult("未登录");
+        }
+        Integer userId = (Integer) session.getAttribute("UserId");
+        String username = (String) session.getAttribute("UserName");
+        UserVo user = new UserVo(userId, username);
+        return ResponseResult.okResult(user);
     }
 
 
