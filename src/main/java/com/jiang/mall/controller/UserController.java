@@ -4,18 +4,12 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.TimeUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -39,19 +33,6 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
-
-//    @GetMapping({"", "/", "/index", "/index.html"})
-//    public String index(Model, HttpServletRequest request) {
-//        User user = userService.getUserInfo((Integer) request.getSession().getAttribute("UserId"));
-//
-//        // 将用户对象添加到模型中，以便在视图中访问
-//        model.addAttribute("user", user);
-//
-//        // 返回视图名称，Thymeleaf会自动渲染这个视图
-//        request.setAttribute("path", "index");
-//        return "user/index";
-//    }
-
 
     @PostMapping("/registerStep1")
     public ResponseResult registerStep1(@RequestParam("username") String username,
@@ -195,7 +176,7 @@ public class UserController {
             return ResponseResult.failResult("用户不存在或用户名或密码错误");
         }
     }
-//
+
 //    @PostMapping("/modify/password")
 //    public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
 //                                  @RequestParam("oldPassword") String oldPassword,
@@ -284,7 +265,7 @@ public class UserController {
         return ResponseResult.okResult(user);
     }
 
-    @PostMapping("/isAdminUser")
+    @GetMapping("/isAdminUser")
     public ResponseResult isAdminUser(HttpSession session){
         if (session.getAttribute("UserIsAdmin") == null){
             return ResponseResult.failResult("系统错误");
@@ -298,7 +279,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/getDays")
+    @GetMapping("/getDays")
     public ResponseResult getDaysNextBirthday(HttpSession session){
         if (session.getAttribute("UserBirthDate") == null){
             return ResponseResult.failResult("未设置生日");
@@ -309,12 +290,8 @@ public class UserController {
         if (session.getAttribute("UserBirthDate").equals("null")){
             return ResponseResult.failResult("未设置生日");
         }
-        String birthDate = (String) session.getAttribute("UserBirthDate");
-	    try {
-		    return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
-	    } catch (ParseException e) {
-            return ResponseResult.failResult("系统错误："+ e);
-	    }
+        Date birthDate = (Date) session.getAttribute("UserBirthDate");
+        return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
     }
 
 

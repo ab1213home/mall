@@ -1,7 +1,5 @@
 package com.jiang.mall.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -11,9 +9,7 @@ public class TimeUtils {
 	public static String getTime() {
 		return System.currentTimeMillis()+"";
 	}
-	public static int getDaysUntilNextBirthday(String birthdayStr) throws ParseException {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date birthday = sdf.parse(birthdayStr);
+	public static int getDaysUntilNextBirthday(Date birthday){
 	    // 将 Date 转换为 LocalDate
 	    LocalDate birthDate = birthday.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	    // 获取当前日期
