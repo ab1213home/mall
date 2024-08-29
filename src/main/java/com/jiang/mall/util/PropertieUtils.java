@@ -1,13 +1,6 @@
 package com.jiang.mall.util;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.Instant;
-import java.util.Properties;
-
-public class PropertieUtil {
+public class PropertieUtils {
 	/*
 	  从配置文件中读取指定键对应的属性值，并设置到Database类的静态变量中。
 	 */

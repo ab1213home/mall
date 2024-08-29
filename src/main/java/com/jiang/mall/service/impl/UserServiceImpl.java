@@ -10,7 +10,7 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
-import com.jiang.mall.util.MD5Util;
+import com.jiang.mall.util.MD5Utils;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.jiang.mall.util.MD5Util.encryptToMD5;
+import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 
 /**
  * <p>
@@ -226,7 +226,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
     //   @Override
 //    public User login(String username, String password) {
-//        String passwordMD5 = MD5Util.MD5Encode(password, "UTF-8");
+//        String passwordMD5 = MD5Utils.MD5Encode(password, "UTF-8");
 //
 ////        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 ////        queryWrapper.eq("username",username).eq("password",passwordMD5);
@@ -250,7 +250,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public int register(String phone, String password) {
         User user = new User();
         user.setPhone(phone);
-        user.setPassword(MD5Util.MD5Encode(password, "UTF-8"));
+        user.setPassword(MD5Utils.MD5Encode(password, "UTF-8"));
         //user.setNickName("用户" + phone);
         return userMapper.insert(user);
     }
