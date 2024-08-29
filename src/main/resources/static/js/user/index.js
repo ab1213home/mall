@@ -1,7 +1,5 @@
 var usersMap = {};
 
-
-
 $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();
@@ -63,6 +61,10 @@ function queryMyUserInfo(){
 			if(res.code == 200){
 				//已登录
 				$("#username").html(res.data.username);
+				$("#welcome").html(res.data.username+"，欢迎回来，有事做有所期待，日子就是幸福的。");
+			}else {
+				alert("未登录");
+				window.location.href = '/user/login.html';
 			}
 		}
 	});

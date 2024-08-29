@@ -534,8 +534,7 @@
             dataType: 'json',
             success: function (res) {
                 console.log(res);
-                const user = res.data;
-                $('#loginUser').text(user.nickName);
+                $('#loginUser').text(res.data.username);
             }
         });
     }

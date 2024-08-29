@@ -224,36 +224,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return userMapper.updateById(user)>0?user.getId():0;
 		}
 	}
-    //   @Override
-//    public User login(String username, String password) {
-//        String passwordMD5 = MD5Utils.MD5Encode(password, "UTF-8");
-//
-////        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-////        queryWrapper.eq("username",username).eq("password",passwordMD5);
-//
-//        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-//        queryWrapper.eq(User::getPhone, username).eq(User::getPassword, passwordMD5);
-//
-//        User user = userMapper.selectOne(queryWrapper);
-//        return user;
-//    }
-
-    @Override
-    public boolean userExists(String phone) {
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>();
-        queryWrapper.eq(User::getPhone, phone);
-        boolean result = userMapper.exists(queryWrapper);
-        return result;
-    }
-
-    @Override
-    public int register(String phone, String password) {
-        User user = new User();
-        user.setPhone(phone);
-        user.setPassword(MD5Utils.MD5Encode(password, "UTF-8"));
-        //user.setNickName("用户" + phone);
-        return userMapper.insert(user);
-    }
 
     @Override
     public ResponseResult getUserList(Integer pageNum, Integer pageSize) {

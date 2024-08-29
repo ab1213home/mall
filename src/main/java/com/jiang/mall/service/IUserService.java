@@ -34,10 +34,6 @@ public interface IUserService extends IService<User> {
 
     int registerStep(User user);
 
-    boolean userExists(String phone);
-
-    int register(String phone, String password);
-
     ResponseResult getUserList(Integer pageNum, Integer pageSize);
 
     ResponseResult getUser(Integer id);

@@ -177,36 +177,55 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/modify/password")
-//    public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
-//                                  @RequestParam("oldPassword") String oldPassword,
-//                                  @RequestParam("newPassword") String newPassword) {
-//        return userService.modifyPassword(UserId, oldPassword, newPassword)? "redirect:/user/index" : "redirect:/user/login";
-//    }
-//
-//    @PostMapping("/modify/info")
-//    public ResponseResult modifyUserInfo(@RequestParam("UserId") Integer UserId,
-//                                  @RequestBody User userInfo) {
-//        userInfo.setId(UserId);
-//        return userService.modifyUserInfo(userInfo)? "redirect:/user/index" : "redirect:/user/login";
-//    }
-//
-//    @PostMapping("/modify/lock")
-//    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId) {
-//        return userService.lockUser(UserId)? "redirect:/user/login" : "redirect:/user/index";
-//    }
-//
-//
-//    @PostMapping("/modify/self-lock")
-//    public ResponseResult selfLock(@RequestParam("UserId") Integer UserId, HttpSession session) {
-//		User user = userService.getUserInfo(UserId);
-//		User adminUser = userService.getUserInfo((Integer) session.getAttribute("UserId"));
-//		if (adminUser.getRoleId() >user.getRoleId()){
-//			return userService.lockUser(UserId)? "用户锁定成功！" : "用户锁定失败！";
-//		}else {
-//			return "权限不足，修改失败！";
-//		}
-//    }
+    @GetMapping("/modify/password")
+    public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
+                                  @RequestParam("oldPassword") String oldPassword,
+                                  @RequestParam("newPassword") String newPassword,
+                                  @RequestParam("confirmPassword")String confirmPassword) {
+        if (newPassword.isEmpty()){
+            return ResponseResult.failResult("新密码不能为空！");
+        }
+        if (!newPassword.equals(confirmPassword)){
+            return ResponseResult.failResult("两次输入的密码不一致！");
+        }
+        if (newPassword.equals(oldPassword)){
+            return ResponseResult.failResult("新旧密码不能相同！");
+        }
+        if (!userService.modifyPassword(UserId, oldPassword, newPassword))
+            return ResponseResult.failResult("修改失败！");
+        return ResponseResult.okResult("修改密码成功！");
+    }
+
+    @GetMapping("/modify/info")
+    public ResponseResult modifyUserInfo(@RequestParam("UserId") Integer UserId,
+                                  @RequestBody User userInfo) {
+        userInfo.setId(UserId);
+        if (!userService.modifyUserInfo(userInfo))
+            return ResponseResult.failResult("修改失败！");
+        return ResponseResult.okResult("用户信息更新成功！");
+    }
+
+    @GetMapping("/modify/lock")
+    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId) {
+        if (!userService.lockUser(UserId))
+            return ResponseResult.failResult("修改失败！");
+        return ResponseResult.okResult("用户锁定成功！");
+    }
+
+
+    @GetMapping("/modify/self-lock")
+    public ResponseResult selfLock(@RequestParam("UserId") Integer UserId, HttpSession session) {
+		User user = userService.getUserInfo(UserId);
+		User adminUser = userService.getUserInfo((Integer) session.getAttribute("UserId"));
+		if (adminUser.getRoleId() >user.getRoleId()){
+            if (!userService.lockUser(UserId)){
+                return ResponseResult.failResult("用户锁定失败！");
+            }
+            return ResponseResult.okResult("用户锁定成功！");
+		}else {
+			return ResponseResult.failResult("权限不足，修改失败！");
+		}
+    }
 
 
 //    函数用于处理HTTP GET请求"/logout"。它接收一个HTTP会话参数session，
@@ -251,13 +270,13 @@ public class UserController {
     @GetMapping("/isLogin")
     public ResponseResult isLogin(HttpSession session){
         if (session.getAttribute("UserId") == null){
-            return ResponseResult.failResult("未登录");
+            return ResponseResult.failResult("未登录！");
         }
         if (session.getAttribute("UserIsLogin") == null){
-            return ResponseResult.failResult("未登录");
+            return ResponseResult.failResult("未登录！");
         }
         if (session.getAttribute("UserIsLogin").equals("false")){
-            return ResponseResult.failResult("未登录");
+            return ResponseResult.failResult("未登录！");
         }
         Integer userId = (Integer) session.getAttribute("UserId");
         String username = (String) session.getAttribute("UserName");
@@ -268,7 +287,7 @@ public class UserController {
     @GetMapping("/isAdminUser")
     public ResponseResult isAdminUser(HttpSession session){
         if (session.getAttribute("UserIsAdmin") == null){
-            return ResponseResult.failResult("系统错误");
+            return ResponseResult.failResult("系统错误！");
         }else {
             if (session.getAttribute("UserIsAdmin").equals("false")){
                 return ResponseResult.okResult(false);
@@ -282,13 +301,13 @@ public class UserController {
     @GetMapping("/getDays")
     public ResponseResult getDaysNextBirthday(HttpSession session){
         if (session.getAttribute("UserBirthDate") == null){
-            return ResponseResult.failResult("未设置生日");
+            return ResponseResult.failResult("未设置生日！");
         }
         if (session.getAttribute("UserBirthDate").equals("")){
-            return ResponseResult.failResult("未设置生日");
+            return ResponseResult.failResult("未设置生日！");
         }
         if (session.getAttribute("UserBirthDate").equals("null")){
-            return ResponseResult.failResult("未设置生日");
+            return ResponseResult.failResult("未设置生日！");
         }
         Date birthDate = (Date) session.getAttribute("UserBirthDate");
         return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
