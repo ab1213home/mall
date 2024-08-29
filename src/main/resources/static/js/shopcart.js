@@ -27,7 +27,7 @@ function isLogin(){
 				//已登录
 				$("#cartNoLogin").hide();
 				$("#cartLogin").show();
-				$("#nickName").html("你好!" + res.data.nickName);
+				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
 				sessionStorage.setItem("userId", res.data.id);
 				result = true;
 			}else{

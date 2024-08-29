@@ -8,6 +8,7 @@
 		<link rel="stylesheet" href="css/shopcart.css">
 		<script src="js/jquery.min.js"></script>
 		<script src="bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+		<link rel="shortcut icon" href="/images/logo.png" />
 		<script src="js/shopcart.js"></script>
 		<title>购物车</title>
 	</head>
@@ -19,11 +20,11 @@
 				</div>
 				<ul class="fr">
 					<!-- li变为行内块元素 -->
-					<li id="nickName"><a href="./login.html;">你好！请登录</a></li>
+					<li id="username"><a href="./user/login.html">你好！请登录</a></li>
 					<li class="spacer"></li>
-					<li><a class="style-red" href="javascript:;">手机APP</a></li>
+					<li><a class="style-red" href="javascript:">手机APP</a></li>
 					<li class="spacer"></li>
-					<li><a href="javascript:;">网络无障碍</a></li>
+					<li><a href="javascript:">网络无障碍</a></li>
 				</ul>
 				<div class="cls"></div>
 			</div>
@@ -32,7 +33,7 @@
 		<div class="header">
 			<div class="w headerbody">
 				<div class="hb1">
-					<img src="images/school.png" alt="学校图标">
+					<img src="images/logo.png" alt="学校图标">
 				</div>
 				<!-- 父相子绝 -->
 				<div class="hb2">
@@ -53,7 +54,7 @@
 		</div>
 		<!-- 未登录的div -->
 		<div class="w" id="cartNoLogin">
-			<a href="login.html">请先登录!</a>
+			<a href="/user/login.html">请先登录!</a>
 		</div>
 		
 		<!-- 登录显示的div -->
@@ -76,32 +77,6 @@
 				</ul>
 			</div>
 			<div id="cartgoodlist">
-				<!-- <div class="cartd4">
-					<ul class="cartul2">
-						<li class="cartli1">
-							<div class="cartd3">
-								<input type="checkbox">
-							</div>
-						</li>
-						<li class="cartli2">
-							<div class="fl">
-								<img src="./imgs/g1.png">
-							</div>
-							<div class="fl cartd5">商品名称</div>
-							<div class="cls"></div>
-						</li>
-						<li class="cartli3">￥80</li>
-						<li class="cartli4">
-							<button>-</button>
-							<input type="text">
-							<button class="ml">+</button>
-						</li>
-						<li class="cartli5">￥<span>150</span></li>
-						<li class="cartli6">
-							<a href="javascript:;">删除</a>
-						</li>
-					</ul>
-				</div> -->
 			</div>
 			<div class="cartd6">
 				<button id="prePage" disabled>上一页</button>
