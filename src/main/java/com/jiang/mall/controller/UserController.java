@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.*;
+import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * <p>
@@ -230,9 +233,7 @@ public class UserController {
     @GetMapping("/logout")
     public ResponseResult logout(HttpSession session){
         if (session.getAttribute("UserIsAdmin")!=null){
-            if (session.getAttribute("UserIsAdmin").equals("true")){
-                session.removeAttribute("UserIsAdmin");
-            }
+            session.removeAttribute("UserIsAdmin");
         }
         if (session.getAttribute("UserName")!=null){
             session.removeAttribute("UserName");
@@ -268,7 +269,6 @@ public class UserController {
 //    检查用户是否已登录。
     @GetMapping("/isLogin")
     public ResponseResult isLogin(HttpSession session){
-//        检查userId：从会话中获取名为userId的对象。
         if (session.getAttribute("UserId") == null){
             return ResponseResult.failResult("未登录");
         }
@@ -282,6 +282,39 @@ public class UserController {
         String username = (String) session.getAttribute("UserName");
         UserVo user = new UserVo(userId, username);
         return ResponseResult.okResult(user);
+    }
+
+    @PostMapping("/isAdminUser")
+    public ResponseResult isAdminUser(HttpSession session){
+        if (session.getAttribute("UserIsAdmin") == null){
+            return ResponseResult.failResult("系统错误");
+        }else {
+            if (session.getAttribute("UserIsAdmin").equals("false")){
+                return ResponseResult.okResult(false);
+            }else {
+                return ResponseResult.okResult(true);
+            }
+        }
+    }
+
+
+    @PostMapping("/getDays")
+    public ResponseResult getDaysNextBirthday(HttpSession session){
+        if (session.getAttribute("UserBirthDate") == null){
+            return ResponseResult.failResult("未设置生日");
+        }
+        if (session.getAttribute("UserBirthDate").equals("")){
+            return ResponseResult.failResult("未设置生日");
+        }
+        if (session.getAttribute("UserBirthDate").equals("null")){
+            return ResponseResult.failResult("未设置生日");
+        }
+        String birthDate = (String) session.getAttribute("UserBirthDate");
+	    try {
+		    return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
+	    } catch (ParseException e) {
+            return ResponseResult.failResult("系统错误："+ e);
+	    }
     }
 
 
