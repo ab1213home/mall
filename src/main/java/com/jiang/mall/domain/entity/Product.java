@@ -85,6 +85,7 @@ public class Product implements Serializable {
     /**
      * 是否删除
      */
+    @TableLogic
     private Boolean isDel;
 
     @Override

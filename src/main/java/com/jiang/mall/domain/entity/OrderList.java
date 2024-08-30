@@ -7,40 +7,29 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Data
-@TableName("tb_addresses")
-public class Address implements Serializable {
+@TableName("tb_orderLists")
+public class OrderList implements Serializable {
 	@Serial
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+	private Integer id;
 
-	private Integer userId;
+	private Integer orderId;
 
-	private String firstName;
+	private Integer prodId;
 
-    private String lastName;
+	private Integer num;
 
-	private String phone;
+	private BigDecimal price;
 
-	private String country;
-
-	private String province;
-
-	private String city;
-
-	private String district;
-
-	private String addressDetail;
-
-	private String postalCode;
-
-    @TableField(fill = FieldFill.INSERT)
+	@TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)

@@ -64,6 +64,7 @@ public class Banner implements Serializable {
     /**
      * 是否删除
      */
+    @TableLogic
     private Boolean isDel;
 
     @Override

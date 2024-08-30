@@ -59,6 +59,7 @@ public class Category implements Serializable {
     /**
      * 是否删除
      */
+    @TableLogic
     private Boolean isDel;
 
 
