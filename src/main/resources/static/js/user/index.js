@@ -17,7 +17,10 @@ function queryBirthday() {
 			if(res.code == 200){
 				if (res.data == 0){
 					$("#birthday").html("祝您生日快乐！");
-				}else {
+				}if (res.data == 365){
+					$("#birthday").html("祝您生日快乐！");
+				}
+				else {
 					$("#birthday").html("距离您的下一个生日还有 "+res.data+" 天。");
 				}
 

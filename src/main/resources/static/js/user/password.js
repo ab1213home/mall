@@ -128,11 +128,6 @@ $(document).ready(function() {
   // 登录表单提交
   $('#change-password').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    submitLoginForm(); // 自定义提交处理
-  });
-
-  // 修改密码按钮点击
-  $('#changePasswordBtn').on('click', function() {
-    changePassword();
+    changePassword(); // 自定义提交处理
   });
 });
