@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="css/goods.css">
+		<link rel="stylesheet" href="./css/style.css">
+		<link rel="stylesheet" href="./bootstrap/bootstrap-icons-1.10.5/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
+		<script src="js/jquery.min.js"></script>
+		<script src="bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+		<script src="js/goods.js"></script>
+		<title>商品详情页</title>
+	</head>
+	<body class="index">
+		<div class="header">
+
+			<div class="w headerbody">
+
+				<div class="hb1">
+					<img src="./images/school.png" alt="学校图标" >
+				</div>
+				<!--父相子绝-->
+				<div class="hb2">
+					<div class="searchbody">
+						<input type="text" class="search_m" placeholder="搜你所想..."/>
+						<button><i class="bi bi-search search-icon"></i></button>
+						<div class="search_t"><ul>
+							<li><a href="#">端午节</a></li>
+							<li><a href="#">手机</a></li>
+							<li><a href="#">鞋子</a></li>
+						</ul></div>
+					</div>
+					<div class="shortcart">
+						<i class="bi bi-box-arrow-up-right"></i>
+						<!-- <div id="cartnum">0</div> -->
+						<a href="javascript:">分享转发</a>
+						</div>
+				</div>
+				<div class="hb3"></div>
+			</div>
+
+		</div>
+				<!-- 商品页 -->
+				<div class="mid-Product w">
+					<div id="Product_w">
+						<div class="Product_img" >
+							<div class="Product_img_1">
+								<img src="./images/b1.png" >
+							</div>
+						</div>
+					</div>
+
+					<div id="Product_s">
+						<ul>
+							<div class="Pm1">
+								<h2 id="productName">资料卡</h2>
+							</div>
+							<li class="Pm2" id="price">￥80
+							<a href="/user/login.html" class="Pm3">登录后享受更多优惠></a>
+							</li>
+								<li class="Pm4">
+									配&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;送：<a  class="Pm5">莆田市 至 xxx</a>
+							    </li>
+								<li class="Pm6">
+									快递: &nbsp;&nbsp;免运费&nbsp;&nbsp;&nbsp;预计6小时内发货|承诺48小时内发货
+								</li>
+								<p class="Product_p1">
+									<font id="Pm7">商品介绍：</font>
+									<font id="Pm8">商品</font>
+								</p>
+								<p class="Product_p2">
+									<font id="Pm9">生产地址：</font>
+									<font id="Pm10">中国大陆</font>
+								</p>
+								<p class="Product_p2">
+									<font id="Pm11">品牌包装：</font>
+									<font id="Pm12">莆院优选-箱装</font>
+								</p>
+						</ul>
+						<div class="Product_si" >
+
+								<button class="Ps1" id="addcat">加入购物车</button>
+							<!-- js代码 -->
+								 <button  id="Ps2" onclick="changeColor()">
+									<i class="bi bi-star" style="font-size: 25px;"></i>收藏
+									</button>
+						</div>
+
+					</div>
+					</div>
+
+
+
+					<!-- 售后页 -->
+					<div class="bottom-Product w">
+						<div class="Product_b">
+							<a href="javascript:">
+							<div id="Pb1">
+									<img src="images/Pb1.png" style="height: 100px;width: 250px;margin-top: 15px;">
+							</div>
+							</a>
+							<a href="javascript:">
+							<div id="Pb2">
+									<img src="images/Pb2.png" style="height: 100px;width: 250px;margin-top: 15px;">
+							</div>
+							</a>
+							<a href="javascript:">
+							<div id="Pb3">
+									<img src="images/Pb3.png" style="height: 100px;width: 250px;margin-top: 15px;">
+							</div>
+							</a>
+							<a href="javascript:">
+							<div id="Pb4">
+									<img src="images/Pb4.png" style="height: 100px;width: 250px;margin-top: 15px;">
+							</div>
+							</a>
+						</div>
+					</div>
+
+	</body>
+</html>
+<!--  <h1 id="productTitle">商品标题</h1>-->
+<!--    <img id="productImg" src="" alt="商品图片">-->
+<!--    <p>商品编码：<span id="productCode">商品编码</span></p>-->
+<!--    <p>商品分类：<span id="productCategory">商品分类</span></p>-->
+<!--    <p>商品价格：<span id="productPrice">商品价格</span></p>-->
+<!--    <p>商品库存：<span id="productStocks">商品库存</span></p>-->
+<!--    <p>商品描述：<span id="productDescription">商品描述</span></p>-->
+<!--document.addEventListener('DOMContentLoaded', function() {-->
+<!--    const urlParams = new URLSearchParams(window.location.search);-->
+<!--    const productId = urlParams.get('id');-->
+
+<!--    if (productId && products[productId - 1]) {-->
+<!--        const product = products[productId - 1];-->
+<!--        document.getElementById('productTitle').textContent = product.title;-->
+<!--        document.getElementById('productImg').src = product.img;-->
+<!--        document.getElementById('productCode').textContent = product.code;-->
+<!--        document.getElementById('productCategory').textContent = `分类 ${product.categoryId}`;-->
+<!--        document.getElementById('productPrice').textContent = `￥${product.price.toFixed(2)}`;-->
+<!--        document.getElementById('productStocks').textContent = `${product.stocks} 件`;-->
+<!--        document.getElementById('productDescription').textContent = product.description;-->
+<!--    } else {-->
+<!--        alert('未找到对应的商品ID');-->
+<!--    }-->
+<!--});-->
