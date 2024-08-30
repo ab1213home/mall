@@ -178,10 +178,10 @@ public class UserController {
     }
 
     @PostMapping("/modify/password")
-    public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
-                                  @RequestParam("oldPassword") String oldPassword,
+    public ResponseResult modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                   @RequestParam("newPassword") String newPassword,
-                                  @RequestParam("confirmPassword")String confirmPassword) {
+                                  @RequestParam("confirmPassword")String confirmPassword,
+                                  HttpSession session) {
         if (newPassword.isEmpty()){
             return ResponseResult.failResult("新密码不能为空！");
         }
@@ -191,15 +191,69 @@ public class UserController {
         if (newPassword.equals(oldPassword)){
             return ResponseResult.failResult("新旧密码不能相同！");
         }
-        if (!userService.modifyPassword(UserId, oldPassword, newPassword))
+        if (!StringUtils.hasText(oldPassword)){
+            return ResponseResult.failResult("旧密码不能为空！");
+        }
+        if (session.getAttribute("UserIsLogin")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        if (session.getAttribute("UserId")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        Integer UserId = (Integer) session.getAttribute("UserId");
+        if (!userService.modifyPassword(UserId, oldPassword, newPassword)){
             return ResponseResult.failResult("修改失败！");
+        }
+        if (session.getAttribute("UserIsAdmin")!=null){
+            session.removeAttribute("UserIsAdmin");
+        }
+        if (session.getAttribute("UserName")!=null){
+            session.removeAttribute("UserName");
+        }
+        if (session.getAttribute("UserRole")!=null){
+            session.removeAttribute("UserRole");
+        }
+        if (session.getAttribute("UserEmail")!=null){
+            session.removeAttribute("UserEmail");
+        }
+        if (session.getAttribute("UserPhone")!=null){
+            session.removeAttribute("UserPhone");
+        }
+        if (session.getAttribute("UserFirstName")!=null){
+            session.removeAttribute("UserFirstName");
+        }
+        if (session.getAttribute("UserLastName")!=null){
+            session.removeAttribute("UserLastName");
+        }
+        if (session.getAttribute("UserBirthDate")!=null){
+            session.removeAttribute("UserBirthDate");
+        }
+        if (session.getAttribute("UserIsLogin")!=null){
+            session.removeAttribute("UserIsLogin");
+        }
+        if (session.getAttribute("UserId")!=null){
+            session.removeAttribute("UserId");
+        }
         return ResponseResult.okResult("修改密码成功！");
     }
 
     @PostMapping("/modify/info")
-    public ResponseResult modifyUserInfo(@RequestParam("UserId") Integer UserId,
-                                  @RequestBody User userInfo) {
-        userInfo.setId(UserId);
+    public ResponseResult modifyUserInfo(@RequestBody User userInfo,
+                                         HttpSession session) {
+        if (session.getAttribute("UserIsLogin")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        if (session.getAttribute("UserId")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        if (StringUtils.hasText(userInfo.getPhone()) && !userInfo.getPhone().matches(regex_phone)){
+            return ResponseResult.failResult("手机号格式不正确");
+        }
+        if (StringUtils.hasText(userInfo.getEmail()) && !userInfo.getEmail().matches(regex_email)){
+            return ResponseResult.failResult("邮箱格式不正确");
+        }
+        Integer userId = (Integer) session.getAttribute("UserId");
+        userInfo.setId(userId);
         if (!userService.modifyUserInfo(userInfo))
             return ResponseResult.failResult("修改失败！");
         return ResponseResult.okResult("用户信息更新成功！");

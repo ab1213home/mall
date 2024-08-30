@@ -7,7 +7,7 @@ package com.jiang.mall.config;
  import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MybatisplusConfig {
+public class MybatisPlusConfig {
 
     /**
      * 配置MybatisPlus拦截器

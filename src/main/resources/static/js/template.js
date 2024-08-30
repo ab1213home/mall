@@ -32,11 +32,11 @@
     //   }
     // }
 
-    var current = location.pathname.split("/").slice(-1)[0].replace(/^\/|\/$/g, '');
-    $('.nav li a', sidebar).each(function() {
-      var $this = $(this);
-      addActiveClass($this);
-    })
+    // var current = location.pathname.split("/").slice(-1)[0].replace(/^\/|\/$/g, '');
+    // $('.nav li a', sidebar).each(function() {
+    //   var $this = $(this);
+    //   addActiveClass($this);
+    // })
 
     //打开任何子菜单时，关闭侧边栏中的其他子菜单
 
