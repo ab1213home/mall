@@ -36,9 +36,15 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin.html")
                 .addPathPatterns("/admin/**");
-//        registry.addInterceptor(registrationIntercepter)
-//                .addPathPatterns("/user/register_step2.html");
+        registry.addInterceptor(registrationIntercepter)
+                .addPathPatterns("/user/register_step1")
+                .addPathPatterns("/user/register_step1.html")
+                .addPathPatterns("/user/register_step2")
+                .addPathPatterns("/user/register_step2.html")
+                .addPathPatterns("/user/register");
         registry.addInterceptor(userLoginIntercepter)
+                .addPathPatterns("/user/index")
+                .addPathPatterns("/user/")
                 .addPathPatterns("/user/index.html");
     }
 

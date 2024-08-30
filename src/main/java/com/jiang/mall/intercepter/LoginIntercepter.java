@@ -21,11 +21,9 @@ public class LoginIntercepter implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 检查会话中是否含有用户ID属性，用于判断用户是否已登录
-        if (request.getSession().getAttribute("UserId") == null) {
+        if (request.getSession().getAttribute("UserId") == null&&request.getSession().getAttribute("UserIsLogin")==null) {
             // 如果用户未登录，执行重定向到登录页面
             response.sendRedirect(request.getContextPath() + "/user/login.html");
-            // 输出拦截成功的提示信息
-            System.out.println("未登录，拦截成功...");
             // 返回false表示请求被拦截
             return false;
         }

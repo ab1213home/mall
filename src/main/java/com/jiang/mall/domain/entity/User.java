@@ -43,6 +43,8 @@ public class User implements Serializable {
 
 	private Date birthDate;
 
+	private Integer defaultAddressId;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

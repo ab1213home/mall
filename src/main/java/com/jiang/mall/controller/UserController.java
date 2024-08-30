@@ -177,7 +177,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/modify/password")
+    @PostMapping("/modify/password")
     public ResponseResult modifyPassword(@RequestParam("UserId") Integer UserId,
                                   @RequestParam("oldPassword") String oldPassword,
                                   @RequestParam("newPassword") String newPassword,
@@ -196,7 +196,7 @@ public class UserController {
         return ResponseResult.okResult("修改密码成功！");
     }
 
-    @GetMapping("/modify/info")
+    @PostMapping("/modify/info")
     public ResponseResult modifyUserInfo(@RequestParam("UserId") Integer UserId,
                                   @RequestBody User userInfo) {
         userInfo.setId(UserId);
@@ -205,7 +205,7 @@ public class UserController {
         return ResponseResult.okResult("用户信息更新成功！");
     }
 
-    @GetMapping("/modify/lock")
+    @PostMapping("/modify/lock")
     public ResponseResult lockUser(@RequestParam("UserId") Integer UserId) {
         if (!userService.lockUser(UserId))
             return ResponseResult.failResult("修改失败！");
@@ -213,7 +213,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/modify/self-lock")
+    @PostMapping("/modify/self-lock")
     public ResponseResult selfLock(@RequestParam("UserId") Integer UserId, HttpSession session) {
 		User user = userService.getUserInfo(UserId);
 		User adminUser = userService.getUserInfo((Integer) session.getAttribute("UserId"));

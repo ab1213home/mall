@@ -193,7 +193,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
     public boolean queryByEmail(String email) {
-				// 创建查询条件，指定用户ID和当前为激活状态
+		// 创建查询条件，指定用户ID和当前为激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email",email);
 
@@ -209,10 +209,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			user.setIsActive(true);
 			user.setPassword(encryptToMD5(user.getPassword()));
 			user.setUsername(encryptToMD5(user.getUsername()));
-			user.setBirthDate(null);
-			user.setPhone(null);
-			user.setFirstName(null);
-			user.setLastName(null);
 			user.setRoleId(1);
 			return userMapper.insert(user)>0?user.getId():0;
 		}else{

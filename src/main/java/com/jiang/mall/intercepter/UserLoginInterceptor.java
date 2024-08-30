@@ -10,7 +10,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
-		if (null != request.getSession().getAttribute("UserIsLogin")) {
+		if (null != request.getSession().getAttribute("UserIsLogin")&&request.getSession().getAttribute("UserId") != null) {
             if ("true" == request.getSession().getAttribute("UserIsLogin")){
 				return true;
             }else{

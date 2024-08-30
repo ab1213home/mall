@@ -18,7 +18,7 @@ function queryBirthday() {
 				if (res.data == 0){
 					$("#birthday").html("祝您生日快乐！");
 				}else {
-					$("#birthday").html("距离您的下一次生日还有："+res.data+"天");
+					$("#birthday").html("距离您的下一个生日还有 "+res.data+" 天。");
 				}
 
 			}
@@ -61,7 +61,7 @@ function queryMyUserInfo(){
 			if(res.code == 200){
 				//已登录
 				$("#username").html(res.data.username);
-				$("#welcome").html(res.data.username+"，欢迎回来，有事做有所期待，日子就是幸福的。");
+				$("#welcome").html("欢迎回来，"+res.data.username+"!");
 			}else {
 				alert("未登录");
 				window.location.href = '/user/login.html';
