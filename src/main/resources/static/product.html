@@ -3,12 +3,12 @@
 	<head>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="./bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css"/>
-		<link rel="stylesheet" href="css/goods.css">
+		<link rel="stylesheet" href="css/product.css">
 		<link rel="stylesheet" href="./css/style.css">
 		<link rel="stylesheet" href="./bootstrap/bootstrap-icons-1.10.5/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
 		<script src="js/jquery.min.js"></script>
 		<script src="bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
-		<script src="js/goods.js"></script>
+		<script src="js/product.js"></script>
 		<title>商品详情页</title>
 	</head>
 	<body class="index">
@@ -45,7 +45,7 @@
 					<div id="Product_w">
 						<div class="Product_img" >
 							<div class="Product_img_1">
-								<img src="./images/b1.png" >
+								<img id="productImg" src="./images/b1.png" >
 							</div>
 						</div>
 					</div>
@@ -53,9 +53,9 @@
 					<div id="Product_s">
 						<ul>
 							<div class="Pm1">
-								<h2 id="productName">资料卡</h2>
+								<h2 id="productTitle">资料卡</h2>
 							</div>
-							<li class="Pm2" id="price">￥80
+							<li class="Pm2" id="productPrice">￥80
 							<a href="/user/login.html" class="Pm3">登录后享受更多优惠></a>
 							</li>
 								<li class="Pm4">
@@ -66,7 +66,7 @@
 								</li>
 								<p class="Product_p1">
 									<font id="Pm7">商品介绍：</font>
-									<font id="Pm8">商品</font>
+									<font id="productDescription">商品</font>
 								</p>
 								<p class="Product_p2">
 									<font id="Pm9">生产地址：</font>
@@ -130,16 +130,3 @@
 <!--    const urlParams = new URLSearchParams(window.location.search);-->
 <!--    const productId = urlParams.get('id');-->
 
-<!--    if (productId && products[productId - 1]) {-->
-<!--        const product = products[productId - 1];-->
-<!--        document.getElementById('productTitle').textContent = product.title;-->
-<!--        document.getElementById('productImg').src = product.img;-->
-<!--        document.getElementById('productCode').textContent = product.code;-->
-<!--        document.getElementById('productCategory').textContent = `分类 ${product.categoryId}`;-->
-<!--        document.getElementById('productPrice').textContent = `￥${product.price.toFixed(2)}`;-->
-<!--        document.getElementById('productStocks').textContent = `${product.stocks} 件`;-->
-<!--        document.getElementById('productDescription').textContent = product.description;-->
-<!--    } else {-->
-<!--        alert('未找到对应的商品ID');-->
-<!--    }-->
-<!--});-->

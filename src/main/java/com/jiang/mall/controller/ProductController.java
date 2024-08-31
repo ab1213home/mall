@@ -28,6 +28,11 @@ public class ProductController {
         return productService.getProductList(name, categoryId, pageNum, pageSize);
     }
 
+    @GetMapping("/getInfo")
+    public ResponseResult getProductInfo(@RequestParam("productId") Integer productId) {
+        return productService.getProduct(productId);
+    }
+
 
 //    函数通过GET方法访问"/admin/{id}"路径。调用productService对象的getProduct方法并传入产品ID，
 //    返回查询到的产品信息封装在ResponseResult对象中。

@@ -260,7 +260,8 @@ public class UserController {
     }
 
     @PostMapping("/modify/lock")
-    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId) {
+    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId,
+                                   HttpSession session) {
         if (!userService.lockUser(UserId))
             return ResponseResult.failResult("修改失败！");
         return ResponseResult.okResult("用户锁定成功！");

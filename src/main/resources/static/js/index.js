@@ -66,7 +66,7 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 						s1 += "<ul>";
 					}
 					s1 += `<li class="cd_li">
-								<a href="/goods.html?id=`+ val.id +`">`+ val.title + `</a>
+								<a href=`+ val.id +`"/product.html?id=">`+ val.title + `</a>
 							</li>`
 					i++;
 					if(i==6){
@@ -160,7 +160,7 @@ function listGoods(categoryId, categoryName){
 		s+=
 		`	<div class="glid1">
 				<div class="glid2">
-					<a href="./good.html?id=`+ good.id +`" target="_blank">
+					<a href="./product.html?id=`+ good.id +`" target="_blank">
 						<img src="`+ good.img +`" alt="">
 					</a>	
 				</div>
