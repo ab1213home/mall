@@ -252,6 +252,9 @@ public class UserController {
         if (StringUtils.hasText(userInfo.getEmail()) && !userInfo.getEmail().matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
+        if (userService.queryByEmail(userInfo.getEmail())){
+            return ResponseResult.failResult("邮箱已存在");
+        }
         Integer userId = (Integer) session.getAttribute("UserId");
         userInfo.setId(userId);
         if (!userService.modifyUserInfo(userInfo))
@@ -260,8 +263,14 @@ public class UserController {
     }
 
     @PostMapping("/modify/lock")
-    public ResponseResult lockUser(@RequestParam("UserId") Integer UserId,
-                                   HttpSession session) {
+    public ResponseResult lockUser(HttpSession session) {
+        if (session.getAttribute("UserIsLogin")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        if (session.getAttribute("UserId")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+        Integer UserId = (Integer) session.getAttribute("UserId");
         if (!userService.lockUser(UserId))
             return ResponseResult.failResult("修改失败！");
         return ResponseResult.okResult("用户锁定成功！");

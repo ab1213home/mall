@@ -16,9 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productTitle').textContent = product.title;
                 document.getElementById('productImg').src = product.img;
                 document.getElementById('productCode').textContent = product.code;
-                document.getElementById('productCategory').textContent = `分类 ${product.categoryId}`;
-                document.getElementById('productPrice').textContent = `￥${product.price.toFixed(2)}`;
-                document.getElementById('productStocks').textContent = `${product.stocks} 件`;
+                document.getElementById('productCategory').textContent = product.categoryId;
+                document.getElementById('productPrice').textContent = product.price;
+                document.getElementById('productStocks').textContent = product.stocks;
                 document.getElementById('productDescription').textContent = product.description;
 			}else{
 				alert('未找到对应的商品ID');

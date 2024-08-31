@@ -5,7 +5,7 @@
 		<link rel="stylesheet" href="./bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css"/>
 		<link rel="stylesheet" href="css/product.css">
 		<link rel="stylesheet" href="./css/style.css">
-		<link rel="stylesheet" href="./bootstrap/bootstrap-icons-1.10.5/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
+		<link rel="stylesheet" href="./bootstrap/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
 		<script src="js/jquery.min.js"></script>
 		<script src="bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
 		<script src="js/product.js"></script>
@@ -51,32 +51,14 @@
 					</div>
 
 					<div id="Product_s">
-						<ul>
-							<div class="Pm1">
-								<h2 id="productTitle">资料卡</h2>
-							</div>
-							<li class="Pm2" id="productPrice">￥80
-							<a href="/user/login.html" class="Pm3">登录后享受更多优惠></a>
-							</li>
-								<li class="Pm4">
-									配&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;送：<a  class="Pm5">莆田市 至 xxx</a>
-							    </li>
-								<li class="Pm6">
-									快递: &nbsp;&nbsp;免运费&nbsp;&nbsp;&nbsp;预计6小时内发货|承诺48小时内发货
-								</li>
-								<p class="Product_p1">
-									<font id="Pm7">商品介绍：</font>
-									<font id="productDescription">商品</font>
-								</p>
-								<p class="Product_p2">
-									<font id="Pm9">生产地址：</font>
-									<font id="Pm10">中国大陆</font>
-								</p>
-								<p class="Product_p2">
-									<font id="Pm11">品牌包装：</font>
-									<font id="Pm12">莆院优选-箱装</font>
-								</p>
-						</ul>
+						<div class="product-info">
+							<h1 id="productTitle"></h1>
+							<p><strong>产品编号:</strong> <span id="productCode"></span></p>
+							<p><strong>类别:</strong> <span id="productCategory"></span></p>
+							<p><strong>价格:</strong> <span id="productPrice"></span></p>
+							<p><strong>库存:</strong> <span id="productStocks"></span></p>
+							<p><strong>描述:</strong> <br><span id="productDescription"></span></p>
+						</div>
 						<div class="Product_si" >
 
 								<button class="Ps1" id="addcat">加入购物车</button>

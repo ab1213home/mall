@@ -86,37 +86,42 @@ dropdownItem.addEventListener('click', function (event) {
 // 将创建的元素插入到目标元素中
 dropdownMenu.appendChild(dropdownItem);
 
-// 修改密码处理函数
-function changePassword() {
-  const oldPassword = $('#oldPassword').val();
-  const newPassword = $('#newPassword').val();
-  const confirmPassword = $('#confirmPassword').val();
+// 修改用户信息处理函数
+function changeInfo() {
+  const email = $('#email').val();
+  const phone = $('#phone').val();
+  const firstName = $('#firstName').val();
+  const lastName = $('#lastName').val();
+  const birthday = $('#birthday').val();
 
   // 构建请求体
   const data = {
-    oldPassword: oldPassword,
-    newPassword: newPassword,
-    confirmPassword: confirmPassword
+    email: email,
+    phone: phone,
+    firstName: firstName,
+    lastName: lastName,
+    birthday: birthday
   };
 
   // 发送 AJAX 请求
   $.ajax({
-    url: '/user/modify/password',
+    url: '/user/modify/info',
     type: 'POST',
-    data: data,
+	contentType: 'application/json',
+    data: JSON.stringify(data),
     success: function (data) {
       if (data.code === 200) {
-        console.log('密码修改成功');
-        alert('密码已成功修改，请重新登录！');
-        window.location.href = '/user/login.html';
+        console.log('用户信息更新成功');
+        alert('用户信息已成功更新！');
+		window.location.href = '/user/index.html';
       } else {
-        console.log('密码修改失败');
+        console.log('用户信息更新失败');
         alert(data.message);
       }
     },
     fail: function(xhr, status, error) {
-      console.error('密码修改失败:', error);
-      alert('密码修改失败，请联系管理员！' + error);
+      console.error('用户信息更新失败:', error);
+      alert('用户信息更新失败，请联系管理员！' + error);
     }
   });
 }
@@ -124,8 +129,8 @@ function changePassword() {
 // 绑定表单提交事件
 $(document).ready(function() {
   // 登录表单提交
-  $('#change-password').on('submit', function(event) {
+  $('#change-info').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    changePassword(); // 自定义提交处理
+    changeInfo(); // 自定义提交处理
   });
 });
