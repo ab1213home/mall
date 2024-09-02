@@ -1,24 +1,35 @@
 sessionStorage = window.sessionStorage;
 var cartArr = {};	//key是cart的id,值是商品具体记录
 let currentPageNum = 1;
-
+let num = 0;
 $(document).ready(function(){
 	
 	let is = isLogin();
 	console.log(is);
 	if(is){
+		getCartNum();
 		queryCart(1, 10);
 		bindPreNextPage();
 	}
 })
-
-
+function getCartNum(){
+	$.ajax({
+		type:"GET",
+		url:"/cart/getNum",
+		data:{},
+		dataType:"json",
+		success:function(res){
+			if(res.code == 200){
+				num = res.data;
+			}
+		}
+	})
+}
 function isLogin(){
 	let result = false;
 	$.ajax({
 		type:"GET",
 		url:"/user/isLogin",
-		// url:"./testjson/isLogin.json",
 		data:{},
 		async:false,	//设置同步请求
 		dataType:"json",
@@ -28,6 +39,8 @@ function isLogin(){
 				$("#cartNoLogin").hide();
 				$("#cartLogin").show();
 				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
+				document.getElementById('register').style.display = 'none';
+				document.getElementById('register_spacer').style.display = 'none';
 				sessionStorage.setItem("userId", res.data.id);
 				result = true;
 			}else{
@@ -47,7 +60,6 @@ function queryCart(pn, pz){
 	$.ajax({
 		type:"GET",
 		url:"/cart/list",
-		// url:"./testjson/shopcart.json",
 		data:{
 			userId:id,
 			pageNum:pn,
@@ -99,6 +111,11 @@ function queryCart(pn, pz){
 					$("#prePage").prop("disabled", true);
 				}else{
 					$("#prePage").prop("disabled", false);
+				}
+				if(num-currentPageNum*pz < 0){
+					$("#nextPage").prop("disabled", true);
+				}else{
+					$("#nextPage").prop("disabled", false);
 				}
 				totalMoney();
 				console.log(cartArr);

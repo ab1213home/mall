@@ -116,7 +116,7 @@ function queryBanner(){
 						s2 +=
 						`<div class="carousel-item active">
 							<a href="`+ val.url +`" target="_blank">
-								<img src="`+ val.img +`" class="imgfull">
+								<img src="`+ val.img +`" class="imgfull" alt="">
 							</a>
 						</div>`;
 					}else{
@@ -124,7 +124,7 @@ function queryBanner(){
 						s2 +=
 						`<div class="carousel-item">
 							  <a href="`+ val.url +`" target="_blank">
-								  <img src="`+ val.img +`" class = "imgfull">
+								  <img src="`+ val.img +`" class = "imgfull" alt="">
 							  </a>
 						  </div>`;
 					}

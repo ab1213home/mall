@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 	<head>
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css">
@@ -22,8 +22,8 @@
 					<!-- li变为行内块元素 -->
 					<li id="username"><a href="./user/login.html">你好！请登录</a></li>
 					<li class="spacer"></li>
-					<li><a class="style-red" href="javascript:">手机APP</a></li>
-					<li class="spacer"></li>
+					<li id="register"><a class="style-red" href="./user/register.html">免费注册</a></li>
+					<li class="spacer" id="register_spacer"></li>
 					<li><a href="javascript:">网络无障碍</a></li>
 				</ul>
 				<div class="cls"></div>
@@ -33,7 +33,9 @@
 		<div class="header">
 			<div class="w headerbody">
 				<div class="hb1">
-					<img src="images/logo.png" alt="学校图标">
+					<a href="index.html">
+						<img src="images/logo.png" alt="学校图标">
+					</a>
 				</div>
 				<!-- 父相子绝 -->
 				<div class="hb2">
@@ -88,7 +90,7 @@
 						<li>已选择<span id="totalNum">0</span>件商品</li>
 						<li>总价: ￥<span id="totalPrice">0</span></li>
 						<li>
-							<button class="btt">去结算</button>
+							<button class="btt" id="buy-btn">去结算</button>
 						</li>
 					</ul>
 				</div>
