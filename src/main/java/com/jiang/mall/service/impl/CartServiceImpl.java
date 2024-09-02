@@ -1,6 +1,7 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CartMapper;
@@ -104,6 +105,34 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             return ResponseResult.okResult();
         }
         return ResponseResult.failResult();
+    }
+
+    @Override
+    public boolean addCart(Integer productId, Integer num, Integer userId) {
+        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("prodId", productId);
+
+	    Cart cart = cartMapper.selectOne(queryWrapper);
+        if (cart != null) {
+            Integer sum = cart.getNum() + num;
+            cart.setNum(sum);
+            return cartMapper.updateById(cart) == 1;
+        } else {
+            Cart new_cart = new Cart();
+            new_cart.setNum(num);
+            new_cart.setProdId(productId);
+            new_cart.setUserId(userId);
+            return cartMapper.insert(new_cart) == 1;
+        }
+    }
+
+    @Override
+    public Integer queryStoksById(Integer productId) {
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id", productId);
+
+	    Product product = productMapper.selectOne(queryWrapper);
+        return product.getStocks();
     }
 
 

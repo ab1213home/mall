@@ -80,3 +80,33 @@ function isLogin(){
 	});
 	return result;
 }
+function addCart(){
+	if(isLogin()){
+		const productId = document.getElementById('productId').value;
+		const num = document.getElementById('productNum').value;
+		const data={
+			productId: productId,
+			num: num
+		};
+		$.ajax({
+			type:"POST",
+			url:"/cart/add",
+			data:data,
+			async:false,	//设置同步请求
+			dataType:"json",
+			success:function(res){
+				if(res.code == 200){
+					alert('添加购物车成功');
+				}else{
+					alert('添加购物车失败');
+				}
+			}
+		})
+	}else{
+		alert('请先登录');
+		window.location.href = "./user/login.html";
+	}
+}
+document.getElementById('addCart').addEventListener('click', function() {
+    addCart();
+});

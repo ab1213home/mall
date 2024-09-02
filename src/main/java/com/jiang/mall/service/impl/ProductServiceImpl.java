@@ -1,6 +1,7 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CategoryMapper;
@@ -86,6 +87,15 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             return ResponseResult.okResult();
         }
         return ResponseResult.failResult();
+    }
+
+    @Override
+    public Integer queryStoksById(Integer productId) {
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id", productId);
+
+	    Product product = productMapper.selectOne(queryWrapper);
+        return product.getStocks();
     }
 
 

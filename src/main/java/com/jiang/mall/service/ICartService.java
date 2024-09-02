@@ -25,4 +25,8 @@ public interface ICartService extends IService<Cart> {
     ResponseResult updateCart(Cart cart);
 
     ResponseResult deleteCart(List<Integer> ids);
+
+	boolean addCart(Integer productId, Integer num, Integer userId);
+
+    Integer queryStoksById(Integer productId);
 }

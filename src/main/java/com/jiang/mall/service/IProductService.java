@@ -26,5 +26,5 @@ public interface IProductService extends IService<Product> {
 
     ResponseResult deleteProduct(List<Integer> ids);
 
-
+    Integer queryStoksById(Integer productId);
 }

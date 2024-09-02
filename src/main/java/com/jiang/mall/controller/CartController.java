@@ -3,6 +3,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.service.ICartService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,33 @@ public class CartController {
         return cartService.getCartList(userId, pageNum, pageSize);
     }
 
+    @PostMapping("/add")
+    public ResponseResult addCart(@RequestParam("productId") Integer productId,@RequestParam("num") Integer num, HttpSession session) {
+        if (session.getAttribute("UserIsLogin")!=null){
+            if (session.getAttribute("UserIsLogin").equals("false"))
+                return ResponseResult.failResult("您未登录，请先登录");
+        }
+        if (session.getAttribute("UserId")==null)
+            return ResponseResult.failResult("您未登录，请先登录");
+        Integer userId = (Integer) session.getAttribute("UserId");
+        if (userId==null)
+            return ResponseResult.failResult("您未登录，请先登录");
+        if (productId==null)
+            return ResponseResult.failResult("商品ID为空");
+        if (num==null)
+            return ResponseResult.failResult("商品数量为空");
+        if (num<=0)
+            return ResponseResult.failResult("商品数量必须大于0");
+//        Integer stocks = cartService.queryStoksById(productId);
+//        if (stocks==null)
+//            return ResponseResult.failResult("商品不存在");
+//        if (num>stocks)
+//            return ResponseResult.failResult("商品库存不足");
+        if (cartService.addCart(productId, num, userId)){
+            return ResponseResult.okResult("添加成功");
+        }else
+            return ResponseResult.failResult("添加失败");
+    }
 
 //    根据提供的ID，查询并返回指定购物车的信息。
     @GetMapping("/admin/{id}")
