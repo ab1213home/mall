@@ -34,14 +34,14 @@ function submitRegisterStepOneForm() {
             }
         } else {
             console.log('注册失败');
-            alert(data.message);
+            showToast(data.message);
         }
     },
     fail: function(xhr, status, error) {
       // 处理错误响应
       console.fail('注册失败:', error);
       // 显示错误信息给用户
-      alert('注册失败，请联系管理员！'+error);
+      showToast('注册失败，请联系管理员！'+error);
     }
   });
 }
@@ -81,14 +81,14 @@ function submitRegisterStepTwoForm() {
             window.location.href = '/user/login.html';
         } else {
             console.log('用户信息补充失败');
-            alert(data.message);
+            showToast(data.message);
         }
     },
     fail: function(xhr, status, error) {
       // 处理错误响应
       console.fail('用户信息补充失败:', error);
       // 显示错误信息给用户
-      alert('用户信息补充失败，请联系管理员！'+error);
+      showToast('用户信息补充失败，请联系管理员！'+error);
     }
   });
 }

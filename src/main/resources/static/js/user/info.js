@@ -39,7 +39,7 @@ function queryMyUserInfo(){
 				$("#username").html(res.data.username);
 				$("#welcome").html("欢迎回来，"+res.data.username+"!");
 			}else {
-				alert("未登录");
+				showToast("未登录");
 				window.location.href = '/user/login.html';
 			}
 		}
@@ -112,16 +112,16 @@ function changeInfo() {
     success: function (data) {
       if (data.code === 200) {
         console.log('用户信息更新成功');
-        alert('用户信息已成功更新！');
+        showToast('用户信息已成功更新！');
 		window.location.href = '/user/index.html';
       } else {
         console.log('用户信息更新失败');
-        alert(data.message);
+        showToast(data.message);
       }
     },
     fail: function(xhr, status, error) {
       console.error('用户信息更新失败:', error);
-      alert('用户信息更新失败，请联系管理员！' + error);
+      showToast('用户信息更新失败，请联系管理员！' + error);
     }
   });
 }

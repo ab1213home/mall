@@ -66,7 +66,7 @@ function queryMyUserInfo(){
 				$("#username").html(res.data.username);
 				$("#welcome").html("欢迎回来，"+res.data.username+"!");
 			}else {
-				alert("未登录");
+				showToast("未登录");
 				window.location.href = '/user/login.html';
 			}
 		}

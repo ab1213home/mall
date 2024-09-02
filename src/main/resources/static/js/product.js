@@ -101,14 +101,14 @@ function addCart(){
 			dataType:"json",
 			success:function(res){
 				if(res.code == 200){
-					alert('添加购物车成功');
+					showToast('添加购物车成功');
 				}else{
-					alert('添加购物车失败');
+					showToast('添加购物车失败');
 				}
 			}
 		})
 	}else{
-		alert('请先登录');
+		showToast('请先登录');
 		window.location.href = "./user/login.html";
 	}
 }

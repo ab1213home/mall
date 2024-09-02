@@ -11,6 +11,9 @@ $(document).ready(function(){
 		queryCart(1, 10);
 		bindPreNextPage();
 	}
+	document.getElementById('checkout-btn').addEventListener('click', function() {
+		checkOut();
+	});
 })
 function getCartNum(){
 	$.ajax({
@@ -55,7 +58,7 @@ function isLogin(){
 }
 
 function queryCart(pn, pz){
-	console.log("查询第" + pz + "页");
+	console.log("查询第" + pn + "页");
 	let id = sessionStorage.getItem("userId");
 	$.ajax({
 		type:"GET",
@@ -85,7 +88,7 @@ function queryCart(pn, pz){
 						</li>
 						<li class="cartli2">
 							<div class="fl">
-								<img src="` + record.img + `">
+								<img src="` + record.img + `" alt="商品图片">
 							</div>
 							<div class="fl cartd5">`+ record.prodName +`</div>
 							<div class="cls"></div>
@@ -176,9 +179,8 @@ function add(id){
 
 function updateCart(_id, _num){
 	$.ajax({
-		type:"POST",	//POST
+		type:"POST",
 		url:"/cart/admin/update",
-		// url:"./testjson/updatecart.json",
 		contentType:"application/json",
 		data:JSON.stringify({
 			id:_id,
@@ -204,7 +206,6 @@ function deleteCartGood(id){
 	$.ajax({
 		type:"POST",	//POST
 		url:"/cart/admin/delete",
-		// url:"./testjson/deletecart.json",
 		contentType:"application/json",
 		data:JSON.stringify(dataArr),
 		dataType:"json",
@@ -241,4 +242,23 @@ function bindPreNextPage(){
 function showToast(message){
 	$("#messagetoast").html(message);
 	$("#liveToast").toast('show');
+}
+function checkOut(){
+	console.log(cartArr);
+	const cartArray = Object.values(cartArr);
+	$.ajax({
+        type: 'POST',
+        url: "/order/checkout",
+        data: JSON.stringify(cartArray),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function(res) {
+            if (res.code == 200){
+				window.location.href = "./orders.html";
+			}else{
+				// alert("下单失败:"+res.message);
+				showToast("下单失败:"+res.message);
+			}
+        },
+    });
 }

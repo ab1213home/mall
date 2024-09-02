@@ -24,7 +24,7 @@ function submitLoginForm() {
             window.location.href = '../index.html';
         } else {
             console.log('登录失败');
-            alert(data.message);
+            showToast(data.message);
         }
     },
     fail: function(xhr, status, error) {

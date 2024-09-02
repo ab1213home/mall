@@ -39,7 +39,7 @@ function queryMyUserInfo(){
 				$("#username").html(res.data.username);
 				$("#welcome").html("欢迎回来，"+res.data.username+"!");
 			}else {
-				alert("未登录");
+				showToast("未登录");
 				window.location.href = '/user/login.html';
 			}
 		}
@@ -107,16 +107,16 @@ function changePassword() {
     success: function (data) {
       if (data.code === 200) {
         console.log('密码修改成功');
-        alert('密码已成功修改，请重新登录！');
+        showToast('密码已成功修改，请重新登录！');
         window.location.href = '/user/login.html';
       } else {
         console.log('密码修改失败');
-        alert(data.message);
+        showToast(data.message);
       }
     },
     fail: function(xhr, status, error) {
       console.error('密码修改失败:', error);
-      alert('密码修改失败，请联系管理员！' + error);
+      showToast('密码修改失败，请联系管理员！' + error);
     }
   });
 }
