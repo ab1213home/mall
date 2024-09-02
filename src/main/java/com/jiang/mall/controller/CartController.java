@@ -30,6 +30,20 @@ public class CartController {
         return cartService.getCartList(userId, pageNum, pageSize);
     }
 
+    @GetMapping("/getNum")
+    public ResponseResult getCartNum(HttpSession session) {
+        if (session.getAttribute("UserIsLogin")!=null){
+            if (session.getAttribute("UserIsLogin").equals("false"))
+                return ResponseResult.failResult("您未登录，请先登录");
+        }
+        if (session.getAttribute("UserId")==null)
+            return ResponseResult.failResult("您未登录，请先登录");
+        Integer userId = (Integer) session.getAttribute("UserId");
+        if (userId==null){
+            return ResponseResult.failResult("您未登录，请先登录");
+        }
+        return ResponseResult.okResult(cartService.getCartNum(userId));
+    }
     @PostMapping("/add")
     public ResponseResult addCart(@RequestParam("productId") Integer productId,@RequestParam("num") Integer num, HttpSession session) {
         if (session.getAttribute("UserIsLogin")!=null){

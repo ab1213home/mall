@@ -1,5 +1,6 @@
 $(document).ready(function(){
 	isLogin();
+	getCartNum();
 })
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -110,4 +111,21 @@ function addCart(){
 		alert('请先登录');
 		window.location.href = "./user/login.html";
 	}
+}
+function getCartNum(){
+	$.ajax({
+		type:"GET",
+		url:"/cart/getNum",
+		data:{},
+		dataType:"json",
+		success:function(res){
+			if(res.code == 200){
+				if (res.data<99){
+					$("#cartnum").html(res.data);
+				}else{
+					$("#cartnum").html("99+");
+				}
+			}
+		}
+	})
 }

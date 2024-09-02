@@ -135,5 +135,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return product.getStocks();
     }
 
+    @Override
+    public Integer getCartNum(Integer userId) {
+        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+	    List<Cart> cart = cartMapper.selectList(queryWrapper);
+        return cart.size();
+    }
+
 
 }

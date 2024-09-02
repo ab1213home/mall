@@ -29,4 +29,6 @@ public interface ICartService extends IService<Cart> {
 	boolean addCart(Integer productId, Integer num, Integer userId);
 
     Integer queryStoksById(Integer productId);
+
+    Integer getCartNum(Integer userId);
 }
