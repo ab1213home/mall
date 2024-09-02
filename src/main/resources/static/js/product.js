@@ -53,6 +53,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     });
+	document.getElementById('addcart-btn').addEventListener('click', function() {
+		addCart();
+	});
 });
 function isLogin(){
 	let result = false;
@@ -82,7 +85,8 @@ function isLogin(){
 }
 function addCart(){
 	if(isLogin()){
-		const productId = document.getElementById('productId').value;
+		const urlParams = new URLSearchParams(window.location.search);
+		const productId = urlParams.get('id');
 		const num = document.getElementById('productNum').value;
 		const data={
 			productId: productId,
@@ -107,6 +111,3 @@ function addCart(){
 		window.location.href = "./user/login.html";
 	}
 }
-document.getElementById('addCart').addEventListener('click', function() {
-    addCart();
-});

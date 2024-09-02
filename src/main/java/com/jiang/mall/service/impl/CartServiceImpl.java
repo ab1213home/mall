@@ -110,8 +110,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     @Override
     public boolean addCart(Integer productId, Integer num, Integer userId) {
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("prodId", productId);
-
+	    queryWrapper.eq("prod_id", productId);
+        queryWrapper.eq("user_id", userId);
 	    Cart cart = cartMapper.selectOne(queryWrapper);
         if (cart != null) {
             Integer sum = cart.getNum() + num;
