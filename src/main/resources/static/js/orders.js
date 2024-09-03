@@ -24,6 +24,9 @@ function getCartNum(){
 		success:function(res){
 			if(res.code == 200){
 				num = res.data;
+			}else{
+				showToast(res.message);
+				window.location.href = "./cart.html";
 			}
 		}
 	})
@@ -51,7 +54,7 @@ function isLogin(){
 
 function queryCart(pn, pz){
 	console.log("查询第" + pn + "页");
-	let i=0;
+	let i= 1;
 	$.ajax({
 		type:"GET",
 		url:"/order/list",
@@ -68,7 +71,7 @@ function queryCart(pn, pz){
 				for(let record of res.data){
 					record.ischecked = false;
 					cartArr[record.id] = record;
-					let id=pn * 10 + i;
+					let id=(pn - 1) * 10 + i;
 					i++;
 					s+=
 					`<div class="cartd4" id="cartgood`+ record.id +`">
@@ -133,59 +136,28 @@ function sub(id){
 		showToast("不能更小了");
 	}else{
 		num = num -1;
-		//updateCart(id,num);
+		updateCart(id,num);
 	}
 }
 
 function add(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum) + 1;
-	//updateCart(id, num);
+	updateCart(id, num);
 }
 
 function updateCart(_id, _num){
-	$.ajax({
-		type:"POST",
-		url:"/cart/admin/update",
-		contentType:"application/json",
-		data:JSON.stringify({
-			id:_id,
-			num:_num
-		}),
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				$("#iid" + _id).val(_num);	//界面更新
-				cartArr[_id].num = _num;	//更新内存中对应商品的数量
-				$("#gsum"+_id).html(_num * cartArr[_id].price);	//更新改行的价格
-				totalMoney();
-			}else{
-				// alert("更新购物车失败:"+res.message);
-				showToast("更新购物车失败:"+res.message);
-			}
-		}
-	})
+	$("#iid" + _id).val(_num);	//界面更新
+	cartArr[_id].num = _num;	//更新内存中对应商品的数量
+	$("#gsum"+_id).html(_num * cartArr[_id].price);	//更新改行的价格
+	totalMoney();
 }
 
 function deleteCartGood(id){
 	let dataArr = [id];
-	$.ajax({
-		type:"POST",	//POST
-		url:"/cart/admin/delete",
-		contentType:"application/json",
-		data:JSON.stringify(dataArr),
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				delete cartArr[id];	//删除内存中对应的商品
-				$("#cartgood" + id).remove();	//删除某个元素
-				totalMoney();
-			}else{
-				// alert("删除购物车失败:"+res.message);
-				showToast("删除购物车失败:"+res.message);
-			}
-		}
-	})
+	delete cartArr[id];	//删除内存中对应的商品
+	$("#cartgood" + id).remove();	//删除某个元素
+	totalMoney();
 }
 
 function bindPreNextPage(){
@@ -222,7 +194,6 @@ function checkOut(){
             if (res.code == 200){
 				window.location.href = "./orders.html";
 			}else{
-				// alert("下单失败:"+res.message);
 				showToast("下单失败:"+res.message);
 			}
         },
