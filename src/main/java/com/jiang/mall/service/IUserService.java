@@ -41,4 +41,8 @@ public interface IUserService extends IService<User> {
     ResponseResult updateUser(User user);
 
     ResponseResult deleteUser(List<Integer> ids);
+
+	Integer queryDefaultAddressById(Integer userId);
+
+    boolean updateDefaultAddress(Integer id, Integer userId);
 }

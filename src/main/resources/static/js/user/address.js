@@ -55,13 +55,12 @@ function queryAddress(pn, pz) {
                 console.log(res.data);
 				// 清空 tbody 中原有的内容
 				$('#addresslist tbody').empty();
-                res.data.forEach(address => {
+                res.data.forEach((address,index) => {
                     const row =
                         `
                         <tr>
-                            <th scope="row">${address.id}</th>
-                            <td>${address.firstName}</td>
-                            <td>${address.lastName}</td>
+                            <th scope="row">${(current_page - 1) * 10 + index + 1}</th>
+                            <td>${address.lastName+" "+address.firstName}</td>
                             <td>${address.phone}</td>
                             <td>${address.country}</td>
                             <td>${address.province}</td>
@@ -183,7 +182,7 @@ dropdownItem.addEventListener('click', function (event) {
 dropdownMenu.appendChild(dropdownItem);
 
 
-function changeAddress() {
+function insertAddress() {
 	const firstName= $("#firstName").val();
 	const lastName= $("#lastName").val();
 	const phone= $("#phone").val();
@@ -210,14 +209,13 @@ function changeAddress() {
 
   	// 发送 AJAX 请求
   	$.ajax({
-    	url: '/address/list',
+    	url: '/address/insert',
     	type: 'POST',
     	data: data,
     	success: function (data) {
 			if (data.code === 200) {
 				console.log('密码修改成功');
 				showToast('密码已成功修改，请重新登录！');
-				window.location.href = '/user/login.html';
 			} else {
 				console.log('密码修改失败');
 				showToast(data.message);
@@ -235,6 +233,54 @@ $(document).ready(function() {
   // 登录表单提交
   $('#addressForm').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    changeAddress(); // 自定义提交处理
+    insertAddress(); // 自定义提交处理
   });
 });
+// 填充模态框表单
+function fillModalForm(details) {
+    const modal = document.getElementById('itemModal');
+    modal.querySelector('#firstName').value = details.firstName;
+    modal.querySelector('#lastName').value = details.lastName;
+    modal.querySelector('#phone').value = details.phone;
+    modal.querySelector('#country').value = details.country;
+    modal.querySelector('#province').value = details.province;
+    modal.querySelector('#city').value = details.city;
+    modal.querySelector('#district').value = details.district;
+    modal.querySelector('#addressDetail').value = details.address;
+    modal.querySelector('#postalCode').value = details.postalCode;
+    modal.querySelector('#isDefaultAddress').checked = details.isDefault;
+
+    modal.querySelector('.modal-title').innerText = '编辑收货信息';
+    modal.querySelector('#addressForm').addEventListener('submit', handleFormSubmit);
+    $(modal).modal('show'); // 显示模态框
+}
+function handleFormSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    updateAddress(data).then(() => {
+        alert('地址已更新');
+        $('#itemModal').modal('hide'); // 关闭模态框
+        initTable(); // 刷新表格
+    }).catch(error => {
+        console.error('Error updating address:', error);
+    });
+}
+
+// 更新地址
+function updateAddress(data) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: '/address/update',
+            type: 'POUT',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (response) {
+                resolve(response);
+            },
+            error: function (error) {
+                reject(error);
+            }
+        });
+    });
+}

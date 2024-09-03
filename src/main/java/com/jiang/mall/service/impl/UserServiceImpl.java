@@ -256,4 +256,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         return ResponseResult.failResult();
     }
+
+	@Override
+	public Integer queryDefaultAddressById(Integer userId) {
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id", userId);
+	    queryWrapper.eq("is_active", true);
+
+	    // 根据查询条件尝试获取用户信息
+	    User user = userMapper.selectOne(queryWrapper);
+		return user.getDefaultAddressId();
+	}
+
+	@Override
+	public boolean updateDefaultAddress(Integer id, Integer userId) {
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id", userId);
+	    queryWrapper.eq("is_active", true);
+
+	    // 根据查询条件尝试获取用户信息
+	    User user = userMapper.selectOne(queryWrapper);
+		if (user!=null){
+			user.setDefaultAddressId(id);
+			return userMapper.updateById(user)>0;
+		}
+		return false;
+	}
 }
