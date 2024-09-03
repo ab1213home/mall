@@ -10,25 +10,26 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+        String requestURI = request.getRequestURI();
 		if (null != request.getSession().getAttribute("UserIsLogin")) {
             if ("true" == request.getSession().getAttribute("UserIsLogin")){
                 if (null != request.getSession().getAttribute("UserIsAdmin")) {
                     if ("true" == request.getSession().getAttribute("UserIsAdmin")){
                         return true;
                     }else {
-                        response.sendRedirect(request.getContextPath() + "/index.html");
+                        response.sendRedirect(request.getContextPath() + "/user/index.html");
                         return false;
                     }
                 }else {
-                    response.sendRedirect(request.getContextPath() + "/user/login.html");
+                    response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
                     return false;
                 }
             }else {
-                response.sendRedirect(request.getContextPath() + "/user/login.html");
+                response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
                 return false;
             }
         }else {
-            response.sendRedirect(request.getContextPath() + "/user/login.html");
+            response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
             return false;
         }
 	}
