@@ -3,7 +3,7 @@ let currentPageNum = 1;
 let num = 0;
 $(document).ready(function(){
 	isAdminUser();
-	queryMyUserInfo();
+	// queryMyUserInfo();
 	getAddressNum();
 	queryAddress(1,10);
 	bindPreNextPage();
@@ -29,12 +29,12 @@ function bindPreNextPage(){
 			return;
 		}
 		let pageNum = currentPageNum -1;
-		queryCart(pageNum, 10);
+		queryAddress(pageNum, 10);
 	})
 
 	$("#nextPage").on("click", function(){
 		let pageNum = currentPageNum +1;
-		queryCart(pageNum, 10);
+		queryAddress(pageNum, 10);
 	})
 }
 function showToast(message){
@@ -42,67 +42,62 @@ function showToast(message){
 	$("#liveToast").toast('show');
 }
 function queryAddress(pn, pz) {
-	$.ajax({
-		type: "GET",
-		url: "address/list",
-		data: {
-			pageNum: pn,
-			pageSize: pz
-		},
-		dataType: "json",
-		success: function (res) {
-			if (res.code == 200) {
-				console.log(res.data);
-				let s = "";
-				addressArr = {};
-				for (let record of res.data) {
-					addressArr[record.id] = record;
-					s +=
-						`<div class="cartd4" id="cartgood` + record.id + `">
-					<ul class="cartul2">
-						<li class="cartli1">
-							<div class="cartd3">
-								<input type="checkbox" onclick='checkOneGood(` + record.id + `)' class="ipt">
-							</div>
-						</li>
-						<li class="cartli2">
-							<div class="fl">
-								<img src="` + record.img + `" alt="商品图片">
-							</div>
-							<div class="fl cartd5">` + record.prodName + `</div>
-							<div class="cls"></div>
-						</li>
-						<li class="cartli3">￥` + record.price + `</li>
-						<li class="cartli4">
-							<button onclick="sub(` + record.id + `)">-</button>
-							<input type="text" value="` + record.num + `" id="iid` + record.id + `">
-							<button class="ml" onclick="add(` + record.id + `)">+</button>
-						</li>
-						<li class="cartli5">￥<span id="gsum` + record.id + `">` + (record.price * record.num) + `</span></li>
-						<li class="cartli6">
-							<a href="javascript:deleteCartGood(` + record.id + `);">删除</a>
-						</li>
-					</ul>
-					</div>
-					`
+    $.ajax({
+        type: "GET",
+        url: "/address/list",
+        data: {
+            pageNum: pn,
+            pageSize: pz
+        },
+        dataType: "json",
+        success: function (res) {
+            if (res.code == 200) {
+                console.log(res.data);
+				// 清空 tbody 中原有的内容
+				$('#addresslist tbody').empty();
+                res.data.forEach(address => {
+                    const row =
+                        `
+                        <tr>
+                            <th scope="row">${address.id}</th>
+                            <td>${address.firstName}</td>
+                            <td>${address.lastName}</td>
+                            <td>${address.phone}</td>
+                            <td>${address.country}</td>
+                            <td>${address.province}</td>
+                            <td>${address.city}</td>
+                            <td>${address.district}</td>
+                            <td>${address.addressDetail}</td>
+                            <td>${address.postalCode}</td>
+                            <td>${address.isDefault ? "是" : ""}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="delProduct(${address.id})">删除</button>
+                            </td>
+                        </tr>
+                        `;
+                    $('#addresslist tbody').append(row);
+                });
+
+                currentPageNum = pn;
+                if (currentPageNum == 1) {
+                    $("#prePage").prop("disabled", true);
+                } else {
+                    $("#prePage").prop("disabled", false);
+                }
+                if (num - currentPageNum * pz < 0) {
+                    $("#nextPage").prop("disabled", true);
+                } else {
+                    $("#nextPage").prop("disabled", false);
+                }
+				if (num == 0){
+					 $("#nextPage").prop("disabled", true);
 				}
-				$(".cartd4").remove();
-				$("#cartgoodlist").append(s);
-				currentPageNum = pn;
-				if (currentPageNum == 1) {
-					$("#prePage").prop("disabled", true);
-				} else {
-					$("#prePage").prop("disabled", false);
-				}
-				if (num - currentPageNum * pz < 0) {
-					$("#nextPage").prop("disabled", true);
-				} else {
-					$("#nextPage").prop("disabled", false);
-				}
-			}
-		}
-	})
+            }
+        }
+    });
 }
+
 
 function isAdminUser() {
 	$.ajax({
@@ -187,46 +182,59 @@ dropdownItem.addEventListener('click', function (event) {
 // 将创建的元素插入到目标元素中
 dropdownMenu.appendChild(dropdownItem);
 
-// 修改密码处理函数
-function changePassword() {
-  const oldPassword = $('#oldPassword').val();
-  const newPassword = $('#newPassword').val();
-  const confirmPassword = $('#confirmPassword').val();
 
-  // 构建请求体
-  const data = {
-    oldPassword: oldPassword,
-    newPassword: newPassword,
-    confirmPassword: confirmPassword
-  };
+function changeAddress() {
+	const firstName= $("#firstName").val();
+	const lastName= $("#lastName").val();
+	const phone= $("#phone").val();
+	const country= $("#country").val();
+	const province= $("#province").val();
+	const city= $("#city").val();
+	const district= $("#district").val();
+	const addressDetail= $("#addressDetail").val();
+	const postalCode= $("#postalCode").val();
+	const isDefault= $("#isDefault").val();
+  	// 构建请求体
+  	const data = {
+	  	firstName: firstName,
+	  	lastName: lastName,
+	  	phone: phone,
+	  	country: country,
+	  	province: province,
+	  	city: city,
+	  	district: district,
+	  	addressDetail: addressDetail,
+	  	postalCode: postalCode,
+	  	isDefault: isDefault
+  	};
 
-  // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/modify/password',
-    type: 'POST',
-    data: data,
-    success: function (data) {
-      if (data.code === 200) {
-        console.log('密码修改成功');
-        showToast('密码已成功修改，请重新登录！');
-        window.location.href = '/user/login.html';
-      } else {
-        console.log('密码修改失败');
-        showToast(data.message);
-      }
-    },
-    fail: function(xhr, status, error) {
-      console.error('密码修改失败:', error);
-      showToast('密码修改失败，请联系管理员！' + error);
-    }
-  });
-}
+  	// 发送 AJAX 请求
+  	$.ajax({
+    	url: '/address/list',
+    	type: 'POST',
+    	data: data,
+    	success: function (data) {
+			if (data.code === 200) {
+				console.log('密码修改成功');
+				showToast('密码已成功修改，请重新登录！');
+				window.location.href = '/user/login.html';
+			} else {
+				console.log('密码修改失败');
+				showToast(data.message);
+			}
+    	},
+		fail: function(xhr, status, error) {
+		  console.error('密码修改失败:', error);
+		  showToast('密码修改失败，请联系管理员！' + error);
+		}
+	  });
+	}
 
 // 绑定表单提交事件
 $(document).ready(function() {
   // 登录表单提交
   $('#addressForm').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    changePassword(); // 自定义提交处理
+    changeAddress(); // 自定义提交处理
   });
 });
