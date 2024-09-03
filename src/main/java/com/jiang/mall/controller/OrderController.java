@@ -100,6 +100,38 @@ public class OrderController {
 		return ResponseResult.okResult(List_checkout);
 	}
 
+	@GetMapping("/getNum")
+	public ResponseResult getCartNum(HttpSession session) {
+		if (session.getAttribute("UserId") == null){
+			return ResponseResult.failResult("请先登录");
+		}
+		if (session.getAttribute("UserIsLogin")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+		if (!session.getAttribute("UserIsLogin").equals("true")){
+			return ResponseResult.failResult("请先登录");
+		}
+		// 检查 session.getAttribute("List_prodId") 是否为 null
+	    List<Integer> List_prodId;
+	    Object listObj = session.getAttribute("List_prodId");
+
+	    if (listObj == null) {
+	        List_prodId = new ArrayList<>();
+	    } else if (listObj instanceof List<?> tempList) {
+		    List_prodId = new ArrayList<>();
+	        for (Object obj : tempList) {
+	            if (obj instanceof Integer) {
+	                List_prodId.add((Integer) obj);
+	            }
+	        }
+	    } else {
+	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
+	    }
+		if (List_prodId.isEmpty()){
+			return ResponseResult.failResult("请先选择商品");
+		}
+		return ResponseResult.okResult(List_prodId.size());
+	}
 	@PostMapping("/create")
 	public ResponseResult createOrder(HttpSession session) {
 		if (session.getAttribute("UserId") == null){

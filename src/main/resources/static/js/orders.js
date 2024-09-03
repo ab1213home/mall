@@ -11,14 +11,14 @@ $(document).ready(function(){
 		queryCart(1, 10);
 		bindPreNextPage();
 	}
-	document.getElementById('checkout-btn').addEventListener('click', function() {
+	document.getElementById('next-btn').addEventListener('click', function() {
 		checkOut();
 	});
 })
 function getCartNum(){
 	$.ajax({
 		type:"GET",
-		url:"/cart/getNum",
+		url:"/order/getNum",
 		data:{},
 		dataType:"json",
 		success:function(res){
@@ -38,18 +38,10 @@ function isLogin(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				//已登录
-				$("#cartNoLogin").hide();
-				$("#cartLogin").show();
 				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
-				document.getElementById('register').style.display = 'none';
-				document.getElementById('register_spacer').style.display = 'none';
 				sessionStorage.setItem("userId", res.data.id);
 				result = true;
 			}else{
-				//未登录
-				$("#cartNoLogin").show();
-				$("#cartLogin").hide();
 				result = false;
 			}
 		}
@@ -59,7 +51,7 @@ function isLogin(){
 
 function queryCart(pn, pz){
 	console.log("查询第" + pn + "页");
-	let id = sessionStorage.getItem("userId");
+	let i=0;
 	$.ajax({
 		type:"GET",
 		url:"/order/list",
@@ -76,15 +68,12 @@ function queryCart(pn, pz){
 				for(let record of res.data){
 					record.ischecked = false;
 					cartArr[record.id] = record;
-
+					let id=pn * 10 + i;
+					i++;
 					s+=
 					`<div class="cartd4" id="cartgood`+ record.id +`">
 					<ul class="cartul2">
-						<li class="cartli1">
-							<div class="cartd3">
-								<input type="checkbox" onclick='checkOneGood(`+ record.id +`)' class="ipt">
-							</div>
-						</li>
+						<li class="cartli1">`+ id +`</li>
 						<li class="cartli2">
 							<div class="fl">
 								<img src="` + record.img + `" alt="商品图片">
@@ -125,39 +114,17 @@ function queryCart(pn, pz){
 		}
 	})
 }
-
-function checkOneGood(id){
-	cartArr[id].ischecked = !cartArr[id].ischecked;
-	totalMoney();
-}
-
 function totalMoney(){
 	let total = 0;
-	let num = 0;
 	for(let key in cartArr){
 		if(cartArr.hasOwnProperty(key)){
 			let good = cartArr[key];
-			if(good.ischecked){
-				total += good.price * good.num;
-				num++;
-			}
+			total += good.price * good.num;
 		}
 	}
 	$("#totalNum").html(num);
 	$("#totalPrice").html(total);
 }
-
-function checkAll(){
-	let result = $("#sela").is(":checked");
-	$(".ipt").prop("checked", result);
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			cartArr[key].ischecked = result;
-		}
-	}
-	totalMoney();
-}
-
 function sub(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum);
@@ -166,14 +133,14 @@ function sub(id){
 		showToast("不能更小了");
 	}else{
 		num = num -1;
-		updateCart(id,num);
+		//updateCart(id,num);
 	}
 }
 
 function add(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum) + 1;
-	updateCart(id, num);
+	//updateCart(id, num);
 }
 
 function updateCart(_id, _num){

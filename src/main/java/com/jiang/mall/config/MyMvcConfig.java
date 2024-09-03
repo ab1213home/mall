@@ -1,8 +1,8 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.intercepter.AdminLoginInterceptor;
-import com.jiang.mall.intercepter.LoginIntercepter;
-import com.jiang.mall.intercepter.RegistrationIntercepter;
+import com.jiang.mall.intercepter.LoginInterceptor;
+import com.jiang.mall.intercepter.RegistrationInterceptor;
 import com.jiang.mall.intercepter.UserLoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +18,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Autowired
     private AdminLoginInterceptor adminLoginInterceptor;
     @Autowired
-    private RegistrationIntercepter registrationIntercepter;
+    private RegistrationInterceptor registrationInterceptor;
     @Autowired
     private UserLoginInterceptor userLoginIntercepter;
     /**
@@ -29,14 +29,14 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 添加登录拦截器，拦截所有以"/admin/"开头的请求
-        registry.addInterceptor(new LoginIntercepter())
+        registry.addInterceptor(new LoginInterceptor())
                 //.addPathPatterns("/admin/**")
                 .addPathPatterns("**/admin/**");
                 //.addPathPatterns("/user/**");
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin.html")
                 .addPathPatterns("/admin/**");
-        registry.addInterceptor(registrationIntercepter)
+        registry.addInterceptor(registrationInterceptor)
                 .addPathPatterns("/user/register_step1")
                 .addPathPatterns("/user/register_step1.html")
                 .addPathPatterns("/user/register_step2")
@@ -44,7 +44,16 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/register");
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/index")
-                .addPathPatterns("/user/")
+                .addPathPatterns("/cart")
+                .addPathPatterns("/cart.html")
+                .addPathPatterns("/orders")
+                .addPathPatterns("/orders.html")
+                .addPathPatterns("/checkout")
+                .addPathPatterns("/checkout.html")
+                .addPathPatterns("/user/modify/info")
+                .addPathPatterns("/user/modify/info.html")
+                .addPathPatterns("/user/modify/password")
+                .addPathPatterns("/user/modify/password.html")
                 .addPathPatterns("/user/index.html");
     }
 

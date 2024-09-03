@@ -1,3 +1,6 @@
+const urlParams = new URLSearchParams(window.location.search);
+const url = urlParams.get('url');
+
 // 登录表单提交处理函数
 function submitLoginForm() {
   // 获取表单数据
@@ -21,7 +24,11 @@ function submitLoginForm() {
         // 处理成功响应
         if (data.code === 200) {
             console.log('登录成功');
-            window.location.href = '../index.html';
+            if (url!=null){
+                window.location.href = url;
+            }else {
+                window.location.href = '../index.html';
+            }
         } else {
             console.log('登录失败');
             showToast(data.message);

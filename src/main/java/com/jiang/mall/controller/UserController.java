@@ -53,7 +53,11 @@ public class UserController {
         }
 
         // 获取session中的验证码
-        String captchaCode = session.getAttribute("captcha").toString();
+        Object captchaObj = session.getAttribute("captcha");
+        if (captchaObj == null) {
+            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
+        }
+        String captchaCode = captchaObj.toString();
 
         // 判断验证码
         if (!captchaCode.toLowerCase().equals(captcha)) {
@@ -141,7 +145,11 @@ public class UserController {
             return ResponseResult.failResult("验证码不能为空");
         }
         // 获取session中的验证码
-        String captchaCode = session.getAttribute("captcha").toString();
+        Object captchaObj = session.getAttribute("captcha");
+        if (captchaObj == null) {
+            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
+        }
+        String captchaCode = captchaObj.toString();
 
         // 判断验证码
         if (!captchaCode.toLowerCase().equals(captcha)) {

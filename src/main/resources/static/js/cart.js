@@ -38,18 +38,10 @@ function isLogin(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				//已登录
-				$("#cartNoLogin").hide();
-				$("#cartLogin").show();
 				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
-				document.getElementById('register').style.display = 'none';
-				document.getElementById('register_spacer').style.display = 'none';
 				sessionStorage.setItem("userId", res.data.id);
 				result = true;
 			}else{
-				//未登录
-				$("#cartNoLogin").show();
-				$("#cartLogin").hide();
 				result = false;
 			}
 		}

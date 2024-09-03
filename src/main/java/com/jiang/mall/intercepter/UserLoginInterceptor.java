@@ -10,15 +10,16 @@ public class UserLoginInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+		String requestURI = request.getRequestURI();
 		if (null != request.getSession().getAttribute("UserIsLogin")&&request.getSession().getAttribute("UserId") != null) {
             if ("true" == request.getSession().getAttribute("UserIsLogin")){
 				return true;
             }else{
-                response.sendRedirect(request.getContextPath() + "/user/login.html");
+                response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
                 return false;
             }
         } else {
-            response.sendRedirect(request.getContextPath() + "/user/login.html");
+            response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
             return false;
         }
     }
