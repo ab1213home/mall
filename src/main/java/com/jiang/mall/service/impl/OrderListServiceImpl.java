@@ -7,5 +7,5 @@ import com.jiang.mall.service.IOrderListService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IOrderListServiceImpl extends ServiceImpl<OrderListMapper, OrderList> implements IOrderListService {
+public class OrderListServiceImpl extends ServiceImpl<OrderListMapper, OrderList> implements IOrderListService {
 }

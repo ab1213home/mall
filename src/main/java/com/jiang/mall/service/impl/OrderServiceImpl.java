@@ -7,5 +7,5 @@ import com.jiang.mall.service.IOrderService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 }

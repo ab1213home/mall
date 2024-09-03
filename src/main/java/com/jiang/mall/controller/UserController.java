@@ -171,6 +171,7 @@ public class UserController {
             session.setAttribute("UserFirstName", user.getFirstName());
             session.setAttribute("UserLastName", user.getLastName());
             session.setAttribute("UserBirthDate", user.getBirthDate());
+            session.setAttribute("UserDefaultAddressId", user.getDefaultAddressId());
             if (user.getRoleId() >= AdminRoleId) {
                 session.setAttribute("UserIsAdmin", "true");
             } else {
@@ -241,6 +242,9 @@ public class UserController {
         }
         if (session.getAttribute("UserId")!=null){
             session.removeAttribute("UserId");
+        }
+        if (session.getAttribute("UserDefaultAddressId")!=null){
+            session.removeAttribute("UserDefaultAddressId");
         }
         return ResponseResult.okResult("修改密码成功！");
     }
@@ -334,6 +338,9 @@ public class UserController {
         if (session.getAttribute("UserId")!=null){
             session.removeAttribute("UserId");
         }
+        if (session.getAttribute("UserDefaultAddressId")!=null){
+            session.removeAttribute("UserDefaultAddressId");
+        }
         return ResponseResult.okResult();
     }
 
@@ -352,6 +359,13 @@ public class UserController {
         }
         Integer userId = (Integer) session.getAttribute("UserId");
         String username = (String) session.getAttribute("UserName");
+//        String email = (String) session.getAttribute("UserEmail");
+//        String phone = (String) session.getAttribute("UserPhone");
+//        String firstName = (String) session.getAttribute("UserFirstName");
+//        String lastName = (String) session.getAttribute("UserLastName");
+//        Date birthDate = (Date) session.getAttribute("UserBirthDate");
+//        Integer roleId = (Integer) session.getAttribute("UserRole");
+//        Integer defaultAddressId = (Integer) session.getAttribute("UserDefaultAddressId");
         UserVo user = new UserVo(userId, username);
         return ResponseResult.okResult(user);
     }
