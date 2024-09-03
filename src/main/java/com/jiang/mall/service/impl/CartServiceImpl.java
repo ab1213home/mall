@@ -143,5 +143,21 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return cart.size();
     }
 
+    @Override
+    public List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize, List<Integer> listProdId) {
+        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId)
+                                                .in(listProdId != null && !listProdId.isEmpty(), Cart::getProdId, listProdId);
+        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
+        List<CartVo> cartVos = BeanCopyUtils.copyBeanList(carts, CartVo.class);
+        for (CartVo cartVo : cartVos) {
+            Product product = productMapper.selectById(cartVo.getProdId());
+            cartVo.setProdName(product.getTitle());
+            cartVo.setPrice(product.getPrice());
+            cartVo.setImg(product.getImg());
+        }
+        return cartVos;
+    }
+
 
 }
