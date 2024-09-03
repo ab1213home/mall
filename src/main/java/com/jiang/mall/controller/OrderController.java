@@ -31,25 +31,29 @@ public class OrderController {
 		if (List_checkout.size() == 0) {
 			return ResponseResult.failResult("请选择商品");
 		}
-		if (session.getAttribute("userId") == null){
+		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}
 		if (session.getAttribute("UserIsLogin")==null){
             return ResponseResult.failResult("请先登录");
         }
-		if (session.getAttribute("UserIsLogin").equals("true")){
+		if (!session.getAttribute("UserIsLogin").equals("true")){
 			return ResponseResult.failResult("请先登录");
 		}
+		List<Integer> List_prodId = null;
 		for (Checkout checkout : List_checkout) {
-			if (checkout.getNum() <= 0) {
-				return ResponseResult.failResult("请选择正确的商品数量");
-			}
-			if (productService.queryStoksById(checkout.getProdId()) < checkout.getNum()) {
-				return ResponseResult.failResult("商品库存不足");
+			if (checkout.isIschecked()){
+				if (checkout.getNum() <= 0) {
+					return ResponseResult.failResult("请选择正确的商品数量");
+				}
+				if (productService.queryStoksById(checkout.getProdId()) < checkout.getNum()) {
+					return ResponseResult.failResult("商品库存不足");
+				}
+				List_prodId.add(checkout.getProdId());
 			}
 		}
-
-		session.setAttribute("List_checkout", List_checkout);
+		session.setAttribute("List_prodId", List_prodId);
+//		session.setAttribute("List_checkout", List_checkout);
 		System.out.println(List_checkout);
 		return ResponseResult.okResult();
 	}
