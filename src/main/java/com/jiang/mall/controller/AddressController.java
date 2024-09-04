@@ -207,4 +207,17 @@ public class AddressController {
 			return ResponseResult.failResult("删除失败");
 		return ResponseResult.okResult();
 	}
+
+	@GetMapping("/getAddressById/{id}")
+	public ResponseResult getAddressById(@PathVariable("id") Integer id, HttpSession session){
+		if (session.getAttribute("UserIsLogin")!=null){
+			if (session.getAttribute("UserIsLogin").equals("false"))
+				return ResponseResult.failResult("您未登录，请先登录");
+		}
+		if (session.getAttribute("UserId")==null)
+			return ResponseResult.failResult("您未登录，请先登录");
+		Integer userId = (Integer) session.getAttribute("UserId");
+		AddressVo address = addressService.getAddressById(id, userId);
+		return ResponseResult.okResult(address);
+	}
 }

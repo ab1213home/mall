@@ -1,4 +1,4 @@
-var addressArr = {};
+let addressArr = {};
 let currentPageNum = 1;
 let num = 0;
 $(document).ready(function(){
@@ -7,7 +7,47 @@ $(document).ready(function(){
 	getAddressNum();
 	queryAddress(1,10);
 	bindPreNextPage();
+	const itemModal = document.querySelector('#itemModal');
+        if (itemModal) {
+            itemModal.addEventListener("show.bs.modal", function (e){
+                const button = e.relatedTarget;
+                const type = button.getAttribute('data-bs-type');
+
+                const modalTitle = $('#itemModalLabel');
+                const submitBtn = $('#submit');
+
+                if (type ==='add') {
+                    modalTitle.text('添加收件信息');
+                    submitBtn.text('添加');
+                    submitBtn.off('click').on('click', function(){
+						insertAddress();
+					});
+                    clearModal();
+                } else if (type ==='edit') {
+                    modalTitle.text('编辑收件信息');
+                    submitBtn.text('保存');
+                    const id = button.getAttribute('data-bs-prod-id');
+                    submitBtn.off('click').on('click', function(){
+						updateAddress(id);
+					});
+                    clearModal();
+                    getAddress(id);
+                }
+            })
+        }
 })
+function clearModal() {
+	$("#firstName").val('');
+	$("#lastName").val('');
+	$("#phone").val('');
+	$("#country").val('');
+	$("#province").val('');
+	$("#city").val('');
+	$("#district").val('');
+	$("#addressDetail").val('');
+	$("#postalCode").val('');
+	$("#default").prop("checked", false);
+}
 function getAddressNum(){
 	$.ajax({
 		type:"GET",
@@ -243,6 +283,7 @@ function insertAddress() {
 			if (data.code === 200) {
 				console.log('地址新增成功');
 				$('#itemModal').modal('hide')
+				queryAddress(currentPageNum,10);
 				showToast('地址新增成功');
 			} else {
 				console.log('地址新增失败');
@@ -256,59 +297,84 @@ function insertAddress() {
 	  });
 	}
 
-// 绑定表单提交事件
-$(document).ready(function() {
-  // 登录表单提交
-  $('#addressForm').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    insertAddress(); // 自定义提交处理
-  });
-});
-// 填充模态框表单
-function fillModalForm(details) {
-    const modal = document.getElementById('itemModal');
-    modal.querySelector('#firstName').value = details.firstName;
-    modal.querySelector('#lastName').value = details.lastName;
-    modal.querySelector('#phone').value = details.phone;
-    modal.querySelector('#country').value = details.country;
-    modal.querySelector('#province').value = details.province;
-    modal.querySelector('#city').value = details.city;
-    modal.querySelector('#district').value = details.district;
-    modal.querySelector('#addressDetail').value = details.address;
-    modal.querySelector('#postalCode').value = details.postalCode;
-    modal.querySelector('#isDefaultAddress').checked = details.isDefault;
+// // 绑定表单提交事件
+// $(document).ready(function() {
+//   // 登录表单提交
+//   $('#addressForm').on('submit', function(event) {
+//     event.preventDefault(); // 阻止默认提交行为
+//     insertAddress(); // 自定义提交处理
+//   });
+// });
 
-    modal.querySelector('.modal-title').innerText = '编辑收货信息';
-    modal.querySelector('#addressForm').addEventListener('submit', handleFormSubmit);
-    $(modal).modal('show'); // 显示模态框
-}
-function handleFormSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    updateAddress(data).then(() => {
-        alert('地址已更新');
-        $('#itemModal').modal('hide'); // 关闭模态框
-        initTable(); // 刷新表格
-    }).catch(error => {
-        console.error('Error updating address:', error);
-    });
+function getAddress(id) {
+	$.ajax({
+		url: '/address/getAddressById/' + id,
+		type: 'get',
+		dataType: 'json',
+		success: function (res) {
+			console.log(res);
+			//res.data渲染为modal初始值
+			const address = res.data;
+			$("#firstName").val(address.firstName);
+			$("#lastName").val(address.lastName);
+			$("#phone").val(address.phone);
+			$("#country").val(address.country);
+			$("#province").val(address.province);
+			$("#city").val(address.city);
+			$("#district").val(address.district);
+			$("#addressDetail").val(address.addressDetail);
+			$("#postalCode").val(address.postalCode);
+			$("#isDefault").prop("checked",address.default);
+		}
+	});
 }
 
 // 更新地址
-function updateAddress(data) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: '/address/update',
-            type: 'POUT',
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (response) {
-                resolve(response);
-            },
-            error: function (error) {
-                reject(error);
-            }
-        });
-    });
+function updateAddress(id) {
+	const firstName= $("#firstName").val();
+	const lastName= $("#lastName").val();
+	const phone= $("#phone").val();
+	const country= $("#country").val();
+	const province= $("#province").val();
+	const city= $("#city").val();
+	const district= $("#district").val();
+	const addressDetail= $("#addressDetail").val();
+	const postalCode= $("#postalCode").val();
+	const isDefault= $("#isDefault").val();
+  	// 构建请求体
+  	const data = {
+		id: id,
+	  	firstName: firstName,
+	  	lastName: lastName,
+	  	phone: phone,
+	  	country: country,
+	  	province: province,
+	  	city: city,
+	  	district: district,
+	  	addressDetail: addressDetail,
+	  	postalCode: postalCode,
+	  	isDefault: isDefault
+  	};
+
+  	// 发送 AJAX 请求
+  	$.ajax({
+    	url: '/address/update',
+    	type: 'POST',
+    	data: data,
+    	success: function (data) {
+			if (data.code === 200) {
+				console.log('地址修改成功');
+				$('#itemModal').modal('hide')
+				queryAddress(currentPageNum,10);
+				showToast('地址修改成功');
+			} else {
+				console.log('地址修改失败');
+				showToast(data.message);
+			}
+    	},
+		fail: function(xhr, status, error) {
+		  console.error('地址修改失败:', error);
+		  showToast('地址修改失败，请联系管理员！' + error);
+		}
+	  });
 }

@@ -99,4 +99,19 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    }
 	}
 
+	@Override
+	public AddressVo getAddressById(Integer id, Integer userId) {
+		Address address = addressMapper.selectById(id);
+		if (!address.getUserId().equals(userId))
+			return null;
+		AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
+		QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
+	    queryWrapper_use.eq("id", userId);
+	    // 根据查询条件尝试获取用户信息。
+	    User user = userMapper.selectOne(queryWrapper_use);
+	    Integer defaultAddressId = user.getDefaultAddressId();
+		addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
+		return addressVo;
+	}
+
 }
