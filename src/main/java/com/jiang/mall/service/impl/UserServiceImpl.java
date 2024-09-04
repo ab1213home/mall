@@ -1,6 +1,7 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.UserMapper;
@@ -276,9 +277,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper);
+		System.out.println(user);
 		if (user!=null){
-			user.setDefaultAddressId(id);
-			return userMapper.updateById(user)>0;
+			User newUser = new User();
+			newUser.setDefaultAddressId(id);
+			newUser.setId(userId);
+			System.out.println(newUser);
+			return userMapper.updateById(newUser)>0;
 		}
 		return false;
 	}

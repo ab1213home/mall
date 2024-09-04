@@ -45,7 +45,10 @@ function queryMyUserInfo(){
 		}
 	});
 }
-
+function showToast(message){
+	$("#messagetoast").html(message);
+	$("#liveToast").toast('show');
+}
 // 定义登出函数
 function logout() {
   // 清除登录状态（清除 token 或 session）

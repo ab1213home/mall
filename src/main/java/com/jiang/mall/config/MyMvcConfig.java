@@ -54,6 +54,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/info.html")
                 .addPathPatterns("/user/modify/password")
                 .addPathPatterns("/user/modify/password.html")
+                .addPathPatterns("/user/modify/address")
+                .addPathPatterns("/user/modify/address.html")
                 .addPathPatterns("/user/index.html");
     }
 

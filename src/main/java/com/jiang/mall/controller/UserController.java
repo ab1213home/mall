@@ -271,6 +271,11 @@ public class UserController {
         userInfo.setId(userId);
         if (!userService.modifyUserInfo(userInfo))
             return ResponseResult.failResult("修改失败！");
+        session.setAttribute("UserEmail", userInfo.getEmail());
+        session.setAttribute("UserPhone", userInfo.getPhone());
+        session.setAttribute("UserFirstName", userInfo.getFirstName());
+        session.setAttribute("UserLastName", userInfo.getLastName());
+        session.setAttribute("UserBirthDate", userInfo.getBirthDate());
         return ResponseResult.okResult("用户信息更新成功！");
     }
 

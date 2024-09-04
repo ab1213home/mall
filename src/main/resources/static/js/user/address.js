@@ -3,7 +3,7 @@ let currentPageNum = 1;
 let num = 0;
 $(document).ready(function(){
 	isAdminUser();
-	// queryMyUserInfo();
+	queryMyUserInfo();
 	getAddressNum();
 	queryAddress(1,10);
 	bindPreNextPage();
@@ -55,11 +55,21 @@ function queryAddress(pn, pz) {
                 console.log(res.data);
 				// 清空 tbody 中原有的内容
 				$('#addresslist tbody').empty();
+				if (res.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#addresslist tbody').append(row);
+				}
+				addressArr = res.data;
                 res.data.forEach((address,index) => {
                     const row =
                         `
                         <tr>
-                            <th scope="row">${(current_page - 1) * 10 + index + 1}</th>
+                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
                             <td>${address.lastName+" "+address.firstName}</td>
                             <td>${address.phone}</td>
                             <td>${address.country}</td>
@@ -68,10 +78,10 @@ function queryAddress(pn, pz) {
                             <td>${address.district}</td>
                             <td>${address.addressDetail}</td>
                             <td>${address.postalCode}</td>
-                            <td>${address.isDefault ? "是" : ""}</td>
+                            <td>${address.default ? "是" : ""}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="delProduct(${address.id})">删除</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
                             </td>
                         </tr>
                         `;
@@ -96,7 +106,24 @@ function queryAddress(pn, pz) {
         }
     });
 }
-
+function delAddress(id) {
+	$.ajax({
+		type:"GET",
+		url:"/address/delete",
+		data:{
+			id:id
+		},
+		dataType:"json",
+		success:function(res){
+			if(res.code == 200){
+				showToast("删除成功");
+				queryAddress(currentPageNum, 10);
+			}else{
+				showToast("删除失败");
+			}
+		}
+	})
+}
 
 function isAdminUser() {
 	$.ajax({
@@ -214,16 +241,17 @@ function insertAddress() {
     	data: data,
     	success: function (data) {
 			if (data.code === 200) {
-				console.log('密码修改成功');
-				showToast('密码已成功修改，请重新登录！');
+				console.log('地址新增成功');
+				$('#itemModal').modal('hide')
+				showToast('地址新增成功');
 			} else {
-				console.log('密码修改失败');
+				console.log('地址新增失败');
 				showToast(data.message);
 			}
     	},
 		fail: function(xhr, status, error) {
-		  console.error('密码修改失败:', error);
-		  showToast('密码修改失败，请联系管理员！' + error);
+		  console.error('地址新增失败:', error);
+		  showToast('地址新增失败，请联系管理员！' + error);
 		}
 	  });
 	}

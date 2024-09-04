@@ -11,4 +11,8 @@ public interface IAddressService extends IService<Address> {
 	List<AddressVo> getAddressList(Integer userId, Integer pageNum, Integer pageSize);
 
 	Integer getAddressNum(Integer userId);
+
+	int update(Address address);
+
+	boolean deleteAddress(Integer id, Integer userId);
 }

@@ -1,6 +1,7 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.AddressMapper;
@@ -55,4 +56,47 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 		List<Address> addresses = addressMapper.selectList(queryWrapper_address);
 		return addresses.size();
 	}
+
+	@Override
+	public int update(Address address) {
+		UpdateWrapper<Address> updateWrapper = new UpdateWrapper<>();
+		updateWrapper.eq("id", address.getId());
+		return addressMapper.update(address, updateWrapper);
+	}
+
+	@Override
+	public boolean deleteAddress(Integer id, Integer userId) {
+	    QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
+	    queryWrapper_use.eq("id", userId);
+	    queryWrapper_use.eq("is_active", true);
+	    // 根据查询条件尝试获取用户信息。
+	    User user = userMapper.selectOne(queryWrapper_use);
+	    Integer defaultAddressId = user.getDefaultAddressId();
+
+	    if (defaultAddressId.equals(id)) {
+	        QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
+	        queryWrapper_address.eq("user_id", userId);
+	        List<Address> addresses = addressMapper.selectList(queryWrapper_address);
+
+	        if (addresses.size() > 1) {
+	            for (Address address : addresses) {
+	                if (!address.getId().equals(id)) {
+	                    user.setDefaultAddressId(address.getId());
+	                    userMapper.update(user, queryWrapper_use);
+	                    break;
+	                }
+	            }
+	        } else {
+	            user.setDefaultAddressId(null);
+	            userMapper.update(user, queryWrapper_use);
+	        }
+
+	        // 返回删除成功的状态
+	        return addressMapper.deleteById(id) > 0;
+	    } else {
+	        // 返回删除状态
+	        return addressMapper.deleteById(id) > 0;
+	    }
+	}
+
 }

@@ -25,7 +25,10 @@ function isAdminUser() {
 		}
 	});
 }
-
+function showToast(message){
+	$("#messagetoast").html(message);
+	$("#liveToast").toast('show');
+}
 function queryMyUserInfo(){
 	$.ajax({
 		type:"GET",
