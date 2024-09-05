@@ -54,9 +54,9 @@ function getAddressNum(){
 		url:"/address/getNum",
 		data:{},
 		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				num = res.data;
+		success:function(response){
+			if(response.code == 200){
+				num = response.data;
 			}
 		}
 	})
@@ -90,12 +90,12 @@ function queryAddress(pn, pz) {
             pageSize: pz
         },
         dataType: "json",
-        success: function (res) {
-            if (res.code == 200) {
-                console.log(res.data);
+        success: function (response) {
+            if (response.code == 200) {
+                console.log(response.data);
 				// 清空 tbody 中原有的内容
 				$('#addresslist tbody').empty();
-				if (res.data.length == 0) {
+				if (response.data.length == 0) {
 					const row =
 						`
 						<tr>
@@ -104,21 +104,24 @@ function queryAddress(pn, pz) {
 						`;
 					$('#addresslist tbody').append(row);
 				}
-				addressArr = res.data;
-                res.data.forEach((address,index) => {
+				addressArr = {};
+				for(let record of response.data){
+					addressArr[record.id] = record;
+				}
+                response.data.forEach((address,index) => {
                     const row =
                         `
                         <tr>
                             <th scope="row">${(pn - 1) * 10 + index + 1}</th>
-                            <td>${address.lastName+" "+address.firstName}</td>
-                            <td>${address.phone}</td>
-                            <td>${address.country}</td>
-                            <td>${address.province}</td>
-                            <td>${address.city}</td>
-                            <td>${address.district}</td>
-                            <td>${address.addressDetail}</td>
-                            <td>${address.postalCode}</td>
-                            <td>${address.default ? "是" : ""}</td>
+                            <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
+                            <td id="phone`+ address.id +`">${address.phone}</td>
+                            <td id="country`+ address.id +`">${address.country}</td>
+                            <td id="province`+ address.id +`">${address.province}</td>
+                            <td id="city`+ address.id +`">${address.city}</td>
+                            <td id="district`+ address.id +`">${address.district}</td>
+                            <td id="addressDetail`+ address.id +`">${address.addressDetail}</td>
+                            <td id="postalCode`+ address.id +`">${address.postalCode}</td>
+                            <td id="default`+ address.id +`">${address.default ? "是" : ""}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
@@ -154,8 +157,8 @@ function delAddress(id) {
 			id:id
 		},
 		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
+		success:function(response){
+			if(response.code == 200){
 				showToast("删除成功");
 				queryAddress(currentPageNum, 10);
 			}else{
@@ -172,10 +175,10 @@ function isAdminUser() {
 		data:{},
 		async:false,	//设置同步请求
 		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
+		success:function(response){
+			if(response.code == 200){
 				//已登录
-				if (res.data == true){
+				if (response.data == true){
 					document.getElementById('admin_user').style.display = 'block';
 				}else{
 					document.getElementById('admin_user').style.display = 'none';
@@ -195,11 +198,11 @@ function queryMyUserInfo(){
 		data:{},
 		async:false,	//设置同步请求
 		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
+		success:function(response){
+			if(response.code == 200){
 				//已登录
-				$("#username").html(res.data.username);
-				$("#welcome").html("欢迎回来，"+res.data.username+"!");
+				$("#username").html(response.data.username);
+				$("#welcome").html("欢迎回来，"+response.data.username+"!");
 			}else {
 				showToast("未登录");
 				window.location.href = '/user/login.html';
@@ -219,8 +222,8 @@ function logout() {
 		data:{},
 		async:false,	//设置同步请求
 		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
+		success:function(response){
+			if(response.code == 200){
 				// 跳转到登录页面
 				window.location.href = '/user/login.html';
 			}
@@ -279,15 +282,15 @@ function insertAddress() {
     	url: '/address/insert',
     	type: 'POST',
     	data: data,
-    	success: function (data) {
-			if (data.code === 200) {
+    	success: function (response) {
+			if (response.code === 200) {
 				console.log('地址新增成功');
 				$('#itemModal').modal('hide')
 				queryAddress(currentPageNum,10);
 				showToast('地址新增成功');
 			} else {
 				console.log('地址新增失败');
-				showToast(data.message);
+				showToast(response.message);
 			}
     	},
 		fail: function(xhr, status, error) {
@@ -297,36 +300,39 @@ function insertAddress() {
 	  });
 	}
 
-// // 绑定表单提交事件
-// $(document).ready(function() {
-//   // 登录表单提交
-//   $('#addressForm').on('submit', function(event) {
-//     event.preventDefault(); // 阻止默认提交行为
-//     insertAddress(); // 自定义提交处理
-//   });
-// });
 
 function getAddress(id) {
-	$.ajax({
-		url: '/address/getAddressById/' + id,
-		type: 'get',
-		dataType: 'json',
-		success: function (res) {
-			console.log(res);
-			//res.data渲染为modal初始值
-			const address = res.data;
-			$("#firstName").val(address.firstName);
-			$("#lastName").val(address.lastName);
-			$("#phone").val(address.phone);
-			$("#country").val(address.country);
-			$("#province").val(address.province);
-			$("#city").val(address.city);
-			$("#district").val(address.district);
-			$("#addressDetail").val(address.addressDetail);
-			$("#postalCode").val(address.postalCode);
-			$("#isDefault").prop("checked",address.default);
-		}
-	});
+	// $.ajax({
+	// 	url: '/address/getAddressById/' + id,
+	// 	type: 'get',
+	// 	dataType: 'json',
+	// 	success: function (res) {
+	// 		console.log(res);
+	// 		//res.data渲染为modal初始值
+	// 		const address = res.data;
+	// 		$("#firstName").val(address.firstName);
+	// 		$("#lastName").val(address.lastName);
+	// 		$("#phone").val(address.phone);
+	// 		$("#country").val(address.country);
+	// 		$("#province").val(address.province);
+	// 		$("#city").val(address.city);
+	// 		$("#district").val(address.district);
+	// 		$("#addressDetail").val(address.addressDetail);
+	// 		$("#postalCode").val(address.postalCode);
+	// 		$("#isDefault").prop("checked",address.default);
+	// 	}
+	// });
+	const address = addressArr[id];
+	$("#firstName").val(address.firstName);
+	$("#lastName").val(address.lastName);
+	$("#phone").val(address.phone);
+	$("#country").val(address.country);
+	$("#province").val(address.province);
+	$("#city").val(address.city);
+	$("#district").val(address.district);
+	$("#addressDetail").val(address.addressDetail);
+	$("#postalCode").val(address.postalCode);
+	$("#isDefault").prop("checked",address.default);
 }
 
 // 更新地址
@@ -340,7 +346,7 @@ function updateAddress(id) {
 	const district= $("#district").val();
 	const addressDetail= $("#addressDetail").val();
 	const postalCode= $("#postalCode").val();
-	const isDefault= $("#isDefault").val();
+	const isDefault= $("#isDefault").prop("checked");
   	// 构建请求体
   	const data = {
 		id: id,
@@ -361,20 +367,29 @@ function updateAddress(id) {
     	url: '/address/update',
     	type: 'POST',
     	data: data,
-    	success: function (data) {
-			if (data.code === 200) {
+    	success: function (response) {
+			if (response.code === 200) {
 				console.log('地址修改成功');
+				addressArr[id]=data;
 				$('#itemModal').modal('hide')
-				queryAddress(currentPageNum,10);
+				$('#name' + id).text(lastName + " " + firstName);
+                $('#phone' + id).text(phone);
+                $('#country' + id).text(country);
+                $('#province' + id).text(province);
+                $('#city' + id).text(city);
+                $('#district' + id).text(district);
+                $('#addressDetail' + id).text(addressDetail);
+                $('#postalCode' + id).text(postalCode);
+                $('#default' + id).text(isDefault ? "是" : "");
 				showToast('地址修改成功');
 			} else {
 				console.log('地址修改失败');
-				showToast(data.message);
+				showToast(response.message);
 			}
-    	},
-		fail: function(xhr, status, error) {
-		  console.error('地址修改失败:', error);
-		  showToast('地址修改失败，请联系管理员！' + error);
+		},
+		fail: function (xhr, status, error) {
+			console.error('地址修改失败:', error);
+			showToast('地址修改失败，请联系管理员！' + error);
 		}
-	  });
+	});
 }

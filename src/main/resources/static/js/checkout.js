@@ -192,7 +192,7 @@ function checkOut(){
         dataType: 'json',
         success: function(res) {
             if (res.code == 200){
-				window.location.href = "./orders.html";
+				window.location.href = "../checkout.html";
 			}else{
 				showToast("下单失败:"+res.message);
 			}

@@ -1,10 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="bootstrap/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
+		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/cart.css">
+		<script src="js/jquery.min.js"></script>
+		<script src="bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+		<link rel="shortcut icon" href="/images/logo.png" />
+		<script src="js/checkout.js"></script>
+		<title>订单确认页</title>
+	</head>
+	<body class="index">
+		<div class="top">
+			<div class="inner-top w">
+				<ul class="fr">
+					<!-- li变为行内块元素 -->
+					<li id="username"><a href="./user/login.html">你好！nano</a></li>
+					<li class="spacer"></li>
+					<li><a href="javascript:">网络无障碍</a></li>
+				</ul>
+				<div class="cls"></div>
+			</div>
+		</div>
+		<!-- 头部搜索部分 -->
+		<div class="header">
+			<div class="w headerbody">
+				<div class="hb1">
+					<a href="index.html">
+						<img src="images/logo.png" alt="学校图标">
+					</a>
+				</div>
+				<!-- 父相子绝 -->
+				<div class="hb2">
+					<div class="searchbody">
+						<input type="text" class="search_m" placeholder="搜你所想...">
+						<button><i class="bi bi-search search-icon"></i></button>
+						<div class="search_t">
+							<ul>
+								<li><a href="#">端午节</a></li>
+								<li><a href="#">手机</a></li>
+								<li><a href="#">鞋子</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="hb3"></div>
+			</div>
+		</div>
+		<div class="w">
+			<div class="cartd1">
+				确认订单信息
+			</div>
+			<div class="cartd2">
+				<ul class="cartul1">
+					<li class="cartli1">序号</li>
+					<li class="cartli2">商品</li>
+					<li class="crtli3">单价</li>
+					<li class="cartli4">数量</li>
+					<li class="cartli5">小计</li>
+					<li class="cartli6">操作</li>
+				</ul>
+			</div>
+			<div id="cartgoodlist">
+			</div>
+			<div class="cartd6">
+				<button id="prePage" disabled>上一页</button>
+				<button id="nextPage">下一页</button>
+			</div>
+			<div>
+				<div class="fr">
+					<ul class="cartul3">
+						<li>已选择<span id="totalNum">0</span>件商品</li>
+						<li>总价: ￥<span id="totalPrice">0</span></li>
+					</ul>
+				</div>
+				<div class="cls"></div>
+			</div>
+		</div>
+		<div class="w">
+			<div class="cartd1">
+				<div class="cartd2">
+					<ul class="cartul1">
+						<li class="cartli1">收货信息</li>
+						<li class="cartli2">收货人</li>
+						<li class="cartli3">联系电话</li>
+						<li class="cartli4">收货地址</li>
+					</ul>
+				</div>
+				<div class="cartd3">
+					<ul class="cartul2">
+						<li class="cartli1">
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
 
-</body>
+
+	<div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 45%; bottom: 50%;">
+	  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+	    <div class="toast-header">
+	      <strong class="mr-auto">提示</strong>
+	      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+	        <span aria-hidden="true">&times;</span>
+	      </button>
+	    </div>
+	    <div class="toast-body" id="messagetoast" style="height: 80px; width: 280px;">
+	    </div>
+	  </div>
+	</div>
+
 </html>
