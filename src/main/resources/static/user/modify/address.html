@@ -167,10 +167,7 @@
                                     <th scope="col">序号</th>
                                     <th scope="col">收件人姓名</th>
                                     <th scope="col">联系电话</th>
-                                    <th scope="col">地址所在的国家</th>
-                                    <th scope="col">地址所在的省或州</th>
-                                    <th scope="col">地址所在的城市</th>
-                                    <th scope="col">地址所在的区或县</th>
+                                    <th scope="col">地址所在的行政区</th>
                                     <th scope="col">具体的街道、小区、门牌号等信息</th>
                                     <th scope="col">邮政编码</th>
                                     <th scope="col">是否为默认地址</th>
@@ -190,18 +187,6 @@
                         </div>
                     </div>
                     <!-- /.login-card-body -->
-                    <div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 45%; bottom: 50%;">
-                      <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
-                        <div class="toast-header">
-                          <strong class="mr-auto">提示</strong>
-                          <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="toast-body" id="messagetoast" style="height: 80px; width: 280px;">
-                        </div>
-                      </div>
-                  </div>
                 </div>
             </div>
         </div>
@@ -220,6 +205,18 @@
     <!-- page-body-wrapper ends -->
   </div>
   <!-- container-scroller -->
+      <div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 45%; bottom: 50%;">
+          <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
+              <div class="toast-header">
+                  <strong class="mr-auto">提示</strong>
+                  <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="toast-body" id="messagetoast" style="height: 80px; width: 280px;">
+              </div>
+          </div>
+      </div>
     <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

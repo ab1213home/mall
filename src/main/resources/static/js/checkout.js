@@ -1,17 +1,47 @@
 sessionStorage = window.sessionStorage;
 var cartArr = {};	//key是cart的id,值是商品具体记录
-let currentPageNum = 1;
-let num = 0;
+var addressArr = {};
+let currentPageNum_product = 1;
+let currentPageNum_address = 1;
+let num_product = 0;
+let num_address = 0;
 $(document).ready(function(){
+    isLogin();
+	getCartNum();
+	queryCart(1, 10);
+	bindPreNextPage_product();
+	getAddressNum();
+	queryAddress(1,10);
+	bindPreNextPage_address();
+	const itemModal = document.querySelector('#itemModal');
+        if (itemModal) {
+            itemModal.addEventListener("show.bs.modal", function (e){
+                const button = e.relatedTarget;
+                const type = button.getAttribute('data-bs-type');
 
-	let is = isLogin();
-	console.log(is);
-	if(is){
-		getCartNum();
-		queryCart(1, 10);
-		bindPreNextPage();
-	}
-	document.getElementById('next-btn').addEventListener('click', function() {
+                const modalTitle = $('#itemModalLabel');
+                const submitBtn = $('#submit');
+
+                if (type ==='add') {
+                    modalTitle.text('添加收件信息');
+                    submitBtn.text('添加');
+                    submitBtn.off('click').on('click', function(){
+						insertAddress();
+					});
+                    clearModal();
+                } else if (type ==='edit') {
+                    modalTitle.text('编辑收件信息');
+                    submitBtn.text('保存');
+                    const id = button.getAttribute('data-bs-prod-id');
+                    submitBtn.off('click').on('click', function(){
+						updateAddress(id);
+					});
+                    clearModal();
+                    getAddress(id);
+                }
+            })
+        }
+	document.getElementById('submitOrder').addEventListener('click', function() {
 		checkOut();
 	});
 })
@@ -23,7 +53,7 @@ function getCartNum(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				num = res.data;
+				num_product = res.data;
 			}else{
 				showToast(res.message);
 				window.location.href = "./cart.html";
@@ -51,7 +81,47 @@ function isLogin(){
 	});
 	return result;
 }
+function clearModal() {
+	$("#firstName").val('');
+	$("#lastName").val('');
+	$("#phone").val('');
+	$("#country").val('');
+	$("#province").val('');
+	$("#city").val('');
+	$("#district").val('');
+	$("#addressDetail").val('');
+	$("#postalCode").val('');
+	$("#default").prop("checked", false);
+}
+function getAddressNum(){
+	$.ajax({
+		type:"GET",
+		url:"/address/getNum",
+		data:{},
+		dataType:"json",
+		success:function(response){
+			if(response.code == 200){
+				num_address = response.data;
+			}
+		}
+	})
+}
+function bindPreNextPage_address(){
+	$("#prePage_address").on("click", function(){
+		if(currentPageNum_address <= 1){
+			// alert("已经是第一页");
+			showToast("已经是第一页");
+			return;
+		}
+		let pageNum = currentPageNum_address -1;
+		queryAddress(pageNum, 10);
+	})
 
+	$("#nextPage_address").on("click", function(){
+		let pageNum = currentPageNum_address +1;
+		queryAddress(pageNum, 10);
+	})
+}
 function queryCart(pn, pz){
 	console.log("查询第" + pn + "页");
 	let i= 1;
@@ -100,13 +170,13 @@ function queryCart(pn, pz){
 				}
 				$(".cartd4").remove();
 				$("#cartgoodlist").append(s);
-				currentPageNum = pn;
-				if(currentPageNum == 1){
+				currentPageNum_product = pn;
+				if(currentPageNum_product == 1){
 					$("#prePage").prop("disabled", true);
 				}else{
 					$("#prePage").prop("disabled", false);
 				}
-				if(num-currentPageNum*pz < 0){
+				if(num_product-currentPageNum_product*pz < 0){
 					$("#nextPage").prop("disabled", true);
 				}else{
 					$("#nextPage").prop("disabled", false);
@@ -117,6 +187,227 @@ function queryCart(pn, pz){
 		}
 	})
 }
+function queryAddress(pn, pz) {
+    $.ajax({
+        type: "GET",
+        url: "/address/list",
+        data: {
+            pageNum: pn,
+            pageSize: pz
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.code == 200) {
+                console.log(response.data);
+				// 清空 tbody 中原有的内容
+				$('#addresslist tbody').empty();
+				if (response.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#addresslist tbody').append(row);
+				}
+				addressArr = {};
+				for(let record of response.data){
+					addressArr[record.id] = record;
+				}
+                response.data.forEach((address,index) => {
+                    const row =
+                        `
+                        <tr>
+                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
+                            <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
+                            <td id="phone`+ address.id +`">${address.phone}</td>
+                            <td id="city`+ address.id +`">${address.country+" "+address.province+" "+address.city+" "+address.district}</td>
+                            <td id="addressDetail`+ address.id +`">${address.addressDetail}</td>
+                            <td id="postalCode`+ address.id +`">${address.postalCode}</td>
+                            <td id="default`+ address.id +`">${address.default ? "是" : ""}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
+                            </td>
+                        </tr>
+                        `;
+                    $('#addresslist tbody').append(row);
+                });
+
+                currentPageNum_address = pn;
+                if (currentPageNum_address == 1) {
+                    $("#prePage_address").prop("disabled", true);
+                } else {
+                    $("#prePage_address").prop("disabled", false);
+                }
+                if (num_address - currentPageNum_address * pz < 0) {
+                    $("#nextPage_address").prop("disabled", true);
+                } else {
+                    $("#nextPage_address").prop("disabled", false);
+                }
+				if (num_address == 0){
+					 $("#nextPage_address").prop("disabled", true);
+				}
+            }
+        }
+    });
+}
+function delAddress(id) {
+	$.ajax({
+		type:"GET",
+		url:"/address/delete",
+		data:{
+			id:id
+		},
+		dataType:"json",
+		success:function(response){
+			if(response.code == 200){
+				showToast("删除成功");
+				queryAddress(currentPageNum_address, 10);
+			}else{
+				showToast("删除失败");
+			}
+		}
+	})
+}
+function insertAddress() {
+	const firstName= $("#firstName").val();
+	const lastName= $("#lastName").val();
+	const phone= $("#phone").val();
+	const country= $("#country").val();
+	const province= $("#province").val();
+	const city= $("#city").val();
+	const district= $("#district").val();
+	const addressDetail= $("#addressDetail").val();
+	const postalCode= $("#postalCode").val();
+	const isDefault= $("#isDefault").val();
+  	// 构建请求体
+  	const data = {
+	  	firstName: firstName,
+	  	lastName: lastName,
+	  	phone: phone,
+	  	country: country,
+	  	province: province,
+	  	city: city,
+	  	district: district,
+	  	addressDetail: addressDetail,
+	  	postalCode: postalCode,
+	  	isDefault: isDefault
+  	};
+
+  	// 发送 AJAX 请求
+  	$.ajax({
+    	url: '/address/insert',
+    	type: 'POST',
+    	data: data,
+    	success: function (response) {
+			if (response.code === 200) {
+				console.log('地址新增成功');
+				$('#itemModal').modal('hide')
+				queryAddress(currentPageNum_address,10);
+				showToast('地址新增成功');
+			} else {
+				console.log('地址新增失败');
+				showToast(response.message);
+			}
+    	},
+		fail: function(xhr, status, error) {
+		  console.error('地址新增失败:', error);
+		  showToast('地址新增失败，请联系管理员！' + error);
+		}
+	  });
+	}
+
+
+function getAddress(id) {
+	// $.ajax({
+	// 	url: '/address/getAddressById/' + id,
+	// 	type: 'get',
+	// 	dataType: 'json',
+	// 	success: function (res) {
+	// 		console.log(res);
+	// 		//res.data渲染为modal初始值
+	// 		const address = res.data;
+	// 		$("#firstName").val(address.firstName);
+	// 		$("#lastName").val(address.lastName);
+	// 		$("#phone").val(address.phone);
+	// 		$("#country").val(address.country);
+	// 		$("#province").val(address.province);
+	// 		$("#city").val(address.city);
+	// 		$("#district").val(address.district);
+	// 		$("#addressDetail").val(address.addressDetail);
+	// 		$("#postalCode").val(address.postalCode);
+	// 		$("#isDefault").prop("checked",address.default);
+	// 	}
+	// });
+	const address = addressArr[id];
+	$("#firstName").val(address.firstName);
+	$("#lastName").val(address.lastName);
+	$("#phone").val(address.phone);
+	$("#country").val(address.country);
+	$("#province").val(address.province);
+	$("#city").val(address.city);
+	$("#district").val(address.district);
+	$("#addressDetail").val(address.addressDetail);
+	$("#postalCode").val(address.postalCode);
+	$("#isDefault").prop("checked",address.default);
+}
+// 更新地址
+function updateAddress(id) {
+	const firstName= $("#firstName").val();
+	const lastName= $("#lastName").val();
+	const phone= $("#phone").val();
+	const country= $("#country").val();
+	const province= $("#province").val();
+	const city= $("#city").val();
+	const district= $("#district").val();
+	const addressDetail= $("#addressDetail").val();
+	const postalCode= $("#postalCode").val();
+	const isDefault= $("#isDefault").prop("checked");
+  	// 构建请求体
+  	const data = {
+		id: id,
+	  	firstName: firstName,
+	  	lastName: lastName,
+	  	phone: phone,
+	  	country: country,
+	  	province: province,
+	  	city: city,
+	  	district: district,
+	  	addressDetail: addressDetail,
+	  	postalCode: postalCode,
+	  	isDefault: isDefault
+  	};
+
+  	// 发送 AJAX 请求
+  	$.ajax({
+    	url: '/address/update',
+    	type: 'POST',
+    	data: data,
+    	success: function (response) {
+			if (response.code === 200) {
+				console.log('地址修改成功');
+				addressArr[id]=data;
+				$('#itemModal').modal('hide')
+				$('#name' + id).text(lastName + " " + firstName);
+                $('#phone' + id).text(phone);
+                $('#city' + id).text(country + " " + province +" " + city + " " + district);
+                $('#addressDetail' + id).text(addressDetail);
+                $('#postalCode' + id).text(postalCode);
+                $('#default' + id).text(isDefault ? "是" : "");
+				showToast('地址修改成功');
+			} else {
+				console.log('地址修改失败');
+				showToast(response.message);
+			}
+		},
+		fail: function (xhr, status, error) {
+			console.error('地址修改失败:', error);
+			showToast('地址修改失败，请联系管理员！' + error);
+		}
+	});
+}
+
 function totalMoney(){
 	let total = 0;
 	for(let key in cartArr){
@@ -125,7 +416,7 @@ function totalMoney(){
 			total += good.price * good.num;
 		}
 	}
-	$("#totalNum").html(num);
+	$("#totalNum").html(num_product);
 	$("#totalPrice").html(total);
 }
 function sub(id){
@@ -160,19 +451,19 @@ function deleteCartGood(id){
 	totalMoney();
 }
 
-function bindPreNextPage(){
+function bindPreNextPage_product(){
 	$("#prePage").on("click", function(){
-		if(currentPageNum <= 1){
+		if(currentPageNum_product <= 1){
 			// alert("已经是第一页");
 			showToast("已经是第一页");
 			return;
 		}
-		let pageNum = currentPageNum -1;
+		let pageNum = currentPageNum_product -1;
 		queryCart(pageNum, 10);
 	})
 
 	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum +1;
+		let pageNum = currentPageNum_product +1;
 		queryCart(pageNum, 10);
 	})
 }
@@ -199,3 +490,4 @@ function checkOut(){
         },
     });
 }
+
