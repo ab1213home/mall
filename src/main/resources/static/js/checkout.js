@@ -212,12 +212,13 @@ function queryAddress(pn, pz) {
 				}
 				addressArr = {};
 				for(let record of response.data){
+					record.ischecked = record.default;
 					addressArr[record.id] = record;
 				}
                 response.data.forEach((address,index) => {
                     const row =
                         `
-                        <tr>
+                        <tr id="address`+ address.id +`" class="address-row">
                             <th scope="row">${(pn - 1) * 10 + index + 1}</th>
                             <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
                             <td id="phone`+ address.id +`">${address.phone}</td>
@@ -228,12 +229,17 @@ function queryAddress(pn, pz) {
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
+                                <button type="button" class="btn btn-sm btn-primary select-address" onclick="selectAddress(${address.id})">选择</button></td>
                             </td>
                         </tr>
                         `;
                     $('#addresslist tbody').append(row);
                 });
-
+				for(let record of response.data){
+					if(record.default){
+						selectAddress(record.id);
+					}
+				}
                 currentPageNum_address = pn;
                 if (currentPageNum_address == 1) {
                     $("#prePage_address").prop("disabled", true);
@@ -252,6 +258,19 @@ function queryAddress(pn, pz) {
         }
     });
 }
+function selectAddress(id){
+	for(let key in addressArr){
+		if(addressArr.hasOwnProperty(key)){
+			let address = addressArr[key];
+			address.ischecked = address.id == id;
+			if(address.ischecked){
+				$("#address" + address.id).addClass("selected");
+			}else {
+				$("#address" + address.id).removeClass("selected");
+			}
+		}
+	}
+}
 function delAddress(id) {
 	$.ajax({
 		type:"GET",
@@ -263,7 +282,9 @@ function delAddress(id) {
 		success:function(response){
 			if(response.code == 200){
 				showToast("删除成功");
-				queryAddress(currentPageNum_address, 10);
+				delete addressArr[id];
+				$("#address" + id).remove();
+				// queryAddress(currentPageNum, 10);
 			}else{
 				showToast("删除失败");
 			}

@@ -111,7 +111,7 @@ function queryAddress(pn, pz) {
                 response.data.forEach((address,index) => {
                     const row =
                         `
-                        <tr>
+                        <tr id="address`+ address.id +`">
                             <th scope="row">${(pn - 1) * 10 + index + 1}</th>
                             <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
                             <td id="phone`+ address.id +`">${address.phone}</td>
@@ -157,7 +157,9 @@ function delAddress(id) {
 		success:function(response){
 			if(response.code == 200){
 				showToast("删除成功");
-				queryAddress(currentPageNum, 10);
+				delete addressArr[id];
+				$("#address" + id).remove();
+				// queryAddress(currentPageNum, 10);
 			}else{
 				showToast("删除失败");
 			}
