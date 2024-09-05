@@ -495,20 +495,38 @@ function showToast(message){
 }
 function checkOut(){
 	console.log(cartArr);
-	const cartArray = Object.values(cartArr);
-	$.ajax({
-        type: 'POST',
-        url: "/order/checkout",
-        data: JSON.stringify(cartArray),
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        success: function(res) {
-            if (res.code == 200){
-				window.location.href = "../checkout.html";
-			}else{
-				showToast("下单失败:"+res.message);
+	let addressId = 0;
+	let paymentMethod = 1;
+	let status = 1;
+	for(let key in addressArr){
+		if(addressArr.hasOwnProperty(key)){
+			let address = addressArr[key];
+			if(address.ischecked){
+				addressId = address.id;
+				break;
 			}
+		}
+	}
+	$.ajax({
+        url: '/order/insert',
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify({
+            List_checkout: Object.values(cartArr),
+            addressId: addressId,
+            paymentMethod: paymentMethod,
+            status: status
+        }),
+        success: function (response) {
+            if (response.code == '200') {
+                console.log('订单提交成功，订单ID:', response.data);
+				window.location.href = "../order.html";
+            } else {
+                console.error('订单提交失败：', response.message);
+            }
         },
+        error: function (xhr, status, error) {
+            console.error('请求失败：', error);
+        }
     });
 }
-
