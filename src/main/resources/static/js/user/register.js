@@ -100,3 +100,7 @@ $(document).ready(function() {
     submitRegisterStepTwoForm(); // 自定义提交处理
   });
 });
+function showToast(message){
+	$("#messagetoast").html(message);
+	$("#liveToast").toast('show');
+}

@@ -507,16 +507,23 @@ function checkOut(){
 			}
 		}
 	}
+	if(addressId == 0){
+		// alert("请先选择地址");
+		showToast("请先选择地址");
+		return;
+	}
+	const data = {
+		cartArr: JSON.stringify(Object.values(cartArr)),
+		addressId: addressId,
+		paymentMethod: paymentMethod,
+		status: status
+	};
+	console.log(data);
 	$.ajax({
-        url: '/order/insert',
+        url: '/order/insert?addressId='+addressId+'&paymentMethod='+paymentMethod+'&status='+status,
         type: 'POST',
+        data: JSON.stringify(Object.values(cartArr)),
         contentType: 'application/json; charset=utf-8',
-        data: JSON.stringify({
-            List_checkout: Object.values(cartArr),
-            addressId: addressId,
-            paymentMethod: paymentMethod,
-            status: status
-        }),
         success: function (response) {
             if (response.code == '200') {
                 console.log('订单提交成功，订单ID:', response.data);

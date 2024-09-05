@@ -50,3 +50,7 @@ $(document).ready(function() {
     submitLoginForm(); // 自定义提交处理
   });
 });
+function showToast(message){
+	$("#messagetoast").html(message);
+	$("#liveToast").toast('show');
+}

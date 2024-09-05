@@ -28,6 +28,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		order.setUserId(userId);
 		order.setAddressId(addressId);
 		order.setDate(new Date());
+		order.setTotalAmount(0.0);
 		for (Checkout checkout : listCheckout) {
 			order.setTotalAmount(order.getTotalAmount()+(checkout.getPrice()*checkout.getNum()));
 		}

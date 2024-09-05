@@ -134,11 +134,11 @@ public class OrderController {
 		return ResponseResult.okResult(List_prodId.size());
 	}
 	@PostMapping("/insert")
-	public ResponseResult insertOrder(@RequestBody List<Checkout> List_checkout,
-									  @RequestParam("addressId") Integer addressId,
+	public ResponseResult insertOrder(@RequestParam("addressId") Integer addressId,
 									  @RequestParam("paymentMethod") Integer paymentMethod,
 									  @RequestParam("status") Integer status,
-	                                  HttpSession session) {
+	                                  @RequestBody List<Checkout> List_checkout,
+									  HttpSession session) {
 		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}

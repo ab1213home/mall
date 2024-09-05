@@ -109,7 +109,8 @@ function addCart(){
 		})
 	}else{
 		showToast('请先登录');
-		window.location.href = "./user/login.html";
+		const productId = new URLSearchParams(window.location.search).get('id');
+		window.location.href = "./user/login.html?url=/product.html?id="+productId;
 	}
 }
 function getCartNum(){
@@ -128,4 +129,8 @@ function getCartNum(){
 			}
 		}
 	})
+}
+function showToast(message){
+	$("#messagetoast").html(message);
+	$("#liveToast").toast('show');
 }
