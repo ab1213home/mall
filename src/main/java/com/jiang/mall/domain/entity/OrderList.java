@@ -27,7 +27,7 @@ public class OrderList implements Serializable {
 
 	private Integer num;
 
-	private BigDecimal price;
+	private Double price;
 
 	@TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

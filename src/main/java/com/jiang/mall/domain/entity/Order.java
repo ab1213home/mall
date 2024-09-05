@@ -29,7 +29,7 @@ public class Order implements Serializable {
 
 	private Date date;
 
-	private BigDecimal totalAmount;
+	private Double totalAmount;
 
 	private Integer status;
 

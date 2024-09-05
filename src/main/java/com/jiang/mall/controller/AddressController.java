@@ -162,6 +162,9 @@ public class AddressController {
 		address.setPhone(phone);
 		address.setPostalCode(postalCode);
 		address.setProvince(province);
+		Address oldaddress = addressService.getById(id);
+		if (!oldaddress.getUserId().equals(userId))
+			return ResponseResult.failResult("您没有权限修改此地址");
 		address.setUserId(userId);
 		if (addressService.update(address)>0){
 			if (isDefault){

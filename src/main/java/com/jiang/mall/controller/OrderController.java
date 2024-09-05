@@ -1,12 +1,10 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.service.ICartService;
-import com.jiang.mall.service.IOrderListService;
-import com.jiang.mall.service.IOrderService;
-import com.jiang.mall.service.IProductService;
+import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +27,9 @@ public class OrderController {
 
 	@Autowired
     private ICartService cartService;
+
+	@Autowired
+	private IAddressService addressService;
 
 	@PostMapping("/checkout")
 	public ResponseResult checkout(@RequestBody List<Checkout> List_checkout, HttpSession session) {
@@ -132,8 +133,12 @@ public class OrderController {
 		}
 		return ResponseResult.okResult(List_prodId.size());
 	}
-	@PostMapping("/create")
-	public ResponseResult createOrder(HttpSession session) {
+	@PostMapping("/insert")
+	public ResponseResult insertOrder(@RequestBody List<Checkout> List_checkout,
+									  @RequestParam("addressId") Integer addressId,
+									  @RequestParam("paymentMethod") Integer paymentMethod,
+									  @RequestParam("status") Integer status,
+	                                  HttpSession session) {
 		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}
@@ -143,6 +148,13 @@ public class OrderController {
 		if (!session.getAttribute("UserIsLogin").equals("true")){
 			return ResponseResult.failResult("请先登录");
 		}
-		return ResponseResult.okResult();
+		Integer userId = (Integer) session.getAttribute("UserId");
+		Address address = addressService.getById(addressId);
+		if (!address.getUserId().equals(userId))
+			return ResponseResult.failResult("您没有权限提交此订单");
+		Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, List_checkout);
+		if (orderId == null)
+			return ResponseResult.failResult("提交失败");
+		return ResponseResult.okResult(orderId);
 	}
 }
