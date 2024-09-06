@@ -154,6 +154,22 @@ public class OrderController {
 		if (!address.getUserId().equals(userId))
 			return ResponseResult.failResult("您没有权限提交此订单");
 		Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, List_checkout);
+		List<Integer> List_prodId;
+	    Object listObj = session.getAttribute("List_prodId");
+
+	    if (listObj == null) {
+	        List_prodId = new ArrayList<>();
+	    } else if (listObj instanceof List<?> tempList) {
+		    List_prodId = new ArrayList<>();
+	        for (Object obj : tempList) {
+	            if (obj instanceof Integer) {
+	                List_prodId.add((Integer) obj);
+	            }
+	        }
+	    } else {
+	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
+	    }
+		cartService.deleteCart(List_prodId);
 		if (orderId == null)
 			return ResponseResult.failResult("提交失败");
 		return ResponseResult.okResult(orderId);
