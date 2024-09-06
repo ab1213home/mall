@@ -47,6 +47,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
                 .addPathPatterns("/orders")
+                .addPathPatterns("/orders.html")
                 .addPathPatterns("/checkout.html")
                 .addPathPatterns("/checkout")
                 .addPathPatterns("/checkout.html")

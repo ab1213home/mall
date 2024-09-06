@@ -48,7 +48,7 @@ $(document).ready(function(){
 function getCartNum(){
 	$.ajax({
 		type:"GET",
-		url:"/order/getNum",
+		url:"/order/getTemporaryNum",
 		data:{},
 		dataType:"json",
 		success:function(res){
