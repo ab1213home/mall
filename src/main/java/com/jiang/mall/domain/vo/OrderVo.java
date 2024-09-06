@@ -1,10 +1,8 @@
 package com.jiang.mall.domain.vo;
 
-import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.entity.OrderList;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -12,20 +10,16 @@ import java.util.List;
 public class OrderVo {
 	private Integer id;
 
-	private Integer addressId;
-
-	private Address address;
-
-	private Integer userId;
+	private AddressVo address;
 
 	private Date date;
 
-	private BigDecimal totalAmount;
+	private Double totalAmount;
 
 	private Integer status;
 
 	private Integer paymentMethod;
 
-	private List<OrderList> orderList;
+	private List<OrderListVo> orderList;
 
 }

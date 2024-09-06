@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +64,8 @@ public class OrderController {
 		return ResponseResult.okResult();
 	}
 
-	@GetMapping("/list")
-	public ResponseResult getOrderList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize, HttpSession session) {
+	@GetMapping("/temporaryList")
+	public ResponseResult getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize, HttpSession session) {
 		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}
@@ -101,8 +102,8 @@ public class OrderController {
 		return ResponseResult.okResult(List_checkout);
 	}
 
-	@GetMapping("/getNum")
-	public ResponseResult getCartNum(HttpSession session) {
+	@GetMapping("/getTemporaryNum")
+	public ResponseResult getTemporaryCartNum(HttpSession session) {
 		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}
@@ -156,5 +157,46 @@ public class OrderController {
 		if (orderId == null)
 			return ResponseResult.failResult("提交失败");
 		return ResponseResult.okResult(orderId);
+	}
+
+//	@GetMapping("/getOrderById")
+//	public ResponseResult getOrderById(@RequestParam("orderId") Integer orderId,
+//	                                   HttpSession session) {
+//		if (session.getAttribute("UserId") == null){
+//			return ResponseResult.failResult("请先登录");
+//		}
+//		if (session.getAttribute("UserIsLogin")==null){
+//            return ResponseResult.failResult("请先登录");
+//        }
+//		if (!session.getAttribute("UserIsLogin").equals("true")){
+//			return ResponseResult.failResult("请先登录");
+//		}
+//		OrderVo orderVo = orderService.getOrderById(orderId);
+//		return ResponseResult.okResult(orderVo);
+//	}
+
+	@GetMapping("/list")
+	public ResponseResult getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	                                   @RequestParam(defaultValue = "5") Integer pageSize,
+	                                   HttpSession session) {
+		if (session.getAttribute("UserId") == null){
+			return ResponseResult.failResult("请先登录");
+		}
+		if (session.getAttribute("UserIsLogin")==null){
+            return ResponseResult.failResult("请先登录");
+        }
+		if (!session.getAttribute("UserIsLogin").equals("true")){
+			return ResponseResult.failResult("请先登录");
+		}
+		Integer userId = (Integer) session.getAttribute("UserId");
+		if (userId==null){
+            return ResponseResult.failResult("您未登录，请先登录");
+        }
+		List<OrderVo> orderList = orderService.getOrderList(userId, pageNum, pageSize);
+		if (orderList==null)
+			return ResponseResult.failResult("获取失败");
+		if (orderList.isEmpty())
+			return ResponseResult.failResult("暂无订单");
+		return ResponseResult.okResult(orderList);
 	}
 }
