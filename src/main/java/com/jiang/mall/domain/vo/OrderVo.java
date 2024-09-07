@@ -16,9 +16,9 @@ public class OrderVo {
 
 	private Double totalAmount;
 
-	private Integer status;
+	private String status;
 
-	private Integer paymentMethod;
+	private String paymentMethod;
 
 	private List<OrderListVo> orderList;
 

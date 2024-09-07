@@ -9,6 +9,7 @@ import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -157,6 +158,27 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             cartVo.setImg(product.getImg());
         }
         return cartVos;
+    }
+
+    @Override
+    public boolean deleteCartByOrder(List<Integer> listProdId, Integer userId, List<Checkout> listCheckout) {
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId)
+                                                .in(listProdId != null && !listProdId.isEmpty(), Cart::getProdId, listProdId);
+        List<Cart> carts = cartMapper.selectList(queryWrapper);
+        for (Cart cart : carts) {
+            for (Checkout checkout : listCheckout) {
+                if (cart.getProdId().equals(checkout.getProdId())) {
+                    int num = cart.getNum() - checkout.getNum();
+                    if (num > 0) {
+                        cart.setNum(num);
+                        cartMapper.updateById(cart);
+                    } else {
+                        cartMapper.deleteById(cart);
+                    }
+                }
+            }
+        }
+        return true;
     }
 
 

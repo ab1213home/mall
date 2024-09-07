@@ -527,7 +527,7 @@ function checkOut(){
         success: function (response) {
             if (response.code == '200') {
                 console.log('订单提交成功，订单ID:', response.data);
-				window.location.href = "../order.html";
+				window.location.href = "./orders.html";
             } else {
                 console.error('订单提交失败：', response.message);
             }

@@ -46,7 +46,8 @@ public class OrderController {
 		if (!session.getAttribute("UserIsLogin").equals("true")){
 			return ResponseResult.failResult("请先登录");
 		}
-		List<Integer> List_prodId = new ArrayList<>();;
+		List<Integer> List_prodId = new ArrayList<>();
+		List<Integer> List_cartId = new ArrayList<>();
 		for (Checkout checkout : List_checkout) {
 			if (checkout.isIschecked()){
 				if (checkout.getNum() <= 0) {
@@ -56,16 +57,20 @@ public class OrderController {
 					return ResponseResult.failResult("商品"+checkout.getProdName()+"库存不足，提交失败！");
 				}
 				List_prodId.add(checkout.getProdId());
+				List_cartId.add(checkout.getId());
 			}
 		}
 		session.setAttribute("List_prodId", List_prodId);
+		session.setAttribute("List_cartId", List_cartId);
 //		session.setAttribute("List_checkout", List_checkout);
 		System.out.println(List_checkout);
 		return ResponseResult.okResult();
 	}
 
 	@GetMapping("/temporaryList")
-	public ResponseResult getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize, HttpSession session) {
+	public ResponseResult getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	                                            @RequestParam(defaultValue = "5") Integer pageSize,
+	                                            HttpSession session) {
 		if (session.getAttribute("UserId") == null){
 			return ResponseResult.failResult("请先登录");
 		}
@@ -169,7 +174,13 @@ public class OrderController {
 	    } else {
 	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
 	    }
-		cartService.deleteCart(List_prodId);
+		cartService.deleteCartByOrder(List_prodId, userId ,List_checkout);
+		if (session.getAttribute("List_cartId") != null) {
+			session.removeAttribute("List_cartId");
+		}
+		if (session.getAttribute("List_prodId") != null) {
+			session.removeAttribute("List_prodId");
+		}
 		if (orderId == null)
 			return ResponseResult.failResult("提交失败");
 		return ResponseResult.okResult(orderId);

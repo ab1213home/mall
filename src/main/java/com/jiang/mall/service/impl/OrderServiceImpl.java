@@ -19,6 +19,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.jiang.mall.domain.entity.Propertie.paymentMethod;
+import static com.jiang.mall.domain.entity.Propertie.status;
+
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 
@@ -81,6 +84,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
 			orderVo.setAddress(addressVo);
+			orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
+			orderVo.setStatus(status[order_item.getStatus()]);
 			QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 			queryWrapper_orderList.eq("order_id", order_item.getId());
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
