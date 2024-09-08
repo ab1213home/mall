@@ -2,7 +2,6 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
-import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IUserService;
@@ -15,8 +14,14 @@ import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.regex_phone;
 
+/**
+ * 收货地址管理
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @RestController
-@RequestMapping("/address")
+@RequestMapping("/user/address")
 public class AddressController {
 
 	@Autowired
@@ -25,202 +30,327 @@ public class AddressController {
 	@Autowired
 	private IUserService userService;
 
-	@GetMapping("/list")
-    public ResponseResult getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                    @RequestParam(defaultValue = "5") Integer pageSize,
-	                                    HttpSession session) {
-		if (session.getAttribute("UserIsLogin")!=null){
+	public Integer userIsLogin(HttpSession session){
+	    // 检查会话中是否设置了用户登录状态标志
+	    if (session.getAttribute("UserIsLogin")!=null){
+	        // 如果登录状态标志为"false"，表示用户未登录
+	        if (session.getAttribute("UserIsLogin").equals("false")) {
+		        return null;
+	        }
+	    }
+	    // 如果会话中没有用户ID，也表示用户未登录
+	    if (session.getAttribute("UserId")==null) {
+		    return null;
+	    }
+	    //从会话中获取用户ID
+		return (Integer) session.getAttribute("UserId");
+	}
+
+    /**
+     * 获取收货地址列表
+     *
+     * @param pageNum  当前页码，默认为1
+     * @param pageSize 每页大小，默认为10
+     * @param session  HTTP会话，用于判断用户登录状态及获取用户ID
+     * @return 返回收货地址列表或相关错误提示的响应结果
+     */
+    @GetMapping("/getList")
+    public ResponseResult getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                         @RequestParam(defaultValue = "10") Integer pageSize,
+                                         HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        if (session.getAttribute("UserIsLogin")!=null){
+            // 如果用户登录状态为false，则返回失败结果并提示需要登录
             if (session.getAttribute("UserIsLogin").equals("false"))
                 return ResponseResult.failResult("您未登录，请先登录");
         }
+        // 检查会话中是否已保存用户ID
         if (session.getAttribute("UserId")==null)
             return ResponseResult.failResult("您未登录，请先登录");
+        // 从会话中获取用户ID
         Integer userId = (Integer) session.getAttribute("UserId");
+        // 再次检查用户ID是否为null，确保用户已登录
         if (userId==null){
             return ResponseResult.failResult("您未登录，请先登录");
         }
-		List<AddressVo> address_List = addressService.getAddressList(userId, pageNum, pageSize);
-		if (address_List==null)
-			return ResponseResult.failResult("获取失败");
-		if (address_List.isEmpty())
-			return ResponseResult.failResult("暂无收货地址");
-		return ResponseResult.okResult(address_List);
+        // 调用服务方法，根据用户ID和分页参数获取收货地址列表
+        List<AddressVo> address_List = addressService.getAddressList(userId, pageNum, pageSize);
+        // 如果获取的地址列表为空，则返回失败结果
+        if (address_List==null)
+            return ResponseResult.failResult("获取失败");
+        // 如果地址列表为空，则返回失败结果并提示暂无收货地址
+        if (address_List.isEmpty())
+            return ResponseResult.failResult("暂无收货地址");
+        // 如果成功获取到地址列表，则返回成功结果及地址列表数据
+        return ResponseResult.okResult(address_List);
     }
+
+	/**
+	 * 根据用户登录状态获取地址数据数量
+	 *
+	 * @param session 用户会话，用于判断用户登录状态并获取用户ID
+	 * @return 返回获取地址数据数量的结果，包括是否成功、失败原因以及数据本身（如果成功）
+	 */
 	@GetMapping("/getNum")
 	public ResponseResult getNum(HttpSession session){
-		if (session.getAttribute("UserIsLogin")!=null){
-			if (session.getAttribute("UserIsLogin").equals("false"))
-				return ResponseResult.failResult("您未登录，请先登录");
-		}
-		if (session.getAttribute("UserId")==null)
-			return ResponseResult.failResult("您未登录，请先登录");
-		Integer userId = (Integer) session.getAttribute("UserId");
-		if (userId==null){
-            return ResponseResult.failResult("您未登录，请先登录");
-        }
-		return ResponseResult.okResult(addressService.getAddressNum(userId));
+	    // 检查会话中是否设置了用户登录状态标志
+	    if (session.getAttribute("UserIsLogin")!=null){
+	        // 如果登录状态标志为"false"，表示用户未登录
+	        if (session.getAttribute("UserIsLogin").equals("false"))
+	            return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    // 如果会话中没有用户ID，也表示用户未登录
+	    if (session.getAttribute("UserId")==null)
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    // 从会话中获取用户ID
+	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 再次检查用户ID是否为null，确保用户已登录
+	    if (userId==null){
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
+	    return ResponseResult.okResult(addressService.getAddressNum(userId));
 	}
 
-	@PostMapping("/insert")
+	/**
+	 * 添加地址信息
+	 *
+	 * @param firstName 名称，用于标识地址的所有者
+	 * @param lastName 姓氏，用于进一步标识地址的所有者
+	 * @param phone 联系电话，用于物流配送时的联系
+	 * @param country 国家，地址的国家部分
+	 * @param province 省份，地址的省份部分
+	 * @param city 城市，地址的城市部分
+	 * @param district 区域，地址的区域部分
+	 * @param addressDetail 详细地址，精确到门牌号的地址信息
+	 * @param postalCode 邮政编码，用于邮件配送的邮政编码
+	 * @param isDefault 是否设为默认地址，标识该地址是否是用户的默认配送地址
+	 * @param session 用户会话，用于验证用户登录状态和获取用户ID
+	 * @return ResponseResult 插入地址操作的结果
+	 */
+	@PostMapping("/add")
 	public ResponseResult insertAddress(@RequestParam("firstName") String firstName,
-                                        @RequestParam("lastName") String lastName,
-                                        @RequestParam("phone") String phone,
+	                                    @RequestParam("lastName") String lastName,
+	                                    @RequestParam("phone") String phone,
 										@RequestParam("country") String country,
-                                        @RequestParam("province") String province,
-                                        @RequestParam("city") String city,
-                                        @RequestParam("district") String district,
-                                        @RequestParam("addressDetail") String addressDetail,
+	                                    @RequestParam("province") String province,
+	                                    @RequestParam("city") String city,
+	                                    @RequestParam("district") String district,
+	                                    @RequestParam("addressDetail") String addressDetail,
 										@RequestParam("postalCode") String postalCode,
-                                        @RequestParam("isDefault") boolean isDefault,
-                                        HttpSession session){
-		if (session.getAttribute("UserIsLogin")!=null){
-			if (session.getAttribute("UserIsLogin").equals("false"))
-				return ResponseResult.failResult("您未登录，请先登录");
-		}
-		if (session.getAttribute("UserId")==null)
-			return ResponseResult.failResult("您未登录，请先登录");
-		Integer userId = (Integer) session.getAttribute("UserId");
-		if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
-            return ResponseResult.failResult("手机号格式不正确");
-        }
-		Address address = new Address();
-		address.setAddressDetail(addressDetail);
-		address.setCity(city);
-		address.setCountry(country);
-		address.setDistrict(district);
-		address.setFirstName(firstName);
-		address.setLastName(lastName);
-		address.setPhone(phone);
-		address.setPostalCode(postalCode);
-		address.setProvince(province);
-		address.setUserId(userId);
-		System.out.println(address);
-		System.out.println(isDefault);
-		if (addressService.getBaseMapper().insert(address)>0){
-			Integer addressId = address.getId();
-			System.out.println(addressId);
-			if (isDefault){
-				Integer defaultAddressId = userService.queryDefaultAddressById(userId);
-				System.out.println(defaultAddressId);
-				if (defaultAddressId!=null){
-					if (!defaultAddressId.equals(addressId)){
-						if (userService.updateDefaultAddress(addressId,userId)){
-							return ResponseResult.okResult();
-						}else{
-							return ResponseResult.failResult("修改默认地址失败");
-						}
-					}else{
-						return ResponseResult.okResult();
-					}
+	                                    @RequestParam("isDefault") boolean isDefault,
+	                                    HttpSession session){
+	    // 检查用户是否已登录
+	    if (session.getAttribute("UserIsLogin")!=null){
+	        if (session.getAttribute("UserIsLogin").equals("false"))
+	            return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    // 验证用户ID是否存在
+	    if (session.getAttribute("UserId")==null)
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 验证手机号格式
+	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
+	        return ResponseResult.failResult("手机号格式不正确");
+	    }
 
-				}else {
-					if (userService.updateDefaultAddress(addressId,userId)){
-						return ResponseResult.okResult();
-					}else{
-						return ResponseResult.failResult("修改默认地址失败");
-					}
-				}
-			}else {
-				return ResponseResult.okResult();
-			}
-		}else{
-			System.out.println("ji");
-			return ResponseResult.failResult("添加失败");
-		}
+	    // 创建新的地址对象
+	    Address address = new Address();
+	    address.setAddressDetail(addressDetail);
+	    address.setCity(city);
+	    address.setCountry(country);
+	    address.setDistrict(district);
+	    address.setFirstName(firstName);
+	    address.setLastName(lastName);
+	    address.setPhone(phone);
+	    address.setPostalCode(postalCode);
+	    address.setProvince(province);
+	    address.setUserId(userId);
+
+	    // 尝试插入地址信息
+	    if (addressService.getBaseMapper().insert(address)>0){
+	        // 获取新插入地址的ID
+	        Integer addressId = address.getId();
+	        // 如果设置为默认地址，则更新用户的默认地址信息
+	        if (isDefault){
+	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
+	            if (defaultAddressId!=null){
+	                if (!defaultAddressId.equals(addressId)){
+	                    if (userService.updateDefaultAddress(addressId,userId)){
+	                        return ResponseResult.okResult();
+	                    }else{
+	                        return ResponseResult.failResult("修改默认地址失败");
+	                    }
+	                }else{
+	                    return ResponseResult.okResult();
+	                }
+	            }else {
+	                if (userService.updateDefaultAddress(addressId,userId)){
+	                    return ResponseResult.okResult();
+	                }else{
+	                    return ResponseResult.failResult("修改默认地址失败");
+	                }
+	            }
+	        }else {
+	            // 如果未设置为默认地址，则直接返回成功
+	            return ResponseResult.okResult();
+	        }
+	    }else{
+	        // 插入地址失败
+	        return ResponseResult.failResult("添加失败");
+	    }
 	}
 
+	/**
+	 * 更新地址信息
+	 *
+	 * @param id            地址ID
+	 * @param firstName     收件人名
+	 * @param lastName      收件姓氏
+	 * @param phone         电话号码
+	 * @param country       国家
+	 * @param province      省份
+	 * @param city          城市
+	 * @param district      区县
+	 * @param addressDetail 详细地址
+	 * @param postalCode    邮政编码
+	 * @param isDefault     是否设为默认地址
+	 * @param session       HTTP会话
+	 * @return 操作结果
+	 */
 	@PostMapping("/update")
 	public ResponseResult updateAddress(@RequestParam("id") Integer id,
-										@RequestParam("firstName") String firstName,
-                                        @RequestParam("lastName") String lastName,
-                                        @RequestParam("phone") String phone,
-										@RequestParam("country") String country,
-                                        @RequestParam("province") String province,
-                                        @RequestParam("city") String city,
-                                        @RequestParam("district") String district,
-                                        @RequestParam("addressDetail") String addressDetail,
-										@RequestParam("postalCode") String postalCode,
-                                        @RequestParam("isDefault") boolean isDefault,
-                                        HttpSession session){
-		if (session.getAttribute("UserIsLogin")!=null){
-			if (session.getAttribute("UserIsLogin").equals("false"))
-				return ResponseResult.failResult("您未登录，请先登录");
-		}
-		if (session.getAttribute("UserId")==null)
-			return ResponseResult.failResult("您未登录，请先登录");
-		Integer userId = (Integer) session.getAttribute("UserId");
-		if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
-            return ResponseResult.failResult("手机号格式不正确");
-        }
-		Address address = addressService.getById(id);
-		address.setAddressDetail(addressDetail);
-		address.setCity(city);
-		address.setCountry(country);
-		address.setDistrict(district);
-		address.setFirstName(firstName);
-		address.setLastName(lastName);
-		address.setPhone(phone);
-		address.setPostalCode(postalCode);
-		address.setProvince(province);
-		Address oldaddress = addressService.getById(id);
-		if (!oldaddress.getUserId().equals(userId))
-			return ResponseResult.failResult("您没有权限修改此地址");
-		address.setUserId(userId);
-		if (addressService.update(address)>0){
-			if (isDefault){
-				Integer defaultAddressId = userService.queryDefaultAddressById(userId);
-				if (defaultAddressId!=null){
-					if (!defaultAddressId.equals(id)){
-						if (userService.updateDefaultAddress(id,userId)){
-							return ResponseResult.okResult();
-						}else{
-							return ResponseResult.failResult("修改默认地址失败");
-						}
-					}else{
-						return ResponseResult.okResult();
-					}
-				}else {
-					if (userService.updateDefaultAddress(id,userId)){
-						return ResponseResult.okResult();
-					}else{
-						return ResponseResult.failResult("修改默认地址失败");
-					}
-				}
-			}else {
-				return ResponseResult.okResult();
-			}
-		}else{
-			return ResponseResult.failResult("添加失败");
-		}
+	                                    @RequestParam("firstName") String firstName,
+	                                    @RequestParam("lastName") String lastName,
+	                                    @RequestParam("phone") String phone,
+	                                    @RequestParam("country") String country,
+	                                    @RequestParam("province") String province,
+	                                    @RequestParam("city") String city,
+	                                    @RequestParam("district") String district,
+	                                    @RequestParam("addressDetail") String addressDetail,
+	                                    @RequestParam("postalCode") String postalCode,
+	                                    @RequestParam("isDefault") boolean isDefault,
+	                                    HttpSession session) {
+	    // 检查用户登录状态
+	    if (session.getAttribute("UserIsLogin") != null) {
+	        if (session.getAttribute("UserIsLogin").equals("false")) {
+	            return ResponseResult.failResult("您未登录，请先登录");
+	        }
+	    }
+	    // 确保用户ID存在
+	    if (session.getAttribute("UserId") == null) {
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 验证电话号码格式
+	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
+	        return ResponseResult.failResult("手机号格式不正确");
+	    }
+
+	    // 根据ID获取地址信息
+	    Address address = addressService.getById(id);
+	    // 更新地址信息
+	    address.setAddressDetail(addressDetail);
+	    address.setCity(city);
+	    address.setCountry(country);
+	    address.setDistrict(district);
+	    address.setFirstName(firstName);
+	    address.setLastName(lastName);
+	    address.setPhone(phone);
+	    address.setPostalCode(postalCode);
+	    address.setProvince(province);
+
+	    // 验证用户是否有权修改该地址
+	    Address oldaddress = addressService.getById(id);
+	    if (!oldaddress.getUserId().equals(userId)) {
+	        return ResponseResult.failResult("您没有权限修改此地址");
+	    }
+	    address.setUserId(userId);
+
+	    // 尝试更新地址
+	    if (addressService.update(address) > 0) {
+	        // 处理设为默认地址的逻辑
+	        if (isDefault) {
+	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
+	            if (defaultAddressId != null) {
+	                if (!defaultAddressId.equals(id)) {
+	                    if (userService.updateDefaultAddress(id, userId)) {
+	                        return ResponseResult.okResult();
+	                    } else {
+	                        return ResponseResult.failResult("修改默认地址失败");
+	                    }
+	                } else {
+	                    return ResponseResult.okResult();
+	                }
+	            } else {
+	                if (userService.updateDefaultAddress(id, userId)) {
+	                    return ResponseResult.okResult();
+	                } else {
+	                    return ResponseResult.failResult("修改默认地址失败");
+	                }
+	            }
+	        } else {
+	            return ResponseResult.okResult();
+	        }
+	    } else {
+	        return ResponseResult.failResult("添加失败");
+	    }
 	}
 
+	/**
+	 * 处理删除地址的请求
+	 *
+	 * @param id 地址的唯一标识符
+	 * @param session 用户的会话信息，用于判断用户是否登录及获取用户ID
+	 * @return 删除操作的结果，成功或失败的提示
+	 */
 	@GetMapping("/delete")
 	public ResponseResult deleteAddress(@RequestParam("id") Integer id, HttpSession session){
-		if (session.getAttribute("UserIsLogin")!=null){
-			if (session.getAttribute("UserIsLogin").equals("false"))
-				return ResponseResult.failResult("您未登录，请先登录");
-		}
-		if (session.getAttribute("UserId")==null)
-			return ResponseResult.failResult("您未登录，请先登录");
-		Integer userId = (Integer) session.getAttribute("UserId");
-		Address address = addressService.getById(id);
-		if (!address.getUserId().equals(userId))
-			return ResponseResult.failResult("您没有权限删除此地址");
-		if (!addressService.deleteAddress(id, userId))
-			return ResponseResult.failResult("删除失败");
-		return ResponseResult.okResult();
+	    // 检查用户是否已登录
+	    if (session.getAttribute("UserIsLogin")!=null){
+	        // 如果用户登录状态为false，则返回失败结果并提示登录
+	        if (session.getAttribute("UserIsLogin").equals("false"))
+	            return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    // 如果用户ID不存在于会话中，则返回失败结果并提示登录
+	    if (session.getAttribute("UserId")==null)
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    // 从会话中获取用户ID
+	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 通过ID获取地址信息
+	    Address address = addressService.getById(id);
+	    // 检查当前用户是否有权删除该地址
+	    if (!address.getUserId().equals(userId))
+	        return ResponseResult.failResult("您没有权限删除此地址");
+	    // 尝试删除地址
+	    if (!addressService.deleteAddress(id, userId))
+	        return ResponseResult.failResult("删除失败");
+	    // 删除成功，返回成功结果
+	    return ResponseResult.okResult();
 	}
 
+	/**
+	 * 根据ID获取地址信息
+	 *
+	 * @param id 地址ID
+	 * @param session 会话对象，用于判断用户登录状态及获取用户ID
+	 * @return ResponseResult封装的地址信息或错误信息
+	 */
 	@GetMapping("/getAddressById/{id}")
 	public ResponseResult getAddressById(@PathVariable("id") Integer id, HttpSession session){
-		if (session.getAttribute("UserIsLogin")!=null){
-			if (session.getAttribute("UserIsLogin").equals("false"))
-				return ResponseResult.failResult("您未登录，请先登录");
-		}
-		if (session.getAttribute("UserId")==null)
-			return ResponseResult.failResult("您未登录，请先登录");
-		Integer userId = (Integer) session.getAttribute("UserId");
-		AddressVo address = addressService.getAddressById(id, userId);
-		return ResponseResult.okResult(address);
+	    // 检查会话中是否设置用户登录状态，若已设置且值为"false"，表示用户未登录
+	    if (session.getAttribute("UserIsLogin")!=null){
+	        if (session.getAttribute("UserIsLogin").equals("false"))
+	            return ResponseResult.failResult("您未登录，请先登录");
+	    }
+	    // 直接检查会话中的用户ID是否存在，若不存在表示用户未登录
+	    if (session.getAttribute("UserId")==null)
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    // 获取当前用户的ID
+	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 调用服务根据地址ID和用户ID获取地址信息
+	    AddressVo address = addressService.getAddressById(id, userId);
+	    // 返回获取到的地址信息
+	    return ResponseResult.okResult(address);
 	}
 }
