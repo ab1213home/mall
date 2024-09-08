@@ -12,6 +12,9 @@ import java.util.Date;
  * 用户实体类，对应数据库表 tb_users
  *
  * @author jiang
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @apiNote 用户实体类
  * @version 1.0
  * @since 2024年9月8日
  */

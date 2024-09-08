@@ -11,9 +11,12 @@ import java.io.Serializable;
 /**
  * 购物车实体类，对应数据库表 tb_cart
  *
- * @author [作者名称]
+ * @author jiang
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @apiNote 购物车实体类
  * @version 1.0
- * @since [创建日期]
+ * @since 2024年9月8日
  */
 @Data
 @TableName("tb_cart")

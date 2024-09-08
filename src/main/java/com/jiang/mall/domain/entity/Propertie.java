@@ -8,6 +8,9 @@ import java.text.SimpleDateFormat;
  * 属性配置类，包含系统常量和正则表达式
  *
  * @author jiang
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @apiNote 属性配置类
  * @version 1.0
  * @since 2024年9月8日
  */
