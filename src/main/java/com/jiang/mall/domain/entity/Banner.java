@@ -8,19 +8,25 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * <p>
- * 实体类
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * 轮播图实体类，对应数据库表 tb_banner
+ *
+ * @author [作者名称]
+ * @version 1.0
+ * @since [创建日期]
  */
 @Data
-@TableName("banner")
+@TableName("tb_banner")
 public class Banner implements Serializable {
 
+    /**
+     * 序列化版本UID
+     */
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 主键ID，自增
+     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
@@ -58,11 +64,14 @@ public class Banner implements Serializable {
     private LocalDateTime updatedAt;
 
     /**
-     * 是否删除
+     * 是否删除，默认为 false
      */
     @TableLogic
     private Boolean isDel;
 
+    /**
+     * 轮播图对象的字符串表示形式
+     */
     @Override
     public String toString() {
         return "Banner{" +

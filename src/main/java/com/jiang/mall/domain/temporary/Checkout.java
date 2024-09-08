@@ -2,23 +2,54 @@ package com.jiang.mall.domain.temporary;
 
 import lombok.Data;
 
+/**
+ * 结算项实体类
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @Data
 public class Checkout {
 
-	private Integer id;
+    /**
+     * 结算项ID
+     */
+    private Integer id;
 
-	private String img;
+    /**
+     * 商品图片地址
+     */
+    private String img;
 
-	private boolean ischecked;
+    /**
+     * 是否选中
+     */
+    private boolean ischecked;
 
-	private Integer num;
+    /**
+     * 商品数量
+     */
+    private Integer num;
 
-	private Double price;
+    /**
+     * 商品单价
+     */
+    private Double price;
 
-	private Integer prodId;
+    /**
+     * 商品ID
+     */
+    private Integer prodId;
 
-	private String prodName;
+    /**
+     * 商品名称
+     */
+    private String prodName;
 
-	private Integer userId;
-
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 }
+

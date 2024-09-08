@@ -1,25 +1,53 @@
 package com.jiang.mall.domain.vo;
 
-import com.jiang.mall.domain.entity.OrderList;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 订单视图对象
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @Data
 public class OrderVo {
-	private Integer id;
 
-	private AddressVo address;
+    /**
+     * 订单ID
+     */
+    private Integer id;
 
-	private Date date;
+    /**
+     * 收货地址信息
+     */
+    private AddressVo address;
 
-	private Double totalAmount;
+    /**
+     * 下单时间
+     */
+    private Date date;
 
-	private String status;
+    /**
+     * 订单总金额
+     */
+    private Double totalAmount;
 
-	private String paymentMethod;
+    /**
+     * 订单状态
+     */
+    private String status;
 
-	private List<OrderListVo> orderList;
+    /**
+     * 支付方式
+     */
+    private String paymentMethod;
 
+    /**
+     * 订单商品列表
+     */
+    private List<OrderListVo> orderList;
 }
+

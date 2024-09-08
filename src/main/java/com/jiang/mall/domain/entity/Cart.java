@@ -9,24 +9,30 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * <p>
- * 实体类
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * 购物车实体类，对应数据库表 tb_cart
+ *
+ * @author [作者名称]
+ * @version 1.0
+ * @since [创建日期]
  */
 @Data
-@TableName("cart")
+@TableName("tb_cart")
 public class Cart implements Serializable {
 
+    /**
+     * 序列化版本UID
+     */
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 主键ID，自增
+     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 商品id
+     * 商品ID
      */
     private Integer prodId;
 
@@ -36,10 +42,13 @@ public class Cart implements Serializable {
     private Integer num;
 
     /**
-     * 用户id
+     * 用户ID
      */
     private Integer userId;
 
+    /**
+     * 购物车对象的字符串表示形式
+     */
     @Override
     public String toString() {
         return "Cart{" +

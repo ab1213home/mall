@@ -2,28 +2,69 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
+/**
+ * 地址视图对象
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @Data
 public class AddressVo {
-	private Integer id;
 
-	private String firstName;
+    /**
+     * 地址ID
+     */
+    private Integer id;
 
+    /**
+     * 收件人名字
+     */
+    private String firstName;
+
+    /**
+     * 收件人姓氏
+     */
     private String lastName;
 
-	private String phone;
+    /**
+     * 手机号码
+     */
+    private String phone;
 
-	private String country;
+    /**
+     * 国家
+     */
+    private String country;
 
-	private String province;
+    /**
+     * 省份
+     */
+    private String province;
 
-	private String city;
+    /**
+     * 城市
+     */
+    private String city;
 
-	private String district;
+    /**
+     * 区县
+     */
+    private String district;
 
-	private String addressDetail;
+    /**
+     * 详细地址
+     */
+    private String addressDetail;
 
-	private String postalCode;
+    /**
+     * 邮政编码
+     */
+    private String postalCode;
 
-	private boolean isDefault;
-
+    /**
+     * 是否默认地址
+     */
+    private boolean isDefault;
 }
+

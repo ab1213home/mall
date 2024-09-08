@@ -2,19 +2,48 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
+/**
+ * 订单列表视图对象
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @Data
 public class OrderListVo {
-	private Integer id;
 
-	private Integer orderId;
+    /**
+     * 订单项ID
+     */
+    private Integer id;
 
-	private Integer prodId;
+    /**
+     * 订单ID
+     */
+    private Integer orderId;
 
-	private Integer num;
+    /**
+     * 商品ID
+     */
+    private Integer prodId;
 
-	private Double price;
+    /**
+     * 商品数量
+     */
+    private Integer num;
 
-	private String prodName;
+    /**
+     * 商品单价
+     */
+    private Double price;
 
-	private String img;
+    /**
+     * 商品名称
+     */
+    private String prodName;
+
+    /**
+     * 商品图片地址
+     */
+    private String img;
 }
