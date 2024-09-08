@@ -2,30 +2,33 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
 /**
- * <p>
- * 实体类
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * 商品实体类，对应数据库表 tb_products
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
  */
-@Getter
-@Setter
 @Data
-@TableName("product")
+@TableName("tb_products")
 public class Product implements Serializable {
 
+    /**
+     * 序列化版本UID
+     */
     @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 主键ID，自增
+     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
@@ -40,7 +43,7 @@ public class Product implements Serializable {
     private String title;
 
     /**
-     * 商品分类id
+     * 商品分类ID
      */
     private Integer categoryId;
 
@@ -83,11 +86,14 @@ public class Product implements Serializable {
     private LocalDateTime updatedAt;
 
     /**
-     * 是否删除
+     * 是否删除，默认为 false
      */
     @TableLogic
     private Boolean isDel;
 
+    /**
+     * 商品对象的字符串表示形式
+     */
     @Override
     public String toString() {
         return "Product{" +
@@ -106,3 +112,4 @@ public class Product implements Serializable {
         "}";
     }
 }
+

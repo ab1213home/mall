@@ -2,8 +2,6 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,8 +14,6 @@ import java.time.LocalDateTime;
  *作者： 蒋神 HJL
  * @since 2024-08-05
  */
-@Getter
-@Setter
 @Data
 @TableName("banner")
 public class Banner implements Serializable {

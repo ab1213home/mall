@@ -2,50 +2,99 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+/**
+ * 地址实体类，对应数据库表 tb_addresses
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @Data
 @TableName("tb_addresses")
 public class Address implements Serializable {
-	@Serial
+
+    /**
+     * 序列化版本UID
+     */
+    @Serial
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 主键ID，自增
+     */
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
-	private Integer userId;
+    /**
+     * 用户ID
+     */
+    private Integer userId;
 
-	private String firstName;
+    /**
+     * 收件人名 - 名字
+     */
+    private String firstName;
 
+    /**
+     * 收件人名 - 姓氏
+     */
     private String lastName;
 
-	private String phone;
+    /**
+     * 联系电话
+     */
+    private String phone;
 
-	private String country;
+    /**
+     * 国家
+     */
+    private String country;
 
-	private String province;
+    /**
+     * 省份
+     */
+    private String province;
 
-	private String city;
+    /**
+     * 城市
+     */
+    private String city;
 
-	private String district;
+    /**
+     * 区县
+     */
+    private String district;
 
-	private String addressDetail;
+    /**
+     * 详细地址
+     */
+    private String addressDetail;
 
-	private String postalCode;
+    /**
+     * 邮政编码
+     */
+    private String postalCode;
 
+    /**
+     * 创建时间，自动填充
+     */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
+    /**
+     * 更新时间，自动填充
+     */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 
-	@TableLogic
-	private Boolean isDel;
+    /**
+     * 逻辑删除标记，默认为 false
+     */
+    @TableLogic
+    private Boolean isDel;
 }
