@@ -21,7 +21,7 @@ import static com.jiang.mall.domain.entity.Propertie.regex_phone;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user/address")
+@RequestMapping("/address/user")
 public class AddressController {
 
 	@Autowired
