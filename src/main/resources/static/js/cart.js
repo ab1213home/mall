@@ -178,9 +178,9 @@ function updateCart(id, num){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				$("#iid" + _id).val(_num);	//界面更新
-				cartArr[_id].num = _num;	//更新内存中对应商品的数量
-				$("#gsum"+_id).html(_num * cartArr[_id].price);	//更新改行的价格
+				$("#iid" + id).val(num);	//界面更新
+				cartArr[id].num = num;	//更新内存中对应商品的数量
+				$("#gsum"+id).html(num * cartArr[id].price);	//更新改行的价格
 				totalMoney();
 			}else{
 				// alert("更新购物车失败:"+res.message);
