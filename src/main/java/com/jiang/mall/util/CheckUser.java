@@ -3,7 +3,10 @@ package com.jiang.mall.util;
 import com.jiang.mall.domain.ResponseResult;
 import jakarta.servlet.http.HttpSession;
 
-public class CheckUserLogin {
+/**
+ * @author jiang
+ */
+public class CheckUser {
 	/**
 	 * 检查用户是否已登录
 	 * <p>
@@ -29,5 +32,21 @@ public class CheckUserLogin {
 			return ResponseResult.notLoggedResult("您未登录，请先登录");
 		}
 	    return ResponseResult.okResult(userId);
+	}
+
+	public static ResponseResult checkAdminUser(HttpSession session) {
+	    ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+		Integer userId = (Integer) result.getData();
+		if (session.getAttribute("UserIsAdmin") == null) {
+			return ResponseResult.notLoggedResult("您未登录，请先登录");
+		}
+		if (!"true".equals(session.getAttribute("UserIsAdmin"))) {
+			return ResponseResult.notLoggedResult("您没有权限访问此页面");
+		}
+		return ResponseResult.okResult(userId);
 	}
 }

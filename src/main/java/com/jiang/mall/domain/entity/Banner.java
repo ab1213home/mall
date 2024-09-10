@@ -72,6 +72,19 @@ public class Banner implements Serializable {
     @TableLogic
     private Boolean isDel;
 
+    public Banner(String img, String url, String description) {
+        this.img = img;
+        this.url = url;
+        this.description = description;
+    }
+
+    public Banner(Integer id, String img, String url, String description) {
+        this.id = id;
+        this.img = img;
+        this.url = url;
+        this.description = description;
+    }
+
     /**
      * 轮播图对象的字符串表示形式
      */

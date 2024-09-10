@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.util.CheckUserLogin.checkUserLogin;
+import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 购物车控制器

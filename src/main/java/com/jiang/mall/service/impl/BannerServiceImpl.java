@@ -27,57 +27,47 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     @Autowired
     private BannerMapper bannerMapper;
 
-
-//    函数用于获取轮播图列表
     @Override
-    public ResponseResult getBannerList(Integer pageNum, Integer pageSize) {
+    public List<BannerVo> getBannerList(Integer pageNum, Integer pageSize) {
         Page<Banner> bannerPage = new Page<>(pageNum, pageSize);
         List<Banner> banners = bannerMapper.selectPage(bannerPage, null).getRecords();
         List<BannerVo> bannerVos = BeanCopyUtils.copyBeanList(banners, BannerVo.class);
-        return ResponseResult.okResult(bannerVos);
+        return bannerVos;
     }
 
+    @Override
+    public Integer getBannerNum() {
+        List<Banner> banners = bannerMapper.selectList(null);
+        return banners.size();
+    }
+
+    @Override
+    public boolean deleteBanner(Integer id) {
+	    return bannerMapper.deleteById(id) == 1;
+    }
 
 
     @Override
     public ResponseResult getBanner(Integer id) {
 
-//        通过ID查询数据库获取单个轮播图信息；
         Banner banner = bannerMapper.selectById(id);
 
-//        若查询结果不为空，则将查询结果对象转换为BannerVo对象，并返回成功响应；
         if (banner != null){
             BannerVo bannerVo = BeanCopyUtils.copyBean(banner, BannerVo.class);
             return ResponseResult.okResult(bannerVo);
         }
 
-//        若查询结果为空，则返回失败响应。
         return ResponseResult.failResult();
     }
 
-
-//    过调用bannerMapper.insert方法将Banner对象存入数据库。
-//    若插入成功，返回成功响应；否则，返回失败响应。
     @Override
-    public ResponseResult insertBanner(Banner banner) {
-        int res = bannerMapper.insert(banner);
-        if (res == 1){
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+    public boolean insertBanner(Banner banner) {
+	    return bannerMapper.insert(banner) == 1;
     }
 
-
-//    通过调用bannerMapper.updateById(banner)方法来更新传入的Banner对象。
     @Override
-    public ResponseResult updateBanner(Banner banner) {
-        int res = bannerMapper.updateById(banner);
-//        如果更新成功，返回ResponseResult.okResult()表示操作成功；
-//        如果更新失败（即更新的行数不为1），则返回ResponseResult.failResult()表示操作失败。
-        if (res == 1){
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+    public boolean updateBanner(Banner banner) {
+	    return bannerMapper.updateById(banner) == 1;
     }
 
 

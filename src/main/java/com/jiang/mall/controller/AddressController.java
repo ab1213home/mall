@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.regex_phone;
-import static com.jiang.mall.util.CheckUserLogin.checkUserLogin;
+import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 收货地址管理
