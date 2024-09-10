@@ -100,4 +100,35 @@ public class Address implements Serializable {
      */
     @TableLogic
     private Boolean isDel;
+
+    /**
+     * 构造函数：初始化地址对象
+     * <p>
+     * 该构造函数用于创建一个地址对象，并初始化其所有字段。包括用户ID、收件人姓名、联系电话、
+     * 国家地区、省份、城市、区县、详细地址及邮政编码。这些信息共同构成了一个完整的地址，
+     * 用于例如物流配送、联系地址登记等场景。
+     *
+     * @param userId 用户ID，唯一标识一个用户
+     * @param firstName 收件人的名
+     * @param lastName 收件人的姓
+     * @param phone 联系电话，用于配送过程中与收件人联系
+     * @param country 国家地区，地址的最高级别划分
+     * @param province 省份，地址的次级别划分
+     * @param city 城市，地址的再下一级别划分
+     * @param district 区县，地址的进一步具体划分
+     * @param addressDetail 详细地址，包括街道、门牌号等具体信息
+     * @param postalCode 邮政编码，与地址相关联的邮政编码信息
+     */
+    public Address(Integer userId, String firstName, String lastName, String phone, String country, String province, String city, String district, String addressDetail, String postalCode) {
+        this.userId=userId;
+        this.firstName=firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.country = country;
+        this.province = province;
+        this.city = city;
+        this.district = district;
+        this.addressDetail = addressDetail;
+        this.postalCode = postalCode;
+    }
 }

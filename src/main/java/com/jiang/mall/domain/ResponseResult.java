@@ -20,10 +20,42 @@ public class ResponseResult<T> implements Serializable {
     private String message;
     private T data;
 
+    // 默认成功消息
     private static final String DEFAULT_SUCCESS_MESSAGE = "success";
+    // 默认失败消息
     private static final String DEFAULT_FAIL_MESSAGE = "fail";
+    // 默认成功状态码
     private static final int DEFAULT_SUCCESS_CODE = 200;
+    // 默认失败状态码
     private static final int DEFAULT_FAIL_CODE = 500;
+    // 默认错误状态码
+    private static final int DEFAULT_ERROR_CODE = 400;
+    // 默认未授权状态码
+    private static final int DEFAULT_UNAUTHORIZED_CODE = 401;
+    // 默认禁止访问状态码
+    private static final int DEFAULT_FORBIDDEN_CODE = 403;
+    // 默认未找到资源状态码
+    private static final int DEFAULT_NOT_FOUND_CODE = 404;
+    // 默认服务器错误状态码
+    private static final int DEFAULT_SERVER_ERROR_CODE = 500;
+    // 默认不良请求状态码
+    private static final int DEFAULT_BAD_REQUEST_CODE = 400;
+    // 默认不可接受状态码
+    private static final int DEFAULT_NOT_ACCEPTABLE_CODE = 406;
+    // 默认不可处理实体状态码
+    private static final int DEFAULT_UNPROCESSABLE_ENTITY_CODE = 422;
+    // 默认内部服务器错误状态码
+    private static final int DEFAULT_INTERNAL_SERVER_ERROR_CODE = 500;
+    // 默认未实现状态码
+    private static final int DEFAULT_NOT_IMPLEMENTED_CODE = 501;
+    // 默认未找到资源状态码
+    private static final int DEFAULT_NOT_FOUND_RESOURCE_CODE = 404;
+    // 默认未授权资源状态码
+    private static final int DEFAULT_UNAUTHORIZED_RESOURCE_CODE = 401;
+    // 默认未找到资源消息对应状态码
+    private static final int DEFAULT_NOT_FOUND_RESOURCE_MESSAGE = 404;
+    // 默认未授权资源消息对应状态码
+    private static final int DEFAULT_UNAUTHORIZED_RESOURCE_MESSAGE = 401;
 
     /**
      * 创建一个表示操作成功的响应结果，使用默认的成功消息
@@ -120,4 +152,21 @@ public class ResponseResult<T> implements Serializable {
     public ResponseResult() {
     }
 
+    /**
+     * 创建一个表示未授权的响应结果
+     * 此方法用于生成一个特殊的响应结果，指示用户未授权访问资源这是因为用户未登录或其他授权失败的情况
+     *
+     * @param message 错误消息，用于详细说明未授权的原因
+     * @return 返回一个 ResponseResult 对象，其中包含了默认的未授权状态码和给定的错误消息
+     */
+    public static ResponseResult notLoggedResult(String message) {
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setCode(DEFAULT_UNAUTHORIZED_CODE);
+        responseResult.setMessage(message);
+        return responseResult;
+    }
+
+    public boolean isSuccess() {
+	    return code == DEFAULT_SUCCESS_CODE;
+    }
 }

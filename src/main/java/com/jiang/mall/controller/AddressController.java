@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.regex_phone;
+import static com.jiang.mall.util.CheckUserLogin.checkUserLogin;
 
 /**
  * 收货地址管理
@@ -21,7 +22,7 @@ import static com.jiang.mall.domain.entity.Propertie.regex_phone;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/address/user")
+@RequestMapping("/address")
 public class AddressController {
 
 	@Autowired
@@ -29,22 +30,6 @@ public class AddressController {
 
 	@Autowired
 	private IUserService userService;
-
-	public Integer userIsLogin(HttpSession session){
-	    // 检查会话中是否设置了用户登录状态标志
-	    if (session.getAttribute("UserIsLogin")!=null){
-	        // 如果登录状态标志为"false"，表示用户未登录
-	        if (session.getAttribute("UserIsLogin").equals("false")) {
-		        return null;
-	        }
-	    }
-	    // 如果会话中没有用户ID，也表示用户未登录
-	    if (session.getAttribute("UserId")==null) {
-		    return null;
-	    }
-	    //从会话中获取用户ID
-		return (Integer) session.getAttribute("UserId");
-	}
 
     /**
      * 获取收货地址列表
@@ -59,22 +44,12 @@ public class AddressController {
                                          @RequestParam(defaultValue = "10") Integer pageSize,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        if (session.getAttribute("UserIsLogin")!=null){
-            // 如果用户登录状态为false，则返回失败结果并提示需要登录
-            if (session.getAttribute("UserIsLogin").equals("false"))
-                return ResponseResult.failResult("您未登录，请先登录");
-        }
-        // 检查会话中是否已保存用户ID
-        if (session.getAttribute("UserId")==null)
-            return ResponseResult.failResult("您未登录，请先登录");
-        // 从会话中获取用户ID
-        Integer userId = (Integer) session.getAttribute("UserId");
-        // 再次检查用户ID是否为null，确保用户已登录
-        if (userId==null){
-            return ResponseResult.failResult("您未登录，请先登录");
-        }
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    return result; // 如果未登录，则直接返回
+		}
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
-        List<AddressVo> address_List = addressService.getAddressList(userId, pageNum, pageSize);
+        List<AddressVo> address_List = addressService.getAddressList((Integer) result.getData(), pageNum, pageSize);
         // 如果获取的地址列表为空，则返回失败结果
         if (address_List==null)
             return ResponseResult.failResult("获取失败");
@@ -93,23 +68,13 @@ public class AddressController {
 	 */
 	@GetMapping("/getNum")
 	public ResponseResult getNum(HttpSession session){
-	    // 检查会话中是否设置了用户登录状态标志
-	    if (session.getAttribute("UserIsLogin")!=null){
-	        // 如果登录状态标志为"false"，表示用户未登录
-	        if (session.getAttribute("UserIsLogin").equals("false"))
-	            return ResponseResult.failResult("您未登录，请先登录");
-	    }
-	    // 如果会话中没有用户ID，也表示用户未登录
-	    if (session.getAttribute("UserId")==null)
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    // 从会话中获取用户ID
-	    Integer userId = (Integer) session.getAttribute("UserId");
-	    // 再次检查用户ID是否为null，确保用户已登录
-	    if (userId==null){
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    }
+	    // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    return result; // 如果未登录，则直接返回
+		}
 	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
-	    return ResponseResult.okResult(addressService.getAddressNum(userId));
+	    return ResponseResult.okResult(addressService.getAddressNum((Integer) result.getData()));
 	}
 
 	/**
@@ -140,33 +105,19 @@ public class AddressController {
 										@RequestParam("postalCode") String postalCode,
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session){
-	    // 检查用户是否已登录
-	    if (session.getAttribute("UserIsLogin")!=null){
-	        if (session.getAttribute("UserIsLogin").equals("false"))
-	            return ResponseResult.failResult("您未登录，请先登录");
-	    }
-	    // 验证用户ID是否存在
-	    if (session.getAttribute("UserId")==null)
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    return result; // 如果未登录，则直接返回
+		}
+	    Integer userId = (Integer) result.getData();
 	    // 验证手机号格式
 	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
 
 	    // 创建新的地址对象
-	    Address address = new Address();
-	    address.setAddressDetail(addressDetail);
-	    address.setCity(city);
-	    address.setCountry(country);
-	    address.setDistrict(district);
-	    address.setFirstName(firstName);
-	    address.setLastName(lastName);
-	    address.setPhone(phone);
-	    address.setPostalCode(postalCode);
-	    address.setProvince(province);
-	    address.setUserId(userId);
-
+	    Address address = new Address(userId,firstName,lastName,phone,country,province,city,district,addressDetail,postalCode);
 	    // 尝试插入地址信息
 	    if (addressService.getBaseMapper().insert(address)>0){
 	        // 获取新插入地址的ID
@@ -232,16 +183,12 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
-	    if (session.getAttribute("UserIsLogin") != null) {
-	        if (session.getAttribute("UserIsLogin").equals("false")) {
-	            return ResponseResult.failResult("您未登录，请先登录");
-	        }
-	    }
-	    // 确保用户ID存在
-	    if (session.getAttribute("UserId") == null) {
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    }
-	    Integer userId = (Integer) session.getAttribute("UserId");
+	    // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    return result; // 如果未登录，则直接返回
+		}
+	    Integer userId = (Integer) result.getData();
 	    // 验证电话号码格式
 	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
 	        return ResponseResult.failResult("手机号格式不正确");

@@ -84,7 +84,7 @@ function showToast(message){
 function queryAddress(pn, pz) {
     $.ajax({
         type: "GET",
-        url: "/address/list",
+        url: "/address/getList",
         data: {
             pageNum: pn,
             pageSize: pz
