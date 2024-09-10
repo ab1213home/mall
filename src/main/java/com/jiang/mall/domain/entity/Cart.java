@@ -19,7 +19,7 @@ import java.io.Serializable;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_cart")
+//@TableName("tb_cart")
 public class Cart implements Serializable {
 
     /**
@@ -48,6 +48,25 @@ public class Cart implements Serializable {
      * 用户ID
      */
     private Integer userId;
+
+    /**
+     * 构造方法：创建一个购物车对象
+     * 该构造方法用于初始化购物车对象的属性，包括购物车项的ID、产品ID、数量和用户ID
+     *
+     * @param id 购物车项的ID，唯一标识一个购物车项
+     * @param prodId 产品ID，标识添加到购物车中的产品
+     * @param num 产品数量，表示用户希望购买的产品数量
+     * @param userId 用户ID，标识拥有该购物车的用户
+     */
+    public Cart(Integer id, Integer prodId, Integer num, Integer userId) {
+        this.id = id;
+        this.prodId = prodId;
+        this.num = num;
+        this.userId = userId;
+    }
+
+    public Cart() {
+    }
 
     /**
      * 购物车对象的字符串表示形式

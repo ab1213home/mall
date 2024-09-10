@@ -16,7 +16,7 @@ public class CheckUserLogin {
 	public static ResponseResult checkUserLogin(HttpSession session) {
 	    // 检查用户是否已登录
 	    if (session.getAttribute("UserIsLogin") != null) {
-	        if (session.getAttribute("UserIsLogin").equals("false")) {
+	        if ("false".equals(session.getAttribute("UserIsLogin"))) {
 	            return ResponseResult.notLoggedResult("您未登录，请先登录");
 	        }
 	    }

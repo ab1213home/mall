@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_category")
+//@TableName("tb_category")
 public class Category implements Serializable {
 
     /**

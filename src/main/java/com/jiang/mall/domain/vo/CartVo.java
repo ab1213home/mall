@@ -2,8 +2,6 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 /**
  * 购物车视图对象
  *
@@ -42,7 +40,7 @@ public class CartVo {
     /**
      * 商品单价
      */
-    private BigDecimal price;
+    private Double price;
 
     /**
      * 商品图片地址

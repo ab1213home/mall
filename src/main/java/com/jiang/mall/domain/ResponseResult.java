@@ -166,6 +166,21 @@ public class ResponseResult<T> implements Serializable {
         return responseResult;
     }
 
+    public static ResponseResult notFoundResourceResult(String message) {
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setCode(DEFAULT_NOT_FOUND_RESOURCE_CODE);
+        responseResult.setMessage(message);
+        return responseResult;
+    }
+
+    //服务器内部错误
+    public static ResponseResult serverErrorResult(String message) {
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setCode(DEFAULT_NOT_IMPLEMENTED_CODE);
+        responseResult.setMessage(message);
+        return responseResult;
+    }
+
     public boolean isSuccess() {
 	    return code == DEFAULT_SUCCESS_CODE;
     }

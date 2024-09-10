@@ -42,8 +42,9 @@ public class UserController {
                                              @RequestParam("captcha") String captcha,
                                              HttpSession session) {
         if (session.getAttribute("UserIsLogin")!=null){
-            if (session.getAttribute("UserIsLogin").equals("true"))
-                return ResponseResult.failResult("您已登录，请勿重复注册");
+            if ("true".equals(session.getAttribute("UserIsLogin"))) {
+	            return ResponseResult.failResult("您已登录，请勿重复注册");
+            }
         }
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
@@ -82,9 +83,9 @@ public class UserController {
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
-        int UserId = userService.registerStep(user);
-        if (UserId>0) {
-            session.setAttribute("UserId",UserId);
+        int userId = userService.registerStep(user);
+        if (userId>0) {
+            session.setAttribute("UserId",userId);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.failResult("未知原因注册失败");
@@ -102,8 +103,9 @@ public class UserController {
             return ResponseResult.failResult("请先完成第一步注册，会话已过期");
         }
         if (session.getAttribute("UserIsLogin")!=null){
-            if (session.getAttribute("UserIsLogin").equals("true"))
-                return ResponseResult.failResult("您已登录，请勿重复注册");
+            if ("true".equals(session.getAttribute("UserIsLogin"))) {
+	            return ResponseResult.failResult("您已登录，请勿重复注册");
+            }
         }
         int UserId = (int) session.getAttribute("UserId");
 
@@ -138,8 +140,9 @@ public class UserController {
                         @RequestParam("captcha") String captcha,
                         HttpSession session) {
         if (session.getAttribute("UserIsLogin")!=null){
-            if (session.getAttribute("UserIsLogin").equals("true"))
-                return ResponseResult.failResult("您已登录，请勿重复登录");
+            if ("true".equals(session.getAttribute("UserIsLogin"))) {
+	            return ResponseResult.failResult("您已登录，请勿重复登录");
+            }
         }
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");

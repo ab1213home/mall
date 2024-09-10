@@ -46,16 +46,19 @@ public class AddressController {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkUserLogin(session);
 		if (!result.isSuccess()) {
-		    return result; // 如果未登录，则直接返回
+			// 如果未登录，则直接返回
+		    return result;
 		}
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
         List<AddressVo> address_List = addressService.getAddressList((Integer) result.getData(), pageNum, pageSize);
         // 如果获取的地址列表为空，则返回失败结果
-        if (address_List==null)
-            return ResponseResult.failResult("获取失败");
+        if (address_List==null) {
+	        return ResponseResult.failResult("获取失败");
+        }
         // 如果地址列表为空，则返回失败结果并提示暂无收货地址
-        if (address_List.isEmpty())
-            return ResponseResult.failResult("暂无收货地址");
+        if (address_List.isEmpty()) {
+	        return ResponseResult.failResult("暂无收货地址");
+        }
         // 如果成功获取到地址列表，则返回成功结果及地址列表数据
         return ResponseResult.okResult(address_List);
     }
@@ -71,7 +74,8 @@ public class AddressController {
 	    // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkUserLogin(session);
 		if (!result.isSuccess()) {
-		    return result; // 如果未登录，则直接返回
+			// 如果未登录，则直接返回
+		    return result;
 		}
 	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
 	    return ResponseResult.okResult(addressService.getAddressNum((Integer) result.getData()));
@@ -148,7 +152,7 @@ public class AddressController {
 	        }
 	    }else{
 	        // 插入地址失败
-	        return ResponseResult.failResult("添加失败");
+	        return ResponseResult.serverErrorResult("添加失败");
 	    }
 	}
 
@@ -183,10 +187,10 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
-	    // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkUserLogin(session);
 		if (!result.isSuccess()) {
-		    return result; // 如果未登录，则直接返回
+			// 如果未登录，则直接返回
+		    return result;
 		}
 	    Integer userId = (Integer) result.getData();
 	    // 验证电话号码格式
@@ -194,28 +198,18 @@ public class AddressController {
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
 
-	    // 根据ID获取地址信息
-	    Address address = addressService.getById(id);
-	    // 更新地址信息
-	    address.setAddressDetail(addressDetail);
-	    address.setCity(city);
-	    address.setCountry(country);
-	    address.setDistrict(district);
-	    address.setFirstName(firstName);
-	    address.setLastName(lastName);
-	    address.setPhone(phone);
-	    address.setPostalCode(postalCode);
-	    address.setProvince(province);
+		// 创建新的地址对象
+	    Address address = new Address(userId, firstName, lastName, phone, country, province, city, district, addressDetail, postalCode);
+	    address.setId(id);
 
 	    // 验证用户是否有权修改该地址
 	    Address oldaddress = addressService.getById(id);
 	    if (!oldaddress.getUserId().equals(userId)) {
 	        return ResponseResult.failResult("您没有权限修改此地址");
 	    }
-	    address.setUserId(userId);
 
 	    // 尝试更新地址
-	    if (addressService.update(address) > 0) {
+	    if (addressService.update(address)) {
 	        // 处理设为默认地址的逻辑
 	        if (isDefault) {
 	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
@@ -240,7 +234,7 @@ public class AddressController {
 	            return ResponseResult.okResult();
 	        }
 	    } else {
-	        return ResponseResult.failResult("添加失败");
+	        return ResponseResult.serverErrorResult("添加失败");
 	    }
 	}
 
@@ -252,26 +246,25 @@ public class AddressController {
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
-	public ResponseResult deleteAddress(@RequestParam("id") Integer id, HttpSession session){
-	    // 检查用户是否已登录
-	    if (session.getAttribute("UserIsLogin")!=null){
-	        // 如果用户登录状态为false，则返回失败结果并提示登录
-	        if (session.getAttribute("UserIsLogin").equals("false"))
-	            return ResponseResult.failResult("您未登录，请先登录");
-	    }
-	    // 如果用户ID不存在于会话中，则返回失败结果并提示登录
-	    if (session.getAttribute("UserId")==null)
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    // 从会话中获取用户ID
-	    Integer userId = (Integer) session.getAttribute("UserId");
+	public ResponseResult deleteAddress(@RequestParam("id") Integer id,
+	                                    HttpSession session){
+		// 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+	    Integer userId = (Integer) result.getData();
 	    // 通过ID获取地址信息
 	    Address address = addressService.getById(id);
 	    // 检查当前用户是否有权删除该地址
-	    if (!address.getUserId().equals(userId))
-	        return ResponseResult.failResult("您没有权限删除此地址");
+	    if (!address.getUserId().equals(userId)) {
+		    return ResponseResult.failResult("您没有权限删除此地址");
+	    }
 	    // 尝试删除地址
-	    if (!addressService.deleteAddress(id, userId))
-	        return ResponseResult.failResult("删除失败");
+	    if (!addressService.deleteAddress(id, userId)) {
+		    return ResponseResult.failResult("删除失败");
+	    }
 	    // 删除成功，返回成功结果
 	    return ResponseResult.okResult();
 	}
@@ -284,17 +277,15 @@ public class AddressController {
 	 * @return ResponseResult封装的地址信息或错误信息
 	 */
 	@GetMapping("/getAddressById/{id}")
-	public ResponseResult getAddressById(@PathVariable("id") Integer id, HttpSession session){
-	    // 检查会话中是否设置用户登录状态，若已设置且值为"false"，表示用户未登录
-	    if (session.getAttribute("UserIsLogin")!=null){
-	        if (session.getAttribute("UserIsLogin").equals("false"))
-	            return ResponseResult.failResult("您未登录，请先登录");
-	    }
-	    // 直接检查会话中的用户ID是否存在，若不存在表示用户未登录
-	    if (session.getAttribute("UserId")==null)
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    // 获取当前用户的ID
-	    Integer userId = (Integer) session.getAttribute("UserId");
+	public ResponseResult getAddressById(@PathVariable("id") Integer id,
+	                                     HttpSession session){
+	    // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+	    Integer userId = (Integer) result.getData();
 	    // 调用服务根据地址ID和用户ID获取地址信息
 	    AddressVo address = addressService.getAddressById(id, userId);
 	    // 返回获取到的地址信息

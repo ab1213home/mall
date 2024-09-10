@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_banner")
+//@TableName("tb_banner")
 public class Banner implements Serializable {
 
     /**

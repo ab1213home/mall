@@ -1,5 +1,4 @@
-sessionStorage = window.sessionStorage;
-var cartArr = {};	//key是cart的id,值是商品具体记录
+let cartArr = {};	//key是cart的id,值是商品具体记录
 let currentPageNum = 1;
 let num = 0;
 $(document).ready(function(){
@@ -50,16 +49,14 @@ function isLogin(){
 }
 
 function queryCart(pn, pz){
-	console.log("查询第" + pn + "页");
-	let id = sessionStorage.getItem("userId");
+	const data = {
+		pageNum:pn,
+		pageSize:pz
+	};
 	$.ajax({
 		type:"GET",
-		url:"/cart/list",
-		data:{
-			userId:id,
-			pageNum:pn,
-			pageSize:pz
-		},
+		url:"/cart/getList",
+		data:data,
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
@@ -154,7 +151,7 @@ function checkAll(){
 function sub(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum);
-	if(num ==1){
+	if(num == 1){
 		// alert("不能更小了");
 		showToast("不能更小了");
 	}else{
@@ -169,15 +166,15 @@ function add(id){
 	updateCart(id, num);
 }
 
-function updateCart(_id, _num){
+function updateCart(id, num){
+	const data = {
+		id:id,
+		num:num
+	};
 	$.ajax({
 		type:"POST",
-		url:"/cart/admin/update",
-		contentType:"application/json",
-		data:JSON.stringify({
-			id:_id,
-			num:_num
-		}),
+		url:"/cart/update",
+		data:data,
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
@@ -194,12 +191,13 @@ function updateCart(_id, _num){
 }
 
 function deleteCartGood(id){
-	let dataArr = [id];
+	const data={
+		id:id
+	}
 	$.ajax({
-		type:"POST",	//POST
-		url:"/cart/admin/delete",
-		contentType:"application/json",
-		data:JSON.stringify(dataArr),
+		type:"GET",
+		url:"/cart/delete",
+		data:data,
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){

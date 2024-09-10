@@ -4,7 +4,7 @@ $(document).ready(function() {
 	queryMyUserInfo();
     function fetchOrders() {
         $.ajax({
-            url: '/order/list',
+            url: '/order/getList',
             type: 'GET',
             dataType: 'json',
             success: function(data) {

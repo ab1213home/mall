@@ -127,7 +127,7 @@ function queryCart(pn, pz){
 	let i= 1;
 	$.ajax({
 		type:"GET",
-		url:"/order/temporaryList",
+		url:"/order/getTemporaryList",
 		data:{
 			pageNum:pn,
 			pageSize:pz
@@ -190,7 +190,7 @@ function queryCart(pn, pz){
 function queryAddress(pn, pz) {
     $.ajax({
         type: "GET",
-        url: "/address/list",
+        url: "/address/getList",
         data: {
             pageNum: pn,
             pageSize: pz
