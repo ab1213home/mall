@@ -19,7 +19,7 @@ import java.io.Serializable;
  * @since 2024年9月8日
  */
 @Data
-//@TableName("tb_cart")
+@TableName("tb_cart")
 public class Cart implements Serializable {
 
     /**

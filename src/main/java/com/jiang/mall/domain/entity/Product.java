@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-//@TableName("tb_products")
+@TableName("tb_products")
 public class Product implements Serializable {
 
     /**
@@ -74,7 +74,13 @@ public class Product implements Serializable {
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private String creator;
+    private Integer creator;
+
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Integer updater;
 
     /**
      * 创建时间

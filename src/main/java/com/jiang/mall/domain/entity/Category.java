@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-//@TableName("tb_category")
+@TableName("tb_category")
 public class Category implements Serializable {
 
     /**
@@ -47,7 +47,13 @@ public class Category implements Serializable {
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private String creator;
+    private Integer creator;
+
+    /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Integer updater;
 
     /**
      * 创建时间

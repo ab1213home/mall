@@ -28,11 +28,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     private CategoryMapper categoryMapper;
 
     @Override
-    public ResponseResult getCategoryList(Integer pageNum, Integer pageSize) {
+    public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize) {
         Page<Category> categoryPage = new Page<>(pageNum, pageSize);
         List<Category> categorys = categoryMapper.selectPage(categoryPage, null).getRecords();
-        List<CategoryVo> categoryVos = BeanCopyUtils.copyBeanList(categorys, CategoryVo.class);
-        return ResponseResult.okResult(categoryVos);
+	    return BeanCopyUtils.copyBeanList(categorys, CategoryVo.class);
     }
 
     @Override
@@ -72,6 +71,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return ResponseResult.failResult();
     }
 
+    @Override
+    public Integer getCategoryNum() {
+        List<Category> categorys = categoryMapper.selectList(null);
+        return categorys.size();
+    }
 
 
 }

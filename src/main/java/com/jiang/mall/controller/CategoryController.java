@@ -2,6 +2,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
+import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -9,25 +10,37 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
- * 前端控制器
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * 商品控制器
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
  */
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
+
     @Autowired
     ICategoryService categoryService;
 
+    @GetMapping("/getList")
+    public ResponseResult getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                          @RequestParam(defaultValue = "5") Integer pageSize) {
+        List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize);
+        if (categoryVos.isEmpty()) {
+            return ResponseResult.notFoundResourceResult("没有找到资源");
+        }
+        return ResponseResult.okResult(categoryVos);
+    }
 
+    @GetMapping("/getNum")
+    public ResponseResult getCategoryNum() {
+        Integer num = categoryService.getCategoryNum();
+        return ResponseResult.okResult(num);
+    }
 
-//    通过GET方法接收网页请求并处理路径"/list"。
-//    函数调用categoryService提供的方法获取分类列表，并将结果以ResponseResult形式返回。
-    @GetMapping("/list")
-    public ResponseResult getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize) {
-        return categoryService.getCategoryList(pageNum, pageSize);
+    @PostMapping("/add")
+    public ResponseResult insertCategory(@RequestParam("")) {
+        return categoryService.insertCategory(category);
     }
 
 

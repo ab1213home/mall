@@ -8,6 +8,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
@@ -22,16 +23,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         // 获取当前的HTTP请求
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 从会话中获取当前用户的ID
-        Object userId = request.getSession().getAttribute("UserId");
-        if (userId != null) {
-            // 如果用户ID不为空，则设置创建者字段为当前用户ID
-            this.setFieldValByName("creator", userId.toString(), metaObject);
-        } else {
-            // 如果用户ID为空，则默认设置创建者字段为"0"
-            this.setFieldValByName("creator", "0", metaObject);
-        }
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        // 设置创建者ID为当前用户的ID
+        this.setFieldValByName("creator", userId, metaObject);
+        // 设置更新者ID为当前用户的ID
+        this.setFieldValByName("updater", userId, metaObject);
         // 设置创建时间为当前时间
         this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
         // 设置更新时间为当前时间
@@ -47,7 +45,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void updateFill(MetaObject metaObject) {
+        // 设置更新时间为当前时间
         this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
+        // 获取当前的HTTP请求
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        // 从会话中获取当前用户的ID
+        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        // 设置更新者ID为当前用户的ID
+        this.setFieldValByName("updater", userId, metaObject);
     }
 
 }

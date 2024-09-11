@@ -3,6 +3,7 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
+import com.jiang.mall.domain.vo.CategoryVo;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface ICategoryService extends IService<Category> {
 
-    ResponseResult getCategoryList(Integer pageNum, Integer pageSize);
+    List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize);
 
     ResponseResult getCategory(Integer id);
 
@@ -25,4 +26,6 @@ public interface ICategoryService extends IService<Category> {
     ResponseResult updateCategory(Category category);
 
     ResponseResult deleteCategory(List<Integer> ids);
+
+    Integer getCategoryNum();
 }
