@@ -11,8 +11,8 @@ import java.util.List;
  *  服务类
  * </p>
  *
- * @author WH
- * @since 2023-06-25
+ * @author jiang
+ * @since 2024年9月11日
  */
 public interface IProductService extends IService<Product> {
 
