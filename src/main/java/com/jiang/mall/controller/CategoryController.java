@@ -62,7 +62,7 @@ public class CategoryController {
 
     /**
      * 添加分类信息
-     *
+     * <p>
      * 通过POST请求接收前端传来的分类代码和名称，验证用户是否登录并有管理员权限后，插入数据库
      *
      * @param code 分类的代码
