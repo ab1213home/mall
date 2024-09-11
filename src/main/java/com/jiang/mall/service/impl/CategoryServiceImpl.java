@@ -45,21 +45,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public ResponseResult insertCategory(Category category) {
-        int res = categoryMapper.insert(category);
-        if (res == 1){
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+    public boolean insertCategory(Category category) {
+        return categoryMapper.insert(category)==1;
     }
 
     @Override
-    public ResponseResult updateCategory(Category category) {
-        int res = categoryMapper.updateById(category);
-        if (res == 1){
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+    public boolean updateCategory(Category category) {
+        return categoryMapper.updateById(category)==1;
     }
 
     @Override
@@ -75,6 +67,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public Integer getCategoryNum() {
         List<Category> categorys = categoryMapper.selectList(null);
         return categorys.size();
+    }
+
+    @Override
+    public boolean deleteCategory(Category category) {
+	    return categoryMapper.deleteById(category) == 1;
     }
 
 

@@ -21,11 +21,13 @@ public interface ICategoryService extends IService<Category> {
 
     ResponseResult getCategory(Integer id);
 
-    ResponseResult insertCategory(Category category);
+    boolean insertCategory(Category category);
 
-    ResponseResult updateCategory(Category category);
+    boolean updateCategory(Category category);
 
     ResponseResult deleteCategory(List<Integer> ids);
 
     Integer getCategoryNum();
+
+    boolean deleteCategory(Category category);
 }

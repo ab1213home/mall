@@ -73,6 +73,17 @@ public class Category implements Serializable {
     @TableLogic
     private Boolean isDel;
 
+    public Category(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public Category(Integer id, String code, String name) {
+        this.id = id;
+        this.code = code;
+        this.name = name;
+    }
+
     /**
      * 商品分类对象的字符串表示形式
      */
