@@ -1,7 +1,6 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.wf.captcha.ArithmeticCaptcha;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import org.springframework.stereotype.Controller;
