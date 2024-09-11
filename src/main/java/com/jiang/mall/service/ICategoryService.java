@@ -19,13 +19,9 @@ public interface ICategoryService extends IService<Category> {
 
     List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize);
 
-    ResponseResult getCategory(Integer id);
-
     boolean insertCategory(Category category);
 
     boolean updateCategory(Category category);
-
-    ResponseResult deleteCategory(List<Integer> ids);
 
     Integer getCategoryNum();
 

@@ -25,8 +25,8 @@ import static com.jiang.mall.util.MD5Utils.encryptToMD5;
  * 服务实现类
  * </p>
  *
- * @author WH
- * @since 2023-06-25
+ * @author jiang
+ * @since 2024年9月11日
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {

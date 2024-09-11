@@ -21,8 +21,8 @@ import java.util.List;
  * 服务实现类
  * </p>
  *
- * @author WH
- * @since 2023-06-25
+ * @author jiang
+ * @since 2024年9月11日
  */
 @Service
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements IProductService {

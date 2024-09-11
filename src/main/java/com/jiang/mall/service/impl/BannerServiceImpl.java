@@ -18,8 +18,8 @@ import java.util.List;
  * 服务实现类
  * </p>
  *
- * @author 蒋神，HJL
- * @since 2024/8/5
+ * @author jiang
+ * @since 2024年9月11日
  */
 @Service
 public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> implements IBannerService {

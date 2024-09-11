@@ -22,6 +22,14 @@ import java.util.Objects;
 import static com.jiang.mall.domain.entity.Propertie.paymentMethod;
 import static com.jiang.mall.domain.entity.Propertie.status;
 
+/**
+ * <p>
+ * 服务实现类
+ * </p>
+ *
+ * @author jiang
+ * @since 2024年9月11日
+ */
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 

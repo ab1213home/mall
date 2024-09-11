@@ -18,8 +18,8 @@ import java.util.List;
  *  服务实现类
  * </p>
  *
- * @author WH
- * @since 2023-06-25
+ * @author jiang
+ * @since 2024年9月11日
  */
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
@@ -35,16 +35,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public ResponseResult getCategory(Integer id) {
-        Category category = categoryMapper.selectById(id);
-        if (category != null){
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-            return ResponseResult.okResult(categoryVo);
-        }
-        return ResponseResult.failResult();
-    }
-
-    @Override
     public boolean insertCategory(Category category) {
         return categoryMapper.insert(category)==1;
     }
@@ -52,15 +42,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public boolean updateCategory(Category category) {
         return categoryMapper.updateById(category)==1;
-    }
-
-    @Override
-    public ResponseResult deleteCategory(List<Integer> ids) {
-        int res = categoryMapper.deleteByIds(ids);
-        if (res > 0){
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
     }
 
     @Override

@@ -19,6 +19,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * <p>
+ * 服务实现类
+ * </p>
+ *
+ * @author jiang
+ * @since 2024年9月11日
+ */
 @Service
 public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> implements IAddressService {
 
