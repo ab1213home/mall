@@ -1,8 +1,8 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.vo.ProductVo;
 
 import java.util.List;
 
@@ -16,15 +16,15 @@ import java.util.List;
  */
 public interface IProductService extends IService<Product> {
 
-    ResponseResult getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize);
+    List<ProductVo> getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize);
 
-    ResponseResult getProduct(Integer id);
+    ProductVo getProduct(Integer id);
 
-    ResponseResult insertProduct(Product banner);
+    boolean insertProduct(Product banner);
 
-    ResponseResult updateProduct(Product banner);
+    boolean updateProduct(Product banner);
 
-    ResponseResult deleteProduct(List<Integer> ids);
+    boolean deleteProduct(Integer ids);
 
     Integer queryStoksById(Integer productId);
 }

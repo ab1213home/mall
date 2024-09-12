@@ -15,6 +15,12 @@ import java.util.List;
 
 import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
+/**
+ * 订单控制器
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
+ */
 @RestController
 @RequestMapping("/order")
 public class OrderController {

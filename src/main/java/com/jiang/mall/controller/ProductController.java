@@ -2,67 +2,199 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.jiang.mall.util.CheckUser.checkAdminUser;
+import static com.jiang.mall.util.CheckUser.hasPermission;
+
 /**
- * <p>
- * 前端控制器
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * 商品控制器
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月8日
  */
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+
     @Autowired
     IProductService productService;
 
-
-//    函数通过GET方法接收路径"/list"的请求并返回ResponseResult类型的数据。
-    @GetMapping("/list")
-    public ResponseResult getProductList(@RequestParam(required = false)String name, @RequestParam(required = false)Integer categoryId, @RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize) {
-        return productService.getProductList(name, categoryId, pageNum, pageSize);
+    /**
+     * 获取产品列表
+     * <p>
+     * 说明：
+     * - 该方法是一个处理HTTP GET请求的处理器方法，用于根据不同的筛选条件获取产品列表。
+     * - 支持根据产品名称和产品类别进行筛选，同时提供了分页查询的功能。
+     * - 参数pageNum和pageSize用于指定查询的页码和每页显示数量，以便于处理大量数据。
+     * - 方法将调用productService中的getProductList方法来执行实际的查询逻辑。
+     * @param name       产品名称的模糊搜索字符串，可选参数
+     * @param categoryId 产品的类别ID，用于筛选特定类别的产品，可选参数
+     * @param pageNum    当前页码，默认值为1，用于分页查询
+     * @param pageSize   每页显示的结果数量，默认值为5，用于分页查询
+     * @return 返回包含产品列表的响应结果，具体结构由productService定义
+     */
+    @GetMapping("/getList")
+    public ResponseResult getProductList(@RequestParam(required = false) String name,
+                                         @RequestParam(required = false) Integer categoryId,
+                                         @RequestParam(defaultValue = "1") Integer pageNum,
+                                         @RequestParam(defaultValue = "5") Integer pageSize) {
+        List<ProductVo> list = productService.getProductList(name, categoryId, pageNum, pageSize);
+        if (list.isEmpty()) {
+            return ResponseResult.notFoundResourceResult("没有找到相关数据");
+        }
+        return ResponseResult.okResult(list);
     }
 
+    /**
+     * 通过GET请求方式获取产品信息
+     *
+     * @param productId 从请求参数中获取的产品ID
+     * @return 返回产品信息或者错误信息
+     */
     @GetMapping("/getInfo")
     public ResponseResult getProductInfo(@RequestParam("productId") Integer productId) {
-        return productService.getProduct(productId);
+        // 根据产品ID获取产品信息
+        ProductVo product = productService.getProduct(productId);
+
+        // 如果产品信息为空，则返回未找到资源的错误信息
+        if (product == null) {
+            return ResponseResult.notFoundResourceResult("没有找到相关数据");
+        }
+
+        // 如果产品信息存在，则返回成功获取产品信息的结果
+        return ResponseResult.okResult(product);
+    }
+
+    /**
+     * 添加产品信息
+     *
+     * @param code 产品编码
+     * @param title 产品标题
+     * @param categoryId 类别ID
+     * @param img 图片链接
+     * @param price 价格
+     * @param stocks 库存数量
+     * @param description 产品描述
+     * @param session HTTP会话
+     * @return 操作结果
+     */
+    @PostMapping("/add")
+    public ResponseResult insertProduct(@RequestParam("code") String code,
+                                        @RequestParam("title") String title,
+                                        @RequestParam("categoryId") Integer categoryId,
+                                        @RequestParam("img") String img,
+                                        @RequestParam("price") Double price,
+                                        @RequestParam("stocks") Integer stocks,
+                                        @RequestParam("description") String description,
+                                        HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        // 创建产品对象
+        Product product = new Product(code, title, categoryId, img, price, stocks, description);
+        // 调用服务层方法插入产品信息
+        if (productService.insertProduct(product)) {
+            return ResponseResult.okResult();
+        } else {
+            return ResponseResult.serverErrorResult("添加失败");
+        }
     }
 
 
-//    函数通过GET方法访问"/admin/{id}"路径。调用productService对象的getProduct方法并传入产品ID，
-//    返回查询到的产品信息封装在ResponseResult对象中。
-    @GetMapping("/admin/{id}")
-    public ResponseResult getProduct(@PathVariable Integer id) {
-        return productService.getProduct(id);
+    /**
+     * 更新产品信息的接口
+     *
+     * @param id            产品的ID
+     * @param code          产品代码
+     * @param title         产品标题
+     * @param categoryId    产品类别ID
+     * @param img           产品图片路径
+     * @param price         产品价格
+     * @param stocks        产品库存
+     * @param description   产品描述
+     * @param session       HTTP会话，用于检查用户登录状态
+     * @return              返回操作结果的响应对象
+     */
+    @PostMapping("/update")
+    public ResponseResult updateBanner(@RequestParam("id") Integer id,
+                                       @RequestParam("code") String code,
+                                       @RequestParam("title") String title,
+                                       @RequestParam("categoryId") Integer categoryId,
+                                       @RequestParam("img") String img,
+                                       @RequestParam("price") Double price,
+                                       @RequestParam("stocks") Integer stocks,
+                                       @RequestParam("description") String description,
+                                       HttpSession session) {
+
+        // 通过ID获取产品信息
+        Product product = productService.getById(id);
+
+        // 如果产品不存在，返回未找到资源的响应
+        if (product == null) {
+            return ResponseResult.notFoundResourceResult("没有找到资源");
+        }
+
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = hasPermission(product.getUpdater(),session);
+        // 如果用户未登录或不是管理员，则返回错误信息
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        // 使用传入的参数更新产品信息
+        product = new Product(id,code, title, categoryId, img, price, stocks, description);
+
+        // 尝试更新产品信息，根据更新结果返回相应的响应
+        if (productService.updateProduct(product)) {
+            return ResponseResult.okResult();
+        } else {
+            return ResponseResult.serverErrorResult("修改失败");
+        }
     }
 
+    /**
+     * 处理删除请求
+     *
+     * @param id 删除资源的ID
+     * @param session 当前用户会话
+     * @return 删除操作的结果
+     */
+    @GetMapping("/delete")
+    public ResponseResult deleteBanner(@RequestParam("id") Integer id,
+                                       HttpSession session) {
 
-//    通过POST请求插入一个产品,
-//    函数的主要功能是接收前端发送的产品信息，调用业务层服务插入产品数据，并将业务层的处理结果封装后返回给前端。
-    @PostMapping("/admin/insert")
-    public ResponseResult insertProduct(@RequestBody Product product){
-        return productService.insertProduct(product);
+        // 通过ID获取产品信息
+        Product product = productService.getById(id);
+
+        // 检查资源是否存在
+        if (product == null) {
+            return ResponseResult.notFoundResourceResult("没有找到资源");
+        }
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = hasPermission(product.getUpdater(),session);
+        // 验证用户权限，确保用户已登录并有权限进行删除操作
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        // 尝试删除产品
+        if (productService.deleteProduct(id)) {
+            // 如果删除成功，返回成功结果
+            return ResponseResult.okResult();
+        } else {
+            // 如果删除失败，返回服务器错误结果
+            return ResponseResult.serverErrorResult("删除失败");
+        }
     }
 
-
-//    通过POST请求接收路径"/admin/update"。
-//    函数接受请求体中的Product对象数据，
-//    然后调用productService中的updateProduct方法更新产品信息，并返回更新结果。
-    @PostMapping("/admin/update")
-    public ResponseResult updateProduct(@RequestBody Product product){
-        return productService.updateProduct(product);
-    }
-
-//    调用productService.deleteProduct(ids)方法，将接收到的产品ID列表传递给该方法。
-//    productService.deleteProduct(ids)方法负责执行删除操作，并返回一个表示操作结果的ResponseResult对象
-//    函数将该操作结果直接返回给客户端
-    @PostMapping("/admin/delete")
-    public ResponseResult deleteProduct(@RequestBody List<Integer> ids){
-        return productService.deleteProduct(ids);
-    }
 }

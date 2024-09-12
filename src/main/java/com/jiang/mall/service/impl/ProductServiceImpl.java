@@ -32,32 +32,53 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Autowired
     private CategoryMapper categoryMapper;
 
+    /**
+     * 根据名称、类别ID、页码和页面大小获取产品列表
+     *
+     * @param name       产品名称
+     * @param categoryId 产品类别ID
+     * @param pageNum    页码
+     * @param pageSize   页面大小
+     * @return 返回产品列表（ProductVo类型）
+     */
     @Override
-    public ResponseResult getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize) {
+    public List<ProductVo> getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize) {
+        // 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
+
+        // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(name != null, Product::getTitle, name).eq(categoryId != null, Product::getCategoryId, categoryId);
+
+        // 执行分页查询，获取产品列表
         List<Product> products = productMapper.selectPage(productPage, queryWrapper).getRecords();
+
+        // 将产品实体列表转换为产品VO列表
         List<ProductVo> productVos = BeanCopyUtils.copyBeanList(products, ProductVo.class);
+
+        // 遍历产品VO列表，设置每个产品的类别名称
         for (ProductVo productVo : productVos) {
+            // 根据类别ID查询类别名称，并设置到产品VO中
             productVo.setCategoryName(categoryMapper.selectById(productVo.getCategoryId()).getName());
         }
-        return ResponseResult.okResult(productVos);
+
+        // 返回产品VO列表
+        return productVos;
     }
 
     @Override
-    public ResponseResult getProduct(Integer id) {
+    public ProductVo getProduct(Integer id) {
         Product product = productMapper.selectById(id);
         if (product != null) {
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             productVo.setCategoryName(categoryMapper.selectById(productVo.getCategoryId()).getName());
-            return ResponseResult.okResult(productVo);
+            return productVo;
         }
-        return ResponseResult.failResult();
+        return null;
     }
 
     @Override
-    public ResponseResult insertProduct(Product product) {
+    public boolean insertProduct(Product product) {
         if (product.getCode() == null) {
             return ResponseResult.failResult("商品编码不能为空");
         }
@@ -72,7 +93,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public ResponseResult updateProduct(Product product) {
+    public boolean updateProduct(Product product) {
         int res = productMapper.updateById(product);
         if (res == 1) {
             return ResponseResult.okResult();
@@ -81,7 +102,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public ResponseResult deleteProduct(List<Integer> ids) {
+    public boolean deleteProduct(Integer ids) {
         int res = productMapper.deleteByIds(ids);
         if (res > 0) {
             return ResponseResult.okResult();
