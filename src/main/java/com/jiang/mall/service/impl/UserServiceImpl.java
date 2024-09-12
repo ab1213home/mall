@@ -282,9 +282,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			User newUser = new User();
 			newUser.setDefaultAddressId(id);
 			newUser.setId(userId);
-			System.out.println(newUser);
 			return userMapper.updateById(newUser)>0;
 		}
+		return false;
+	}
+
+	@Override
+	public boolean unlockUser(Integer userId) {
 		return false;
 	}
 }

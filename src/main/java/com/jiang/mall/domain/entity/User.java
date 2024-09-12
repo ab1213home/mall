@@ -81,6 +81,12 @@ public class User implements Serializable {
     private LocalDateTime createdAt;
 
     /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Integer updater;
+
+    /**
      * 更新时间，自动填充
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
@@ -95,6 +101,23 @@ public class User implements Serializable {
      * 角色ID
      */
     private Integer roleId;
+
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
+
+    public User(int userId, String firstName, String lastName, String phone) {
+        this.id = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+    }
+
+    public User() {
+
+    }
 
     /**
      * 用户对象的字符串表示形式

@@ -45,4 +45,6 @@ public interface IUserService extends IService<User> {
 	Integer queryDefaultAddressById(Integer userId);
 
     boolean updateDefaultAddress(Integer id, Integer userId);
+
+	boolean unlockUser(Integer userId);
 }

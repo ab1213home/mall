@@ -60,9 +60,19 @@ public class UserVo {
     private Integer roleId;
 
     /**
+     * 是否是管理员
+     */
+    private boolean isAdmin;
+
+    /**
+     * 角色名称
+     */
+    private Integer nextBirthday;
+
+    /**
      * 构造方法，用于初始化用户ID和用户名
      *
-     * @param userId 用户ID
+     * @param userId   用户ID
      * @param username 用户名
      */
     public UserVo(Integer userId, String username) {
@@ -74,6 +84,28 @@ public class UserVo {
      * 默认构造方法
      */
     public UserVo() {
+    }
+
+    public UserVo(Integer userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Integer defaultAddressId, Integer roleId, boolean isAdmin, Integer daysUntilNextBirthday) {
+        this.id = userId;
+        this.username = username;
+        this.email = email;
+        this.phone = phone;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+        this.defaultAddressId = defaultAddressId;
+        this.roleId = roleId;
+        this.isAdmin = isAdmin;
+        this.nextBirthday = daysUntilNextBirthday;
+    }
+
+    public UserVo(Integer userId, String username, String email, boolean isAdmin,Integer roleId) {
+        this.id = userId;
+        this.username = username;
+        this.email = email;
+        this.isAdmin = isAdmin;
+        this.roleId = roleId;
     }
 }
 

@@ -67,10 +67,8 @@ public class CheckUser {
         }
 		// 获取创建修改用户的信息
         User old_user = userService.getById(oldUserId);
-        // 获取尝试修改轮播图的用户信息
-        User greator_user = userService.getById((Integer) result.getData());
         // 检查尝试修改轮播图的用户的权限是否足够
-        if (old_user.getRoleId() > greator_user.getRoleId()) {
+        if (old_user.getRoleId() > (Integer)session.getAttribute("UserRole")) {
             return ResponseResult.notLoggedResult("您没有权限修改此资源");
         }
 		return ResponseResult.okResult(result.getData());
