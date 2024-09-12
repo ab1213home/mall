@@ -66,58 +66,114 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return productVos;
     }
 
+    /**
+     * 根据ID获取产品信息
+     * <p>
+     * 此方法通过调用数据库查询接口，获取特定产品的详细信息，并返回一个ProductVo对象
+     * 如果数据库中存在该产品，则将产品信息转换为ProductVo对象，并附带类别名称
+     * 如果数据库中不存在该产品，则返回null
+     *
+     * @param id 产品的ID
+     * @return ProductVo对象，包含产品的详细信息和类别名称；如果产品不存在，则返回null
+     */
     @Override
     public ProductVo getProduct(Integer id) {
+        // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);
+        // 如果数据库中存在该产品
         if (product != null) {
+            // 将查询到的Product对象转换为ProductVo对象
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            // 通过ID查询产品类别，并设置产品类别的名称
             productVo.setCategoryName(categoryMapper.selectById(productVo.getCategoryId()).getName());
+            // 返回转换后的ProductVo对象
             return productVo;
         }
+        // 如果数据库中不存在该产品，返回null
         return null;
     }
 
+    /**
+     * 插入产品信息
+     * <p>
+     * 该方法通过调用ProductMapper的insert方法来实现产品信息的插入
+     * 它接受一个Product对象作为参数，表示要插入的产品信息
+     *
+     * @param product 要插入的产品对象，包含产品的所有相关信息
+     * @return 操作是否成功执行的布尔值，成功返回true，失败返回false
+     */
     @Override
     public boolean insertProduct(Product product) {
-        if (product.getCode() == null) {
-            return ResponseResult.failResult("商品编码不能为空");
-        }
-        Product prod = productMapper.selectOne(new LambdaQueryWrapper<Product>().eq(Product::getCode, product.getCode()));
-        if (prod == null) {
-            int res = productMapper.insert(product);
-            if (res == 1) {
-                return ResponseResult.okResult();
-            }
-        }
-        return ResponseResult.failResult(501, "商品编码已存在，新增失败");
+        return productMapper.insert(product)==1;
     }
 
+
+    /**
+     * 更新产品信息
+     * <p>
+     * 该方法通过调用productMapper的updateById方法来实现产品信息的更新
+     * 它判断更新操作是否成功的依据是：如果updateById方法返回的结果为1，则表示更新成功
+     *
+     * @param product 要更新的产品对象，包含新的产品信息
+     * @return boolean 表示产品信息更新是否成功
+     */
     @Override
     public boolean updateProduct(Product product) {
-        int res = productMapper.updateById(product);
-        if (res == 1) {
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+        return productMapper.updateById(product)==1;
     }
 
+    /**
+     * 删除产品信息
+     * <p>
+     * 说明：
+     * 该方法通过调用productMapper的deleteById方法来删除产品信息，
+     * 参数id用于指定要删除的产品。返回值表示删除操作是否成功，
+     * 成功时返回true，否则返回false。
+     *
+     * @param id 产品的ID
+     * @return 删除操作是否成功
+     *
+     */
     @Override
-    public boolean deleteProduct(Integer ids) {
-        int res = productMapper.deleteByIds(ids);
-        if (res > 0) {
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
+    public boolean deleteProduct(Integer id) {
+        return productMapper.deleteById(id) == 1;
     }
 
+    /**
+     * 根据产品ID查询库存数量
+     *
+     * @param productId 产品ID
+     * @return 产品的库存数量
+     */
     @Override
     public Integer queryStoksById(Integer productId) {
+        // 创建查询包装器并设置条件：产品ID必须匹配
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id", productId);
+        queryWrapper.eq("id", productId);
 
-	    Product product = productMapper.selectOne(queryWrapper);
+        // 根据查询条件获取产品信息
+        Product product = productMapper.selectOne(queryWrapper);
+        // 返回产品的库存数量
         return product.getStocks();
     }
+
+    /**
+     * 根据商品编码查询商品信息
+     *
+     * @param code 商品编码
+     * @return 如果找到商品返回true，否则返回false
+     */
+    @Override
+    public boolean queryCode(String code) {
+        // 创建查询包装器，用于指定查询条件
+        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+        // 设置查询条件为商品编码
+        queryWrapper.eq("code", code);
+        // 执行查询并判断结果是否为空，返回查询结果的布尔值
+        return productMapper.selectOne(queryWrapper) != null;
+    }
+
+
 
 
 }

@@ -102,6 +102,12 @@ public class ProductController {
 
         // 创建产品对象
         Product product = new Product(code, title, categoryId, img, price, stocks, description);
+        if (product.getCode()== null){
+            return ResponseResult.failResult("产品编码不能为空");
+        }
+        if (productService.queryCode(product.getCode())) {
+            return ResponseResult.failResult("产品编码已存在");
+        }
         // 调用服务层方法插入产品信息
         if (productService.insertProduct(product)) {
             return ResponseResult.okResult();

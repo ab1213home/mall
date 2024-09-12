@@ -24,7 +24,9 @@ public interface IProductService extends IService<Product> {
 
     boolean updateProduct(Product banner);
 
-    boolean deleteProduct(Integer ids);
+    boolean deleteProduct(Integer id);
 
     Integer queryStoksById(Integer productId);
+
+    boolean queryCode(String code);
 }
