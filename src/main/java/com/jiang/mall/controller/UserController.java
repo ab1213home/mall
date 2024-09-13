@@ -19,8 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.*;
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
-import static com.jiang.mall.util.CheckUser.hasPermission;
+import static com.jiang.mall.util.CheckUser.*;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -49,11 +48,11 @@ public class UserController {
      */
     @PostMapping("/registerStep1")
     public ResponseResult registerStep1(@RequestParam("username") String username,
-                                             @RequestParam("password") String password,
-                                             @RequestParam("confirmPassword") String confirmPassword,
-                                             @RequestParam("email") String email,
-                                             @RequestParam("captcha") String captcha,
-                                             HttpSession session) {
+                                        @RequestParam("password") String password,
+                                        @RequestParam("confirmPassword") String confirmPassword,
+                                        @RequestParam("email") String email,
+                                        @RequestParam("captcha") String captcha,
+                                        HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("UserIsLogin")!=null){
             if ("true".equals(session.getAttribute("UserIsLogin"))) {
@@ -128,10 +127,10 @@ public class UserController {
      */
     @PostMapping("/registerStep2")
     public ResponseResult registerStep2(@RequestParam("phone") String phone,
-                                    @RequestParam("firstName") String firstName,
-                                    @RequestParam("lastName") String lastName,
-                                    @RequestParam("birthday") String birthDate,
-                                    HttpSession session) {
+                                        @RequestParam("firstName") String firstName,
+                                        @RequestParam("lastName") String lastName,
+                                        @RequestParam("birthday") String birthDate,
+                                        HttpSession session) {
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
         if (session.getAttribute("UserId")==null){
             return ResponseResult.failResult("请先完成第一步注册，会话已过期");
@@ -163,7 +162,7 @@ public class UserController {
         // 调用服务层方法保存用户个人信息
         if (userService.registerStep(user)>0) {
             // 注册成功后清除会话中的用户id
-            session.removeAttribute("UserId");
+            session.removeAttribute("userId");
             return ResponseResult.okResult();
         }else {
             // 处理个人信息保存失败的情况
@@ -182,9 +181,9 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseResult login(@RequestParam("username") String username,
-                            @RequestParam("password") String password,
-                            @RequestParam("captcha") String captcha,
-                            HttpSession session) {
+                                @RequestParam("password") String password,
+                                @RequestParam("captcha") String captcha,
+                                HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
         if (session.getAttribute("UserIsLogin")!=null){
             if ("true".equals(session.getAttribute("UserIsLogin"))) {
@@ -267,9 +266,9 @@ public class UserController {
      */
     @PostMapping("/modify/password")
     public ResponseResult modifyPassword(@RequestParam("oldPassword") String oldPassword,
-                                      @RequestParam("newPassword") String newPassword,
-                                      @RequestParam("confirmPassword")String confirmPassword,
-                                      HttpSession session) {
+                                         @RequestParam("newPassword") String newPassword,
+                                         @RequestParam("confirmPassword")String confirmPassword,
+                                         HttpSession session) {
         // 检查新密码是否为空
         if (newPassword.isEmpty()){
             return ResponseResult.failResult("新密码不能为空！");
@@ -377,15 +376,15 @@ public class UserController {
      * 管理员锁定账户功能
      * 该方法允许管理员锁定其账户
      *
-     * @param UserId 用户ID，用于标识需要锁定的用户
+     * @param userId 用户ID，用于标识需要锁定的用户
      * @param session HttpSession对象，用于检查用户是否已登录及权限验证
      * @return ResponseResult表示操作结果，包含成功、失败、未找到资源、服务器错误等状态
      */
     @PostMapping("/modify/lock")
-    public ResponseResult selfLock(@RequestParam("UserId") Integer UserId,
+    public ResponseResult selfLock(@RequestParam("userId") Integer userId,
                                    HttpSession session) {
-        // 根据UserId获取用户信息
-        User user = userService.getUserInfo(UserId);
+        // 根据userId获取用户信息
+        User user = userService.getUserInfo(userId);
         // 如果用户不存在，则返回未找到资源的错误信息
         if (user == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
@@ -399,7 +398,7 @@ public class UserController {
         }
 
         // 尝试锁定用户
-        if (!userService.lockUser(UserId)){
+        if (!userService.lockUser(userId)){
             // 锁定失败，返回错误信息
             return ResponseResult.serverErrorResult("用户锁定失败！");
         }else {
@@ -413,7 +412,7 @@ public class UserController {
      * 该函数仅通过POST请求的'/modify/unlock'路径访问
      * 主要功能是基于当前会话判断用户是否已登录，并且具有管理员权限，然后尝试解锁指定用户
      *
-     * @param UserId 要解锁的用户ID
+     * @param userId 要解锁的用户ID
      * @param session 当前的HTTP会话，用于检查用户登录状态及权限
      * @return 根据解锁操作的结果返回不同的响应结果
      * 如果用户未登录或没有管理员权限，返回表示无权限的响应结果
@@ -421,20 +420,20 @@ public class UserController {
      * 如果解锁失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/modify/unlock")
-    public ResponseResult unlockUser(@RequestParam("UserId") Integer UserId,
+    public ResponseResult unlockUser(@RequestParam("userId") Integer userId,
                                      HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
+        // 根据userId获取用户信息
+        User user = userService.getUserInfo(userId);
+        // 如果用户不存在，则返回未找到资源的错误信息
+        if (user == null) {
+            return ResponseResult.notFoundResourceResult("没有找到资源");
         }
 
-        // 获取已登录用户的ID
-        Integer userId = (Integer) result.getData();
-        // 检查当前用户是否有管理员权限
-        if (!isAdmin(userId)) {
-            return ResponseResult.forbiddenResult("您没有权限执行此操作！");
+        // 检查当前会话是否拥有操作权限
+        ResponseResult result = hasPermission(user.getUpdater(), session);
+        // 如果用户未登录或权限不足，则返回相应的错误信息
+        if (!result.isSuccess()) {
+            return result;
         }
 
         // 尝试解锁用户，如果失败则返回错误信息
@@ -492,7 +491,7 @@ public class UserController {
         }
         // 检查会话中是否存在用户ID属性，并移除
         if (session.getAttribute("UserId")!=null){
-            session.removeAttribute("UserId");
+            session.removeAttribute("userId");
         }
         // 检查会话中是否存在用户默认地址ID属性，并移除
         if (session.getAttribute("UserDefaultAddressId")!=null){
@@ -601,6 +600,11 @@ public class UserController {
      */
     @GetMapping("/getDays")
     public ResponseResult getDaysNextBirthday(HttpSession session){
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    // 如果未登录，则直接返回
+		    return result;
+		}
         // 检查session中是否设置了用户生日
         if (session.getAttribute("UserBirthDate") == null){
             return ResponseResult.failResult("未设置生日！");
@@ -619,39 +623,48 @@ public class UserController {
         return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
     }
 
-
-//    通过HTTP GET请求提供分页查询用户列表的服务，
-//    允许客户端通过网页URL指定或使用默认值来确定查询的页码和每页显示数量，
-//    并将查询结果以封装好的形式返回给客户端。
-    @GetMapping("/admin/list")
-    public ResponseResult getUserList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "5") Integer pageSize){
-        return userService.getUserList(pageNum,pageSize);
+    @GetMapping("/getList")
+    public ResponseResult getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                      @RequestParam(defaultValue = "5") Integer pageSize,
+                                      HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        List<UserVo> userList = userService.getUserList(pageNum,pageSize,(Integer)result.getData());
+        if (userList == null){
+            return ResponseResult.failResult("获取用户列表失败！");
+        }
+        return ResponseResult.okResult(userList);
     }
 
-
-//    当客户端发送GET请求到/admin/{id}这个URL，
-//    并提供一个具体的id时，服务器会调用userService.getUser(id)方法，从数据库中查找对应ID的用户信息，
-//    并将查询结果封装成ResponseResult对象返回给客户端。
-    @GetMapping("/admin/{id}")
-    public ResponseResult getUser(@PathVariable("id") Integer id){
-        return userService.getUser(id);
+    @PostMapping("/update")
+    public ResponseResult updateUser(@RequestBody User userInfo,
+                                     HttpSession session){
+        ResponseResult result = hasPermission(userInfo.getId(),session);
+        // 如果用户未登录或不是管理员，则返回错误信息
+        if (!result.isSuccess()) {
+            return result;
+        }
+        if (userInfo.getId() == result.getData()){
+            return ResponseResult.failResult("不能通过管理后台修改自己的信息");
+        }
+        if (StringUtils.hasText(userInfo.getPhone()) && !userInfo.getPhone().matches(regex_phone)) {
+            return ResponseResult.failResult("手机号格式不正确");
+        }
+        // 验证邮箱格式是否正确
+        if (StringUtils.hasText(userInfo.getEmail()) && !userInfo.getEmail().matches(regex_email)) {
+            return ResponseResult.failResult("邮箱格式不正确");
+        }
+        // 检查邮箱是否已被其他用户使用
+        if (userService.queryByEmail(userInfo.getEmail())) {
+            return ResponseResult.failResult("邮箱已存在");
+        }
+        if (userService.updateUser(userInfo)){
+            return ResponseResult.okResult("修改成功");
+        }else {
+            return ResponseResult.serverErrorResult("修改失败");
+        }
     }
-
-
-//    理用户信息更新的请求，将请求体中的用户信息更新到系统中。
-    @PostMapping("/admin/update")
-    public ResponseResult updateUser(@RequestBody User user){
-        return userService.updateUser(user);
-    }
-
-
-
-//    通过POST请求访问"/admin/delete"路径，接收一个包含多个整数ID的请求体，
-//    然后调用userService对象的deleteUser方法，传入接收到的ID列表，
-//    并返回deleteUser方法的返回结果。
-    @PostMapping("/admin/delete")
-    public ResponseResult deleteUser(@RequestBody List<Integer> ids){
-        return userService.deleteUser(ids);
-    }
-
 }

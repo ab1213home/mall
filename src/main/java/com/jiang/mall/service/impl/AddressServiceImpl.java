@@ -108,7 +108,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * 返回更新结果，若更新的记录数大于0，则返回true，表示更新成功
 	 */
 	@Override
-	public boolean update(Address address) {
+	public boolean updateAddress(Address address) {
 	    // 创建更新条件对象
 	    UpdateWrapper<Address> updateWrapper = new UpdateWrapper<>();
 	    // 设置更新条件，根据ID进行更新
@@ -152,7 +152,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	                }
 	            }
 	        } else {
-	            user.setDefaultAddressId(null);
+	            user.setDefaultAddressId(-1);
 	            userMapper.update(user, queryWrapper_use);
 	        }
 

@@ -3,6 +3,7 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.vo.UserVo;
 
 import java.util.List;
 
@@ -26,21 +27,15 @@ public interface IUserService extends IService<User> {
 
     boolean lockUser(Integer userId);
 
-    boolean register(User newUser);
-
     boolean queryByUserName(String userName);
 
     boolean queryByEmail(String email);
 
     int registerStep(User user);
 
-    ResponseResult getUserList(Integer pageNum, Integer pageSize);
+    List<UserVo> getUserList(Integer pageNum, Integer pageSize, Integer userId);
 
-    ResponseResult getUser(Integer id);
-
-    ResponseResult updateUser(User user);
-
-    ResponseResult deleteUser(List<Integer> ids);
+    boolean updateUser(User user);
 
 	Integer queryDefaultAddressById(Integer userId);
 

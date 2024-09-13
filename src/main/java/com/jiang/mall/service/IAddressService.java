@@ -43,7 +43,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param address 要更新的地址对象 不能为空，包含所有必要的地址信息
 	 * @return true 如果更新操作成功；否则返回 false
 	 */
-	boolean update(Address address);
+	boolean updateAddress(Address address);
 
 	/**
 	 * 删除地址

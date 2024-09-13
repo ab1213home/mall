@@ -209,7 +209,7 @@ public class AddressController {
 	    }
 
 	    // 尝试更新地址
-	    if (addressService.update(address)) {
+	    if (addressService.updateAddress(address)) {
 	        // 处理设为默认地址的逻辑
 	        if (isDefault) {
 	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);

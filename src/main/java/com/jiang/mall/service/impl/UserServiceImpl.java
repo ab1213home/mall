@@ -1,7 +1,7 @@
 package com.jiang.mall.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.UserMapper;
@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.jiang.mall.domain.entity.Propertie.AdminRoleId;
 import static com.jiang.mall.util.MD5Utils.encryptToMD5;
+import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * <p>
@@ -166,129 +168,225 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        return result > 0;
 	    } else {
 	        // 记录日志，提示尝试锁定不存在的用
-	        logger.info("尝试锁定不存在的用户信息，ID: {}", userId);
+	        logger.info("尝试锁定不存在的用户，ID: {}", userId);
 	        return false;
 	    }
 	}
 
+	/**
+	 * 根据用户名查询用户是否存在
+	 * 该方法通过加密用户名为MD5格式，然后尝试从数据库中查询匹配该MD5值的用户
+	 * 如果找到匹配的用户，则返回true；否则返回false
+	 *
+	 * @param userName 待查询的用户名
+	 * @return 如果用户存在则返回true，否则返回false
+	 */
 	@Override
-    public boolean register(User newUser) {
-		newUser.setIsActive(true);
-		newUser.setPassword(encryptToMD5(newUser.getPassword()));
-		newUser.setUsername(encryptToMD5(newUser.getUsername()));
-		newUser.setRoleId(1);
-		return userMapper.insert(newUser) > 0;
-	}
-
-	@Override
-    public boolean queryByUserName(String userName) {
-		// 创建查询条件，指定用户ID和当前为激活状态
+	public boolean queryByUserName(String userName) {
+	    // 创建一个查询包装器，用于构建查询条件
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 设置查询条件，用户名经过MD5加密
 	    queryWrapper.eq("username", encryptToMD5(userName));
 
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper);
 
-		return user!=null;
+	    // 判断用户是否存在，存在则返回true，否则返回false
+	    return user != null;
 	}
 
+	/**
+	 * 根据邮箱查询用户是否存在
+	 * 该方法通过加密邮箱为MD5格式，然后尝试从数据库中查询匹配该MD5值的用户
+	 * 如果找到匹配的用户，则返回true；否则返回false
+	 *
+	 * @param email 待查询的邮箱
+	 * @return 如果用户存在则返回true，否则返回false
+	 */
 	@Override
-    public boolean queryByEmail(String email) {
-		// 创建查询条件，指定用户ID和当前为激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email",email);
+	public boolean queryByEmail(String email) {
+		// 创建查询条件，匹配传入的邮箱
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("email", email);
 
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
+		// 根据查询条件尝试获取用户信息
+		User user = userMapper.selectOne(queryWrapper);
 
-		return user!=null;
+		// 如果用户信息不为空，说明用户存在，返回true；否则返回false
+		return user != null;
 	}
 
+
+	/**
+	 * 用户注册步骤
+	 *
+	 * @param user 待注册/更新的用户信息
+	 * @return 注册/更新成功返回用户ID，否则返回0
+	 */
 	@Override
-    public int registerStep(User user) {
-		if(user.getUsername()!=null && user.getPassword()!=null && user.getEmail()!=null){
-			user.setIsActive(true);
-			user.setPassword(encryptToMD5(user.getPassword()));
-			user.setUsername(encryptToMD5(user.getUsername()));
-			user.setRoleId(1);
-			return userMapper.insert(user)>0?user.getId():0;
-		}else{
-			user.setUsername(null);
-			user.setPassword(null);
-			user.setEmail(null);
-			return userMapper.updateById(user)>0?user.getId():0;
-		}
+	public int registerStep(User user) {
+	    // 检查用户信息是否完整
+	    if(user.getUsername()!=null && user.getPassword()!=null && user.getEmail()!=null){
+	        // 设置用户账户为激活状态
+	        user.setIsActive(true);
+	        // 加密用户密码和用户名以确保安全性
+	        user.setPassword(encryptToMD5(user.getPassword()));
+	        user.setUsername(encryptToMD5(user.getUsername()));
+	        // 设置用户角色为普通用户
+	        user.setRoleId(1);
+	        // 插入用户信息，若成功则返回用户ID，否则返回0
+	        return userMapper.insert(user)>0?user.getId():0;
+	    }else{
+	        // 对于信息不完整的用户，清除其账户信息
+	        user.setUsername(null);
+	        user.setPassword(null);
+	        user.setEmail(null);
+	        // 更新用户信息，若成功则返回用户ID，否则返回0
+	        return userMapper.updateById(user)>0?user.getId():0;
+	    }
 	}
 
-    @Override
-    public ResponseResult getUserList(Integer pageNum, Integer pageSize) {
+
+    /**
+     * 获取用户列表
+     * <p>
+     * 此方法根据用户的ID查询数据库中的用户列表，并为每个用户计算下一次生日和是否为管理员状态
+     * 它首先通过用户ID获取用户信息，然后根据此用户的角色ID从数据库中查询相应的用户列表
+     * 最后，它会为每个用户计算下一次生日的天数，并设置是否为管理员的状态
+     *
+     * @param pageNum 当前页码
+     * @param pageSize 页面大小
+     * @param userId 用户ID
+     * @return 用户列表的Vo对象
+     */
+	@Override
+    public List<UserVo> getUserList(Integer pageNum, Integer pageSize, Integer userId) {
+        // 通过用户ID获取用户信息
+        User user = userMapper.selectById(userId);
+        // 创建分页对象
         Page<User> userPage = new Page<>(pageNum, pageSize);
-        List<User> users = userMapper.selectPage(userPage, null).getRecords();
+        // 创建查询条件对象，并限制角色ID
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId());
+        // 根据分页和查询条件获取用户列表
+        List<User> users = userMapper.selectPage(userPage,queryWrapper).getRecords();
+        // 将用户列表转换为Vo对象列表
         List<UserVo> userVos = BeanCopyUtils.copyBeanList(users, UserVo.class);
-        return ResponseResult.okResult(userVos);
+        // 为每个Vo对象计算下一次生日和设置是否为管理员状态
+        for (UserVo userVo : userVos) {
+            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+            userVo.setAdmin(userVo.getRoleId() >= AdminRoleId);
+        }
+        // 返回处理后的用户列表Vo对象
+        return userVos;
     }
+
 
     @Override
-    public ResponseResult getUser(Integer id) {
-        User user = userMapper.selectById(id);
-        if (user == null) {
-            return ResponseResult.failResult();
-        } else {
-            UserVo userVo = new UserVo();
-            BeanUtils.copyProperties(user, userVo);
-            return ResponseResult.okResult(userVo);
-        }
+    public boolean updateUser(User newUser) {
+
+	    User user = userMapper.selectById(newUser.getId());
+
+	    // 如果用户存在且当前是非激活状态，则进行更新。
+	    if (user != null) {
+	        // 维持原密码不变，确保用户不会因为信息修改而失去访问权限。
+	        newUser.setPassword(user.getPassword());
+			newUser.setUsername(user.getUsername());
+	        newUser.setIsActive(user.getIsActive());
+	        // 更新数据库中的用户信息。
+	        int result = userMapper.updateById(newUser);
+	        // 检查更新是否成功，并返回结果。
+	        return result > 0;
+	    } else {
+	        // 如果用户不存在，则记录日志并返回false。
+	        logger.info("尝试更新不存在的用户信息，ID: {}", newUser.getId());
+	        return false;
+	    }
     }
 
-    @Override
-    public ResponseResult updateUser(User user) {
-        int result = userMapper.updateById(user);
-        if (result == 1) {
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
-    }
-
-    @Override
-    public ResponseResult deleteUser(List<Integer> ids) {
-        int result = userMapper.deleteByIds(ids);
-        if (result > 0) {
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
-    }
-
+	/**
+	 * 根据用户ID查询其默认地址ID
+	 * 本方法通过用户ID查询数据库中活跃的用户信息，并返回用户的默认地址ID
+	 * 如果数据库中没有匹配的用户或用户不活跃，则返回null
+	 *
+	 * @param userId 用户ID
+	 * @return 用户的默认地址ID，如果不存在则返回null
+	 */
 	@Override
 	public Integer queryDefaultAddressById(Integer userId) {
-		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 创建查询条件包装器
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 添加查询条件：用户ID和用户活跃状态
 	    queryWrapper.eq("id", userId);
 	    queryWrapper.eq("is_active", true);
 
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper);
-		return user.getDefaultAddressId();
+	    // 返回用户的默认地址ID，如果用户不存在或没有默认地址，则返回null
+	    return user.getDefaultAddressId();
 	}
 
+	/**
+	 * 更新用户的默认地址
+	 *
+	 * @param id 新的默认地址的ID
+	 * @param userId 用户的ID
+	 * @return 如果更新成功返回true，否则返回false
+	 */
 	@Override
 	public boolean updateDefaultAddress(Integer id, Integer userId) {
-		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 创建查询条件包装器
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 添加查询条件：用户ID等于userId且用户处于激活状态
 	    queryWrapper.eq("id", userId);
 	    queryWrapper.eq("is_active", true);
 
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper);
-		System.out.println(user);
-		if (user!=null){
-			User newUser = new User();
-			newUser.setDefaultAddressId(id);
-			newUser.setId(userId);
-			return userMapper.updateById(newUser)>0;
-		}
-		return false;
+	    // 检查获取的用户信息是否非空
+	    if (user != null) {
+	        // 创建一个新的User对象用于更新默认地址
+	        User newUser = new User();
+	        // 设置新的默认地址ID
+	        newUser.setDefaultAddressId(id);
+	        // 设置用户ID
+	        newUser.setId(userId);
+	        // 尝试更新用户信息，并判断是否成功
+	        return userMapper.updateById(newUser) > 0;
+	    }
+	    // 如果用户信息为空，返回false
+	    return false;
 	}
 
+	/**
+	 * 解锁用户方法。
+	 * 通过设置用户的活跃状态为true来解锁用户账号。
+	 *
+	 * @param userId 用户ID，用于查询和锁定特定用户。
+	 * @return 如果用户成功被解锁，返回true；如果用户不存在或解锁失败，返回false。
+	 */
 	@Override
 	public boolean unlockUser(Integer userId) {
-		return false;
+	    // 创建查询条件对象
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    // 设置查询条件：用户ID等于userId且用户当前是锁定状态（is_active为false）
+	    queryWrapper.eq("id", userId);
+	    queryWrapper.eq("is_active", false);
+
+	    // 根据查询条件尝试获取用户信息
+	    User user = userMapper.selectOne(queryWrapper);
+
+	    // 如果用户存在
+	    if (user != null) {
+	        // 将用户状态设置为解锁
+	        user.setIsActive(true);
+	        // 更新数据库中的用户信息
+	        int result = userMapper.updateById(user);
+	        // 检查更新是否成功，并返回结果
+	        return result > 0;
+	    } else {
+	        // 记录日志，提示尝试解锁不存在的用户
+	        logger.info("尝试解锁不存在的用户，ID: {}", userId);
+	        return false;
+	    }
 	}
 }

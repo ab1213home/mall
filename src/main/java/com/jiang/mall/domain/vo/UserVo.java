@@ -65,7 +65,7 @@ public class UserVo {
     private boolean isAdmin;
 
     /**
-     * 角色名称
+     * 距离下次生日的天数
      */
     private Integer nextBirthday;
 
