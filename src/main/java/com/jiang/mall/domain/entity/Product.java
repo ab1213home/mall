@@ -144,6 +144,9 @@ public class Product implements Serializable {
         this.description = description;
     }
 
+    public Product() {
+    }
+
     /**
      * 商品对象的字符串表示形式
      */

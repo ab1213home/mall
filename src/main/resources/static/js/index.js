@@ -1,9 +1,10 @@
 var category_arr = [];
 var goodsMap = {};
-
+let banner_num = 0;
 $(document).ready(function(){
 	isLogin();
 	queryCategory();
+	queryBannerNum();
 	queryBanner();
 	getCartNum();
 })
@@ -11,7 +12,7 @@ $(document).ready(function(){
 function queryCategory(){
 	$.ajax({
 		type:"GET",
-		url:"/category/list",
+		url:"/category/getList",
 		data:"",
 		dataType:"json",
 		success:function(res){
@@ -47,7 +48,7 @@ function queryCategory(){
 function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 	$.ajax({
 		type:"GET",
-		url:"/product/list",
+		url:"/product/getList",
 		data:{
 			categoryId: cgId,
 			pageNum:pn,
@@ -97,11 +98,24 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
 		}
 	})
 }
-
+function queryBannerNum(){
+	$.ajax({
+		type:"GET",
+		url:"/banner/getNum",
+		data:"",
+		dataType:"json",
+		success:function(res){
+			if(res.code == '200'){
+				// console.log(res);
+				banner_num= res.data;
+			}
+		}
+	})
+}
 function queryBanner(){
 	$.ajax({
 		type:"GET",
-		url:"/banner/list",
+		url:"/banner/getList",
 		data:"",
 		dataType:"json",
 		success:function(res){
@@ -112,30 +126,36 @@ function queryBanner(){
 				let s2 = "";
 				for (let val of res.data) {
 					if(count == 0){
-						s1 += `<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>`;
+						s1 += `<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>`;
 						s2 +=
-						`<div class="carousel-item active">
+						`<div class="carousel-item active" data-bs-interval="2000">
 							<a href="`+ val.url +`" target="_blank">
-								<img src="`+ val.img +`" class="imgfull" alt="">
+								<img src="`+ val.img +`" class="d-block w-100" alt="`+ val.description +`">
 							</a>
+							<div class="carousel-caption d-none d-md-block">
+							<h5>`+val.description+`</h5>
+							</div>
 						</div>`;
 					}else{
-						s1 +=`<li data-target="#carouselExampleIndicators" data-slide-to="` + count + `"></li>`;
+						s1 +=`<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="` + count + `" aria-label="Slide ` + count + `"></button>`;
 						s2 +=
 						`<div class="carousel-item">
 							  <a href="`+ val.url +`" target="_blank">
-								  <img src="`+ val.img +`" class = "imgfull" alt="">
+								  <img src="`+ val.img +`" class = "imgfull" alt="`+ val.description +`">
 							  </a>
+							  <div class="carousel-caption d-none d-md-block">
+									<h5>"`+ val.description +`"</h5>
+								</div>
 						  </div>`;
 					}
 					count++;
 				}
-				$("#carouselExampleIndicators .carousel-indicators").append(s1);
-				$("#carouselExampleIndicators .carousel-inner").append(s2);
-				$('#carouselExampleIndicators').carousel({
-				  interval: 2000,
-				  ride:"carousel"
-				});
+				$("#carouselExampleAutoplaying .carousel-indicators").append(s1);
+				$("#carouselExampleAutoplaying .carousel-inner").append(s2);
+				// $('#carouselExampleAutoplaying').carousel({
+				//   interval: 2000,
+				//   ride:"carousel"
+				// });
 			}
 		}
 	})

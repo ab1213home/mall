@@ -101,6 +101,9 @@ public class Address implements Serializable {
     @TableLogic
     private Boolean isDel;
 
+    public Address() {
+    }
+
     /**
      * 构造函数：初始化地址对象
      * <p>

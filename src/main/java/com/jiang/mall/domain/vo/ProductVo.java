@@ -47,7 +47,7 @@ public class ProductVo {
     /**
      * 商品价格
      */
-    private BigDecimal price;
+    private Double price;
 
     /**
      * 库存数量

@@ -91,6 +91,9 @@ public class Banner implements Serializable {
         this.description = description;
     }
 
+    public Banner() {
+    }
+
     /**
      * 轮播图对象的字符串表示形式
      */

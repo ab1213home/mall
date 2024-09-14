@@ -2,15 +2,15 @@
 <html lang="zh">
 	<head>
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="./bootstrap/bootstrap-4.6.2-dist/css/bootstrap.min.css">
-		<link rel="stylesheet" href="./bootstrap/bootstrap-icons-1.10.5/font/bootstrap-icons.min.css">
+		<link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 		<link rel="stylesheet" href="./css/style.css">
 		<link rel="stylesheet" href="./css/index.css">
-		<script src="./js/jquery.min.js"></script>
-		<script src="./bootstrap/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+		<script src="./jquery-3.7.1/jquery-3.7.1.min.js"></script>
+		<script src="./js/index.js"></script>
+		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 		<!-- Tell the browser to be responsive to screen width -->
 		<link rel="shortcut icon" href="/images/logo.png"/>
-		<script src="./js/index.js"></script>
 		<title>商城首页</title>
 	</head>
 	<body class="index">
@@ -31,15 +31,17 @@
 		<div class="header">
 			<div class="w headerbody">
 				<div class="hb1">
-					<a href="index.html">
+					<a href="./index.html">
 						<img src="images/logo.png" alt="学校图标">
 					</a>
 				</div>
 				<!-- 父相子绝 -->
 				<div class="hb2">
 					<div class="searchbody">
-						<input type="text" class="search_m" placeholder="搜你所想...">
-						<button><i class="bi bi-search search-icon"></i></button>
+						<label>
+							<input type="text" class="search_m" placeholder="搜你所想...">
+						</label>
+						<button id="search_btn" type="button"><i class="bi bi-search search-icon"></i></button>
 						<div class="search_t">
 							<ul>
 								<li><a href="#">端午节</a></li>
@@ -52,7 +54,7 @@
 					<div class="shortcart">
 						<i class="bi bi-cart3"></i>
 						<div id="cartnum">0</div>
-						<a href="/cart.html">我的购物车</a>
+						<a href="./cart.html">我的购物车</a>
 					</div>
 
 				</div>
@@ -66,21 +68,19 @@
 
 			</div>
 			<div id="sw_p">
-				<div id="carouselExampleIndicators" class="carousel slide" style="height: 470px;">
-				  <ol class="carousel-indicators">
-
-				  </ol>
-				  <div class="carousel-inner">
-
-				  </div>
-				  <button class="carousel-control-prev" type="button" data-target="#carouselExampleIndicators" data-slide="prev">
-				    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-				    <span class="sr-only">Previous</span>
-				  </button>
-				  <button class="carousel-control-next" type="button" data-target="#carouselExampleIndicators" data-slide="next">
-				    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-				    <span class="sr-only">Next</span>
-				  </button>
+				<div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+					<div class="carousel-indicators" id="carousel-indicators">
+					  </div>
+				  	<div class="carousel-inner" id="carousel-inner">
+					  </div>
+					  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+							<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">上一个</span>
+					  </button>
+					  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+							<span class="carousel-control-next-icon" aria-hidden="true"></span>
+							<span class="visually-hidden">下一个</span>
+					  </button>
 				</div>
 			</div>
 		</div>

@@ -84,6 +84,9 @@ public class Category implements Serializable {
         this.name = name;
     }
 
+    public Category() {
+    }
+
     /**
      * 商品分类对象的字符串表示形式
      */
