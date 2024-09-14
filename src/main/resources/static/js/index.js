@@ -144,7 +144,7 @@ function queryBanner(){
 								  <img src="`+ val.img +`" class = "imgfull" alt="`+ val.description +`">
 							  </a>
 							  <div class="carousel-caption d-none d-md-block">
-									<h5>"`+ val.description +`"</h5>
+									<h5>`+ val.description +`</h5>
 								</div>
 						  </div>`;
 					}
