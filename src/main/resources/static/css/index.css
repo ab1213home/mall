@@ -270,6 +270,8 @@ ul{
 	position: relative;
 	width: 210px;
 	height: 340px;
+	text-decoration: none; /* 取消下划线 */
+	color: inherit; /* 继承父元素的颜色 */
 }
 
 .glid2{
@@ -290,6 +292,7 @@ ul{
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	text-decoration: none; /* 移除下划线 */
 }
 
 .gdetail{
@@ -303,6 +306,7 @@ ul{
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
+	text-decoration: none; /* 移除下划线 */
 }
 
 .gmoney{
@@ -310,6 +314,7 @@ ul{
 	font-weight: bold;
 	font-size: 20px;
 	margin: 5px 0px 0px 8px;
+	text-decoration: none; /* 移除下划线 */
 }
 
 .gmoney.i{

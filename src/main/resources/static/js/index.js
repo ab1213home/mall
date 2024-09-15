@@ -161,30 +161,26 @@ function listGoods(categoryId, categoryName){
 			count=0;
 		}
 		s+=
-		`	<div class="glid1">
+		`	<a href="./product.html?id=`+ good.id +`" target="_blank" class="glid1">
 				<div class="glid2">
-					<a href="./product.html?id=`+ good.id +`" target="_blank">
-						<img src="`+ good.img +`" alt="">
-					</a>	
+					<img src="`+ good.img +`" alt="">
 				</div>
-				<a href="./good.html?id=`+ good.id +`" target="_blank" class="ga">
+				<div>
 					<div>
-						<div>
-							<p class="gtitle">`+ good.title +`</p>
-						</div>
-						<div>
-							<p class="gdetail">
-							`+ good.description +`
-							</p>	
-						</div>
+						<p class="gtitle">`+ good.title +`</p>
 					</div>
-				</a>	
+					<div>
+						<p class="gdetail">
+						`+ good.description +`
+						</p>	
+					</div>
+				</div>
 				<div>
 					<p class="gmoney">
 						<i>￥</i>`+ good.price +`			
 					</p>
 				</div>
-			</div>
+			</a>
 		</li>`
 	}
 	s+=
