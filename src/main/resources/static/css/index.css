@@ -324,3 +324,10 @@ ul{
 .ga:hover{
 	color: red;
 }
+.no-goods {
+    text-align: center; /* 文本水平居中 */
+    display: flex;      /* 使用 Flexbox 布局 */
+    justify-content: center; /* 主轴居中 */
+    align-items: center;     /* 交叉轴居中 */
+    height: 100%;          /* 设置高度以确保垂直居中 */
+}
