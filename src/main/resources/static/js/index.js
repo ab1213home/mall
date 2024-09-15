@@ -52,7 +52,6 @@ function queryCategory(){
     })
 }
 
-
 /**
  * 根据分类ID查询商品
  * @param {string} cgId - 分类ID
@@ -144,63 +143,6 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
     })
 }
 
-function queryBannerNum(){
-	$.ajax({
-		type:"GET",
-		url:"/banner/getNum",
-		data:"",
-		dataType:"json",
-		success:function(res){
-			if(res.code == '200'){
-				banner_num= res.data;
-			}
-		}
-	})
-}
-function queryBanner(){
-	$.ajax({
-		type:"GET",
-		url:"/banner/getList",
-		data:"",
-		dataType:"json",
-		success:function(res){
-			if(res.code == '200'){
-				let count = 0;
-				let s1 = "";
-				let s2 = "";
-				for (let val of res.data) {
-					if(count == 0){
-						s1 += `<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>`;
-						s2 +=
-						`<div class="carousel-item active" data-bs-interval="2000">
-							<a href="`+ val.url +`" target="_blank">
-								<img src="`+ val.img +`" class="d-block w-100" alt="`+ val.description +`">
-							</a>
-							<div class="carousel-caption d-none d-md-block">
-							<h5>`+val.description+`</h5>
-							</div>
-						</div>`;
-					}else{
-						s1 +=`<button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="` + count + `" aria-label="Slide ` + count + `"></button>`;
-						s2 +=
-						`<div class="carousel-item">
-							  <a href="`+ val.url +`" target="_blank">
-								  <img src="`+ val.img +`" class = "d-block w-100" alt="`+ val.description +`">
-							  </a>
-							  <div class="carousel-caption d-none d-md-block">
-									<h5>`+ val.description +`</h5>
-								</div>
-						  </div>`;
-					}
-					count++;
-				}
-				$("#carouselExampleAutoplaying .carousel-indicators").append(s1);
-				$("#carouselExampleAutoplaying .carousel-inner").append(s2);
-			}
-		}
-	})
-}
-
 function listGoods(categoryId, categoryName){
 	let s="";
 	let goodsArr = goodsMap[categoryName];
@@ -280,20 +222,3 @@ function isLogin(){
 	return result;
 }
 
-function getCartNum(){
-	$.ajax({
-		type:"GET",
-		url:"/cart/getNum",
-		data:{},
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				if (res.data<99){
-					$("#cartnum").html(res.data);
-				}else{
-					$("#cartnum").html("99+");
-				}
-			}
-		}
-	})
-}

@@ -42,7 +42,7 @@ ul{
 	background-color: #ffffff;
 	height: 140px;
 }
-.headerbody{
+.headerBody{
 	/*background-color: aquamarine;*/
 	height: 140px;
 	display: flex;
@@ -90,7 +90,7 @@ ul{
 	font-size: 17px;
 
 }
-.searchbody{
+.searchBody{
 	margin-top: 25px;
 	margin-left: 25px;
 }
@@ -108,26 +108,26 @@ ul{
 	padding: 0 5px;
 }
 
-.shortcart{
+.shortCart{
 	position: absolute;
 	top: 28px;
 	right: 6px;
 	border: 1px solid #e3e4e5;
 	padding: 3px 10px;
 }
-.shortcart a {
+.shortCart a {
 	color: red;
 	text-decoration: none;
 	margin-left: 10px;
 }
-.shortcart a:hover{
+.shortCart a:hover{
 	text-decoration: underline;
 }
-.shortcart i{
+.shortCart i{
 	color: #e33333;
 }
 
-#cartnum{
+#cartNum{
 	position: absolute;
 	top: 0px;
 	left: 25px;

@@ -122,9 +122,9 @@ function getCartNum(){
 		success:function(res){
 			if(res.code == 200){
 				if (res.data<99){
-					$("#cartnum").html(res.data);
+					$("#cartNum").html(res.data);
 				}else{
-					$("#cartnum").html("99+");
+					$("#cartNum").html("99+");
 				}
 			}
 		}
