@@ -106,7 +106,6 @@ function queryBannerNum(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == '200'){
-				// console.log(res);
 				banner_num= res.data;
 			}
 		}
@@ -120,7 +119,6 @@ function queryBanner(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == '200'){
-				// console.log(res);
 				let count = 0;
 				let s1 = "";
 				let s2 = "";
@@ -141,7 +139,7 @@ function queryBanner(){
 						s2 +=
 						`<div class="carousel-item">
 							  <a href="`+ val.url +`" target="_blank">
-								  <img src="`+ val.img +`" class = "imgfull" alt="`+ val.description +`">
+								  <img src="`+ val.img +`" class = "d-block w-100" alt="`+ val.description +`">
 							  </a>
 							  <div class="carousel-caption d-none d-md-block">
 									<h5>`+ val.description +`</h5>
@@ -152,10 +150,6 @@ function queryBanner(){
 				}
 				$("#carouselExampleAutoplaying .carousel-indicators").append(s1);
 				$("#carouselExampleAutoplaying .carousel-inner").append(s2);
-				// $('#carouselExampleAutoplaying').carousel({
-				//   interval: 2000,
-				//   ride:"carousel"
-				// });
 			}
 		}
 	})
