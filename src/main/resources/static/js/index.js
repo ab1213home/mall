@@ -195,30 +195,3 @@ function listGoods(categoryId, categoryName){
 	$("div[cgdid='"+ categoryId +"']").append(s);
 }
 
-function isLogin(){
-	let result = false;
-	$.ajax({
-		type:"GET",
-		url:"/user/isLogin",
-		data:{},
-		async:false,	//设置同步请求
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				//已登录
-				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
-				document.getElementById('register').style.display = 'none';
-				document.getElementById('register_spacer').style.display = 'none';
-				sessionStorage.setItem("userId", res.data.id);
-				result = true;
-			}else{
-				//未登录
-				$("#cartNoLogin").show();
-				$("#cartLogin").hide();
-				result = false;
-			}
-		}
-	});
-	return result;
-}
-
