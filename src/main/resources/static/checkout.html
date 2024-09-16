@@ -37,6 +37,7 @@
 				<div class="cls"></div>
 			</div>
 		</div>
+
 		<!-- 头部搜索部分 -->
 		<div class="header">
 			<div class="w headerBody">
@@ -62,6 +63,8 @@
 				<div class="hb3"></div>
 			</div>
 		</div>
+
+		<!-- 主体部分 -->
 		<div class="w">
 			<div class="cartd1">
 				确认订单信息
@@ -92,6 +95,8 @@
 				<div class="cls"></div>
 			</div>
 		</div>
+
+		<!-- 收货地址 -->
 		<div class="w">
 			<table class="table table-hover" id="addresslist">
 				<thead>
@@ -118,13 +123,38 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- 提交订单 -->
 		<div class="w">
 			<div class="cartd7">
 				<button id="submitOrder" class="btn btn-primary btn-block btn-flat">提交订单</button>
 			</div>
 		</div>
+
+		<!-- 底部 -->
+		<div class="footer">
+			<div class="container py-4">
+				<div class="row align-items-center">
+					<div class="col-md-4 d-flex align-items-center">
+						<i class="bi bi-telephone-fill me-2"></i>
+						<span>客服热线：400-888-8888</span>
+					</div>
+					<div class="col-md-4 d-flex justify-content-center">
+						<a href="./index.html" class="me-3">首页</a>
+						<a href="https://gitee.com/jiangrongjun/mall">Gitee</a>
+					</div>
+					<div class="col-md-4 d-flex justify-content-end">
+						<a href="mailto:jiangrongjun2004@163.com" class="social-button d-flex align-items-center">
+							<i class="bi bi-envelope-at-fill me-2"></i>
+							<span class="social-label">电子邮件</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
 	</body>
 
+	<!-- 收货地址模态框 -->
 	<div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -192,6 +222,8 @@
             </div>
         </div>
     </div>
+
+	<!-- 提示框 -->
 	<div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 45%; bottom: 50%;">
 	  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
 	    <div class="toast-header">
