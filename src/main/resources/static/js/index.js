@@ -41,7 +41,7 @@ function queryCategory(){
                     </div>`
                 }
                 $("#cg_p").append(s1); // 将生成的分类HTML代码添加到指定的DOM元素内
-                $("#goodlist").append(s2) // 将分类详情HTML代码添加到商品列表区域
+                $("#goodList").append(s2) // 将分类详情HTML代码添加到商品列表区域
 
                 // 遍历分类数组，对每个分类调用queryGoodsByCategoryId查询商品
                 for (let val of category_arr) {

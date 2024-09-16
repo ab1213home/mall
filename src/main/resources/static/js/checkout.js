@@ -90,8 +90,7 @@ function getAddressNum(){
 function bindPreNextPage_address(){
 	$("#prePage_address").on("click", function(){
 		if(currentPageNum_address <= 1){
-			// alert("已经是第一页");
-			showToast("已经是第一页");
+			openModal('错误','已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum_address -1;
@@ -262,12 +261,12 @@ function delAddress(id) {
 		dataType:"json",
 		success:function(response){
 			if(response.code == 200){
-				showToast("删除成功");
+				openModal('提示','删除成功');
 				delete addressArr[id];
 				$("#address" + id).remove();
 				// queryAddress(currentPageNum, 10);
 			}else{
-				showToast("删除失败");
+				openModal('错误','删除失败');
 			}
 		}
 	})
@@ -304,44 +303,21 @@ function insertAddress() {
     	data: data,
     	success: function (response) {
 			if (response.code === 200) {
-				console.log('地址新增成功');
 				$('#itemModal').modal('hide')
 				queryAddress(currentPageNum_address,10);
-				showToast('地址新增成功');
+				openModal('提示','地址新增成功');
 			} else {
-				console.log('地址新增失败');
-				showToast(response.message);
+				openModal('错误','地址新增失败');
 			}
     	},
 		fail: function(xhr, status, error) {
-		  console.error('地址新增失败:', error);
-		  showToast('地址新增失败，请联系管理员！' + error);
+		  openModal('错误','地址新增失败，请联系管理员！' + error);
 		}
 	  });
 	}
 
 
 function getAddress(id) {
-	// $.ajax({
-	// 	url: '/address/getAddressById/' + id,
-	// 	type: 'get',
-	// 	dataType: 'json',
-	// 	success: function (res) {
-	// 		console.log(res);
-	// 		//res.data渲染为modal初始值
-	// 		const address = res.data;
-	// 		$("#firstName").val(address.firstName);
-	// 		$("#lastName").val(address.lastName);
-	// 		$("#phone").val(address.phone);
-	// 		$("#country").val(address.country);
-	// 		$("#province").val(address.province);
-	// 		$("#city").val(address.city);
-	// 		$("#district").val(address.district);
-	// 		$("#addressDetail").val(address.addressDetail);
-	// 		$("#postalCode").val(address.postalCode);
-	// 		$("#isDefault").prop("checked",address.default);
-	// 	}
-	// });
 	const address = addressArr[id];
 	$("#firstName").val(address.firstName);
 	$("#lastName").val(address.lastName);
@@ -397,15 +373,13 @@ function updateAddress(id) {
                 $('#addressDetail' + id).text(addressDetail);
                 $('#postalCode' + id).text(postalCode);
                 $('#default' + id).text(isDefault ? "是" : "");
-				showToast('地址修改成功');
+				openModal('提示','地址修改成功');
 			} else {
-				console.log('地址修改失败');
-				showToast(response.message);
+				openModal('错误','地址修改失败');
 			}
 		},
 		fail: function (xhr, status, error) {
-			console.error('地址修改失败:', error);
-			showToast('地址修改失败，请联系管理员！' + error);
+			openModal('错误','地址修改失败，请联系管理员！' + error);
 		}
 	});
 }
@@ -425,8 +399,7 @@ function sub(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum);
 	if(num ==1){
-		// alert("不能更小了");
-		showToast("不能更小了");
+		openModal('警告','不能更小了');
 	}else{
 		num = num -1;
 		updateCart(id,num);
@@ -456,8 +429,7 @@ function deleteCartGood(id){
 function bindPreNextPage_product(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_product <= 1){
-			// alert("已经是第一页");
-			showToast("已经是第一页");
+			openModal('警告','已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum_product -1;
@@ -470,10 +442,6 @@ function bindPreNextPage_product(){
 	})
 }
 
-function showToast(message){
-	$("#messagetoast").html(message);
-	$("#liveToast").toast('show');
-}
 function checkOut(){
 	console.log(cartArr);
 	let addressId = 0;
@@ -489,8 +457,7 @@ function checkOut(){
 		}
 	}
 	if(addressId == 0){
-		// alert("请先选择地址");
-		showToast("请先选择地址");
+		openModal('错误','请先选择地址');
 		return;
 	}
 	const data = {

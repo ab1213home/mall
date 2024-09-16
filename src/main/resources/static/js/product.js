@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productStocks').textContent = product.stocks;
                 document.getElementById('productDescription').textContent = product.description;
 			}else{
-				alert('未找到对应的商品ID');
+				openModal('错误','未找到对应的商品ID');
 			}
 		}
 	});
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             num--;
             document.getElementById('productNum').value = num;
         }else {
-            alert('购买数量不能小于1');
+			openModal('警告','购买数量不能小于1');
         }
     });
 
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
             num++;
             document.getElementById('productNum').value = num;
         }else {
-            alert('库存不足，可能无法正常购买，请注意购买数量');
+			openModal('提示','库存不足，可能无法正常购买，请注意购买数量');
             num++;
             document.getElementById('productNum').value = num;
         }
@@ -76,36 +76,14 @@ function addCart(){
 			dataType:"json",
 			success:function(res){
 				if(res.code == 200){
-					showToast('添加购物车成功');
+					openModal('提示','添加购物车成功');
 				}else{
-					showToast('添加购物车失败');
+					openModal('错误','添加购物车失败');
 				}
 			}
 		})
 	}else{
-		showToast('请先登录');
 		const productId = new URLSearchParams(window.location.search).get('id');
 		window.location.href = "./user/login.html?url=/product.html?id="+productId;
 	}
-}
-function getCartNum(){
-	$.ajax({
-		type:"GET",
-		url:"/cart/getNum",
-		data:{},
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				if (res.data<99){
-					$("#cartNum").html(res.data);
-				}else{
-					$("#cartNum").html("99+");
-				}
-			}
-		}
-	})
-}
-function showToast(message){
-	$("#messagetoast").html(message);
-	$("#liveToast").toast('show');
 }

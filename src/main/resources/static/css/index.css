@@ -2,7 +2,11 @@
 	background-color: #f4f4f4;
 	margin: 0px;
 }
-
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 .top{
 	background-color: #32333b;
 	height: 30px;
@@ -383,4 +387,7 @@ ul{
 /* 邮件链接 */
 .social-button .social-label {
     margin-left: 5px;
+}
+.main-content {
+    flex: 1;
 }

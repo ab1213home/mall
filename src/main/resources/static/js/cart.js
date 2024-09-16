@@ -132,8 +132,7 @@ function sub(id){
 	let snum = $("#iid" + id).val();
 	let num = parseInt(snum);
 	if(num == 1){
-		// alert("不能更小了");
-		showToast("不能更小了");
+		openModal('警告','不能更小了');
 	}else{
 		num = num -1;
 		updateCart(id,num);
@@ -163,8 +162,7 @@ function updateCart(id, num){
 				$("#gsum"+id).html(num * cartArr[id].price);	//更新改行的价格
 				totalMoney();
 			}else{
-				// alert("更新购物车失败:"+res.message);
-				showToast("更新购物车失败:"+res.message);
+				openModal('错误',"更新购物车失败:"+res.message);
 			}
 		}
 	})
@@ -185,8 +183,7 @@ function deleteCartGood(id){
 				$("#cartgood" + id).remove();	//删除某个元素
 				totalMoney();
 			}else{
-				// alert("删除购物车失败:"+res.message);
-				showToast("删除购物车失败:"+res.message);
+				openModal('错误',"删除购物车失败:"+res.message);
 			}
 		}
 	})
@@ -196,7 +193,7 @@ function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum <= 1){
 			// alert("已经是第一页");
-			showToast("已经是第一页");
+			openModal('警告','已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum -1;
@@ -209,10 +206,6 @@ function bindPreNextPage(){
 	})
 }
 
-function showToast(message){
-	$("#messagetoast").html(message);
-	$("#liveToast").toast('show');
-}
 function checkOut(){
 	const cartArray = Object.values(cartArr);
 	$.ajax({
@@ -225,8 +218,7 @@ function checkOut(){
             if (res.code == 200){
 				window.location.href = "../checkout.html";
 			}else{
-				// alert("下单失败:"+res.message);
-				showToast("下单失败:"+res.message);
+				openModal('错误',"下单失败:"+res.message);
 			}
         },
     });

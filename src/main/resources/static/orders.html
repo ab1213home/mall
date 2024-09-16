@@ -183,18 +183,24 @@
     <!-- page-body-wrapper ends -->
   </div>
   <!-- container-scroller -->
-      <div class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 45%; bottom: 50%;">
-          <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
-              <div class="toast-header">
-                  <strong class="mr-auto">提示</strong>
-                  <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-              <div class="toast-body" id="messagetoast" style="height: 80px; width: 280px;">
-              </div>
-          </div>
-      </div>
+      <!-- 固定提示框 -->
+	    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+			  </div>
+			</div>
+		</div>
     <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -278,15 +284,15 @@
   <!-- Custom js for this page-->
   <script src="/js/dashboard.js"></script>
   <script src="/js/data-table.js"></script>
-  <script src="/js/jquery.dataTables.js"></script>
+  <script src="/jquery-3.7.1/jquery.dataTables.js"></script>
   <script src="/js/dataTables.bootstrap4.js"></script>
   <!-- End custom js for this page-->
 
-  <script src="/js/jquery.cookie.js" type="text/javascript"></script>
+  <script src="/jquery-3.7.1/jquery.cookie.js" type="text/javascript"></script>
   <!-- jQuery -->
-  <script src="/js/jquery.min.js"></script>
-  <!-- Bootstrap 4 -->
-  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap 5 -->
+  <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/orders.js"></script>
 </body>
 
