@@ -335,4 +335,47 @@ ul{
     justify-content: center; /* 主轴居中 */
     align-items: center;     /* 交叉轴居中 */
     height: 100%;          /* 设置高度以确保垂直居中 */
+	padding: 20px 0;
+}
+/* 底部整体样式 */
+.footer {
+    background-color: #000; /* 黑色背景 */
+    color: #fff; /* 白色文字 */
+}
+
+/* 左侧内容 */
+.footer .bi-telephone-fill {
+    font-size: 20px;
+}
+
+/* 中间内容 */
+.footer a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #ccc;
+}
+
+/* 社交按钮 */
+.social-button {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.social-button:hover {
+    background-color: #555;
+}
+
+/* 邮件链接 */
+.social-button .social-label {
+    margin-left: 5px;
 }

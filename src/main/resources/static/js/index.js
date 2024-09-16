@@ -117,11 +117,11 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
                 listGoods(cgId, cgName);
             } else if(res.code == '404') {
                 // 请求返回404，显示暂无商品提示
-                let s1 = "<div class=\"no-goods\">暂无商品</div>";
+                let s1 = "<div class=\"no-goods\">该分类下暂无商品</div>";
 				 $("div[cgdid='"+ cgId +"']").append(s1);
 				 let s2 = `<div class="cg_div">
                     				<div class="category_detail">
-                    				 	<div class="no-goods">暂无商品</div>
+                    				 	<div class="no-goods">该分类下暂无商品</div>
                     				</div>
                 				 </div>`;
 

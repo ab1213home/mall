@@ -4,7 +4,6 @@ $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();
 	queryBirthday();
-	// queryBanner();
 })
 function queryBirthday() {
 	$.ajax({
@@ -50,9 +49,7 @@ function isAdminUser() {
 		}
 	});
 }
-function queryUserList() {
 
-}
 function queryMyUserInfo(){
 	$.ajax({
 		type:"GET",

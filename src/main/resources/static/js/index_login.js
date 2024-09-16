@@ -28,9 +28,13 @@ function isLogin(){
                 // 显示用户名
 				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
                 // 隐藏注册链接
-				document.getElementById('register').style.display = 'none';
+				if (document.getElementById('register')!= null){
+					document.getElementById('register').style.display = 'none';
+				}
                 // 隐藏注册间隔符
-				document.getElementById('register_spacer').style.display = 'none';
+				if (document.getElementById('register_spacer')!= null){
+					document.getElementById('register_spacer').style.display = 'none';
+				}
                 // 设置result为true，表示已登录
 				result = true;
 			}else{

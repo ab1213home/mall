@@ -61,26 +61,7 @@ function getCartNum(){
 		}
 	})
 }
-function isLogin(){
-	let result = false;
-	$.ajax({
-		type:"GET",
-		url:"/user/isLogin",
-		data:{},
-		async:false,	//设置同步请求
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
-				sessionStorage.setItem("userId", res.data.id);
-				result = true;
-			}else{
-				result = false;
-			}
-		}
-	});
-	return result;
-}
+
 function clearModal() {
 	$("#firstName").val('');
 	$("#lastName").val('');

@@ -27,26 +27,6 @@ function getCartNum(){
 		}
 	})
 }
-function isLogin(){
-	let result = false;
-	$.ajax({
-		type:"GET",
-		url:"/user/isLogin",
-		data:{},
-		async:false,	//设置同步请求
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
-				sessionStorage.setItem("userId", res.data.id);
-				result = true;
-			}else{
-				result = false;
-			}
-		}
-	});
-	return result;
-}
 
 function queryCart(pn, pz){
 	const data = {
@@ -234,7 +214,6 @@ function showToast(message){
 	$("#liveToast").toast('show');
 }
 function checkOut(){
-	console.log(cartArr);
 	const cartArray = Object.values(cartArr);
 	$.ajax({
         type: 'POST',
