@@ -4,7 +4,7 @@
 }
 
 .top{
-	background-color: #e3e4e5;
+	background-color: #32333b;
 	height: 30px;
 	line-height: 30px;
 }
@@ -25,7 +25,7 @@ ul{
 }
 
 .inner-top a{
-	color: #999;
+	color: #ffffff;
 	text-decoration: none;
 }
 
@@ -339,7 +339,7 @@ ul{
 }
 /* 底部整体样式 */
 .footer {
-    background-color: #000; /* 黑色背景 */
+    background-color: #32333b; /* 黑色背景 */
     color: #fff; /* 白色文字 */
 }
 
@@ -347,6 +347,7 @@ ul{
 .footer .bi-telephone-fill {
     font-size: 20px;
 }
+
 
 /* 中间内容 */
 .footer a {
@@ -359,6 +360,10 @@ ul{
     color: #ccc;
 }
 
+.footer .bi-envelope-at-fill {
+    font-size: 20px;
+}
+
 /* 社交按钮 */
 .social-button {
     display: flex;
@@ -367,12 +372,12 @@ ul{
     color: #fff;
     padding: 5px 10px;
     border-radius: 5px;
-    background-color: #333;
+    background-color: #32333b;
     transition: background-color 0.3s ease;
 }
 
 .social-button:hover {
-    background-color: #555;
+    background-color: #32333b;
 }
 
 /* 邮件链接 */
