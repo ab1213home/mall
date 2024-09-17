@@ -1,5 +1,5 @@
 # 使用官方的Java运行时作为父镜像
-FROM openjdk:17-jdk-slim
+FROM openjdk:17
 
 # 将本地文件复制（或添加）到容器中
 COPY /target/mall-v0.4_reconfiguration-alpha.jar  app.jar
