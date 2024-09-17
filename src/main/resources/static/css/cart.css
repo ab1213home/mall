@@ -2,9 +2,13 @@
 	background-color: white;
 	margin: 0px;
 }
-
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 .top{
-	background-color: #e3e4e5;
+	background-color: #32333b;
 	height: 30px;
 	line-height: 30px;
 }
@@ -25,7 +29,7 @@ ul{
 }
 
 .inner-top a{
-	color: #999;
+	color: #ffffff;
 	text-decoration: none;
 }
 
@@ -300,4 +304,7 @@ ul{
 /* 邮件链接 */
 .social-button .social-label {
     margin-left: 5px;
+}
+.main-content {
+    flex: 1;
 }

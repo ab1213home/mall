@@ -60,10 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function addCart(){
+	const urlParams = new URLSearchParams(window.location.search);
+	const productId = urlParams.get('id');
+	const num = document.getElementById('productNum').value;
 	if(isLogin()){
-		const urlParams = new URLSearchParams(window.location.search);
-		const productId = urlParams.get('id');
-		const num = document.getElementById('productNum').value;
 		const data={
 			productId: productId,
 			num: num
@@ -80,10 +80,12 @@ function addCart(){
 				}else{
 					openModal('错误','添加购物车失败');
 				}
+			},
+			error:function(res){
+				openModal('错误','添加购物车失败:'+res.message);
 			}
 		})
 	}else{
-		const productId = new URLSearchParams(window.location.search).get('id');
-		window.location.href = "./user/login.html?url=/product.html?id="+productId;
+		window.location.href = "./user/login.html?url=/product.html?id="+productId+"&message=添加购物车失败，请登录！";
 	}
 }

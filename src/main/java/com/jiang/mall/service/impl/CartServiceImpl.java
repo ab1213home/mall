@@ -122,7 +122,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             return cartMapper.updateById(cart) == 1;
         } else {
             // 如果记录不存在，则新建购物车记录
-            cart = new Cart(null, productId, num, userId);
+            cart = new Cart(productId, num, userId);
             // 插入新的购物车记录，并返回操作结果
             return cartMapper.insert(cart) == 1;
         }

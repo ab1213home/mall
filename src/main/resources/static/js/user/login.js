@@ -1,5 +1,12 @@
 const urlParams = new URLSearchParams(window.location.search);
 const url = urlParams.get('url');
+const message = urlParams.get('message');
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (message != null) {
+        openModal('提示', message);
+    }
+});
 
 // 登录表单提交处理函数
 function submitLoginForm() {
@@ -30,15 +37,12 @@ function submitLoginForm() {
                 window.location.href = '../index.html';
             }
         } else {
-            console.log('登录失败');
-            showToast(data.message);
+            openModal('错误','登录失败:'+data.message);
         }
     },
     fail: function(xhr, status, error) {
-      // 处理错误响应
-      console.fail('登录失败:', error);
       // 显示错误信息给用户
-      alert('登录失败，请联系管理员！'+error);
+      openModal('错误','登录失败，请联系管理员！'+error);
     }
   });
 }
@@ -50,7 +54,3 @@ $(document).ready(function() {
     submitLoginForm(); // 自定义提交处理
   });
 });
-function showToast(message){
-	$("#messagetoast").html(message);
-	$("#liveToast").toast('show');
-}

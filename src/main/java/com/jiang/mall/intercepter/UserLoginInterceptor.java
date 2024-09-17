@@ -15,11 +15,11 @@ public class UserLoginInterceptor implements HandlerInterceptor {
             if ("true" == request.getSession().getAttribute("UserIsLogin")){
 				return true;
             }else{
-                response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
+                response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI+"&message=非法访问，请登录！");
                 return false;
             }
         } else {
-            response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI);
+            response.sendRedirect(request.getContextPath() + "/user/login.html"+"?url="+requestURI+"&message=非法访问，请登录！");
             return false;
         }
     }

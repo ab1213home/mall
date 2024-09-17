@@ -68,7 +68,13 @@ public class Cart implements Serializable {
     public Cart() {
     }
 
-    /**
+    public Cart(Integer productId, Integer num, Integer userId) {
+        prodId = productId;
+        this.num = num;
+        this.userId = userId;
+    }
+
+	/**
      * 购物车对象的字符串表示形式
      */
     @Override
