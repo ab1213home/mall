@@ -308,3 +308,6 @@ ul{
 .main-content {
     flex: 1;
 }
+.selected{
+	background-color: #00eaff;
+}

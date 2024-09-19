@@ -37,3 +37,23 @@ dropdownItem.addEventListener('click', function (event) {
 
 // 将创建的元素插入到目标元素中
 dropdownMenu.appendChild(dropdownItem);
+
+function queryMyUserInfo(){
+	$.ajax({
+		type:"GET",
+		url:"/user/isLogin",
+		data:{},
+		async:false,	//设置同步请求
+		dataType:"json",
+		success:function(res){
+			if(res.code == 200){
+				//已登录
+				$("#username").html(res.data.username);
+				$("#welcome").html("欢迎回来，"+res.data.username+"!");
+			}else {
+				showToast("未登录");
+				window.location.href = '/user/login.html';
+			}
+		}
+	});
+}

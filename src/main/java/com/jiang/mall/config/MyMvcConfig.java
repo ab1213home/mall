@@ -1,9 +1,6 @@
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.AdminLoginInterceptor;
-import com.jiang.mall.intercepter.LoginInterceptor;
-import com.jiang.mall.intercepter.RegistrationInterceptor;
-import com.jiang.mall.intercepter.UserLoginInterceptor;
+import com.jiang.mall.intercepter.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,6 +18,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
     private RegistrationInterceptor registrationInterceptor;
     @Autowired
     private UserLoginInterceptor userLoginIntercepter;
+    @Autowired
+    private CheckoutInterceptor checkoutInterceptor;
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -57,7 +56,9 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/password.html")
                 .addPathPatterns("/user/modify/address")
                 .addPathPatterns("/user/modify/address.html")
-                .addPathPatterns("/user/index.html");
+                .addPathPatterns("/user/index_old.html");
+//        registry.addInterceptor(checkoutInterceptor)
+//                .addPathPatterns("/checkout.html");
     }
 
     /**

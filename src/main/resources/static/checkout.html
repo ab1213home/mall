@@ -11,6 +11,7 @@
 		<link rel="shortcut icon" href="/images/logo.png" />
 		<script src="js/modal.js"></script>
 		<script src="js/index_login.js"></script>
+		<script src="js/user/user_address.js"></script>
 		<script src="js/checkout.js"></script>
 		<title>订单确认页</title>
 		<style>
@@ -18,11 +19,6 @@
 			.address-row {
 				background-color: transparent;
 				transition: background-color 0.3s ease;
-			}
-
-			/* 选中样式 */
-			.address-row.selected {
-				background-color: #e0f7fa; /* 蓝色高亮 */
 			}
 		</style>
 	</head>
@@ -102,14 +98,14 @@
 			<table class="table table-hover" id="addresslist">
 				<thead>
 					<tr>
-						<th scope="col">序号</th>
-						<th scope="col">收件人姓名</th>
-						<th scope="col">联系电话</th>
-						<th scope="col">地址所在的行政区</th>
-						<th scope="col">具体的街道、小区、门牌号等信息</th>
-						<th scope="col">邮政编码</th>
-						<th scope="col">是否为默认地址</th>
-						<th scope="col">操作</th>
+						<th scope="col" class="text-center">序号</th>
+						<th scope="col" class="text-center">收件人姓名</th>
+						<th scope="col" class="text-center">联系电话</th>
+						<th scope="col" class="text-center">地址所在的行政区</th>
+						<th scope="col" class="text-center">具体的街道、小区、门牌号等信息</th>
+						<th scope="col" class="text-center">邮政编码</th>
+						<th scope="col" class="text-center">是否为默认地址</th>
+						<th scope="col" class="text-center">操作</th>
 					</tr>
 				</thead>
 				<tbody></tbody>
@@ -120,7 +116,7 @@
 			</div>
 			<div class="row d-flex justify-content-end">
 				<div class="col-12 text-end">
-					<button class="btn btn-primary btn-block btn-flat" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="add">添加收货信息</button>
+					<button class="btn btn-primary btn-block btn-flat" data-bs-toggle="modal" data-bs-target="#addressModal" data-bs-type="add">添加收货信息</button>
 				</div>
 			</div>
 		</div>
@@ -156,11 +152,11 @@
 	</body>
 
 	<!-- 收货地址模态框 -->
-	<div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+	<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="itemModalLabel"></h1>
+                    <h1 class="modal-title fs-5" id="addressModalLabel"></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body col-10 mx-auto my-auto ">
@@ -210,13 +206,13 @@
                             <label for="postalCode"></label>
                             <input type="text" id="postalCode" name="postalCode" class="form-control" placeholder="请输入邮政编码" required="required">
                         </div>
-                        <div class="form-group has-feedback">
+                        <div class="form-group has-feedback mt-3">
                             <label for="isDefault">是否为默认地址:</label>
                             <input type="checkbox" id="isDefault" name="isDefault" value="true">
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-3">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="submit" id="submit" class="btn btn-primary">提交</button>
+                            <button type="submit" id="addressSubmit" class="btn btn-primary">提交</button>
                         </div>
                     </form>
                 </div>

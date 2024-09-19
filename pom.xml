@@ -66,6 +66,11 @@
             <artifactId>easy-captcha</artifactId>
             <version>1.6.2</version>
         </dependency>
+        <dependency>
+            <groupId>cn.dustlight.captcha</groupId>
+            <artifactId>email-sender</artifactId>
+            <version>1.0.1</version>
+        </dependency>
 
         <!-- Thymeleaf依赖 -->
         <dependency>

@@ -69,7 +69,7 @@ public class CommonController {
      */
     @RequestMapping("/uploadfile")
     @ResponseBody
-    public ResponseResult uploadfile(MultipartFile file) throws IOException {
+    public ResponseResult upLoadFile(MultipartFile file) throws IOException {
         // 检查文件是否为空
         if (file.isEmpty()){
             return ResponseResult.failResult("文件不能为空");

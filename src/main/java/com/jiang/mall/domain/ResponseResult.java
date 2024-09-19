@@ -63,7 +63,14 @@ public class ResponseResult<T> implements Serializable {
      * @return 返回包含默认成功消息的响应结果对象
      */
     public static ResponseResult okResult() {
-        return okResult(DEFAULT_SUCCESS_MESSAGE);
+        // 创建一个新的响应结果对象
+        ResponseResult responseResult = new ResponseResult();
+        // 设置响应结果的状态码为默认的成功码
+        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        // 设置响应结果的消息为传入的默认消息
+        responseResult.setMessage("默认成功消息提示");
+        // 返回构建好的响应结果对象
+        return responseResult;
     }
 
     /**

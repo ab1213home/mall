@@ -1,46 +1,13 @@
-sessionStorage = window.sessionStorage;
-var cartArr = {};	//key是cart的id,值是商品具体记录
-var addressArr = {};
+let cartArr = {};	//key是cart的id,值是商品具体记录
 let currentPageNum_product = 1;
-let currentPageNum_address = 1;
 let num_product = 0;
-let num_address = 0;
 $(document).ready(function(){
     isLogin();
 	getCartNum();
 	queryCart(1, 10);
 	bindPreNextPage_product();
-	getAddressNum();
 	queryAddress(1,10);
 	bindPreNextPage_address();
-	const itemModal = document.querySelector('#itemModal');
-        if (itemModal) {
-            itemModal.addEventListener("show.bs.modal", function (e){
-                const button = e.relatedTarget;
-                const type = button.getAttribute('data-bs-type');
-
-                const modalTitle = $('#itemModalLabel');
-                const submitBtn = $('#submit');
-
-                if (type ==='add') {
-                    modalTitle.text('添加收件信息');
-                    submitBtn.text('添加');
-                    submitBtn.off('click').on('click', function(){
-						insertAddress();
-					});
-                    clearModal();
-                } else if (type ==='edit') {
-                    modalTitle.text('编辑收件信息');
-                    submitBtn.text('保存');
-                    const id = button.getAttribute('data-bs-prod-id');
-                    submitBtn.off('click').on('click', function(){
-						updateAddress(id);
-					});
-                    clearModal();
-                    getAddress(id);
-                }
-            })
-        }
 	document.getElementById('submitOrder').addEventListener('click', function() {
 		checkOut();
 	});
@@ -55,37 +22,97 @@ function getCartNum(){
 			if(res.code == 200){
 				num_product = res.data;
 			}else{
-				showToast(res.message);
 				window.location.href = "./cart.html";
 			}
 		}
 	})
 }
-
-function clearModal() {
-	$("#firstName").val('');
-	$("#lastName").val('');
-	$("#phone").val('');
-	$("#country").val('');
-	$("#province").val('');
-	$("#city").val('');
-	$("#district").val('');
-	$("#addressDetail").val('');
-	$("#postalCode").val('');
-	$("#default").prop("checked", false);
+function queryAddress(pn, pz) {
+    $.ajax({
+        type: "GET",
+        url: "/address/getList",
+        data: {
+            pageNum: pn,
+            pageSize: pz
+        },
+        dataType: "json",
+        success: function (response) {
+            if (response.code == 200) {
+                console.log(response.data);
+				// 清空 tbody 中原有的内容
+				$('#addresslist tbody').empty();
+				if (response.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#addresslist tbody').append(row);
+				}
+				addressArr = {};
+				for(let record of response.data){
+					record.ischecked = record.default;
+					addressArr[record.id] = record;
+				}
+                response.data.forEach((address,index) => {
+                    const row =
+                        `
+                        <tr id="address`+ address.id +`" class="address-row">
+                            <th scope="row" class="text-center">${(pn - 1) * 10 + index + 1}</th>
+                            <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
+                            <td id="phone`+ address.id +`">${address.phone}</td>
+                            <td id="city`+ address.id +`">${address.country+" "+address.province+" "+address.city+" "+address.district}</td>
+                            <td id="addressDetail`+ address.id +`">${address.addressDetail}</td>
+                            <td id="postalCode`+ address.id +`">${address.postalCode}</td>
+                            <td id="default`+ address.id +`" class="text-center">${address.default ? "是" : ""}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
+                                <button type="button" class="btn btn-sm btn-primary select-address" onclick="selectAddress(${address.id})">选择</button></td>
+                            </td>
+                        </tr>
+                        `;
+                    $('#addresslist tbody').append(row);
+                });
+				for(let record of response.data){
+					if(record.default){
+						selectAddress(record.id);
+					}
+				}
+                currentPageNum_address = pn;
+                if (currentPageNum_address == 1) {
+                    $("#prePage_address").prop("disabled", true);
+                } else {
+                    $("#prePage_address").prop("disabled", false);
+                }
+                if (num_address - currentPageNum_address * pz < 0) {
+                    $("#nextPage_address").prop("disabled", true);
+                } else {
+                    $("#nextPage_address").prop("disabled", false);
+                }
+				if (num_address == 0){
+					 $("#nextPage_address").prop("disabled", true);
+				}
+				if (message!=null){
+					openModal('提示',message);
+				}
+            }
+        }
+    });
 }
-function getAddressNum(){
-	$.ajax({
-		type:"GET",
-		url:"/address/getNum",
-		data:{},
-		dataType:"json",
-		success:function(response){
-			if(response.code == 200){
-				num_address = response.data;
+function selectAddress(id){
+	for(let key in addressArr){
+		if(addressArr.hasOwnProperty(key)){
+			let address = addressArr[key];
+			address.ischecked = address.id == id;
+			if(address.ischecked){
+				$("#address" + address.id).addClass("table-primary");
+			}else {
+				$("#address" + address.id).removeClass("table-primary");
 			}
 		}
-	})
+	}
 }
 function bindPreNextPage_address(){
 	$("#prePage_address").on("click", function(){
@@ -167,222 +194,6 @@ function queryCart(pn, pz){
 		}
 	})
 }
-function queryAddress(pn, pz) {
-    $.ajax({
-        type: "GET",
-        url: "/address/getList",
-        data: {
-            pageNum: pn,
-            pageSize: pz
-        },
-        dataType: "json",
-        success: function (response) {
-            if (response.code == 200) {
-                console.log(response.data);
-				// 清空 tbody 中原有的内容
-				$('#addresslist tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#addresslist tbody').append(row);
-				}
-				addressArr = {};
-				for(let record of response.data){
-					record.ischecked = record.default;
-					addressArr[record.id] = record;
-				}
-                response.data.forEach((address,index) => {
-                    const row =
-                        `
-                        <tr id="address`+ address.id +`" class="address-row">
-                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
-                            <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
-                            <td id="phone`+ address.id +`">${address.phone}</td>
-                            <td id="city`+ address.id +`">${address.country+" "+address.province+" "+address.city+" "+address.district}</td>
-                            <td id="addressDetail`+ address.id +`">${address.addressDetail}</td>
-                            <td id="postalCode`+ address.id +`">${address.postalCode}</td>
-                            <td id="default`+ address.id +`">${address.default ? "是" : ""}</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>
-                                <button type="button" class="btn btn-sm btn-primary select-address" onclick="selectAddress(${address.id})">选择</button></td>
-                            </td>
-                        </tr>
-                        `;
-                    $('#addresslist tbody').append(row);
-                });
-				for(let record of response.data){
-					if(record.default){
-						selectAddress(record.id);
-					}
-				}
-                currentPageNum_address = pn;
-                if (currentPageNum_address == 1) {
-                    $("#prePage_address").prop("disabled", true);
-                } else {
-                    $("#prePage_address").prop("disabled", false);
-                }
-                if (num_address - currentPageNum_address * pz < 0) {
-                    $("#nextPage_address").prop("disabled", true);
-                } else {
-                    $("#nextPage_address").prop("disabled", false);
-                }
-				if (num_address == 0){
-					 $("#nextPage_address").prop("disabled", true);
-				}
-            }
-        }
-    });
-}
-function selectAddress(id){
-	for(let key in addressArr){
-		if(addressArr.hasOwnProperty(key)){
-			let address = addressArr[key];
-			address.ischecked = address.id == id;
-			if(address.ischecked){
-				$("#address" + address.id).addClass("selected");
-			}else {
-				$("#address" + address.id).removeClass("selected");
-			}
-		}
-	}
-}
-function delAddress(id) {
-	$.ajax({
-		type:"GET",
-		url:"/address/delete",
-		data:{
-			id:id
-		},
-		dataType:"json",
-		success:function(response){
-			if(response.code == 200){
-				openModal('提示','删除成功');
-				delete addressArr[id];
-				$("#address" + id).remove();
-				// queryAddress(currentPageNum, 10);
-			}else{
-				openModal('错误','删除失败');
-			}
-		}
-	})
-}
-function insertAddress() {
-	const firstName= $("#firstName").val();
-	const lastName= $("#lastName").val();
-	const phone= $("#phone").val();
-	const country= $("#country").val();
-	const province= $("#province").val();
-	const city= $("#city").val();
-	const district= $("#district").val();
-	const addressDetail= $("#addressDetail").val();
-	const postalCode= $("#postalCode").val();
-	const isDefault= $("#isDefault").val();
-  	// 构建请求体
-  	const data = {
-	  	firstName: firstName,
-	  	lastName: lastName,
-	  	phone: phone,
-	  	country: country,
-	  	province: province,
-	  	city: city,
-	  	district: district,
-	  	addressDetail: addressDetail,
-	  	postalCode: postalCode,
-	  	isDefault: isDefault
-  	};
-
-  	// 发送 AJAX 请求
-  	$.ajax({
-    	url: '/address/insert',
-    	type: 'POST',
-    	data: data,
-    	success: function (response) {
-			if (response.code === 200) {
-				$('#itemModal').modal('hide')
-				queryAddress(currentPageNum_address,10);
-				openModal('提示','地址新增成功');
-			} else {
-				openModal('错误','地址新增失败');
-			}
-    	},
-		fail: function(xhr, status, error) {
-		  openModal('错误','地址新增失败，请联系管理员！' + error);
-		}
-	  });
-	}
-
-
-function getAddress(id) {
-	const address = addressArr[id];
-	$("#firstName").val(address.firstName);
-	$("#lastName").val(address.lastName);
-	$("#phone").val(address.phone);
-	$("#country").val(address.country);
-	$("#province").val(address.province);
-	$("#city").val(address.city);
-	$("#district").val(address.district);
-	$("#addressDetail").val(address.addressDetail);
-	$("#postalCode").val(address.postalCode);
-	$("#isDefault").prop("checked",address.default);
-}
-// 更新地址
-function updateAddress(id) {
-	const firstName= $("#firstName").val();
-	const lastName= $("#lastName").val();
-	const phone= $("#phone").val();
-	const country= $("#country").val();
-	const province= $("#province").val();
-	const city= $("#city").val();
-	const district= $("#district").val();
-	const addressDetail= $("#addressDetail").val();
-	const postalCode= $("#postalCode").val();
-	const isDefault= $("#isDefault").prop("checked");
-  	// 构建请求体
-  	const data = {
-		id: id,
-	  	firstName: firstName,
-	  	lastName: lastName,
-	  	phone: phone,
-	  	country: country,
-	  	province: province,
-	  	city: city,
-	  	district: district,
-	  	addressDetail: addressDetail,
-	  	postalCode: postalCode,
-	  	isDefault: isDefault
-  	};
-
-  	// 发送 AJAX 请求
-  	$.ajax({
-    	url: '/address/update',
-    	type: 'POST',
-    	data: data,
-    	success: function (response) {
-			if (response.code === 200) {
-				console.log('地址修改成功');
-				addressArr[id]=data;
-				$('#itemModal').modal('hide')
-				$('#name' + id).text(lastName + " " + firstName);
-                $('#phone' + id).text(phone);
-                $('#city' + id).text(country + " " + province +" " + city + " " + district);
-                $('#addressDetail' + id).text(addressDetail);
-                $('#postalCode' + id).text(postalCode);
-                $('#default' + id).text(isDefault ? "是" : "");
-				openModal('提示','地址修改成功');
-			} else {
-				openModal('错误','地址修改失败');
-			}
-		},
-		fail: function (xhr, status, error) {
-			openModal('错误','地址修改失败，请联系管理员！' + error);
-		}
-	});
-}
 
 function totalMoney(){
 	let total = 0;
@@ -443,7 +254,6 @@ function bindPreNextPage_product(){
 }
 
 function checkOut(){
-	console.log(cartArr);
 	let addressId = 0;
 	let paymentMethod = 1;
 	let status = 1;

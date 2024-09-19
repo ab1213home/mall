@@ -21,7 +21,7 @@ public class HtmlInterceptor implements HandlerInterceptor {
 //		}
 //		if (requestURI.equals("/")) {
 //			// 尽早重定向
-//			response.sendRedirect("/index.html");
+//			response.sendRedirect("/index_old.html");
 //			return false; // 表示该请求已经被处理，不再继续后续处理链
 //		}
 //		if (!requestURI.endsWith(".html")) {

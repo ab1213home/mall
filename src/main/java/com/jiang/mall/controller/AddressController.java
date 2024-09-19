@@ -132,12 +132,12 @@ public class AddressController {
 	            if (defaultAddressId!=null){
 	                if (!defaultAddressId.equals(addressId)){
 	                    if (userService.updateDefaultAddress(addressId,userId)){
-	                        return ResponseResult.okResult();
+	                        return ResponseResult.okResult("添加成功");
 	                    }else{
 	                        return ResponseResult.failResult("修改默认地址失败");
 	                    }
 	                }else{
-	                    return ResponseResult.okResult();
+	                    return ResponseResult.okResult("添加成功");
 	                }
 	            }else {
 	                if (userService.updateDefaultAddress(addressId,userId)){
@@ -148,7 +148,7 @@ public class AddressController {
 	            }
 	        }else {
 	            // 如果未设置为默认地址，则直接返回成功
-	            return ResponseResult.okResult();
+	            return ResponseResult.okResult("添加成功");
 	        }
 	    }else{
 	        // 插入地址失败
@@ -216,25 +216,25 @@ public class AddressController {
 	            if (defaultAddressId != null) {
 	                if (!defaultAddressId.equals(id)) {
 	                    if (userService.updateDefaultAddress(id, userId)) {
-	                        return ResponseResult.okResult();
+	                        return ResponseResult.okResult("修改成功");
 	                    } else {
 	                        return ResponseResult.failResult("修改默认地址失败");
 	                    }
 	                } else {
-	                    return ResponseResult.okResult();
+	                    return ResponseResult.okResult("修改成功");
 	                }
 	            } else {
 	                if (userService.updateDefaultAddress(id, userId)) {
-	                    return ResponseResult.okResult();
+	                    return ResponseResult.okResult("修改成功");
 	                } else {
 	                    return ResponseResult.failResult("修改默认地址失败");
 	                }
 	            }
 	        } else {
-	            return ResponseResult.okResult();
+	            return ResponseResult.okResult("修改成功");
 	        }
 	    } else {
-	        return ResponseResult.serverErrorResult("添加失败");
+	        return ResponseResult.serverErrorResult("修改失败");
 	    }
 	}
 
@@ -263,10 +263,10 @@ public class AddressController {
 	    }
 	    // 尝试删除地址
 	    if (!addressService.deleteAddress(id, userId)) {
-		    return ResponseResult.failResult("删除失败");
+		    return ResponseResult.serverErrorResult("删除失败");
 	    }
 	    // 删除成功，返回成功结果
-	    return ResponseResult.okResult();
+	    return ResponseResult.okResult("删除成功");
 	}
 
 	/**
