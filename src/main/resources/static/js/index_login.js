@@ -26,7 +26,7 @@ function isLogin(){
             // 如果服务器返回状态码为200，表示已登录
 			if(res.code == 200){
                 // 显示用户名
-				$("#username").html("<a href='./user/index_old.html'>"+"你好! " + res.data.username);
+				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
                 // 隐藏注册链接
 				if (document.getElementById('register')!= null){
 					document.getElementById('register').style.display = 'none';

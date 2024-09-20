@@ -3,11 +3,11 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>mall用户中心</title><!--begin::Primary Meta Tags-->
+    <title>mall统一用户管理系统 | 首页</title><!--begin::Primary Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="mall用户中心">
-    <meta name="author" content="ColorlibHQ">
-    <meta name="description" content="mall用户中心">
+    <meta name="title" content="mall统一用户管理系统 | 首页">
+    <meta name="author" content="jiang">
+    <meta name="description" content="mall统一用户管理系统 | 首页">
     <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
     <link rel="stylesheet" href="../source-sans-3_5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link rel="stylesheet" href="../overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
@@ -32,12 +32,12 @@
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img src="../images/faces/face5.jpg" class="user-image rounded-circle shadow" id="user-image" alt="用户头像">
-                            <span class="d-none d-md-inline" id="username">Alexander Pierce</span> </a>
+                            <span class="d-none d-md-inline username">Alexander Pierce</span> </a>
                         <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end"> <!--begin::User Image-->
                             <li class="user-header text-bg-primary"> <img src="../images/faces/face5.jpg" class="rounded-circle shadow" alt="用户头像">
                                 <p>
-                                    <span class="text-white" id="username_2">Alexander Pierce</span>
-                                    <small id="birthday">Nov. 2023</small>
+                                    <span class="text-white username">Alexander Pierce</span>
+                                    <small class="birthday text-center">Nov. 2023</small>
                                 </p>
                             </li> <!--end::User Image--> <!--begin::Menu Body-->
                             <li class="user-body"> <!--begin::Row-->
@@ -61,8 +61,8 @@
                 <span class="brand-text fw-light">mall用户中心</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
             <div class="sidebar-wrapper">
                 <nav class="mt-2"> <!--begin::Sidebar Menu-->
-                    <ul class="nav sidebar-menu flex-column active" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item"> <a href="./index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item"> <a href="./index.html" class="nav-link active"> <i class="nav-icon bi bi-house"></i>
                                 <p>用户中心首页</p>
                             </a> </li>
                         <li class="nav-item"> <a href="../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
@@ -72,7 +72,7 @@
                         <li class="nav-item"> <a href="../collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
                                 <p>我的收藏</p>
                             </a> </li>
-                        <li class="nav-item"> <a href="../orders.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                        <li class="nav-item"> <a href="./modify/address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
                                 <p>我的收货地址</p>
                             </a>
                         </li>
@@ -99,20 +99,20 @@
                                     </a> </li>
                             </ul>
                         </li>
-                        <li class="nav-header text-center admin">管理后台</li>
-                        <li class="nav-item admin"> <a href="../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                        <li class="nav-header text-center admin" style="display: none;">管理后台</li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
                                 <p>仪表盘</p>
                             </a> </li>
-                        <li class="nav-item admin"> <a href="../admin/user.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin" style="display: none;"> <a href="../admin/user.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>用户管理</p>
                             </a> </li>
-                        <li class="nav-item admin"> <a href="../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                        <li class="nav-item admin" style="display: none;"> <a href="../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
                                 <p>商品分类管理</p>
                             </a> </li>
-                        <li class="nav-item admin"> <a href="../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin" style="display: none;"> <a href="../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>商品管理</p>
                             </a> </li>
-                        <li class="nav-item admin"> <a href="../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin" style="display: none;"> <a href="../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>订单管理</p>
                             </a> </li>
                         <li class="nav-header text-center admin">bug与反馈</li>
@@ -147,7 +147,15 @@
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row"> <!--begin::Col-->
-
+                        <div class="col-lg-12">
+                            <p id="welcome"></p>
+                        </div>
+                        <div class="col-lg-12">
+                            <p id="randomText"></p>
+                        </div>
+                        <div class="col-lg-12">
+                            <p id="birthday"></p>
+                        </div>
                     </div> <!--end::Row--> <!--begin::Row-->
                 </div> <!--end::Container-->
             </div> <!--end::App Content-->
@@ -182,8 +190,8 @@
     <script src="../jquery-3.7.1/jquery-3.7.1.min.js"></script>
     <script src="../js/user/index_top.js"></script>
     <script src="../js/user/index_sidebar.js"></script>
-    <script src="../js/user/index.js"></script>
     <script src="../js/modal.js"></script>
+    <script src="../js/user/index.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {
@@ -224,11 +232,7 @@
         cardHeaders.forEach((cardHeader) => {
             cardHeader.style.cursor = "move";
         });
-    </script> <!-- apexcharts -->
-    <script src="../apexcharts-3.50.0-dist/apexcharts.min.js"></script> <!-- ChartJS -->
-    <script src="../jsvectormap-1.5.3-dist/jsvectormap.min.js"></script>
-    <script src="../jsvectormap-1.5.3-dist/maps/world.js"></script>
-    <!-- jsvectormap -->
+    </script>
 </body><!--end::Body-->
 
 </html>

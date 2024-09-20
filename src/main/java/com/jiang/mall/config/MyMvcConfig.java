@@ -43,6 +43,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/register");
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/index")
+                .addPathPatterns("/user/index.html")
+                .addPathPatterns("/user/")
                 .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
                 .addPathPatterns("/orders")
@@ -56,7 +58,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/password.html")
                 .addPathPatterns("/user/modify/address")
                 .addPathPatterns("/user/modify/address.html")
-                .addPathPatterns("/user/index_old.html");
+                .addPathPatterns("/user/index.html");
 //        registry.addInterceptor(checkoutInterceptor)
 //                .addPathPatterns("/checkout.html");
     }

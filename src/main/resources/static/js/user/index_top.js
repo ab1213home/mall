@@ -1,3 +1,11 @@
+const signList = ["我感到难过，不是因为你欺骗了我，而是因为我再也不能相信你了",
+	"一个人知道自己为什么而活，就可以忍受任何一种生活", "哈库拉玛塔塔",
+	"人是苦虫，不打不行", "比比，爱姆sheep", "我于杀戮之中盛放，一如黎明中的花朵",
+	"死亡如风，常伴吾身", "一曲肝肠断，天涯何处觅知音", "无边落木萧萧下，不尽长江滚滚来",
+	"很多年之后，我有个绰号叫做西毒", "睡一会罢，——便好了。",
+	"老栓慌忙摸出洋钱，抖抖的想交给他，却又不敢去接他的东西",
+	"不多不多!多乎哉?不多也。",
+	"哪里有天才，我只是把别人喝咖啡的功夫都用在了学习上"];
 // 定义登出函数
 function logout() {
   // 清除登录状态（清除 token 或 session）
@@ -18,26 +26,6 @@ function logout() {
 	});
 }
 
-// // 获取目标元素
-// const dropdownMenu = document.getElementById('dropdown-menu');
-//
-// // 创建各个元素
-// const dropdownItem = document.createElement('a');
-// dropdownItem.className = 'dropdown-item';
-// dropdownItem.innerHTML = `
-//   <i class="mdi mdi-logout text-primary"></i>
-//   用户登出
-// `;
-//
-// // 添加点击事件处理程序
-// dropdownItem.addEventListener('click', function (event) {
-//   event.preventDefault(); // 阻止默认行为（例如跳转）
-//   logout(); // 调用登出函数
-// });
-//
-// // 将创建的元素插入到目标元素中
-// dropdownMenu.appendChild(dropdownItem);
-
 function queryMyUserInfo(){
 	$.ajax({
 		type:"GET",
@@ -48,9 +36,20 @@ function queryMyUserInfo(){
 		success:function(res){
 			if(res.code == 200){
 				//已登录
-				$("#username").html(res.data.username);
-				$("#username_2").html(res.data.username);
-				$("#welcome").html("欢迎回来，"+res.data.username+"!");
+				// 选择所有具有 class="example" 的元素
+        		const username = document.querySelectorAll('.username');
+				// 遍历所有选中的元素并更改文本
+				username.forEach(element => {
+					element.textContent = res.data.username;
+				});
+				const birthday = document.querySelectorAll('.birthday');
+				birthday.forEach(element => {
+					element.textContent = res.data.birthDate;
+				});
+				const randomIndex = Math.floor(Math.random() * signList.length);
+				document.getElementById('randomText').textContent = signList[randomIndex];
+				document.getElementById("welcome").textContent="欢迎回来，"+res.data.username+"!";
+
 			}else {
 				openModal("警告","未登录");
 				window.location.href = '/user/login.html';

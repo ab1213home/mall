@@ -32,14 +32,14 @@ function queryAddress(pn, pz) {
                 response.data.forEach((address,index) => {
                     const row =
                         `
-                        <tr id="address`+ address.id +`" class="address-row">
-                            <th scope="row" class="text-center">${(pn - 1) * 10 + index + 1}</th>
+                        <tr id="address`+ address.id +`" class="address-row text-center">
+                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
                             <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
                             <td id="phone`+ address.id +`">${address.phone}</td>
                             <td id="city`+ address.id +`">${address.country+" "+address.province+" "+address.city+" "+address.district}</td>
                             <td id="addressDetail`+ address.id +`">${address.addressDetail}</td>
                             <td id="postalCode`+ address.id +`">${address.postalCode}</td>
-                            <td id="default`+ address.id +`" class="text-center">${address.default ? "是" : ""}</td>
+                            <td id="default`+ address.id +`">${address.default ? "是" : ""}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal" data-bs-type="edit" data-bs-prod-id="${address.id}">编辑</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="delAddress(${address.id})">删除</button>

@@ -1,4 +1,5 @@
 function isAdminUser() {
+	const admin = document.querySelectorAll('.admin');
 	$.ajax({
 		type:"GET",
 		url:"/user/isAdminUser",
@@ -9,13 +10,22 @@ function isAdminUser() {
 			if(res.code == 200){
 				//已登录
 				if (res.data == true){
-					document.getElementById('admin_user').style.display = 'block';
+					// 遍历所有选中的元素并更改文本
+					admin.forEach(element => {
+						element.style.display = 'block';
+					});
 				}else{
-					document.getElementById('admin_user').style.display = 'none';
+					// 遍历所有选中的元素并更改文本
+					admin.forEach(element => {
+						element.style.display = 'none';
+					});
 				}
 			}else{
 				//未登录
-				document.getElementById('admin_user').style.display = 'none';
+				// 遍历所有选中的元素并更改文本
+				admin.forEach(element => {
+					element.style.display = 'none';
+				});
 			}
 		}
 	});
