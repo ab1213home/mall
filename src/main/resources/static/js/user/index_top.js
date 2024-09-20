@@ -18,25 +18,25 @@ function logout() {
 	});
 }
 
-// 获取目标元素
-const dropdownMenu = document.getElementById('dropdown-menu');
-
-// 创建各个元素
-const dropdownItem = document.createElement('a');
-dropdownItem.className = 'dropdown-item';
-dropdownItem.innerHTML = `
-  <i class="mdi mdi-logout text-primary"></i>
-  用户登出
-`;
-
-// 添加点击事件处理程序
-dropdownItem.addEventListener('click', function (event) {
-  event.preventDefault(); // 阻止默认行为（例如跳转）
-  logout(); // 调用登出函数
-});
-
-// 将创建的元素插入到目标元素中
-dropdownMenu.appendChild(dropdownItem);
+// // 获取目标元素
+// const dropdownMenu = document.getElementById('dropdown-menu');
+//
+// // 创建各个元素
+// const dropdownItem = document.createElement('a');
+// dropdownItem.className = 'dropdown-item';
+// dropdownItem.innerHTML = `
+//   <i class="mdi mdi-logout text-primary"></i>
+//   用户登出
+// `;
+//
+// // 添加点击事件处理程序
+// dropdownItem.addEventListener('click', function (event) {
+//   event.preventDefault(); // 阻止默认行为（例如跳转）
+//   logout(); // 调用登出函数
+// });
+//
+// // 将创建的元素插入到目标元素中
+// dropdownMenu.appendChild(dropdownItem);
 
 function queryMyUserInfo(){
 	$.ajax({
@@ -49,9 +49,10 @@ function queryMyUserInfo(){
 			if(res.code == 200){
 				//已登录
 				$("#username").html(res.data.username);
+				$("#username_2").html(res.data.username);
 				$("#welcome").html("欢迎回来，"+res.data.username+"!");
 			}else {
-				showToast("未登录");
+				openModal("警告","未登录");
 				window.location.href = '/user/login.html';
 			}
 		}

@@ -38,7 +38,6 @@ function queryAddress(pn, pz) {
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
-                console.log(response.data);
 				// 清空 tbody 中原有的内容
 				$('#addresslist tbody').empty();
 				if (response.data.length == 0) {

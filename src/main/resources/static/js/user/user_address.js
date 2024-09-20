@@ -13,38 +13,42 @@ $(document).ready(function(){
 	}else{
 		queryAddress(1,10);
 	}
-	const itemModal = document.querySelector('#addressModal');
-    if (itemModal) {
-        itemModal.addEventListener("show.bs.modal", function (e){
-            const button = e.relatedTarget;
-            const type = button.getAttribute('data-bs-type');
-
-            const modalTitle = $('#addressModalLabel');
-            const submitBtn = $('#addressSubmit');
-
-            if (type ==='add') {
-                modalTitle.text('添加收件信息');
-                submitBtn.text('添加');
-                submitBtn.off('click').on('click', function(){
-                    insertAddress();
-                });
-                clearModal();
-            } else if (type ==='edit') {
-                modalTitle.text('编辑收件信息');
-                submitBtn.text('保存');
-                const id = button.getAttribute('data-bs-prod-id');
-                submitBtn.off('click').on('click', function(){
-                    updateAddress(id);
-                });
-                clearModal();
-                getAddress(id);
-            }
-        })
-    }
 	if (message != null) {
         openModal('提示', message);
     }
 })
+
+document.addEventListener('DOMContentLoaded', function() {
+    var itemModal = document.getElementById('addressModal');
+
+    itemModal.addEventListener("show.bs.modal", function(event) {
+        var button = event.relatedTarget;
+        var type = button.getAttribute('data-bs-type');
+        var modalTitle = document.getElementById('addressModalLabel');
+        var submitBtn = document.getElementById('addressSubmit');
+
+        if (type === 'add') {
+            modalTitle.textContent = '添加收件信息';
+            submitBtn.textContent = '添加';
+            submitBtn.addEventListener('click', function(e) {
+				e.preventDefault(); // 阻止默认行为
+                insertAddress();
+            });
+            clearModal();
+        } else if (type === 'edit') {
+            modalTitle.textContent = '编辑收件信息';
+            submitBtn.textContent = '保存';
+            var id = button.getAttribute('data-bs-prod-id');
+            submitBtn.addEventListener('click', function(e) {
+				e.preventDefault();
+                updateAddress(id);
+            });
+           clearModal();
+           getAddress(id);
+        }
+    });
+});
+
 
 function delAddress(id) {
 	$.ajax({
@@ -56,9 +60,8 @@ function delAddress(id) {
 		dataType:"json",
 		success:function(response){
 			if(response.code == 200){
-				// delete addressArr[id];
-				// $("#address" + id).remove();
-				window.location.href = pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
+				delete addressArr[id];
+				$("#address" + id).remove();
 				openModal('提示','删除成功');
 			}else{
 				openModal('错误','删除失败');
@@ -95,22 +98,20 @@ function insertAddress() {
   	$.ajax({
     	url: '/address/add',
     	type: 'POST',
-    	data: data,
+		contentType: 'application/json',
+    	data: JSON.stringify(data),
 		dataType:"json",
     	success: function (response) {
-			if (response.code === 200) {
-				window.location.href = pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
-				// $('#addressModal').modal('hide')
-				// queryAddress(currentPageNum_address,10);
-				// openModal('提示','地址新增成功');
-				// console.log('Message:', message);
+			if (response.code == 200) {
+				console.log('Message:', response);
+				// window.location.href = pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
+				$('#addressModal').modal('hide')
+				queryAddress(currentPageNum_address,10);
+				openModal('提示','地址新增成功');
 			} else {
 				openModal('错误','地址新增失败');
 			}
-    	},
-		fail: function(xhr, status, error) {
-		  openModal('错误','地址新增失败，请联系管理员！' + error);
-		}
+    	}
 	});
 }
 
@@ -159,20 +160,18 @@ function updateAddress(id) {
   	$.ajax({
     	url: '/address/update',
     	type: 'POST',
-    	data: data,
+		contentType: 'application/json',
+    	data: JSON.stringify(data),
 		dataType:"json",
     	success: function (response) {
-			if (response.code === 200) {
-				// addressArr[id]=data;
-				// $('#addressModal').modal('hide')
-				// queryAddress(currentPageNum_address,10,'地址修改成功');
-				window.location.href = +pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
+			if (response.code == 200) {
+				addressArr[id]=data;
+				$('#addressModal').modal('hide')
+				queryAddress(currentPageNum_address,10);
+				// window.location.href = +pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
 			} else {
 				openModal('错误','地址修改失败');
 			}
-		},
-		fail: function (xhr, status, error) {
-			openModal('错误','地址修改失败，请联系管理员！' + error);
 		}
 	});
 }

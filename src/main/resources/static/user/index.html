@@ -31,48 +31,63 @@
                     <li class="nav-item"> <a class="nav-link" href="#" data-lte-toggle="fullscreen"> <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i> <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none;"></i> </a> </li> <!--end::Fullscreen Toggle--> <!--begin::User Menu Dropdown-->
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img src="../images/faces/face5.jpg" class="user-image rounded-circle shadow" id="user-image" alt="用户图像">
-                            <span class="d-none d-md-inline">Alexander Pierce</span> </a>
+                            <img src="../images/faces/face5.jpg" class="user-image rounded-circle shadow" id="user-image" alt="用户头像">
+                            <span class="d-none d-md-inline" id="username">Alexander Pierce</span> </a>
                         <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end"> <!--begin::User Image-->
-                            <li class="user-header text-bg-primary"> <img src="../../dist/assets/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Image">
+                            <li class="user-header text-bg-primary"> <img src="../images/faces/face5.jpg" class="rounded-circle shadow" alt="用户头像">
                                 <p>
-                                    Alexander Pierce - Web Developer
-                                    <small>Member since Nov. 2023</small>
+                                    <span class="text-white" id="username_2">Alexander Pierce</span>
+                                    <small id="birthday">Nov. 2023</small>
                                 </p>
                             </li> <!--end::User Image--> <!--begin::Menu Body-->
                             <li class="user-body"> <!--begin::Row-->
                                 <div class="row">
-                                    <div class="col-4 text-center"> <a href="#">Followers</a> </div>
-                                    <div class="col-4 text-center"> <a href="#">Sales</a> </div>
-                                    <div class="col-4 text-center"> <a href="#">Friends</a> </div>
+                                    <div class="col-4 text-center"> <a href="./modify/info.html">我的用户信息</a> </div>
+                                    <div class="col-4 text-center"> <a href="./modify/password.html">修改密码</a> </div>
+                                    <div class="col-4 text-center"> <a href="./modify/info.html">修改用户信息</a> </div>
                                 </div> <!--end::Row-->
                             </li> <!--end::Menu Body--> <!--begin::Menu Footer-->
-                            <li class="user-footer"> <a href="#" class="btn btn-default btn-flat">Profile</a> <a href="#" class="btn btn-default btn-flat float-end">Sign out</a> </li> <!--end::Menu Footer-->
+                            <li class="user-footer">
+<!--                             <a href="#" class="btn btn-default btn-flat">Profile</a>-->
+                                <a onclick="logout()" class="btn btn-default btn-flat float-end">退出登录</a> </li> <!--end::Menu Footer-->
                         </ul>
                     </li> <!--end::User Menu Dropdown-->
                 </ul> <!--end::End Navbar Links-->
             </div> <!--end::Container-->
         </nav> <!--end::Header--> <!--begin::Sidebar-->
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
-            <div class="sidebar-brand"> <!--begin::Brand Link--> <a href="./index.html" class="brand-link"> <!--begin::Brand Image--> <img src="../../dist/assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow"> <!--end::Brand Image--> <!--begin::Brand Text--> <span class="brand-text fw-light">AdminLTE 4</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-brand"> <!--begin::Brand Link--> <a href="./index.html" class="brand-link"> <!--begin::Brand Image-->
+                <img src="../images/logo_min_new.png" alt="mall by AdminLTE Logo" class="brand-image opacity-75 shadow"> <!--end::Brand Image--> <!--begin::Brand Text-->
+                <span class="brand-text fw-light">mall用户中心</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
             <div class="sidebar-wrapper">
                 <nav class="mt-2"> <!--begin::Sidebar Menu-->
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item menu-open"> <a href="#" class="nav-link active"> <i class="nav-icon bi bi-speedometer"></i>
+                        <li class="nav-item"> <a href="./index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>用户中心首页</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>商城首页</p>
+                            </a> </li>
+                        <li class="nav-header">设置</li>
+                        <li class="nav-item"> <a href="../collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
+                                <p>我的收藏</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="./modify/address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                                <p>我的收货地址</p>
+                            </a>
+                        </li>
+                        <li class="nav-item "> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
                                 <p>
-                                    Dashboard
+                                    账号与安全
                                     <i class="nav-arrow bi bi-chevron-right"></i>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item"> <a href="./index.html" class="nav-link active"> <i class="nav-icon bi bi-circle"></i>
-                                        <p>Dashboard v1</p>
+                                <li class="nav-item"> <a href="./modify/password.html" class="nav-link active"> <i class="nav-icon bi bi-key"></i>
+                                        <p>修改密码</p>
                                     </a> </li>
-                                <li class="nav-item"> <a href="./index2.html" class="nav-link"> <i class="nav-icon bi bi-circle"></i>
-                                        <p>Dashboard v2</p>
-                                    </a> </li>
-                                <li class="nav-item"> <a href="./index3.html" class="nav-link"> <i class="nav-icon bi bi-circle"></i>
-                                        <p>Dashboard v3</p>
+                                <li class="nav-item"> <a href="./modify/info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
+                                        <p>修改用户信息</p>
                                     </a> </li>
                             </ul>
                         </li>
@@ -552,6 +567,11 @@
     <script src="../popper-2.11.8-dist/umd/popper.min.js"></script> <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
     <script src="../bootstrap-5.3.3-dist/js/bootstrap.min.js"></script> <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
     <script src="../adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+    <script src="../jquery-3.7.1/jquery-3.7.1.min.js"></script>
+    <script src="../js/user/index_top.js"></script>
+    <script src="../js/user/index_sidebar.js"></script>
+    <script src="../js/user/index.js"></script>
+    <script src="../js/modal.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {
