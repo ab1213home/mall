@@ -58,7 +58,7 @@ function queryAddress(pn, pz) {
                 response.data.forEach((address,index) => {
                     const row =
                         `
-                        <tr id="address`+ address.id +`" class="address-row">
+                        <tr id="address`+ address.id +`" class="address-row text-center">
                             <th scope="row" class="text-center">${(pn - 1) * 10 + index + 1}</th>
                             <td id="name`+ address.id +`">${address.lastName+" "+address.firstName}</td>
                             <td id="phone`+ address.id +`">${address.phone}</td>
@@ -317,7 +317,7 @@ function checkOut(){
             }
         },
         error: function (xhr, status, error) {
-            openModal('错误','请求失败：', error);
+            openModal('错误','请求失败：'+ error);
         }
     });
 }
