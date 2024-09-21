@@ -391,7 +391,7 @@ public class UserController {
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult result = hasPermission(user.getId(), session);
+        ResponseResult result = userService.hasPermission(user.getId(), session);
         // 如果用户未登录或权限不足，则返回相应的错误信息
         if (!result.isSuccess()) {
             return result;
@@ -430,7 +430,7 @@ public class UserController {
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult result = hasPermission(user.getUpdater(), session);
+        ResponseResult result = userService.hasPermission(user.getUpdater(), session);
         // 如果用户未登录或权限不足，则返回相应的错误信息
         if (!result.isSuccess()) {
             return result;
@@ -642,7 +642,7 @@ public class UserController {
     @PostMapping("/update")
     public ResponseResult updateUser(@RequestBody User userInfo,
                                      HttpSession session){
-        ResponseResult result = hasPermission(userInfo.getId(),session);
+        ResponseResult result = userService.hasPermission(userInfo.getId(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;

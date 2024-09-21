@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.hasPermission;
 
 /**
  * 商品控制器
@@ -25,6 +25,8 @@ public class CategoryController {
 
     @Autowired
     ICategoryService categoryService;
+    @Autowired
+    private IUserService userService;
 
     /**
      * 获取分类列表
@@ -111,7 +113,7 @@ public class CategoryController {
         }
 
         // 判断当前用户是否有权限进行更新操作
-        ResponseResult result = hasPermission(category.getUpdater(), session);
+        ResponseResult result = userService.hasPermission(category.getUpdater(), session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -144,7 +146,7 @@ public class CategoryController {
         }
 
         // 检查当前会话中用户是否已登录并有权限进行操作
-        ResponseResult result = hasPermission(category.getUpdater(), session);
+        ResponseResult result = userService.hasPermission(category.getUpdater(), session);
         // 如果用户没有权限（未登录或不是要求的管理员角色），返回错误信息
         if (!result.isSuccess()) {
             return result;

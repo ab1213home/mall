@@ -13,7 +13,6 @@ import jakarta. servlet. http. HttpSession;
 import java.util.List;
 
 import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.hasPermission;
 
 /**
  * 轮播图控制器
@@ -113,7 +112,7 @@ public class BannerController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = hasPermission(banner.getUpdater(),session);
+        ResponseResult result = userService.hasPermission(banner.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
@@ -146,7 +145,7 @@ public class BannerController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = hasPermission(banner.getUpdater(),session);
+        ResponseResult result = userService.hasPermission(banner.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;

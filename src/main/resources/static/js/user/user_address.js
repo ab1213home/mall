@@ -103,12 +103,12 @@ function insertAddress() {
 		dataType:"json",
     	success: function (response) {
 			if (response.code == 200) {
-				console.log('Message:', response);
 				// window.location.href = pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
-				$('#addressModal').modal('hide')
+				$('#addressModal').modal('hide');
 				queryAddress(currentPageNum_address,10);
 				openModal('提示','地址新增成功');
 			} else {
+				$('#addressModal').modal('hide');
 				openModal('错误','地址新增失败');
 			}
     	}
@@ -166,10 +166,11 @@ function updateAddress(id) {
     	success: function (response) {
 			if (response.code == 200) {
 				addressArr[id]=data;
-				$('#addressModal').modal('hide')
+				$('#addressModal').modal('hide');
 				queryAddress(currentPageNum_address,10);
 				// window.location.href = +pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
 			} else {
+				$('#addressModal').modal('hide');
 				openModal('错误','地址修改失败');
 			}
 		}

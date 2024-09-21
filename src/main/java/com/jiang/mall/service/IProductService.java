@@ -29,4 +29,6 @@ public interface IProductService extends IService<Product> {
     Integer queryStoksById(Integer productId);
 
     boolean queryCode(String code);
+
+	Integer getProductNum();
 }

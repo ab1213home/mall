@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 
@@ -42,4 +43,10 @@ public interface IUserService extends IService<User> {
     boolean updateDefaultAddress(Integer id, Integer userId);
 
 	boolean unlockUser(Integer userId);
+
+    ResponseResult hasPermission(Integer oldUserId, HttpSession session);
+
+    ResponseResult checkAdminUser(HttpSession session);
+
+    ResponseResult checkUserLogin(HttpSession session);
 }

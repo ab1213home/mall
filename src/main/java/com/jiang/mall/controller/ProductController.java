@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.hasPermission;
 
 /**
  * 商品控制器
@@ -22,6 +22,9 @@ import static com.jiang.mall.util.CheckUser.hasPermission;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
+
+    @Autowired
+    private IUserService userService;
 
     @Autowired
     IProductService productService;
@@ -132,15 +135,15 @@ public class ProductController {
      * @return              返回操作结果的响应对象
      */
     @PostMapping("/update")
-    public ResponseResult updateBanner(@RequestParam("id") Integer id,
-                                       @RequestParam("code") String code,
-                                       @RequestParam("title") String title,
-                                       @RequestParam("categoryId") Integer categoryId,
-                                       @RequestParam("img") String img,
-                                       @RequestParam("price") Double price,
-                                       @RequestParam("stocks") Integer stocks,
-                                       @RequestParam("description") String description,
-                                       HttpSession session) {
+    public ResponseResult updateProduct(@RequestParam("id") Integer id,
+                                        @RequestParam("code") String code,
+                                        @RequestParam("title") String title,
+                                        @RequestParam("categoryId") Integer categoryId,
+                                        @RequestParam("img") String img,
+                                        @RequestParam("price") Double price,
+                                        @RequestParam("stocks") Integer stocks,
+                                        @RequestParam("description") String description,
+                                        HttpSession session) {
 
         // 通过ID获取产品信息
         Product product = productService.getById(id);
@@ -151,7 +154,7 @@ public class ProductController {
         }
 
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = hasPermission(product.getUpdater(),session);
+        ResponseResult result = userService.hasPermission(product.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
@@ -176,7 +179,7 @@ public class ProductController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    public ResponseResult deleteBanner(@RequestParam("id") Integer id,
+    public ResponseResult deleteProduct(@RequestParam("id") Integer id,
                                        HttpSession session) {
 
         // 通过ID获取产品信息
@@ -187,7 +190,7 @@ public class ProductController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = hasPermission(product.getUpdater(),session);
+        ResponseResult result = userService.hasPermission(product.getUpdater(),session);
         // 验证用户权限，确保用户已登录并有权限进行删除操作
         if (!result.isSuccess()) {
             return result;
@@ -201,6 +204,16 @@ public class ProductController {
             // 如果删除失败，返回服务器错误结果
             return ResponseResult.serverErrorResult("删除失败");
         }
+    }
+
+    @GetMapping("/getNum")
+    public ResponseResult getProductNum(HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        return ResponseResult.okResult(productService.getProductNum());
     }
 
 }

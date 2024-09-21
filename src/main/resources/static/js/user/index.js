@@ -1,5 +1,3 @@
-var usersMap = {};
-
 $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();

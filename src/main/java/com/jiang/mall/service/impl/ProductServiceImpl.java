@@ -173,7 +173,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return productMapper.selectOne(queryWrapper) != null;
     }
 
-
+    @Override
+    public Integer getProductNum() {
+         List<Product> products = productMapper.selectList(null);
+         return products.size();
+    }
 
 
 }
