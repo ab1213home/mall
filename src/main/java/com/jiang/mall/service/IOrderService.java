@@ -20,4 +20,6 @@ public interface IOrderService extends IService<Order> {
 	Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<Checkout> listCheckout);
 
 	List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize);
+
+	Integer getOrderNum(Integer userId);
 }

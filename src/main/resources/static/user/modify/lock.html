@@ -1,10 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="zh"> <!--begin::Head-->
 
-</body>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>mall统一用户管理系统 | 锁定账户</title><!--begin::Primary Meta Tags-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="mall统一用户管理系统 | 锁定账户">
+    <meta name="author" content="jiang">
+    <meta name="description" content="mall统一用户管理系统 | 锁定账户">
+    <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
+    <link rel="stylesheet" href="/source-sans-3_5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <link rel="stylesheet" href="/overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
+    <link rel="stylesheet" href="/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"><!--end::Third Party Plugin(Bootstrap Icons)--><!--begin::Required Plugin(AdminLTE)-->
+    <link rel="stylesheet" href="/adminlte-4.0.0-dist/css/adminlte.css"><!--end::Required Plugin(AdminLTE)--><!-- apexcharts -->
+    <link rel="stylesheet" href="/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
+    <link rel="stylesheet" href="/jsvectormap-1.5.3-dist/jsvectormap.min.css">
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <link rel="shortcut icon" href="/images/logo.png" />
+    <style>
+    canvas {
+      display: block;
+      vertical-align: bottom;
+    }
+    .password-box {
+      background-color: rgba(255, 255, 255, 0);
+      z-index: 1;
+    }
+  </style>
+</head> <!--end::Head--> <!--begin::Body-->
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
+    <div class="app-wrapper"> <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body"> <!--begin::Container-->
+            <div class="container-fluid"> <!--begin::Start Navbar Links-->
+                <ul class="navbar-nav">
+                    <li class="nav-item"> <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"> <i class="bi bi-list"></i> </a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="../index.html" class="nav-link">用户中心首页</a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="../../index.html" class="nav-link">商城首页</a> </li>
+                </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
+                <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
+                    <li class="nav-item"> <a class="nav-link" href="#" data-lte-toggle="fullscreen"> <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i> <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none;"></i> </a> </li> <!--end::Fullscreen Toggle--> <!--begin::User Menu Dropdown-->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="../../images/faces/face5.jpg" class="user-image rounded-circle shadow" id="user-image" alt="用户头像">
+                            <span class="d-none d-md-inline username">Alexander Pierce</span> </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end"> <!--begin::User Image-->
+                            <li class="user-header text-bg-primary"> <img src="../../images/faces/face5.jpg" class="rounded-circle shadow" alt="用户头像">
+                                <p>
+                                    <span class="text-white username">Alexander Pierce</span>
+                                    <small class="birthday text-center">Nov. 2023</small>
+                                </p>
+                            </li> <!--end::User Image--> <!--begin::Menu Body-->
+                            <li class="user-body"> <!--begin::Row-->
+                                <div class="row">
+                                    <div class="col-4 text-center"> <a href="../info.html">用户信息</a> </div>
+                                    <div class="col-4 text-center"> <a href="./password.html">修改密码</a> </div>
+                                    <div class="col-4 text-center"> <a href="./lock.html">锁定账户</a> </div>
+                                </div> <!--end::Row-->
+                            </li> <!--end::Menu Body--> <!--begin::Menu Footer-->
+                            <li class="user-footer">
+<!--                             <a href="#" class="btn btn-default btn-flat">Profile</a>-->
+                                <a onclick="logout()" class="btn btn-default btn-flat float-end">退出登录</a> </li> <!--end::Menu Footer-->
+                        </ul>
+                    </li> <!--end::User Menu Dropdown-->
+                </ul> <!--end::End Navbar Links-->
+            </div> <!--end::Container-->
+        </nav> <!--end::Header--> <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
+            <div class="sidebar-brand"> <!--begin::Brand Link--> <a href="../index.html" class="brand-link"> <!--begin::Brand Image-->
+                <img src="../../images/logo_min_new.png" alt="mall by AdminLTE Logo" class="brand-image opacity-75 shadow"> <!--end::Brand Image--> <!--begin::Brand Text-->
+                <span class="brand-text fw-light">mall用户中心</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2"> <!--begin::Sidebar Menu-->
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item"> <a href="../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>用户中心首页</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="../../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>商城首页</p>
+                            </a> </li>
+                        <li class="nav-header text-center">设置</li>
+                        <li class="nav-item"> <a href="../../collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
+                                <p>我的收藏</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="./address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                                <p>我的收货地址</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="../../cart.html"  class="nav-link"> <i class="nav-icon bi bi-cart-dash"></i>
+                                <p>我的购物车</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="../../orders.html"  class="nav-link"> <i class="nav-icon bi bi-list-ul"></i>
+                                <p>我的订单</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
+                                <p>
+                                    账号与安全
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="./password.html" class="nav-link"> <i class="nav-icon bi bi-key"></i>
+                                        <p>修改密码</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="./info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
+                                        <p>修改用户信息</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header text-center admin" style="display: none;">管理后台</li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                                <p>仪表盘</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/user.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>用户管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                                <p>商品分类管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>商品管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>订单管理</p>
+                            </a> </li>
+                        <li class="nav-header text-center admin">Bug与反馈</li>
+                        <li class="nav-item"> <a href="https://gitee.com/jiangrongjun/mall" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
+                                <p>Gitee</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="mailto:jiangrongjun2004@163.com" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                <p>电子邮箱</p>
+                            </a> </li>
+                    </ul> <!--end::Sidebar Menu-->
+                </nav>
+            </div> <!--end::Sidebar Wrapper-->
+        </aside> <!--end::Sidebar--> <!--begin::App Main-->
+        <main class="app-main"> <!--begin::App Content Header-->
+            <div class="app-content-header"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="mb-0">锁定账户</h3>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-end">
+                                <li class="breadcrumb-item"><a href="../index.html">用户中心</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    锁定账户
+                                </li>
+                            </ol>
+                        </div>
+                    </div> <!--end::Row-->
+                </div> <!--end::Container-->
+            </div> <!--end::App Content Header--> <!--begin::App Content-->
+            <div class="app-content"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row d-flex justify-content-center align-items-center"> <!--begin::Col-->
+                        <div class="card col-6 mx-auto my-auto">
+                            <div class="card-body login-card-body">
+                                <div class="row">
+                                    <div class="col-12 text-center">
+                                        <h3 class="login-box-msg">锁定账户</h3>
+                                        <p class="login-box-msg">
+                                            <span class="text-danger">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                <p>锁定账户是为了保护用户的信息安全和个人隐私</p>
+                                                <p>安全原因：如果检测到异常登录活动或者怀疑账户已被未经授权的人访问，系统可能会自动锁定账户以防止进一步的潜在损害。</p>
+                                                <p>防止欺诈：当发现有可疑行为或交易时，锁定账户可以阻止欺诈性的活动继续进行。</p>
+                                                <p>保护个人信息：如果用户的密码或其他安全信息可能已被泄露，锁定账户可以帮助阻止敏感信息被盗用。</p>
+                                                <p>用户请求：有时候用户自己会请求锁定他们的账户，可能是为了防止自己过度使用某个服务，或者是出于个人隐私考虑。</p>
+                                                <p>当账户被锁定后，用户需要通过重置密码的验证流程来重新激活账户。这样做有助于确保只有真正的账户所有者能够恢复对账户的访问权限。</p>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-end mt-3">
+                                    <div class="col-12 text-end">
+                                        <button type="submit" id="button_lock" class="btn btn-primary btn-block btn-flat">锁定账户</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!--end::Row--> <!--begin::Row-->
+                </div> <!--end::Container-->
+            </div> <!--end::App Content-->
+        </main> <!--end::App Main--> <!--begin::Footer-->
+        <footer class="app-footer"> <!--begin::To the end-->
+            <div class="float-end d-none d-sm-inline">&copy; 2022-2024&nbsp;</div> <!--end::To the end--> <!--begin::Copyright-->
+            <strong>基于<a href="https://adminlte.io" class="text-decoration-none">AdminLTE</a>模板设计</strong>
+            <!--end::Copyright-->
+        </footer> <!--end::Footer-->
+    </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+            </div>
+        </div>
+    </div>
+    <script src="/overlayscrollbars-2.10.0-dist/browser/overlayscrollbars.browser.es6.min.js"></script> <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
+    <script src="/popper-2.11.8-dist/umd/popper.min.js"></script> <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
+    <script src="/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script> <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
+    <script src="/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+    <script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+    <script src="/js/user/index_top.js"></script>
+    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/js/user/lock.js"></script>
+    <script>
+        const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+        const Default = {
+            scrollbarTheme: "os-theme-light",
+            scrollbarAutoHide: "leave",
+            scrollbarClickScroll: true,
+        };
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            if (
+                sidebarWrapper &&
+                typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined"
+            ) {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                    scrollbars: {
+                        theme: Default.scrollbarTheme,
+                        autoHide: Default.scrollbarAutoHide,
+                        clickScroll: Default.scrollbarClickScroll,
+                    },
+                });
+            }
+        });
+    </script> <!--end::OverlayScrollbars Configure--> <!-- OPTIONAL SCRIPTS --> <!-- sortablejs -->
+    <script src="/sortable-1.15.3-dist/Sortable.min.js"></script> <!-- sortablejs -->
+    <script>
+        const connectedSortables =
+            document.querySelectorAll(".connectedSortable");
+        connectedSortables.forEach((connectedSortable) => {
+            let sortable = new Sortable(connectedSortable, {
+                group: "shared",
+                handle: ".card-header",
+            });
+        });
+
+        const cardHeaders = document.querySelectorAll(
+            ".connectedSortable .card-header",
+        );
+        cardHeaders.forEach((cardHeader) => {
+            cardHeader.style.cursor = "move";
+        });
+    </script>
+</body><!--end::Body-->
+
 </html>

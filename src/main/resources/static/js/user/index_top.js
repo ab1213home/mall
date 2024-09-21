@@ -53,20 +53,38 @@ function queryMyUserInfo(){
 				if (document.getElementById("welcome")!= null){
 					document.getElementById("welcome").textContent="欢迎回来，"+res.data.username+"!";
 				}
+				if (document.getElementById("username_show")!= null){
+					document.getElementById("username_show").textContent = res.data.username;
+				}
 				if (document.getElementById("email")!= null){
 					document.getElementById("email").value = res.data.email;
+				}
+				if (document.getElementById("email_show")!= null){
+					document.getElementById("email_show").textContent = res.data.email;
 				}
 				if (document.getElementById("firstName")!= null){
 					document.getElementById("firstName").value = res.data.firstName;
 				}
+				if (document.getElementById("firstName_show")!= null){
+					document.getElementById("firstName_show").textContent = res.data.firstName;
+				}
 				if (document.getElementById("lastName")!= null){
 					document.getElementById("lastName").value = res.data.lastName;
+				}
+				if (document.getElementById("lastName_show")!= null){
+					document.getElementById("lastName_show").textContent = res.data.lastName;
 				}
 				if (document.getElementById("birthday")!= null){
 					document.getElementById("birthday").value = res.data.birthDate;
 				}
+				if (document.getElementById("birthday_show")!= null){
+					document.getElementById("birthday_show").textContent = res.data.birthDate;
+				}
 				if (document.getElementById("phone")!= null){
 					document.getElementById("phone").value = res.data.phone;
+				}
+				if (document.getElementById("phone_show")!= null){
+					document.getElementById("phone_show").textContent = res.data.phone;
 				}
 			}else {
 				openModal("警告","未登录");

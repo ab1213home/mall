@@ -262,4 +262,20 @@ public class OrderController {
 	    // 获取订单列表成功
 	    return ResponseResult.okResult(orderList);
 	}
+
+	@GetMapping("/getNum")
+	public ResponseResult getOrderNum(HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+	    ResponseResult result = checkUserLogin(session);
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    Integer userId = (Integer) result.getData();
+	    if (userId == null) {
+	        // 如果获取用户ID失败，表示检查登录状态时出现异常
+	        return ResponseResult.failResult("您未登录，请先登录");
+	    }
+		return ResponseResult.okResult(orderService.getOrderNum(userId));
+	}
 }

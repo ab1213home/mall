@@ -110,4 +110,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		}
 		return orderVoList;
 	}
+
+	/**
+	 * 根据用户ID获取该用户的订单数量
+	 *
+	 * @param userId 用户ID，用于标识哪个用户的订单数量
+	 * @return 用户的订单数量
+	 */
+	@Override
+	public Integer getOrderNum(Integer userId) {
+	    // 通过用户ID查询该用户的所有订单
+	    List<Order> orderList = orderMapper.selectList(new QueryWrapper<Order>().eq("user_id", userId));
+	    // 返回查询到的订单数量
+	    return orderList.size();
+	}
 }

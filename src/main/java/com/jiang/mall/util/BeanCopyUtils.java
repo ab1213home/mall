@@ -20,6 +20,14 @@ public class BeanCopyUtils {
      * @return 转换后的对象，如果转换失败则返回null
      */
     public static <V> V copyBean(Object source, Class<V> clazz) {
+        if (source == null) {
+            // 如果source为null，则可以选择抛出异常或者直接返回null
+            // 抛出异常示例：
+            // throw new IllegalArgumentException("Source object cannot be null");
+
+            // 或者直接返回null
+            return null;
+        }
         V target = null;
         try {
             // 创建目标对象的实例

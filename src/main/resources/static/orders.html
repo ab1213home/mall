@@ -1,192 +1,207 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh"> <!--begin::Head-->
 
 <head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>mall统一用户管理系统 | 订单信息管理</title>
-  <meta name="description" content="mall统一用户管理系统 | 订单信息管理">
-  <meta name="author" content="jiang" />
-  <!-- plugins:css -->
-  <link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="/vendors/base/vendor.bundle.base.css">
-  <!-- endinject -->
-  <!-- plugin css for this page -->
-  <link rel="stylesheet" href="/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
-  <!-- End plugin css for this page -->
-  <!-- inject:css -->
-  <link rel="stylesheet" href="/css/user/style_index.css">
-  <!-- endinject -->
-  <link rel="shortcut icon" href="/images/logo.png" />
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="/css/ionicons.min.css">
-  <!-- Theme style -->
-<!--  <link rel="stylesheet" href="/css/adminlte.min.css">-->
-  <style>
-    canvas {
-      display: block;
-      vertical-align: bottom;
-    }
-    .password-box {
-      background-color: rgba(255, 255, 255, 0);
-      z-index: 1;
-    }
-    .cartd6{
-	text-align: center;
-	margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container-scroller">
-    <!-- partial:partials/_navbar.html -->
-    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
-      <div class="navbar-brand-wrapper d-flex justify-content-center">
-        <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
-          <a class="navbar-brand brand-logo" href="./index.html"><img src="/images/logo_min_new.png" alt="logo"/></a>
-          <a class="navbar-brand brand-logo-mini" href="./index.html"><img src="/images/logo_min_new.png" alt="logo"/></a>
-          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-            <span class="mdi mdi-sort-variant"></span>
-          </button>
-        </div>
-      </div>
-      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-        <ul class="navbar-nav navbar-nav-right">
-          <li class="nav-item nav-profile dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="profileDropdown">
-              <img src="/images/faces/face5.jpg" alt="profile"/>
-              <span class="nav-profile-name" id="username">none</span>
-            </a>
-            <div id="dropdown-menu" class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-              <a class="dropdown-item">
-                <i class="mdi mdi-settings text-primary"></i>
-                设置
-              </a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    <!-- partial -->
-    <div class="container-fluid page-body-wrapper">
-      <!-- partial:partials/_sidebar.html -->
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link" href="user/index_old.html">
-              <i class="mdi mdi-home menu-icon"></i>
-              <span class="menu-title">用户中心首页</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./index.html">
-              <i class="mdi mdi-home menu-icon"></i>
-              <span class="menu-title">商城首页</span>
-            </a>
-          </li>
-          <li class="nav-item ">
-            <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-              <i class="mdi mdi-account menu-icon"></i>
-              <span class="menu-title">账号与安全</span>
-              <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="ui-basic">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="/user/modify/password.html">修改密码</a></li>
-                <li class="nav-item"> <a class="nav-link" href="/user/modify/info.html">修改用户信息</a></li>
-              </ul>
-            </div>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="./orders.html">
-              <i class="mdi mdi-view-headline menu-icon"></i>
-              <span class="menu-title">我的订单</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./cart.html">
-              <i class="mdi mdi-chart-pie menu-icon"></i>
-              <span class="menu-title">我的购物车</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./user/modify/address.html">
-              <i class="mdi mdi-grid-large menu-icon"></i>
-              <span class="menu-title">我的收货信息</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./collections.html">
-              <i class="mdi mdi-emoticon menu-icon"></i>
-              <span class="menu-title">我的收藏</span>
-            </a>
-          </li>
-          <li class="nav-item" id="admin_user">
-            <a class="nav-link" href="./admin.html">
-              <i class="mdi mdi-chart-bar menu-icon"></i>
-              <span class="menu-title">管理后台</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="https://gitee.com/jiangrongjun/mall">
-              <i class="mdi mdi-file-document-box-outline menu-icon"></i>
-              <span class="menu-title">Gitee</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-      <!-- partial -->
-      <div class="main-panel">
-        <div class="content-wrapper" id="password">
-            <div class="password-box row">
-                <div class="card col-12 mx-auto my-auto">
-                    <div class="card-body login-card-body">
-                        <table class="table table-hover" id="orderTable">
-                            <thead>
-                                <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">地址信息</th>
-                                    <th scope="col">日期</th>
-                                    <th scope="col">总金额</th>
-                                    <th scope="col">状态</th>
-                                    <th scope="col">支付方式</th>
-                                    <th scope="col">订单详情</th>
-                                    <th scope="col">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <div class="cartd6">
-                            <button id="prePage" disabled>上一页</button>
-                            <button id="nextPage">下一页</button>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>mall统一用户管理系统 | 我的订单</title><!--begin::Primary Meta Tags-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="mall统一用户管理系统 | 我的订单">
+    <meta name="author" content="jiang">
+    <meta name="description" content="mall统一用户管理系统 | 我的订单">
+    <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
+    <link rel="stylesheet" href="/source-sans-3_5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <link rel="stylesheet" href="/overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
+    <link rel="stylesheet" href="/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"><!--end::Third Party Plugin(Bootstrap Icons)--><!--begin::Required Plugin(AdminLTE)-->
+    <link rel="stylesheet" href="/adminlte-4.0.0-dist/css/adminlte.css"><!--end::Required Plugin(AdminLTE)--><!-- apexcharts -->
+    <link rel="stylesheet" href="/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
+    <link rel="stylesheet" href="/jsvectormap-1.5.3-dist/jsvectormap.min.css">
+    <link rel="shortcut icon" href="/images/logo.png" />
+    <style>
+        canvas {
+          display: block;
+          vertical-align: bottom;
+        }
+        .password-box {
+          background-color: rgba(255, 255, 255, 0);
+          z-index: 1;
+        }
+        .cartd6{
+            text-align: center;
+            margin-top: 10px;
+        }
+        .price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        }
+        .num-tag::before {
+				content: "x";
+        }
+    </style>
+</head> <!--end::Head--> <!--begin::Body-->
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
+    <div class="app-wrapper"> <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body"> <!--begin::Container-->
+            <div class="container-fluid"> <!--begin::Start Navbar Links-->
+                <ul class="navbar-nav">
+                    <li class="nav-item"> <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"> <i class="bi bi-list"></i> </a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="./user/index.html" class="nav-link">用户中心首页</a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="./index.html" class="nav-link">商城首页</a> </li>
+                </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
+                <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
+                    <li class="nav-item"> <a class="nav-link" href="#" data-lte-toggle="fullscreen"> <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i> <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none;"></i> </a> </li> <!--end::Fullscreen Toggle--> <!--begin::User Menu Dropdown-->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="./images/faces/face5.jpg" class="user-image rounded-circle shadow" id="user-image" alt="用户头像">
+                            <span class="d-none d-md-inline username">Alexander Pierce</span> </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end"> <!--begin::User Image-->
+                            <li class="user-header text-bg-primary"> <img src="./images/faces/face5.jpg" class="rounded-circle shadow" alt="用户头像">
+                                <p>
+                                    <span class="text-white username">Alexander Pierce</span>
+                                    <small class="birthday text-center">Nov. 2023</small>
+                                </p>
+                            </li> <!--end::User Image--> <!--begin::Menu Body-->
+                            <li class="user-body"> <!--begin::Row-->
+                                <div class="row">
+                                    <div class="col-4 text-center"> <a href="./user/info.html">用户信息</a> </div>
+                                    <div class="col-4 text-center"> <a href="./user/modify/password.html">修改密码</a> </div>
+                                    <div class="col-4 text-center"> <a href="./user/modify/lock.html">锁定账户</a> </div>
+                                </div> <!--end::Row-->
+                            </li> <!--end::Menu Body--> <!--begin::Menu Footer-->
+                            <li class="user-footer">
+<!--                             <a href="#" class="btn btn-default btn-flat">Profile</a>-->
+                                <a onclick="logout()" class="btn btn-default btn-flat float-end">退出登录</a> </li> <!--end::Menu Footer-->
+                        </ul>
+                    </li> <!--end::User Menu Dropdown-->
+                </ul> <!--end::End Navbar Links-->
+            </div> <!--end::Container-->
+        </nav> <!--end::Header--> <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
+            <div class="sidebar-brand"> <!--begin::Brand Link--> <a href="./index.html" class="brand-link"> <!--begin::Brand Image-->
+                <img src="./images/logo_min_new.png" alt="mall by AdminLTE Logo" class="brand-image opacity-75 shadow"> <!--end::Brand Image--> <!--begin::Brand Text-->
+                <span class="brand-text fw-light">mall用户中心</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2"> <!--begin::Sidebar Menu-->
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item"> <a href="./user/index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>用户中心首页</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="./index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>商城首页</p>
+                            </a> </li>
+                        <li class="nav-header text-center">设置</li>
+                        <li class="nav-item"> <a href="./collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
+                                <p>我的收藏</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="./user/modify/address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                                <p>我的收货地址</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="./cart.html"  class="nav-link"> <i class="nav-icon bi bi-cart-dash"></i>
+                                <p>我的购物车</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="./orders.html"  class="nav-link active"> <i class="nav-icon bi bi-list-ul"></i>
+                                <p>我的订单</p>
+                            </a>
+                        </li>
+                        <li class="nav-item "> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
+                                <p>
+                                    账号与安全
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/user/modify/password.html" class="nav-link"> <i class="nav-icon bi bi-key"></i>
+                                        <p>修改密码</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
+                                        <p>修改用户信息</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header text-center admin" style="display: none;">管理后台</li>
+                        <li class="nav-item admin" style="display: none;"> <a href="/admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                                <p>仪表盘</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="/admin/user.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>用户管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="/admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                                <p>商品分类管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="/admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>商品管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="/admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>订单管理</p>
+                            </a> </li>
+                        <li class="nav-header text-center admin">Bug与反馈</li>
+                        <li class="nav-item"> <a href="https://gitee.com/jiangrongjun/mall" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
+                                <p>Gitee</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="mailto:jiangrongjun2004@163.com" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                <p>电子邮箱</p>
+                            </a> </li>
+                    </ul> <!--end::Sidebar Menu-->
+                </nav>
+            </div> <!--end::Sidebar Wrapper-->
+        </aside> <!--end::Sidebar--> <!--begin::App Main-->
+        <main class="app-main"> <!--begin::App Content Header-->
+            <div class="app-content-header"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="mb-0">我的订单</h3>
                         </div>
-                    </div>
-                    <!-- /.login-card-body -->
-                </div>
-            </div>
-        </div>
-        <!-- content-wrapper ends -->
-        <!-- partial:partials/_footer.html -->
-        <footer class="footer">
-        <div class="d-sm-flex justify-content-center justify-content-sm-between">
-          <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">版权 © <a href="https://www.bootstrapdash.com/" target="_blank">bootstrapdash.com </a>2021</span>
-          <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">基于 <a href="https://www.bootstrapdash.com/" target="_blank"> Bootstrap dashboard  </a> 模板设计</span>
-        </div>
-        </footer>
-        <!-- partial -->
-      </div>
-      <!-- main-panel ends -->
-    </div>
-    <!-- page-body-wrapper ends -->
-  </div>
-  <!-- container-scroller -->
-      <!-- 固定提示框 -->
-	    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered">
-			  <div class="modal-content">
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-end">
+                                <li class="breadcrumb-item"><a href="./index.html">用户中心</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    我的订单
+                                </li>
+                            </ol>
+                        </div>
+                    </div> <!--end::Row-->
+                </div> <!--end::Container-->
+            </div> <!--end::App Content Header--> <!--begin::App Content-->
+            <div class="app-content"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row"> <!--begin::Col-->
+                        <div class="card col-12 mx-auto my-auto">
+                            <div class="card-body login-card-body">
+                                <table class="table table-hover" id="orderTable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="text-center">ID</th>
+                                            <th scope="col" class="text-center">地址信息</th>
+                                            <th scope="col" class="text-center">日期</th>
+                                            <th scope="col" class="text-center">总金额</th>
+                                            <th scope="col" class="text-center">状态</th>
+                                            <th scope="col" class="text-center">支付方式</th>
+                                            <th scope="col" class="text-center">订单详情</th>
+                                            <th scope="col" class="text-center">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                <div class="cartd6">
+                                    <button id="prePage" disabled>上一页</button>
+                                    <button id="nextPage">下一页</button>
+                                </div>
+                            </div>
+                    </div> <!--end::Row--> <!--begin::Row-->
+                </div> <!--end::Container-->
+            </div> <!--end::App Content-->
+        </main> <!--end::App Main--> <!--begin::Footer-->
+        <footer class="app-footer"> <!--begin::To the end-->
+            <div class="float-end d-none d-sm-inline">&copy; 2022-2024&nbsp;</div> <!--end::To the end--> <!--begin::Copyright-->
+            <strong>基于<a href="https://adminlte.io" class="text-decoration-none">AdminLTE</a>模板设计</strong>
+            <!--end::Copyright-->
+        </footer> <!--end::Footer-->
+    </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 				<div class="modal-header">
 				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
 				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -198,102 +213,59 @@
 				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
 				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
 				</div>
-			  </div>
-			</div>
-		</div>
-    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="itemModalLabel"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body col-10 mx-auto my-auto ">
-                    <form id="addressForm">
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-user form-control-feedback"></span>
-                            <label for="firstName"></label>
-                            <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入收件人的名字" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-user form-control-feedback"></span>
-                            <label for="lastName"></label>
-                            <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入收件人的姓氏" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-phone form-control-feedback"></span>
-                            <label for="phone"></label>
-                            <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入联系电话" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-globe form-control-feedback"></span>
-                            <label for="country"></label>
-                            <input type="text" id="country" name="country" class="form-control" placeholder="请输入国家" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="province"></label>
-                            <input type="text" id="province" name="province" class="form-control" placeholder="请输入省或州" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="city"></label>
-                            <input type="text" id="city" name="city" class="form-control" placeholder="请输入城市" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="district"></label>
-                            <input type="text" id="district" name="district" class="form-control" placeholder="请输入区或县" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="addressDetail"></label>
-                            <textarea id="addressDetail" name="addressDetail" class="form-control" placeholder="请输入具体的街道、小区、门牌号等信息" required="required"></textarea>
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-envelope form-control-feedback"></span>
-                            <label for="postalCode"></label>
-                            <input type="text" id="postalCode" name="postalCode" class="form-control" placeholder="请输入邮政编码" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <label for="isDefault">是否为默认地址:</label>
-                            <input type="checkbox" id="isDefault" name="isDefault" value="true">
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="submit" id="submit" class="btn btn-primary">提交</button>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
-  <!-- plugins:js -->
-  <script src="/vendors/base/vendor.bundle.base.js"></script>
-  <!-- endinject -->
-  <!-- Plugin js for this page-->
-  <script src="/vendors/chart.js/Chart.min.js"></script>
-  <script src="/vendors/datatables.net/jquery.dataTables.js"></script>
-  <script src="/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-  <!-- End plugin js for this page-->
-  <!-- inject:js -->
-  <script src="/js/off-canvas.js"></script>
-  <script src="/js/hoverable-collapse.js"></script>
-  <script src="/js/template.js"></script>
-  <!-- endinject -->
-  <!-- Custom js for this page-->
-  <script src="/js/dashboard.js"></script>
-  <script src="/js/data-table.js"></script>
-  <script src="/jquery-3.7.1/jquery.dataTables.js"></script>
-  <script src="/js/dataTables.bootstrap4.js"></script>
-  <!-- End custom js for this page-->
+    <script src="/overlayscrollbars-2.10.0-dist/browser/overlayscrollbars.browser.es6.min.js"></script> <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
+    <script src="/popper-2.11.8-dist/umd/popper.min.js"></script> <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
+    <script src="/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script> <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
+    <script src="/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+    <script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+    <script src="/js/user/index_top.js"></script>
+    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/js/orders.js"></script>
+    <script>
+        const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+        const Default = {
+            scrollbarTheme: "os-theme-light",
+            scrollbarAutoHide: "leave",
+            scrollbarClickScroll: true,
+        };
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            if (
+                sidebarWrapper &&
+                typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined"
+            ) {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                    scrollbars: {
+                        theme: Default.scrollbarTheme,
+                        autoHide: Default.scrollbarAutoHide,
+                        clickScroll: Default.scrollbarClickScroll,
+                    },
+                });
+            }
+        });
+    </script> <!--end::OverlayScrollbars Configure--> <!-- OPTIONAL SCRIPTS --> <!-- sortablejs -->
+    <script src="/sortable-1.15.3-dist/Sortable.min.js"></script> <!-- sortablejs -->
+    <script>
+        const connectedSortables =
+            document.querySelectorAll(".connectedSortable");
+        connectedSortables.forEach((connectedSortable) => {
+            let sortable = new Sortable(connectedSortable, {
+                group: "shared",
+                handle: ".card-header",
+            });
+        });
 
-  <script src="/jquery-3.7.1/jquery.cookie.js" type="text/javascript"></script>
-  <!-- jQuery -->
-  <script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
-  <!-- Bootstrap 5 -->
-<!--  <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>-->
-  <script src="/js/orders.js"></script>
-</body>
+        const cardHeaders = document.querySelectorAll(
+            ".connectedSortable .card-header",
+        );
+        cardHeaders.forEach((cardHeader) => {
+            cardHeader.style.cursor = "move";
+        });
+    </script>
+</body><!--end::Body-->
 
 </html>
