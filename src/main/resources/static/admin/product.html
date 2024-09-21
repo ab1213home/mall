@@ -39,7 +39,7 @@
             <div class="container-fluid"> <!--begin::Start Navbar Links-->
                 <ul class="navbar-nav">
                     <li class="nav-item"> <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"> <i class="bi bi-list"></i> </a> </li>
-                    <li class="nav-item d-none d-md-block"> <a href="index.html" class="nav-link">用户中心首页</a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="/user/index.html" class="nav-link">用户中心首页</a> </li>
                     <li class="nav-item d-none d-md-block"> <a href="../index.html" class="nav-link">商城首页</a> </li>
                 </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
                 <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
@@ -250,26 +250,6 @@
                             <label for="description"></label>
                             <textarea id="description" name="description" class="form-control" placeholder="请输入商品描述" required="required"></textarea>
                         </div>
-<!--                        <div class="mb-3">-->
-<!--                            <label for="title" class="col-form-label">商品名称:</label>-->
-<!--                            <input type="text" class="form-control" id="title">-->
-<!--                        </div>-->
-<!--                         <div class="mb-3">-->
-<!--                            <label for="code" class="col-form-label">商品编码:</label>-->
-<!--                            <input type="text" class="form-control" id="code">-->
-<!--                        </div>-->
-<!--                        <div class="mb-3">-->
-<!--                            <label for="price" class="col-form-label">商品价格:</label>-->
-<!--                            <input type="number" class="form-control" id="price">-->
-<!--                        </div>-->
-<!--                        <div class="mb-3">-->
-<!--                            <label for="stocks" class="col-form-label">商品库存:</label>-->
-<!--                            <input type="number" class="form-control" id="stocks">-->
-<!--                        </div>-->
-<!--                        <div class="mb-3">-->
-<!--                            <label for="description" class="col-form-label">商品描述:</label>-->
-<!--                            <textarea class="form-control" id="description"></textarea>-->
-<!--                        </div>-->
                         <div class="form-group has-feedback">
                             <span class="fa fa-list form-control-feedback"></span>
                             <label for="categoryId"></label>
@@ -277,17 +257,13 @@
                                 <option value="" disabled selected>请选择商品类型</option>
                             </select>
                         </div>
-<!--                        <div class="mb-3">-->
-<!--                            <label for="categoryId" class="col-form-label">商品分类:</label>-->
-<!--                            -->
-<!--                        </div>-->
                         <div class="form-group has-feedback">
                             <div class="row">
                                 <span class="fa fa-picture-o form-control-feedback"></span>
                                 <label for="img" class="form-label"></label>
                                 <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()" placeholder="请上传商品图片">
                             </div>
-                            <div id="img" class="input-group row">
+                            <div id="img" class="input-group row"  style="text-align: center; height: 100vh;">
                                 <img src="/images/no-image.png" id="imgPreview" alt="商品预览" class="img-thumbnail">
                             </div>
                         </div>

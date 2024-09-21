@@ -49,4 +49,6 @@ public interface IUserService extends IService<User> {
     ResponseResult checkAdminUser(HttpSession session);
 
     ResponseResult checkUserLogin(HttpSession session);
+
+    Integer getUserNum();
 }

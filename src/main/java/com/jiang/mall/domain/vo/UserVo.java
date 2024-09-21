@@ -56,6 +56,8 @@ public class UserVo {
      */
     private Integer defaultAddressId;
 
+    private boolean isActive;
+
     /**
      * 角色ID
      */
@@ -70,6 +72,7 @@ public class UserVo {
      * 距离下次生日的天数
      */
     private Integer nextBirthday;
+
 
     /**
      * 构造方法，用于初始化用户ID和用户名

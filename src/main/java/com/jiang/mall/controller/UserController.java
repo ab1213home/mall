@@ -325,10 +325,12 @@ public class UserController {
         if (StringUtils.hasText(userInfo.getEmail()) && !userInfo.getEmail().matches(regex_email)) {
             return ResponseResult.failResult("邮箱格式不正确");
         }
+        User oldUser = userService.getUserInfo(userInfo.getId());
         // 检查邮箱是否已被其他用户使用
-        if (userService.queryByEmail(userInfo.getEmail())) {
+        if (oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
             return ResponseResult.failResult("邮箱已存在");
         }
+
         // 设置用户ID到用户信息对象中
         userInfo.setId(userId);
         // 尝试修改用户信息，如果失败则返回错误结果
@@ -658,13 +660,34 @@ public class UserController {
             return ResponseResult.failResult("邮箱格式不正确");
         }
         // 检查邮箱是否已被其他用户使用
-        if (userService.queryByEmail(userInfo.getEmail())) {
+        User oldUser = userService.getUserInfo(userInfo.getId());
+        if (oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
             return ResponseResult.failResult("邮箱已存在");
         }
+        if (userInfo.getRoleId()>(Integer) session.getAttribute("UserRoleId")){
+            return ResponseResult.failResult("不能修改成比自己权限高");
+        }
+        if (oldUser.getRoleId()>(Integer) session.getAttribute("UserRoleId")){
+            return ResponseResult.failResult("不能修改比自己权限高的用户");
+        }
+        if (oldUser.getUsername().equals(userInfo.getUsername()) && !userService.queryByUserName(userInfo.getUsername())){
+            return ResponseResult.failResult("用户名已存在");
+        }
+        userInfo.setPassword(null);
         if (userService.updateUser(userInfo)){
             return ResponseResult.okResult("修改成功");
         }else {
             return ResponseResult.serverErrorResult("修改失败");
         }
+    }
+
+    @GetMapping("/getNum")
+    public ResponseResult getUserNum(HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        return ResponseResult.okResult(userService.getUserNum());
     }
 }

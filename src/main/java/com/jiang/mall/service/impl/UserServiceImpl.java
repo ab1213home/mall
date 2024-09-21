@@ -66,6 +66,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    return ResponseResult.okResult(userId);
 	}
 
+	@Override
+	public Integer getUserNum() {
+		List<User> userList = userMapper.selectList(null);
+		return userList.size();
+	}
+
 	/**
 	 * 检查当前用户是否为管理员
 	 * 此方法首先调用checkUserLogin方法验证用户是否已登录
@@ -218,6 +224,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			newUser.setUsername(user.getUsername());
 	        // 将用户状态设置为激活，确保用户不会因为信息修改而失去访问权限。
 	        newUser.setIsActive(true);
+			newUser.setRoleId(user.getRoleId());
 	        // 更新数据库中的用户信息。
 	        int result = userMapper.updateById(newUser);
 	        // 检查更新是否成功，并返回结果。
@@ -354,14 +361,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 创建分页对象
         Page<User> userPage = new Page<>(pageNum, pageSize);
         // 创建查询条件对象，并限制角色ID
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId());
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId()+0.1);
         // 根据分页和查询条件获取用户列表
         List<User> users = userMapper.selectPage(userPage,queryWrapper).getRecords();
         // 将用户列表转换为Vo对象列表
         List<UserVo> userVos = BeanCopyUtils.copyBeanList(users, UserVo.class);
         // 为每个Vo对象计算下一次生日和设置是否为管理员状态
         for (UserVo userVo : userVos) {
-            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+			userVo.setActive(userMapper.selectById(userVo.getId()).getIsActive());
+			if (userVo.getBirthDate() != null) {
+				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+			}
             userVo.setAdmin(userVo.getRoleId() >= AdminRoleId);
         }
         // 返回处理后的用户列表Vo对象
