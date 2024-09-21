@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 		<link rel="stylesheet" href="css/style.css">
 		<link rel="stylesheet" href="css/cart.css">
+		<link rel="stylesheet" href="css/font-awesome.min.css"></link>
 		<script src="./jquery-3.7.1/jquery-3.7.1.min.js"></script>
 		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 		<link rel="shortcut icon" href="/images/logo.png" />
@@ -15,6 +16,18 @@
 			.address-row {
 				background-color: transparent;
 				transition: background-color 0.3s ease;
+			}
+			.price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        	}
+			.custom-button {
+				text-align: center;
+			}
+			.custom-button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 10px 10px;
 			}
 		</style>
 	</head>
@@ -62,23 +75,24 @@
 			<div class="cartd1">
 				确认订单信息
 			</div>
-			<div class="cartd2">
-				<ul class="cartul1">
-					<li class="cartli1">序号</li>
-					<li class="cartli2">商品</li>
-					<li class="crtli3">单价</li>
-					<li class="cartli4">数量</li>
-					<li class="cartli5">小计</li>
-					<li class="cartli6">操作</li>
-				</ul>
-			</div>
-			<div id="cartgoodlist">
-			</div>
-			<div class="cartd6">
+			<table class="table table-hover" id="cartTable">
+				<thead>
+					<tr class="table-warning">
+						<th scope="col" class="text-center">序号</th>
+						<th scope="col" class="text-center">商品</th>
+						<th scope="col" class="text-center">单价</th>
+						<th scope="col" class="text-center">数量</th>
+						<th scope="col" class="text-center">小计</th>
+						<th scope="col" class="text-center">操作</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+			<div class="cartd6 mt-2">
 				<button id="prePage" disabled>上一页</button>
 				<button id="nextPage">下一页</button>
 			</div>
-			<div>
+			<div class="mt-2">
 				<div class="fr">
 					<ul class="cartul3">
 						<li>已选择<span id="totalNum">0</span>件商品</li>
@@ -87,13 +101,11 @@
 				</div>
 				<div class="cls"></div>
 			</div>
-		</div>
 
-		<!-- 收货地址 -->
-		<div class="w">
-			<table class="table table-hover" id="addresslist">
+			<!-- 收货地址 -->
+			<table class="table table-hover mt-4" id="addresslist">
 				<thead>
-					<tr>
+					<tr class="table-warning">
 						<th scope="col" class="text-center">序号</th>
 						<th scope="col" class="text-center">收件人姓名</th>
 						<th scope="col" class="text-center">联系电话</th>
@@ -106,24 +118,23 @@
 				</thead>
 				<tbody></tbody>
 			</table>
-			<div class="cartd6">
+			<div class="cartd6 mt-2">
 				<button id="prePage_address" disabled>上一页</button>
 				<button id="nextPage_address">下一页</button>
 			</div>
-			<div class="row d-flex justify-content-end">
+			<div class="row d-flex justify-content-end mt-3">
 				<div class="col-12 text-end">
 					<button class="btn btn-primary btn-block btn-flat" data-bs-toggle="modal" data-bs-target="#addressModal" data-bs-type="add">添加收货信息</button>
 				</div>
 			</div>
-		</div>
 
-		<!-- 提交订单 -->
-		<div class="w">
-			<div class="cartd7">
-				<button id="submitOrder" class="btn btn-primary btn-block btn-flat">提交订单</button>
+			<!-- 提交订单 -->
+			<div class="row d-flex justify-content-end mt-4">
+				<div class="col-12 text-end">
+					<button id="submitOrder" class="btn btn-primary btn-block btn-flat">提交订单</button>
+				</div>
 			</div>
 		</div>
-
 		<!-- 底部 -->
 		<div class="footer">
 			<div class="container py-4">
@@ -161,41 +172,47 @@
                 </div>
                 <div class="modal-body col-10 mx-auto my-auto ">
                     <form id="addressForm">
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-user form-control-feedback"></span>
-                            <label for="firstName"></label>
-                            <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入收件人的名字" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-user form-control-feedback"></span>
-                            <label for="lastName"></label>
-                            <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入收件人的姓氏" required="required">
+                        <div class="row">
+                            <div class="form-group has-feedback col-6">
+                                <span class="fa fa-user form-control-feedback"></span>
+                                <label for="lastName"></label>
+                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入收件人的姓氏" required="required">
+                            </div>
+                            <div class="form-group has-feedback col-6">
+                                <span class="fa fa-user form-control-feedback"></span>
+                                <label for="firstName"></label>
+                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入收件人的名字" required="required">
+                            </div>
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-phone form-control-feedback"></span>
                             <label for="phone"></label>
                             <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入联系电话" required="required">
                         </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-globe form-control-feedback"></span>
-                            <label for="country"></label>
-                            <input type="text" id="country" name="country" class="form-control" placeholder="请输入国家" required="required">
+						<div class="row">
+                            <div class="form-group has-feedback col-6">
+                                <span class="fa fa-globe form-control-feedback"></span>
+                                <label for="country"></label>
+                                <input type="text" id="country" name="country" class="form-control" placeholder="请输入国家" required="required">
+                            </div>
+                            <div class="form-group has-feedback col-6">
+                                <span class="fa fa-map-marker form-control-feedback"></span>
+                                <label for="province"></label>
+                                <input type="text" id="province" name="province" class="form-control" placeholder="请输入省或州" required="required">
+                            </div>
                         </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="province"></label>
-                            <input type="text" id="province" name="province" class="form-control" placeholder="请输入省或州" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="city"></label>
-                            <input type="text" id="city" name="city" class="form-control" placeholder="请输入城市" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-map-marker form-control-feedback"></span>
-                            <label for="district"></label>
-                            <input type="text" id="district" name="district" class="form-control" placeholder="请输入区或县" required="required">
-                        </div>
+						<div class="row">
+							<div class="form-group has-feedback col-6">
+                                <span class="fa fa-map-marker form-control-feedback"></span>
+                                <label for="city"></label>
+                                <input type="text" id="city" name="city" class="form-control" placeholder="请输入城市" required="required">
+                            </div>
+							<div class="form-group has-feedback col-6">
+								<span class="fa fa-map-marker form-control-feedback"></span>
+								<label for="district"></label>
+								<input type="text" id="district" name="district" class="form-control" placeholder="请输入区或县" required="required">
+							</div>
+						</div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-map-marker form-control-feedback"></span>
                             <label for="addressDetail"></label>

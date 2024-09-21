@@ -215,13 +215,13 @@ ul{
 	overflow: hidden;
 }
 
-.cartd4 input{
-	width: 30px;
+.num-row input{
+	width: 60px;
 	border: 1px solid #e3e3e3;
 	margin-left: -5px;
 }
 
-.cartli4 button{
+.num-row button{
 	width: 25px;
 	border: 1px solid #e3e3e3;
 }

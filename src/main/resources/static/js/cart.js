@@ -1,19 +1,14 @@
-let cartArr = {};	//key是cart的id,值是商品具体记录
-let currentPageNum = 1;
-let num = 0;
+let cartArr = {};
+let currentPageNum_cart = 1;
+let num_cart = 0;
+
 $(document).ready(function(){
-	
-	let is = isLogin();
-	console.log(is);
-	if(is){
-		getCartNum();
-		queryCart(1, 10);
-		bindPreNextPage();
-	}
-	document.getElementById('checkout-btn').addEventListener('click', function() {
-		checkOut();
-	});
+	isLogin();
+	getCartNum();
+	queryCart(1, 10);
+	bindPreNextPage();
 })
+
 function getCartNum(){
 	$.ajax({
 		type:"GET",
@@ -22,82 +17,31 @@ function getCartNum(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				num = res.data;
+				num_cart = res.data;
 			}
 		}
 	})
 }
 
-function queryCart(pn, pz){
-	const data = {
-		pageNum:pn,
-		pageSize:pz
-	};
-	$.ajax({
-		type:"GET",
-		url:"/cart/getList",
-		data:data,
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				console.log(res.data);
-				let s = "";
-				cartArr = {};
-				for(let record of res.data){
-					record.ischecked = false;
-					cartArr[record.id] = record;
-					
-					s+=
-					`<div class="cartd4" id="cartgood`+ record.id +`">
-					<ul class="cartul2">
-						<li class="cartli1">
-							<div class="cartd3">
-								<input type="checkbox" onclick='checkOneGood(`+ record.id +`)' class="ipt">
-							</div>
-						</li>
-						<li class="cartli2">
-							<div class="fl">
-								<img src="` + record.img + `" alt="商品图片">
-							</div>
-							<div class="fl cartd5">`+ record.prodName +`</div>
-							<div class="cls"></div>
-						</li>
-						<li class="cartli3">￥`+ record.price +`</li>
-						<li class="cartli4">
-							<button onclick="sub(`+ record.id +`)">-</button>
-							<input type="text" value="`+ record.num +`" id="iid`+ record.id +`">
-							<button class="ml" onclick="add(`+ record.id +`)">+</button>
-						</li>
-						<li class="cartli5">￥<span id="gsum`+ record.id +`">`+ (record.price * record.num) +`</span></li>
-						<li class="cartli6">
-							<a href="javascript:deleteCartGood(`+ record.id +`);">删除</a>
-						</li>
-					</ul>
-					</div>
-					`
-				}
-				$(".cartd4").remove();
-				$("#cartgoodlist").append(s);
-				currentPageNum = pn;
-				if(currentPageNum == 1){
-					$("#prePage").prop("disabled", true);
-				}else{
-					$("#prePage").prop("disabled", false);
-				}
-				if(num-currentPageNum*pz < 0){
-					$("#nextPage").prop("disabled", true);
-				}else{
-					$("#nextPage").prop("disabled", false);
-				}
-				totalMoney();
-				console.log(cartArr);
+function checkIfAllSelected() {
+	for(let key in cartArr){
+		if(cartArr.hasOwnProperty(key)){
+			let good = cartArr[key];
+			if(!good.ischecked){
+				return false;
 			}
 		}
-	})
+	}
+	return true;
 }
 
 function checkOneGood(id){
 	cartArr[id].ischecked = !cartArr[id].ischecked;
+	if (checkIfAllSelected()){
+		$("#sela").prop("checked", true);
+	}else{
+		$("#sela").prop("checked", false);
+	}
 	totalMoney();
 }
 
@@ -127,10 +71,8 @@ function checkAll(){
 	}
 	totalMoney();
 }
-
 function sub(id){
-	let snum = $("#iid" + id).val();
-	let num = parseInt(snum);
+	let num = parseInt($("#num_text" + id).val());
 	if(num == 1){
 		openModal('警告','不能更小了');
 	}else{
@@ -140,8 +82,7 @@ function sub(id){
 }
 
 function add(id){
-	let snum = $("#iid" + id).val();
-	let num = parseInt(snum) + 1;
+	let num = parseInt($("#num_text" + id).val()) + 1;
 	updateCart(id, num);
 }
 
@@ -157,9 +98,9 @@ function updateCart(id, num){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				$("#iid" + id).val(num);	//界面更新
+				$("#num_text" + id).val(num);	//界面更新
 				cartArr[id].num = num;	//更新内存中对应商品的数量
-				$("#gsum"+id).html(num * cartArr[id].price);	//更新改行的价格
+				$("#sum_price"+id).html(num * cartArr[id].price);	//更新改行的价格
 				totalMoney();
 			}else{
 				openModal('错误',"更新购物车失败:"+res.message);
@@ -180,7 +121,7 @@ function deleteCartGood(id){
 		success:function(res){
 			if(res.code == 200){
 				delete cartArr[id];	//删除内存中对应的商品
-				$("#cartgood" + id).remove();	//删除某个元素
+				$("#cart" + id).remove();	//删除某个元素
 				totalMoney();
 			}else{
 				openModal('错误',"删除购物车失败:"+res.message);
@@ -189,25 +130,115 @@ function deleteCartGood(id){
 	})
 }
 
+
+function queryCart(pn, pz){
+	const data = {
+		pageNum:pn,
+		pageSize:pz
+	};
+	$.ajax({
+		type:"GET",
+		url:"/cart/getList",
+		data:data,
+		dataType:"json",
+		success:function(res){
+			if(res.code == 200){
+				// 清空 tbody 中原有的内容
+				$('#cartTable tbody').empty();
+				if (res.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#cartTable tbody').append(row);
+				}
+				cartArr = {};
+				for(let record of res.data){
+					cartArr[record.id] = record;
+					cartArr[record.id].ischecked = false;
+				}
+                res.data.forEach((cart,index) => {
+                    const row =
+                        `
+                        <tr id="cart`+ cart.id +`" class="address-row text-center">
+                            <th scope="row">
+                            	<input type="checkbox" onclick='checkOneGood(`+ cart.id +`)' class="ipt">
+                            </th>
+                            <td id="name`+ cart.id +`">
+                            	<div class="row mt-2" style="display: flex; justify-content: center;">
+									<!-- 图片列 -->
+									<div class="col-md-2">
+										<img src="` + cart.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
+									</div>
+									<!-- 文字信息列 -->
+  									<div class="col-md-4">
+										<div class="fl">`+ cart.prodName +`</div>
+									</div>
+                            </td>
+                            <td id="price`+ cart.id +`" class="price-tag" style="color: #ff0000;">${cart.price}</td>
+                            <td id="num`+ cart.id +`">
+                            	<div class="row num-row" style="display: flex; justify-content: center;">
+										<button class="text-center custom-button" onclick="sub(`+ cart.id +`)">-</button>
+										<input type="text" class="text-center" value="`+ cart.num +`" id="num_text`+ cart.id +`">
+										<button class="text-center custom-button" class="ml" onclick="add(`+ cart.id +`)">+</button>
+								</div>
+                            </td>
+                            <td id="sum_price`+ cart.id +`" class="cartli5">${(cart.price * cart.num)}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteCartGood(${cart.id})">删除</button>
+                            </td>
+                        </tr>
+                        `;
+                    $('#cartTable tbody').append(row);
+                });
+				currentPageNum_cart = pn;
+				if(currentPageNum_cart == 1){
+					$("#prePage").prop("disabled", true);
+				}else{
+					$("#prePage").prop("disabled", false);
+				}
+				if(num_cart-currentPageNum_cart*pz < 0){
+					$("#nextPage").prop("disabled", true);
+				}else{
+					$("#nextPage").prop("disabled", false);
+				}
+				totalMoney();
+			}
+		}
+	})
+}
+
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
-		if(currentPageNum <= 1){
-			// alert("已经是第一页");
+		if(currentPageNum_cart <= 1){
 			openModal('警告','已经是第一页');
 			return;
 		}
-		let pageNum = currentPageNum -1;
+		let pageNum = currentPageNum_cart -1;
 		queryCart(pageNum, 10);
 	})
 	
 	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum +1;
+		let pageNum = currentPageNum_cart +1;
 		queryCart(pageNum, 10);
 	})
 }
 
 function checkOut(){
 	const cartArray = Object.values(cartArr);
+	let flag = false;
+	for(let cart of cartArray){
+		if(cart.ischecked){
+			flag = true;
+			break;
+		}
+	}
+	if(!flag){
+		openModal('警告','购物车为空，请选择商品');
+		return;
+	}
 	$.ajax({
         type: 'POST',
         url: "/order/checkout",
@@ -216,7 +247,7 @@ function checkOut(){
         dataType: 'json',
         success: function(res) {
             if (res.code == 200){
-				window.location.href = "../checkout.html";
+				window.location.href = "./checkout.html";
 			}else{
 				openModal('错误',"下单失败:"+res.message);
 			}

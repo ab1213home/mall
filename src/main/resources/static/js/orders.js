@@ -34,7 +34,7 @@ function queryOrders(pn, pz) {
                         <tr id="order`+ order.id +`" class="order-row text-center">
                             <th scope="row">${(pn - 1) * 10 + index + 1}</th>
                             <td id="address`+ order.id +`">
-                            	<p>${order.address.firstName + " " + order.address.lastName + "," +order.address.phone}</p>
+                            	<p>${order.address.lastName + " " + order.address.firstName + "," +order.address.phone}</p>
                             	<p>${order.address.country+" "+order.address.province+" "+order.address.city+" "+order.address.district}</p>
                             	<p>${order.address.addressDetail}</p>
                             	<p>${order.address.postalCode}</p>
@@ -47,7 +47,7 @@ function queryOrders(pn, pz) {
 							const orderList = order.orderList;
 							for(let order of orderList){
 								row=row+`
-										<div class="row mt-2 d-flex justify-content-center">
+										<div class="row mt-2" style="display: flex; justify-content: center;">
 											<!-- 图片列 -->
 											<div class="col-md-2">
 												<img src="` + order.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
@@ -103,48 +103,10 @@ function getOrdersNum() {
 }
 
 $(document).ready(function() {
-    // const orderTableBody = $('#orderTable tbody');
     isAdminUser();
 	queryMyUserInfo();
 	getOrdersNum();
 	queryOrders(currentPageNum_order, 5);
-    // function fetchOrders() {
-    //     $.ajax({
-    //         url: '/order/getList',
-    //         type: 'GET',
-    //         dataType: 'json',
-    //         success: function(data) {
-    //             if (data.code === 200) {
-    //                 const orders = data.data;
-	// 				console.log(orders);
-    //                 displayOrders(orders);
-    //             } else {
-    //                 alert(data.message);
-    //             }
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error('Error:', error);
-    //             alert('无法获取订单信息，请检查网络或稍后重试');
-    //         }
-    //     });
-    // }
-
-    // function displayOrders(orders) {
-    //     orderTableBody.empty();
-    //     orders.forEach(order => {
-    //         const row = $('<tr>');
-    //         row.append($('<td>').text(order.id));
-    //         row.append($('<td>').text(`${order.address.firstName} ${order.address.lastName}, ${order.address.phone}, ${order.address.country}`));
-    //         row.append($('<td>').text(new Date(order.date).toLocaleString()));
-    //         row.append($('<td>').text(order.totalAmount));
-    //         row.append($('<td>').text(order.status));
-    //         row.append($('<td>').text(order.paymentMethod));
-    //         row.append($('<td>').text(order.orderList.map(item => `${item.prodName}: ${item.num} (${item.price})`).join(', ')));
-    //         orderTableBody.append(row);
-    //     });
-    // }
-	//
-    // fetchOrders();
 	bindPreNextPage();
 });
 

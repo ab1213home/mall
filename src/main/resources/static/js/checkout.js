@@ -1,9 +1,10 @@
-let cartArr = {};	//key是cart的id,值是商品具体记录
-let currentPageNum_product = 1;
-let num_product = 0;
+let cartArr = {};
+let currentPageNum_cart = 1;
+let num_cart = 0;
+
 $(document).ready(function(){
     isLogin();
-	getCartNum();
+	getTemporaryNum();
 	queryCart(1, 10);
 	bindPreNextPage_product();
 	queryAddress(1,10);
@@ -12,7 +13,7 @@ $(document).ready(function(){
 		checkOut();
 	});
 })
-function getCartNum(){
+function getTemporaryNum(){
 	$.ajax({
 		type:"GET",
 		url:"/order/getTemporaryNum",
@@ -20,7 +21,7 @@ function getCartNum(){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				num_product = res.data;
+				num_cart = res.data;
 			}else{
 				window.location.href = "./cart.html";
 			}
@@ -129,66 +130,77 @@ function bindPreNextPage_address(){
 	})
 }
 function queryCart(pn, pz){
-	console.log("查询第" + pn + "页");
-	let i= 1;
+	const data = {
+		pageNum:pn,
+		pageSize:pz
+	};
 	$.ajax({
 		type:"GET",
 		url:"/order/getTemporaryList",
-		data:{
-			pageNum:pn,
-			pageSize:pz
-		},
+		data:data,
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				console.log(res.data);
-				let s = "";
+				// 清空 tbody 中原有的内容
+				$('#cartTable tbody').empty();
+				if (res.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#cartTable tbody').append(row);
+				}
 				cartArr = {};
 				for(let record of res.data){
-					record.ischecked = false;
 					cartArr[record.id] = record;
-					let id=(pn - 1) * 10 + i;
-					i++;
-					s+=
-					`<div class="cartd4" id="cartgood`+ record.id +`">
-					<ul class="cartul2">
-						<li class="cartli1">`+ id +`</li>
-						<li class="cartli2">
-							<div class="fl">
-								<img src="` + record.img + `" alt="商品图片">
-							</div>
-							<div class="fl cartd5">`+ record.prodName +`</div>
-							<div class="cls"></div>
-						</li>
-						<li class="cartli3">￥`+ record.price +`</li>
-						<li class="cartli4">
-							<button onclick="sub(`+ record.id +`)">-</button>
-							<input type="text" value="`+ record.num +`" id="iid`+ record.id +`">
-							<button class="ml" onclick="add(`+ record.id +`)">+</button>
-						</li>
-						<li class="cartli5">￥<span id="gsum`+ record.id +`">`+ (record.price * record.num) +`</span></li>
-						<li class="cartli6">
-							<a href="javascript:deleteCartGood(`+ record.id +`);">删除</a>
-						</li>
-					</ul>
-					</div>
-					`
+					cartArr[record.id].ischecked = false;
 				}
-				$(".cartd4").remove();
-				$("#cartgoodlist").append(s);
-				currentPageNum_product = pn;
-				if(currentPageNum_product == 1){
+                res.data.forEach((cart,index) => {
+                    const row =
+                        `
+                        <tr id="cart`+ cart.id +`" class="address-row text-center">
+                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
+                            <td id="name`+ cart.id +`">
+                            	<div class="row mt-2" style="display: flex; justify-content: center;">
+									<!-- 图片列 -->
+									<div class="col-md-2">
+										<img src="` + cart.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
+									</div>
+									<!-- 文字信息列 -->
+  									<div class="col-md-4">
+										<div class="fl">`+ cart.prodName +`</div>
+									</div>
+                            </td>
+                            <td id="price`+ cart.id +`" class="price-tag" style="color: #ff0000;">${cart.price}</td>
+                            <td id="num`+ cart.id +`">
+                            	<div class="row num-row" style="display: flex; justify-content: center;">
+										<button class="text-center custom-button" onclick="sub_checkout(`+ cart.id +`)">-</button>
+										<input type="text" class="text-center" value="`+ cart.num +`" id="num_text`+ cart.id +`">
+										<button class="text-center custom-button" class="ml" onclick="add_checkout(`+ cart.id +`)">+</button>
+								</div>
+                            </td>
+                            <td id="sum_price`+ cart.id +`" class="cartli5">${(cart.price * cart.num)}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteCartGood_checkout(${cart.id})">删除</button>
+                            </td>
+                        </tr>
+                        `;
+                    $('#cartTable tbody').append(row);
+                });
+				currentPageNum_cart = pn;
+				if(currentPageNum_cart == 1){
 					$("#prePage").prop("disabled", true);
 				}else{
 					$("#prePage").prop("disabled", false);
 				}
-				if(num_product-currentPageNum_product*pz < 0){
+				if(num_cart-currentPageNum_cart*pz < 0){
 					$("#nextPage").prop("disabled", true);
 				}else{
 					$("#nextPage").prop("disabled", false);
 				}
 				totalMoney();
-				console.log(cartArr);
 			}
 		}
 	})
@@ -202,52 +214,49 @@ function totalMoney(){
 			total += good.price * good.num;
 		}
 	}
-	$("#totalNum").html(num_product);
+	$("#totalNum").html(num_cart);
 	$("#totalPrice").html(total);
 }
-function sub(id){
-	let snum = $("#iid" + id).val();
-	let num = parseInt(snum);
-	if(num ==1){
+function sub_checkout(id){
+	let num = parseInt($("#num_text" + id).val());
+	if(num == 1){
 		openModal('警告','不能更小了');
 	}else{
 		num = num -1;
-		updateCart(id,num);
+		updateCart_checkout(id,num);
 	}
 }
 
-function add(id){
-	let snum = $("#iid" + id).val();
-	let num = parseInt(snum) + 1;
-	updateCart(id, num);
+function add_checkout(id){
+	let num = parseInt($("#num_text" + id).val()) + 1;
+	updateCart_checkout(id, num);
 }
 
-function updateCart(_id, _num){
-	$("#iid" + _id).val(_num);	//界面更新
-	cartArr[_id].num = _num;	//更新内存中对应商品的数量
-	$("#gsum"+_id).html(_num * cartArr[_id].price);	//更新改行的价格
+function updateCart_checkout(id, num){
+	$("#num_text" + id).val(num);	//界面更新
+	cartArr[id].num = num;	//更新内存中对应商品的数量
+	$("#sum_price"+id).html(num * cartArr[id].price);	//更新改行的价格
 	totalMoney();
 }
 
-function deleteCartGood(id){
-	let dataArr = [id];
+function deleteCartGood_checkout(id){
 	delete cartArr[id];	//删除内存中对应的商品
-	$("#cartgood" + id).remove();	//删除某个元素
+	$("#cart" + id).remove();	//删除某个元素
 	totalMoney();
 }
 
 function bindPreNextPage_product(){
 	$("#prePage").on("click", function(){
-		if(currentPageNum_product <= 1){
+		if(currentPageNum_cart <= 1){
 			openModal('警告','已经是第一页');
 			return;
 		}
-		let pageNum = currentPageNum_product -1;
+		let pageNum = currentPageNum_cart -1;
 		queryCart(pageNum, 10);
 	})
 
 	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum_product +1;
+		let pageNum = currentPageNum_cart +1;
 		queryCart(pageNum, 10);
 	})
 }
@@ -264,6 +273,24 @@ function checkOut(){
 				break;
 			}
 		}
+	}
+	if(cartArr.length == 0){
+		openModal('错误','商品为空');
+		return;
+	}
+	let flag = false;
+	for(let key in cartArr){
+		if(cartArr.hasOwnProperty(key)){
+			let cart = cartArr[key];
+			if(cart.ischecked){
+				flag=true;
+				break;
+			}
+		}
+	}
+	if(!flag){
+		openModal('错误','请先选择商品');
+		return;
 	}
 	if(addressId == 0){
 		openModal('错误','请先选择地址');
@@ -283,14 +310,14 @@ function checkOut(){
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             if (response.code == '200') {
-                console.log('订单提交成功，订单ID:', response.data);
+				openModal('提示','订单提交成功，订单ID:'+response.data);
 				window.location.href = "./orders.html";
             } else {
-                console.error('订单提交失败：', response.message);
+                openModal('警告','订单提交失败：'+ response.message);
             }
         },
         error: function (xhr, status, error) {
-            console.error('请求失败：', error);
+            openModal('错误','请求失败：', error);
         }
     });
 }

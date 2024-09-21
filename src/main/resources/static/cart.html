@@ -12,6 +12,20 @@
 		<script src="js/modal.js"></script>
 		<script src="js/index_login.js"></script>
 		<script src="js/cart.js"></script>
+		<style>
+			.price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        	}
+			.custom-button {
+				text-align: center;
+			}
+			.custom-button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 10px 10px;
+			}
+		</style>
 		<title>购物车</title>
 	</head>
 	<body class="index">
@@ -59,22 +73,21 @@
 			<div class="cartd1">
 				我的购物车商品
 			</div>
-			<div class="cartd2">
-				<ul class="cartul1">
-					<li class="cartli1">
-						<div class="cartd3">
-							<input type="checkbox" onclick="checkAll()" id="sela">&nbsp;&nbsp;全选
-						</div>
-					</li>
-					<li class="cartli2">商品</li>
-					<li class="cartli3">单价</li>
-					<li class="cartli4">数量</li>
-					<li class="cartli5">小计</li>
-					<li class="cartli6">操作</li>
-				</ul>
-			</div>
-			<div id="cartgoodlist">
-			</div>
+			<table class="table table-hover" id="cartTable">
+				<thead>
+				<tr class="table-warning">
+					<th scope="col" class="text-center">
+						<input type="checkbox" onclick="checkAll()" id="sela">全选</input>
+					</th>
+					<th scope="col" class="text-center">商品</th>
+					<th scope="col" class="text-center">单价</th>
+					<th scope="col" class="text-center">数量</th>
+					<th scope="col" class="text-center">小计</th>
+					<th scope="col" class="text-center">操作</th>
+				</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
 			<div class="cartd6">
 				<button id="prePage" disabled>上一页</button>
 				<button id="nextPage">下一页</button>
@@ -85,7 +98,7 @@
 						<li>已选择<span id="totalNum">0</span>件商品</li>
 						<li>总价: ￥<span id="totalPrice">0</span></li>
 						<li>
-							<button class="btt" id="checkout-btn">去结算</button>
+							<button class="btt" id="checkout-btn" onclick="checkOut()">去结算</button>
 						</li>
 					</ul>
 				</div>
