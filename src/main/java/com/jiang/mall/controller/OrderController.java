@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jiang.mall.util.CheckUser.checkAdminUser;
 import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
@@ -277,5 +279,40 @@ public class OrderController {
 	        return ResponseResult.failResult("您未登录，请先登录");
 	    }
 		return ResponseResult.okResult(orderService.getOrderNum(userId));
+	}
+
+	@GetMapping("/getAllList")
+	public ResponseResult getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	                                      @RequestParam(defaultValue = "5") Integer pageSize,
+	                                      HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+	    ResponseResult result = checkAdminUser(session);
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    // 调用服务方法，根据用户ID获取订单列表
+	    List<OrderAllVo> orderList = orderService.getOrderList(pageNum, pageSize);
+	    if (orderList == null) {
+	        // 如果获取订单列表失败
+	        return ResponseResult.failResult("获取失败");
+	    }
+	    if (orderList.isEmpty()) {
+	        // 如果订单列表为空
+	        return ResponseResult.failResult("暂无订单");
+	    }
+	    // 获取订单列表成功
+	    return ResponseResult.okResult(orderList);
+	}
+
+	@GetMapping("/getAllNum")
+	public ResponseResult getAllOrderNum(HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+	    ResponseResult result = checkAdminUser(session);
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+		return ResponseResult.okResult(orderService.getAllOrderNum());
 	}
 }

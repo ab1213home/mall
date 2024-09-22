@@ -5,7 +5,7 @@ let num_order = 0;
 function queryOrders(pn, pz) {
 	$.ajax({
         type: "GET",
-        url: "/order/getList",
+        url: "/order/getAllList",
         data: {
             pageNum: pn,
             pageSize: pz
@@ -32,7 +32,12 @@ function queryOrders(pn, pz) {
                     var row =
                         `
                         <tr id="order`+ order.id +`" class="order-row text-center">
-                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
+                            <th scope="row">${order.id}</th>
+                            <th id="user`+ order.id +`">
+                                <p>用户id：${order.user.id}</p>
+                                <p>用户名：${order.user.username}</p>
+                                <p>邮箱：${order.user.email}</p>
+                            </th>
                             <td id="address`+ order.id +`">
                             	<p>收件人信息：${order.address.lastName + " " + order.address.firstName + "," +order.address.phone}</p>
                             	<p>地址：${order.address.country+" "+order.address.province+" "+order.address.city+" "+order.address.district}</p>
@@ -91,7 +96,7 @@ function queryOrders(pn, pz) {
 function getOrdersNum() {
 	$.ajax({
 		type:"GET",
-		url:"/order/getNum",
+		url:"/order/getAllNum",
 		data:{},
 		dataType:"json",
 		success:function(response){
