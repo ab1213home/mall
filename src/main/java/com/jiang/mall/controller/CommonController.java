@@ -28,8 +28,9 @@ import java.util.Date;
 public class CommonController {
 
     // 文件上传的默认路径
-    public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
-
+//    public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
+    //docker需要修改为"/home/upload/"，正常使用可以自定义，但需要有对应权限
+    public static String FILE_UPLOAD_PATH = "/home/upload/";
     /**
      * 生成验证码并作为响应返回
      * 该方法通过HttpServletRequest和HttpServletResponse对象进行操作，生成并返回一个验证码图像
@@ -67,7 +68,7 @@ public class CommonController {
      * @return 返回文件上传结果，包含上传后的文件访问路径
      * @throws IOException 如果文件读写过程中发生错误
      */
-    @RequestMapping("/uploadfile")
+    @RequestMapping("/uploadFile")
     @ResponseBody
     public ResponseResult upLoadFile(MultipartFile file) throws IOException {
         // 检查文件是否为空
@@ -79,7 +80,6 @@ public class CommonController {
         File dir = new File(FILE_UPLOAD_PATH);
         if (!dir.exists() && !dir.isDirectory()){
             dir.mkdir();
-            System.out.println("创建文件夹成功");
         }
 
         // 生成文件名，防止重名文件被覆盖
@@ -90,7 +90,7 @@ public class CommonController {
 
         // 构建成功响应结果，包含文件访问路径
         ResponseResult result = ResponseResult.okResult();
-        result.setData("http://localhost:8080/upload/" + newName);
+        result.setData("/files/" + newName);
         return  result;
     }
 }

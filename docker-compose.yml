@@ -1,0 +1,10 @@
+version: '3.8'
+services: 
+  plik: 
+    image: registry.cn-hangzhou.aliyuncs.com/jianrongjun/mall:latest
+    container_name: mall 
+    restart: unless-stopped
+    ports: 
+      - "8080:8080"
+    volumes: 
+      - ./home:/home

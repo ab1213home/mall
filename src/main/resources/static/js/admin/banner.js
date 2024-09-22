@@ -238,7 +238,7 @@ function uploadFile() {
     const formData = new FormData();
     formData.append('file', file);
     $.ajax({
-        url: '/common/uploadfile',
+        url: '/common/uploadFile',
         type: 'post',
         data:formData,
         contentType: false,

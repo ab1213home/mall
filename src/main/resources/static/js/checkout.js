@@ -278,20 +278,6 @@ function checkOut(){
 		openModal('错误','商品为空');
 		return;
 	}
-	let flag = false;
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			let cart = cartArr[key];
-			if(cart.ischecked){
-				flag=true;
-				break;
-			}
-		}
-	}
-	if(!flag){
-		openModal('错误','请先选择商品');
-		return;
-	}
 	if(addressId == 0){
 		openModal('错误','请先选择地址');
 		return;
