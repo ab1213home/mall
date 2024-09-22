@@ -68,7 +68,7 @@ function queryOrders(pn, pz) {
                             row=row+`</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" onclick="">取消订单</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="">删除</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="">订单进度</button>
                             </td>
                         </tr>
                         `;
