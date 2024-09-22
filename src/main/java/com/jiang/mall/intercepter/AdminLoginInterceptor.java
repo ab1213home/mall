@@ -17,7 +17,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
                     if ("true" == request.getSession().getAttribute("UserIsAdmin")){
                         return true;
                     }else {
-                        response.sendRedirect(request.getContextPath() + "/user/index_old.html");
+                        response.sendRedirect(request.getContextPath() + "/user/index.html");
                         return false;
                     }
                 }else {

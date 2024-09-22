@@ -315,4 +315,16 @@ public class OrderController {
 	    }
 		return ResponseResult.okResult(orderService.getAllOrderNum());
 	}
+
+	@GetMapping("/getAmount")
+	public ResponseResult getAmount(HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+	    ResponseResult result = checkAdminUser(session);
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+		double amount = Double.parseDouble(orderService.getAmount());
+		return ResponseResult.okResult(amount);
+	}
 }

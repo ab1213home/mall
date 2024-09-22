@@ -30,6 +30,12 @@
         text-align: center;
         margin-top: 10px;
         }
+        .price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        }
+        .num-tag::before {
+				content: "x";
+        }
   </style>
 </head> <!--end::Head--> <!--begin::Body-->
 
@@ -129,6 +135,9 @@
                             </a> </li>
                         <li class="nav-item admin" style="display: none;"> <a href="./order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>订单管理</p>
+                            </a> </li>
+                        <li class="nav-item admin" style="display: none;"> <a href="./banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
+                                <p>轮播图管理</p>
                             </a> </li>
                         <li class="nav-header text-center admin">Bug与反馈</li>
                         <li class="nav-item"> <a href="https://gitee.com/jiangrongjun/mall" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
@@ -263,8 +272,8 @@
                                 <label for="img" class="form-label"></label>
                                 <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()" placeholder="请上传商品图片">
                             </div>
-                            <div id="img" class="input-group row"  style="text-align: center; height: 100vh;">
-                                <img src="/images/no-image.png" id="imgPreview" alt="商品预览" class="img-thumbnail">
+                            <div id="img" class="input-group row"  style="text-align: center; height: 30vh;">
+                                <img src="/images/no-image.png" id="imgPreview" alt="商品预览" class="img-thumbnail" style="height: 30vh;">
                             </div>
                         </div>
                     </form>

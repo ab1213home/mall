@@ -27,4 +27,6 @@ public interface IOrderService extends IService<Order> {
 	List<OrderAllVo> getOrderList(Integer pageNum, Integer pageSize);
 
 	Integer getAllOrderNum();
+
+	String getAmount();
 }

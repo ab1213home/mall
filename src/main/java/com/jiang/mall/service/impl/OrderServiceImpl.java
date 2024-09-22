@@ -12,10 +12,10 @@ import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 
 import static com.jiang.mall.domain.entity.Propertie.paymentMethod;
 import static com.jiang.mall.domain.entity.Propertie.status;
@@ -214,5 +214,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 	    // 返回查询到的订单数量
 	    return orderList.size();
+	}
+
+	@Override
+	public String getAmount() {
+		// 获取当前月份的第一天和最后一天
+        LocalDate now = LocalDate.now();
+        LocalDate firstDayOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate lastDayOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
+
+        // 使用Lambda表达式构建查询条件
+        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
+        queryWrapper.between("date", Timestamp.valueOf(firstDayOfMonth.atStartOfDay()), Timestamp.valueOf(lastDayOfMonth.atTime(23, 59, 59)));
+        queryWrapper.select("SUM(total_amount) as total_amount");
+
+        // 执行查询
+        List<Map<String, Object>> resultList = orderMapper.selectMaps(queryWrapper);
+
+        // 返回结果
+        if (!resultList.isEmpty()) {
+            return resultList.get(0).get("total_amount").toString();
+        }
+        return "0.00";
 	}
 }
