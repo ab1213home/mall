@@ -43,7 +43,7 @@ function queryUser(pn, pz) {
                             <td id="isActive`+ user.id +`">${user.active?"正常":"锁定"}</td>
                             <td id="roleId`+ user.id +`">${user.roleId}</td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#productModal" data-bs-type="edit" data-bs-prod-id="${user.id}">编辑</button>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#userModal" data-bs-type="edit" data-bs-prod-id="${user.id}">编辑</button>
                                 <button id="lock`+ user.id +`" type="button" class="btn btn-sm btn-danger" onclick="lockUser(${user.id})">锁定</button>
                             </td>
                         </tr>
@@ -119,37 +119,43 @@ $(document).ready(function(){
 })
 
 function insertUser() {
+    $("#userModal").modal("hide");
     openModal("提示","请使用注册功能！");
 }
 
 function updateUser(id) {
     let email = $("#email").val();
     let phone = $("#phone").val();
-    let name = $("#name").val();
-    let birthDate = $("#birthDate").val();
-    let isAdmin = $("#isAdmin").val();
-    let isActive = $("#isActive").val();
+    let firstName = $("#firstName").val();
+    let lastName = $("#lastName").val();
+    let birthDate = $("#birthday").val();
+    let isAdmin = $("#isAdmin").prop("checked");
     let roleId = $("#roleId").val();
     const data= {
         id: id,
         email: email,
         phone: phone,
-        name: name,
+        firstName: firstName,
+        lastName: lastName,
         birthDate: birthDate,
-        isAdmin: isAdmin,
-        isActive: isActive,
-        roleId: roleId
+        admin: isAdmin,
+        roleId: roleId,
+        active: userArr[id].active
     }
+    console.log(data);
     $.ajax({
         type: "POST",
         url: "/user/update",
-        data: data,
+        contentType: 'application/json',
+        data: JSON.stringify(data),
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
                 queryUser(currentPageNum_user,10);
+                $("#userModal").modal("hide");
                 openModal("提示","修改成功");
             } else {
+                $("#userModal").modal("hide");
                 openModal("警告","修改失败："+response.message)
             }
         }
@@ -159,13 +165,17 @@ function updateUser(id) {
 
 function getUser(id) {
     let user = userArr[id];
-    $("#username").val(user.username);
+    $("#username").html(user.username);
+    var showusername = document.getElementById('show-username');
+    if (showusername) {
+        showusername.style.display = 'block';
+    }
     $("#email").val(user.email);
     $("#phone").val(user.phone);
-    $("#name").val(user.lastName+' '+user.firstName);
-    $("#birthDate").val(user.birthDate);
-    $("#isAdmin").val(user.isAdmin);
-    $("#isActive").val(user.isActive);
+    $("#firstName").val(user.firstName);
+    $("#lastName").val(user.lastName);
+    $("#birthday").val(user.birthDate);
+    $("#isAdmin").prop("checked",user.admin);
     $("#roleId").val(user.roleId);
 }
 function lockUser(id) {
@@ -187,7 +197,18 @@ function lockUser(id) {
     });
 }
 function clearModal() {
-
+    $("#username").html("");
+    var showusername = document.getElementById('show-username');
+    if (showusername) {
+        showusername.style.display = 'none';
+    }
+    $("#email").val("");
+    $("#phone").val("");
+    $("#firstName").val("");
+    $("#lastName").val("");
+    $("#birthday").val("");
+    $("#isAdmin").prop("checked",false);
+    $("#roleId").val("");
 }
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
@@ -215,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var submitBtn = document.getElementById('userSubmit');
 
         if (type === 'add') {
-            modalTitle.textContent = '添加商品信息';
+            modalTitle.textContent = '添加用户信息';
             submitBtn.textContent = '添加';
             submitBtn.addEventListener('click', function(e) {
 				e.preventDefault(); // 阻止默认行为
@@ -223,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             clearModal();
         } else if (type === 'edit') {
-            modalTitle.textContent = '编辑商品信息';
+            modalTitle.textContent = '编辑用户信息';
             submitBtn.textContent = '保存';
             var id = button.getAttribute('data-bs-prod-id');
             submitBtn.addEventListener('click', function(e) {

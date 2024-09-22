@@ -30,6 +30,16 @@
         text-align: center;
         margin-top: 10px;
         }
+         .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+        }
     </style>
 </head> <!--end::Head--> <!--begin::Body-->
 
@@ -227,53 +237,52 @@
                 </div>
                 <div class="modal-body">
                     <form>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-pencil form-control-feedback"></span>
-                            <label for="title"></label>
-                            <input type="text" id="title" name="title" class="form-control" placeholder="请输入商品名称" required="required">
+                        <div class="form-group has-feedback" id="show-username" style="display: none">
+                            <span class="fa fa-user form-control-feedback"></span>
+                            <label for="username"></label>
+                            <div id="username" class="form-control"></div>
                         </div>
                         <div class="form-group has-feedback">
-                            <span class="fa fa-barcode form-control-feedback"></span>
-                            <label for="code"></label>
-                            <input type="text" id="code" name="code" class="form-control" placeholder="请输入商品编码" required="required">
+                            <span class="fa fa-envelope form-control-feedback"></span>
+                            <label for="email"></label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required="required">
                         </div>
                         <div class="form-group has-feedback">
-                            <span class="fa fa-money form-control-feedback"></span>
-                            <label for="price"></label>
-                            <input type="number" id="price" name="price" class="form-control" placeholder="请输入商品价格" required="required" step="0.01">
+                            <span class="fa fa-phone form-control-feedback"></span>
+                            <label for="phone"></label>
+                            <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required="required">
                         </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-cubes form-control-feedback"></span>
-                            <label for="stocks"></label>
-                            <input type="number" id="stocks" name="stocks" class="form-control" placeholder="请输入商品库存" required="required">
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-comment form-control-feedback"></span>
-                            <label for="description"></label>
-                            <textarea id="description" name="description" class="form-control" placeholder="请输入商品描述" required="required"></textarea>
-                        </div>
-                        <div class="form-group has-feedback">
-                            <span class="fa fa-list form-control-feedback"></span>
-                            <label for="categoryId"></label>
-                            <select class="form-select" id="categoryId" required="required">
-                                <option value="" disabled selected>请选择商品类型</option>
-                            </select>
-                        </div>
-                        <div class="form-group has-feedback">
-                            <div class="row">
-                                <span class="fa fa-picture-o form-control-feedback"></span>
-                                <label for="img" class="form-label"></label>
-                                <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()" placeholder="请上传商品图片">
+                        <div class="row">
+                            <div class="form-group has-feedback">
+                                <span class="fa fa-user form-control-feedback"></span>
+                                <label for="firstName"></label>
+                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required">
                             </div>
-                            <div id="img" class="input-group row"  style="text-align: center; height: 100vh;">
-                                <img src="/images/no-image.png" id="imgPreview" alt="商品预览" class="img-thumbnail">
+                            <div class="form-group has-feedback">
+                                <span class="fa fa-user form-control-feedback"></span>
+                                <label for="lastName"></label>
+                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required">
                             </div>
+                        </div>
+                        <div class="form-group has-feedback">
+                            <span class="fa fa-calendar form-control-feedback"></span>
+                            <label for="birthday"></label>
+                            <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日" required="required">
+                        </div>
+                        <div class="form-group has-feedback mt-3">
+                            <label for="isAdmin">是否为管理员:</label>
+                            <input type="checkbox" id="isAdmin" name="isAdmin" value="true">
+                        </div>
+                        <div class="form-group has-feedback">
+                            <span class="fa fa-lock form-control-feedback"></span>
+                            <label for="roleId"></label>
+                            <input type="number" id="roleId" name="roleId" class="form-control" placeholder="请输入权限代码" required="required">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                    <button type="submit" class="btn btn-primary" id="productSubmit">保存</button>
+                    <button type="submit" class="btn btn-primary" id="userSubmit">保存</button>
                 </div>
             </div>
         </div>

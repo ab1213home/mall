@@ -2,9 +2,12 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.BeanCopyUtils;
 import com.jiang.mall.util.TimeUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -242,7 +245,6 @@ public class UserController {
                 session.setAttribute("UserIsAdmin", "false");
             }
             session.setAttribute("UserIsLogin","true");
-
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 2);
             return ResponseResult.okResult();
@@ -327,7 +329,7 @@ public class UserController {
         }
         User oldUser = userService.getUserInfo(userInfo.getId());
         // 检查邮箱是否已被其他用户使用
-        if (oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
+        if (!oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
             return ResponseResult.failResult("邮箱已存在");
         }
 
@@ -642,13 +644,14 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public ResponseResult updateUser(@RequestBody User userInfo,
+    public ResponseResult updateUser(@RequestBody UserVo userInfo,
                                      HttpSession session){
         ResponseResult result = userService.hasPermission(userInfo.getId(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
         }
+        System.out.println(userInfo);
         if (userInfo.getId() == result.getData()){
             return ResponseResult.failResult("不能通过管理后台修改自己的信息");
         }
@@ -659,22 +662,33 @@ public class UserController {
         if (StringUtils.hasText(userInfo.getEmail()) && !userInfo.getEmail().matches(regex_email)) {
             return ResponseResult.failResult("邮箱格式不正确");
         }
+
         // 检查邮箱是否已被其他用户使用
         User oldUser = userService.getUserInfo(userInfo.getId());
-        if (oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
+        if (!oldUser.getEmail().equals(userInfo.getEmail()) &&userService.queryByEmail(userInfo.getEmail())) {
             return ResponseResult.failResult("邮箱已存在");
         }
-        if (userInfo.getRoleId()>(Integer) session.getAttribute("UserRoleId")){
+        if (userInfo.isAdmin()){
+            if (userInfo.getRoleId()<AdminRoleId){
+                return ResponseResult.failResult("不能修改为管理员，用户权限为管理员至少为"+AdminRoleId+"!");
+            }
+        }else {
+            if (userInfo.getRoleId()>=AdminRoleId){
+                return ResponseResult.failResult("不能修改为非管理员，用户权限为管理员至少为"+AdminRoleId+"!");
+            }
+        }
+        if (userInfo.getRoleId()>(Integer) session.getAttribute("UserRole")){
             return ResponseResult.failResult("不能修改成比自己权限高");
         }
-        if (oldUser.getRoleId()>(Integer) session.getAttribute("UserRoleId")){
+        if (oldUser.getRoleId()>(Integer) session.getAttribute("UserRole")){
             return ResponseResult.failResult("不能修改比自己权限高的用户");
         }
         if (oldUser.getUsername().equals(userInfo.getUsername()) && !userService.queryByUserName(userInfo.getUsername())){
             return ResponseResult.failResult("用户名已存在");
         }
-        userInfo.setPassword(null);
-        if (userService.updateUser(userInfo)){
+        User newUer = BeanCopyUtils.copyBean(userInfo, User.class);
+        newUer.setPassword(null);
+        if (userService.updateUser(newUer)){
             return ResponseResult.okResult("修改成功");
         }else {
             return ResponseResult.serverErrorResult("修改失败");

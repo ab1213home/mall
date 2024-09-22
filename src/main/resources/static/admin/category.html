@@ -168,15 +168,9 @@
                             <table class="table table-hover" id="categorylist">
                                 <thead>
                                     <tr>
-                                        <th scope="col" class="text-center">用户ID</th>
-                                        <th scope="col" class="text-center">用户名</th>
-                                        <th scope="col" class="text-center">邮箱</th>
-                                        <th scope="col" class="text-center">手机号</th>
-                                        <th scope="col" class="text-center">名字</th>
-                                        <th scope="col" class="text-center">出生日期</th>
-                                        <th scope="col" class="text-center">是否是管理员</th>
-                                        <th scope="col" class="text-center">账号状态</th>
-                                        <th scope="col" class="text-center">权限代码</th>
+                                        <th scope="col" class="text-center">分类ID</th>
+                                        <th scope="col" class="text-center">分类编码</th>
+                                        <th scope="col" class="text-center">分类名称</th>
                                         <th scope="col" class="text-center">操作</th>
                                     </tr>
                                 </thead>
@@ -188,7 +182,7 @@
                             </div>
                             <div class="row d-flex justify-content-end">
                                 <div class="col-12 text-end">
-                                    <button class="btn btn-primary btn-block btn-flat" data-bs-toggle="modal" data-bs-target="#categoryModal" data-bs-type="add">添加用户</button>
+                                    <button class="btn btn-primary btn-block btn-flat" data-bs-toggle="modal" data-bs-target="#categoryModal" data-bs-type="add">添加商品分类</button>
                                 </div>
                             </div>
                         </div>
@@ -216,6 +210,35 @@
 				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
 				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
 				</div>
+            </div>
+        </div>
+    </div>
+    <!--添加/编辑商品分类模态框-->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="categoryModalLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group has-feedback">
+                            <span class="fa fa-pencil form-control-feedback"></span>
+                            <label for="name"></label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="请输入分类名称" required="required">
+                        </div>
+                        <div class="form-group has-feedback">
+                            <span class="fa fa-barcode form-control-feedback"></span>
+                            <label for="code"></label>
+                            <input type="text" id="code" name="code" class="form-control" placeholder="请输入分类编码" required="required">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-primary" id="categorySubmit">保存</button>
+                </div>
             </div>
         </div>
     </div>

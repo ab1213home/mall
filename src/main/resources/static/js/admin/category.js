@@ -44,14 +44,8 @@ function queryCategory(pn,pz){
                         `
                         <tr id="category`+ category.id +`" class="address-row text-center">
                             <th scope="row">${category.id}</th>
-                            <td id="product`+ category.id +`">${category.username}</td>
-                            <td id="email`+ product.id +`">${user.email}</td>
-                            <td id="phone`+ user.id +`">${user.phone}</td>
-                            <td id="name`+ user.id +`">${user.lastName+' '+user.firstName}</td>
-                            <td id="birthDate`+ user.id +`">${user.birthDate}</td>
-                            <td id="isAdmin`+ user.id +`">${user.admin?"是":"否"}</td>
-                            <td id="isActive`+ user.id +`">${user.active?"正常":"锁定"}</td>
-                            <td id="roleId`+ user.id +`">${user.roleId}</td>
+                            <td id="code`+ category.id +`">${category.code}</td>
+                            <td id="name`+ category.id +`">${category.name}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" data-bs-type="edit" data-bs-prod-id="${category.id}">编辑</button>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">删除</button>
@@ -134,16 +128,76 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function clearModal() {
+    $('#code').val('');
+    $('#name').val('');
 }
 
 function getCategory(id) {
+    let category = categoryArr[id];
+    $('#code').val(category.code);
+    $('#name').val(category.name);
 }
 
 function insertCategory() {
+    let code = $('#code').val();
+    let name = $('#name').val();
+    const data= {
+        code: code,
+        name: name
+    };
+    $.ajax({
+        type: "POST",
+        url: "/category/add",
+        data: data,
+        dataType: "json",
+        success: function (response) {
+            if (response.code == 200) {
+                openModal("提示","添加成功");
+                queryCategory(currentPageNum_category, 10);
+            } else {
+                openModal("警告","添加失败："+response.message)
+            }
+        }
+    })
 }
 
 function updateCategory(id) {
+    let code = $('#code').val();
+    let name = $('#name').val();
+    const data= {
+        id: id,
+        code: code,
+        name: name
+    };
+    $.ajax({
+        type: "POST",
+        url: "/category/update",
+        data: data,
+        dataType: "json",
+        success: function (response) {
+            if (response.code == 200) {
+                openModal("提示","修改成功");
+                queryCategory(currentPageNum_category, 10);
+            }else {
+                openModal("警告","修改失败："+response.message)
+            }
+        }
+    })
 }
 
 function deleteCategory(id) {
+    $.ajax({
+        type: "POST",
+        url: "/category/delete",
+        data: {id: id},
+        dataType: "json",
+        success: function (response) {
+            if (response.code == 200) {
+                openModal("提示","删除成功");
+                queryCategory(currentPageNum_category, 10);
+            }else {
+                openModal("警告","删除失败："+response.message)
+            }
+        }
+    })
 }
