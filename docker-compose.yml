@@ -1,6 +1,6 @@
 version: '3.8'
 services: 
-  plik: 
+  mall:
     image: registry.cn-hangzhou.aliyuncs.com/jianrongjun/mall:latest
     container_name: mall 
     restart: unless-stopped
