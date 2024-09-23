@@ -1,14 +1,19 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CollectionMapper;
 import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.service.ICollectionService;
+import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -45,6 +50,27 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("user_id", userId);
+		Page<Collection> page = new Page<>(pageNum, pageSize);
+		List<Collection> collectionList = collectionMapper.selectPage(page, queryWrapper).getRecords();
+		CollectionVo collectionVo = new CollectionVo();
+		for (Collection collection : collectionList){
+			CollectionVo collectionVoMin = BeanCopyUtils.copyBean(collection, CollectionVo.class);
+	        // 指定时区
+	        ZoneId zoneId = ZoneId.systemDefault();
+	        // 将LocalDateTime转换为Instant
+	        Instant instant = collection.getCreatedAt().atZone(zoneId).toInstant();
+			collectionVoMin.setCreatedAt(Date.from(instant));
+		}
 		return List.of();
+	}
+
+	@Override
+	public Integer getCollectionNum(Integer userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("user_id", userId);
+		List<Collection> collectionList = collectionMapper.selectList(queryWrapper);
+		return collectionList.size();
 	}
 }

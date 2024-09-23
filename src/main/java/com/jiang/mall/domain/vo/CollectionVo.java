@@ -2,6 +2,8 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class CollectionVo {
 	private Integer id;
@@ -20,5 +22,5 @@ public class CollectionVo {
 	/**
 	 * 创建时间
 	 */
-	private Data createdAt;
+	private Date createdAt;
 }

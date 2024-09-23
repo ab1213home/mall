@@ -30,8 +30,6 @@ public class CollectionController {
 	@Autowired
 	private ICollectionService collectionService;
 
-	@Autowired
-	private IUserService userService;
 
 	@PostMapping("/add")
 	public ResponseResult insertCollection(@RequestParam("productId") Integer productId,
@@ -56,7 +54,7 @@ public class CollectionController {
         }
 	}
 
-	@PostMapping("/delete")
+	@GetMapping("/delete")
 	public ResponseResult deleteCollection(@RequestParam("id") Integer id,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
@@ -88,7 +86,20 @@ public class CollectionController {
             return result;
         }
         Integer userId = (Integer) result.getData();
-		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize,userId)
+		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize,userId);
 		return ResponseResult.okResult(collections);
+	}
+
+	@GetMapping("/getNum")
+	public ResponseResult getCollectionNum(HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+        if (!result.isSuccess()) {
+            // 如果未登录，则直接返回
+            return result;
+        }
+        Integer userId = (Integer) result.getData();
+		Integer num = collectionService.getCollectionNum(userId);
+		return ResponseResult.okResult(num);
 	}
 }

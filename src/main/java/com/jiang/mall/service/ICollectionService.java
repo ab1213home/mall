@@ -15,4 +15,6 @@ public interface ICollectionService extends IService<Collection> {
 	boolean deleteCollection(Integer id);
 
 	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId);
+
+	Integer getCollectionNum(Integer userId);
 }
