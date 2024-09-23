@@ -76,6 +76,7 @@ function addCart(){
 			dataType:"json",
 			success:function(res){
 				if(res.code == 200){
+					getCartNum();
 					openModal('提示','添加购物车成功');
 				}else{
 					openModal('错误','添加购物车失败');

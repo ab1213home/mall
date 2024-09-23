@@ -1,5 +1,5 @@
 let category_arr = [];
-const goodsMap = {};
+let goodsMap = {};
 let banner_num = 0;
 $(document).ready(function(){
 	isLogin();
@@ -176,8 +176,8 @@ function listGoods(categoryId, categoryName){
 					</div>
 				</div>
 				<div>
-					<p class="gmoney">
-						<i>￥</i>`+ good.price +`			
+					<p class="gmoney price-tag">
+						`+ good.price +`			
 					</p>
 				</div>
 			</a>

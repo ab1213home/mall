@@ -10,11 +10,17 @@
 		<script src="./js/index_banner.js"></script>
 		<script src="./js/index_cart.js"></script>
 		<script src="./js/index_login.js"></script>
+		<script src="./js/index_search.js"></script>
 <!--		<script src="./js/index_category.js"></script>-->
 		<script src="./js/index.js"></script>
 		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 		<!-- Tell the browser to be responsive to screen width -->
 		<link rel="shortcut icon" href="/images/logo.png"/>
+		<style>
+			.price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        	}
+		</style>
 		<title>商城首页</title>
 	</head>
 	<body class="index">
@@ -43,9 +49,9 @@
 				<div class="hb2">
 					<div class="searchBody">
 						<label>
-							<input type="text" class="search_m" placeholder="搜你所想...">
+							<input type="text" class="search_m" id="keyword" placeholder="搜你所想...">
 						</label>
-						<button id="search_btn" type="button"><i class="bi bi-search search-icon"></i></button>
+						<button id="search_btn" type="button" onclick="search()"><i class="bi bi-search search-icon"></i></button>
 						<div class="search_t">
 							<ul>
 								<li><a href="#">端午节</a></li>
@@ -66,7 +72,7 @@
 			</div>
 		</div>
 		<!-- 中间轮播部分 -->
-		<div class="mid-swiper w">
+		<div class="mid-swiper w" id="mid-swiper">
 			<!-- 父相子绝 -->
 			<div id="cg_p">
 			</div>
