@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.jiang</groupId>
     <artifactId>mall</artifactId>
-    <version>v1.1_reconfiguration</version>
+    <version>v1.2_reconfiguration</version>
     <name>mall</name>
     <description>mall</description>
     <url/>
