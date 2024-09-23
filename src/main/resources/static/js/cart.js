@@ -8,7 +8,10 @@ $(document).ready(function(){
 	queryCart(1, 10);
 	bindPreNextPage();
 })
-
+function search_item(){
+	let keyword = document.getElementById("search").value;
+	window.location.href = "./index.html?keyword=" + keyword;
+}
 function getCartNum(){
 	$.ajax({
 		type:"GET",

@@ -2,6 +2,10 @@ $(document).ready(function(){
 	isLogin();
 	getCartNum();
 })
+function search_item(){
+	let keyword = document.getElementById("search").value;
+	window.location.href = "./index.html?keyword=" + keyword;
+}
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');

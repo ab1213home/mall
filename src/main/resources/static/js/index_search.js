@@ -3,9 +3,9 @@ const keyword = urlParams.get('keyword');
 const message = urlParams.get('message');
 
 function renderCategory(category_arr) {
-    let html = '';
+    let html = `<div class="row mt-3"><p>已找到`+ category_arr.length +`件符合条件的商品。</p></div>`;
     if(category_arr.length == 0){
-        document.getElementById('goodList').innerHTML = '<div class="col-md-12"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>';
+        document.getElementById('goodList').innerHTML = '<div class="col-md-12 mt-4"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>';
     }else{
         html+=
         `<div>

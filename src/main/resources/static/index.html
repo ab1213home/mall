@@ -11,6 +11,7 @@
 		<script src="./js/index_cart.js"></script>
 		<script src="./js/index_login.js"></script>
 		<script src="./js/index_search.js"></script>
+		<script src="./js/modal.js"></script>
 <!--		<script src="./js/index_category.js"></script>-->
 		<script src="./js/index.js"></script>
 		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
@@ -120,6 +121,23 @@
 				</div>
 			</div>
 		</div>
-		
+		<!-- 固定提示框 -->
+	    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+			  </div>
+			</div>
+		</div>
 	</body>
 </html>

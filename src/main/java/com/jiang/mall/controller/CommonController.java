@@ -28,9 +28,9 @@ import java.util.Date;
 public class CommonController {
 
     // 文件上传的默认路径
-//    public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
+    public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
     //docker需要修改为"/home/upload/"，正常使用可以自定义，但需要有对应权限
-    public static String FILE_UPLOAD_PATH = "/home/upload/";
+//    public static String FILE_UPLOAD_PATH = "/home/upload/";
     /**
      * 生成验证码并作为响应返回
      * 该方法通过HttpServletRequest和HttpServletResponse对象进行操作，生成并返回一个验证码图像

@@ -3,10 +3,46 @@ let goodsMap = {};
 let banner_num = 0;
 $(document).ready(function(){
 	isLogin();
-	queryCategory();
-	queryBannerNum();
-	queryBanner();
 	getCartNum();
+    if (message!=null){
+        openModal('提示', message);
+    }
+    if (keyword!=null){
+        document.getElementById('keyword').textContent = keyword;
+        const data = {
+            name: keyword,
+        };
+        $.ajax({
+            url: "/product/getList",
+            type: "GET",
+            data: data,
+            dataType:"json",
+            success: function(res) {
+                // 跳转到搜索结果页面
+                if(res.code == 200){
+                    document.getElementById('mid-swiper').style.display = 'none';
+                    renderCategory(res.data);
+                }else if(res.code == 404) {
+                     document.getElementById('mid-swiper').style.display = 'none';
+                     document.getElementById('goodList').innerHTML = '<div class="col-md-12 mt-4"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>'
+                }
+                else{
+                    openModal('错误','搜索失败，请联系管理员！');
+                    queryCategory();
+                    queryBannerNum();
+                    queryBanner();
+                }
+            },
+            fail: function(xhr, status, error) {
+                // 显示错误信息给用户
+                openModal('错误','搜索失败，请联系管理员！'+error);
+            }
+        });
+    }else{
+        queryCategory();
+        queryBannerNum();
+        queryBanner();
+    }
 })
 
 /**
