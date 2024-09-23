@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.jiang.mall.controller.AdminController.AllowUploadFile;
+
 
 /**
  * 公共控制器
@@ -71,6 +73,9 @@ public class CommonController {
     @RequestMapping("/uploadFile")
     @ResponseBody
     public ResponseResult upLoadFile(MultipartFile file) throws IOException {
+        if (!AllowUploadFile){
+            return ResponseResult.failResult("上传文件被禁止");
+        }
         // 检查文件是否为空
         if (file.isEmpty()){
             return ResponseResult.failResult("文件不能为空");

@@ -1,31 +1,31 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.vo.AddressVo;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController;
 
 import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 管理类控制器
  * @author jiang
  * @version 1.0
- * @since 2024年9月8日
+ * @since 2024年9月20日
  */
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-	@GetMapping("/login")
-	public ResponseResult getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                     @RequestParam(defaultValue = "10") Integer pageSize,
+	public static boolean AllowRegistration = true;
+	public static boolean AllowUploadFile = true;
+	public static boolean AllowModify = true;
+
+	@GetMapping("/AllowRegistration")
+	public ResponseResult setAllowRegistration(@RequestParam(defaultValue = "true",name = "flag") boolean flag,
 	                                     HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkAdminUser(session);
@@ -33,6 +33,35 @@ public class AdminController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
-        return ResponseResult.okResult(true);
+		AllowRegistration = flag;
+        return ResponseResult.okResult(flag,"已允许用户注册");
     }
+
+	@GetMapping("/AllowUploadFile")
+	public ResponseResult setAllowUploadFile(@RequestParam(defaultValue = "true",name = "flag") boolean flag,
+	                                         HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+		AllowUploadFile = flag;
+        return ResponseResult.okResult(flag,"已允许用户上传文件");
+    }
+
+	@GetMapping("/AllowModify")
+	public ResponseResult setAllowModify(@RequestParam(defaultValue = "true",name = "flag") boolean flag,
+	                                     HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+		AllowModify = flag;
+        return ResponseResult.okResult(flag,"已允许用户修改");
+	}
+
+
 }

@@ -102,7 +102,7 @@ public class ResponseResult<T> implements Serializable {
     public static ResponseResult okResult(Object data) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
-        responseResult.setMessage(DEFAULT_SUCCESS_MESSAGE);
+        responseResult.setMessage("默认成功消息提示");
         responseResult.setData(data);
         return responseResult;
     }
@@ -184,6 +184,14 @@ public class ResponseResult<T> implements Serializable {
     public static ResponseResult serverErrorResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_NOT_IMPLEMENTED_CODE);
+        responseResult.setMessage(message);
+        return responseResult;
+    }
+
+    public static ResponseResult okResult(Object date, String message) {
+        ResponseResult responseResult = new ResponseResult();
+        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        responseResult.setData(date);
         responseResult.setMessage(message);
         return responseResult;
     }

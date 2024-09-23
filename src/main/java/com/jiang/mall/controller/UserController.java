@@ -21,6 +21,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 
+import static com.jiang.mall.controller.AdminController.AllowRegistration;
 import static com.jiang.mall.domain.entity.Propertie.*;
 import static com.jiang.mall.util.CheckUser.*;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
@@ -82,7 +83,9 @@ public class UserController {
         if (!captchaCode.toLowerCase().equals(captcha)) {
             return ResponseResult.failResult("验证码错误");
         }
-
+        if (!AllowRegistration){
+            return ResponseResult.failResult("管理员用户不允许注册");
+        }
         // 检查注册信息是否完整
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
             return ResponseResult.failResult("请输入完整的注册信息");
