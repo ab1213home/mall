@@ -4,7 +4,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.service.ICollectionService;
-import com.jiang.mall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
