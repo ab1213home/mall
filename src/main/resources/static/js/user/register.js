@@ -34,11 +34,13 @@ function submitRegisterStepOneForm() {
             }
         } else {
             openModal('错误','用户注册失败:'+data.message);
+            $('#captchaImg').attr('src', "/common/captcha");
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
       openModal('错误','注册失败，请联系管理员！'+error);
+      $('#captchaImg').attr('src', "/common/captcha");
     }
   });
 }

@@ -6,13 +6,11 @@ import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.service.ICollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
@@ -22,7 +20,7 @@ import static com.jiang.mall.util.CheckUser.checkUserLogin;
  * @version 1.0
  * @since 2024年9月20日
  */
-@Controller
+@RestController
 @RequestMapping("/collection")
 public class CollectionController {
 
@@ -54,7 +52,7 @@ public class CollectionController {
 	}
 
 	@GetMapping("/delete")
-	public ResponseResult deleteCollection(@RequestParam("id") Integer id,
+	public ResponseResult deleteCollection(@RequestParam("productId") Integer productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkUserLogin(session);
@@ -63,11 +61,35 @@ public class CollectionController {
             return result;
         }
         Integer userId = (Integer) result.getData();
-		Collection collection =collectionService.queryByIdByUserId(id, userId);
+		Collection collection =collectionService.queryByProductIdByUserId(productId, userId);
 		if (collection == null) {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
-		if (collectionService.deleteCollection(id)) {
+		if (collectionService.deleteCollection(productId, userId)) {
+			return ResponseResult.okResult("删除成功");
+		} else {
+			return ResponseResult.serverErrorResult("删除失败");
+		}
+	}
+
+	@GetMapping("/deleteById")
+	public ResponseResult deleteByIdCollection(@RequestParam("id") Integer id,
+                                           HttpSession session) {
+		Collection collection =collectionService.getById(id);
+        if (collection == null) {
+			return ResponseResult.notFoundResourceResult("该收藏不存在");
+		}
+		// 检查会话中是否设置表示用户已登录的标志
+		ResponseResult result = checkUserLogin(session);
+        if (!result.isSuccess()) {
+            // 如果未登录，则直接返回
+            return result;
+        }
+		Integer userId = (Integer) result.getData();
+		if (!Objects.equals(collection.getUserId(), userId)){
+			return ResponseResult.failResult("您没有权限删除该收藏");
+		}
+		if (collectionService.deleteById(collection.getId())) {
 			return ResponseResult.okResult("删除成功");
 		} else {
 			return ResponseResult.serverErrorResult("删除失败");
@@ -100,5 +122,18 @@ public class CollectionController {
         Integer userId = (Integer) result.getData();
 		Integer num = collectionService.getCollectionNum(userId);
 		return ResponseResult.okResult(num);
+	}
+
+	@GetMapping("/isCollected")
+	public ResponseResult isCollected(@RequestParam("productId") Integer productId,
+	                                  HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkUserLogin(session);
+        if (!result.isSuccess()) {
+            // 如果未登录，则直接返回
+            return result;
+        }
+        Integer userId = (Integer) result.getData();
+		return ResponseResult.okResult(collectionService.isCollect(productId, userId));
 	}
 }

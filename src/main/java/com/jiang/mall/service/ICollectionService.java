@@ -10,11 +10,15 @@ public interface ICollectionService extends IService<Collection> {
 
 	boolean addCollection(Integer productId, Integer userId);
 
-	Collection queryByIdByUserId(Integer id, Integer userId);
+	Collection queryByProductIdByUserId(Integer productId, Integer userId);
 
-	boolean deleteCollection(Integer id);
+	boolean deleteCollection(Integer productId, Integer userId);
 
 	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId);
 
 	Integer getCollectionNum(Integer userId);
+
+	boolean isCollect(Integer productId, Integer userId);
+
+	boolean deleteById(Integer id);
 }

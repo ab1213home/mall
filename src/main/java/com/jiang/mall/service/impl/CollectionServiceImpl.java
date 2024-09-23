@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CollectionMapper;
+import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.entity.Collection;
+import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CollectionVo;
+import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.ICollectionService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +26,9 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Autowired
 	private CollectionMapper collectionMapper;
+
+	@Autowired
+	private ProductMapper productMapper;
 
 	@Override
 	public boolean addCollection(Integer productId, Integer userId) {
@@ -36,16 +44,19 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Collection queryByIdByUserId(Integer id, Integer userId) {
+	public Collection queryByProductIdByUserId(Integer productId, Integer userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("id", id);
+		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
 		return collectionMapper.selectOne(queryWrapper);
 	}
 
 	@Override
-	public boolean deleteCollection(Integer id) {
-		return collectionMapper.deleteById(id) > 0;
+	public boolean deleteCollection(Integer productId, Integer userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("prod_id", productId);
+		queryWrapper.eq("user_id", userId);
+		return collectionMapper.delete(queryWrapper)>0;
 	}
 
 	@Override
@@ -54,16 +65,19 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		queryWrapper.eq("user_id", userId);
 		Page<Collection> page = new Page<>(pageNum, pageSize);
 		List<Collection> collectionList = collectionMapper.selectPage(page, queryWrapper).getRecords();
-		CollectionVo collectionVo = new CollectionVo();
+		List<CollectionVo> collectionVo = new ArrayList<>();
 		for (Collection collection : collectionList){
 			CollectionVo collectionVoMin = BeanCopyUtils.copyBean(collection, CollectionVo.class);
-	        // 指定时区
-	        ZoneId zoneId = ZoneId.systemDefault();
-	        // 将LocalDateTime转换为Instant
-	        Instant instant = collection.getCreatedAt().atZone(zoneId).toInstant();
-			collectionVoMin.setCreatedAt(Date.from(instant));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	        // 格式化日期时间
+	        String formattedDateTime = collection.getCreatedAt().format(formatter);
+			collectionVoMin.setDate(formattedDateTime);
+			Product product= productMapper.selectById(collection.getProdId());
+			ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+			collectionVoMin.setProduct(productVo);
+			collectionVo.add(collectionVoMin);
 		}
-		return List.of();
+		return collectionVo;
 	}
 
 	@Override
@@ -72,5 +86,18 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		queryWrapper.eq("user_id", userId);
 		List<Collection> collectionList = collectionMapper.selectList(queryWrapper);
 		return collectionList.size();
+	}
+
+	@Override
+	public boolean isCollect(Integer productId, Integer userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("prod_id", productId);
+		queryWrapper.eq("user_id", userId);
+		return collectionMapper.selectOne(queryWrapper) != null;
+	}
+
+	@Override
+	public boolean deleteById(Integer id) {
+		return collectionMapper.deleteById(id)>0;
 	}
 }

@@ -58,6 +58,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/password.html")
                 .addPathPatterns("/user/modify/address")
                 .addPathPatterns("/user/modify/address.html")
+                .addPathPatterns("/collections")
+                .addPathPatterns("/collections.html")
                 .addPathPatterns("/user/index.html");
 //        registry.addInterceptor(checkoutInterceptor)
 //                .addPathPatterns("/checkout.html");
@@ -69,10 +71,10 @@ public class MyMvcConfig implements WebMvcConfigurer {
      *
      * @param registry 资源处理器注册对象，用于注册静态资源路径
      */
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 将文件上传路径映射到/upload/**，使上传的文件可以通过该路径进行访问
-        registry.addResourceHandler("/upload/**").addResourceLocations("file:" + FILE_UPLOAD_PATH);
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        // 将文件上传路径映射到/upload/**，使上传的文件可以通过该路径进行访问
+//        registry.addResourceHandler("/upload/**").addResourceLocations("file:" + FILE_UPLOAD_PATH);
+//    }
 
 }
