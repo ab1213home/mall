@@ -1,21 +1,9 @@
 let addressArr = {};
 let currentPageNum_address = 1;
 let num_address = 0;
-const urlParams = new URLSearchParams(window.location.search);
-const message = urlParams.get('message');
-const pathname = window.location.pathname;
-const pageNum_address = urlParams.get('pageNum_address');
-const pageSize_address = urlParams.get('pageSize_address')? urlParams.get('pageSize_address') : '10';
 $(document).ready(function(){
 	getAddressNum();
-	if (pageNum_address != null&& pageSize_address != null&& (num_address - pageNum_address * pageSize_address + pageSize_address)> 0){
-		queryAddress(pageNum_address, pageSize_address);
-	}else{
-		queryAddress(1,10);
-	}
-	if (message != null) {
-        openModal('提示', message);
-    }
+	queryAddress(1,10);
 })
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -98,14 +86,14 @@ function insertAddress() {
   	$.ajax({
     	url: '/address/add',
     	type: 'POST',
-		contentType: 'application/json',
-    	data: JSON.stringify(data),
+		// contentType: 'application/json',
+    	// data: JSON.stringify(data),
+		data: data,
 		dataType:"json",
     	success: function (response) {
 			if (response.code == 200) {
-				// window.location.href = pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
-				$('#addressModal').modal('hide');
 				queryAddress(currentPageNum_address,10);
+				$('#addressModal').modal('hide');
 				openModal('提示','地址新增成功');
 			} else {
 				$('#addressModal').modal('hide');
@@ -160,15 +148,14 @@ function updateAddress(id) {
   	$.ajax({
     	url: '/address/update',
     	type: 'POST',
-		contentType: 'application/json',
-    	data: JSON.stringify(data),
+		// contentType: 'application/json',
+    	// data: JSON.stringify(data),
+		data: data,
 		dataType:"json",
     	success: function (response) {
 			if (response.code == 200) {
-				addressArr[id]=data;
-				$('#addressModal').modal('hide');
 				queryAddress(currentPageNum_address,10);
-				// window.location.href = +pathname+'?pageNum_address='+currentPageNum_address+'&pageSize_address='+pageSize_address+'&message='+response.message;
+				$('#addressModal').modal('hide');
 			} else {
 				$('#addressModal').modal('hide');
 				openModal('错误','地址修改失败');

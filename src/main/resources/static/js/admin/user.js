@@ -2,6 +2,31 @@ let userArr = {};
 let currentPageNum_user = 1;
 let num_user = 0;
 
+document.addEventListener('DOMContentLoaded', function () {
+  const birthdayInput = document.getElementById('birthday');
+  const today = new Date();
+  const maxDate = today.toISOString().split('T')[0];
+  // 设置 max 属性
+  birthdayInput.setAttribute('max', maxDate);
+
+  // 验证日期是否在未来
+  function validateBirthday() {
+    const selectedDate = new Date(birthdayInput.value);
+    if (selectedDate > today) {
+      openModal("警告",'生日不能在未来，请输入正确的日期');
+      return false;
+    }
+    return true;
+  }
+  // 在表单提交时进行验证
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function (event) {
+    if (!validateBirthday()) {
+      event.preventDefault(); // 阻止表单提交
+    }
+  });
+});
+
 function queryUser(pn, pz) {
         $.ajax({
         type: "GET",
@@ -128,7 +153,7 @@ function updateUser(id) {
     let phone = $("#phone").val();
     let firstName = $("#firstName").val();
     let lastName = $("#lastName").val();
-    let birthDate = $("#birthday").val();
+    let birthday = $("#birthday").val();
     let isAdmin = $("#isAdmin").prop("checked");
     let roleId = $("#roleId").val();
     const data= {
@@ -137,26 +162,25 @@ function updateUser(id) {
         phone: phone,
         firstName: firstName,
         lastName: lastName,
-        birthDate: birthDate,
-        admin: isAdmin,
+        birthday: birthday,
+        isAdmin: isAdmin,
         roleId: roleId,
-        active: userArr[id].active
     }
-    console.log(data);
     $.ajax({
         type: "POST",
-        url: "/user/update",
-        contentType: 'application/json',
-        data: JSON.stringify(data),
+        url: "/user/modify/info",
+        // contentType: 'application/json',
+        // data: JSON.stringify(data),
+        data: data,
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
                 queryUser(currentPageNum_user,10);
                 $("#userModal").modal("hide");
-                openModal("提示","修改成功");
+                openModal("提示","修改用户信息成功");
             } else {
                 $("#userModal").modal("hide");
-                openModal("警告","修改失败："+response.message)
+                openModal("警告","修改用户信息失败："+response.message)
             }
         }
 
@@ -166,7 +190,7 @@ function updateUser(id) {
 function getUser(id) {
     let user = userArr[id];
     $("#username").html(user.username);
-    var showusername = document.getElementById('show-username');
+    let showusername = document.getElementById('show-username');
     if (showusername) {
         showusername.style.display = 'block';
     }

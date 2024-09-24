@@ -1,9 +1,32 @@
-
 $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo()
 })
 
+document.addEventListener('DOMContentLoaded', function () {
+  const birthdayInput = document.getElementById('birthday');
+  const today = new Date();
+  const maxDate = today.toISOString().split('T')[0];
+  // 设置 max 属性
+  birthdayInput.setAttribute('max', maxDate);
+
+  // 验证日期是否在未来
+  function validateBirthday() {
+    const selectedDate = new Date(birthdayInput.value);
+    if (selectedDate > today) {
+      openModal("警告",'生日不能在未来，请输入正确的日期');
+      return false;
+    }
+    return true;
+  }
+  // 在表单提交时进行验证
+  const form = document.querySelector('form');
+  form.addEventListener('submit', function (event) {
+    if (!validateBirthday()) {
+      event.preventDefault(); // 阻止表单提交
+    }
+  });
+});
 
 // 修改用户信息处理函数
 function changeInfo() {
@@ -19,15 +42,17 @@ function changeInfo() {
     phone: phone,
     firstName: firstName,
     lastName: lastName,
-    birthDate: birthday
+    birthday: birthday
   };
 
   // 发送 AJAX 请求
   $.ajax({
     url: '/user/modify/info',
     type: 'POST',
-	contentType: 'application/json',
-    data: JSON.stringify(data),
+	// contentType: 'application/json',
+    // data: JSON.stringify(data),
+    data: data,
+    dataType:"json",
     success: function (data) {
       if (data.code === 200) {
         openModal('提示','用户信息已成功更新！');

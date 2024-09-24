@@ -46,5 +46,10 @@ public class Propertie {
      * 订单状态数组
      */
     public static String[] status = {"待付款", "待发货", "待收货", "待评价", "已完成"};
+
+    /**
+     * 收货地址最大数量
+     */
+    public static int max_address_num = 50;
 }
 

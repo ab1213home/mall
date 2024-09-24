@@ -67,5 +67,22 @@ public class AddressVo {
      * 是否默认地址
      */
     private boolean isDefault;
+
+    @Override
+    public String toString() {
+        return "AddressVo{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", country='" + country + '\'' +
+                ", province='" + province + '\'' +
+                ", city='" + city + '\'' +
+                ", district='" + district + '\'' +
+                ", addressDetail='" + addressDetail + '\'' +
+                ", postalCode='" + postalCode + '\'' +
+                ", isDefault=" + isDefault +
+                '}';
+    }
 }
 

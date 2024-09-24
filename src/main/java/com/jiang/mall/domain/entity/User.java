@@ -122,6 +122,14 @@ public class User implements Serializable {
 
     }
 
+    public User(Integer userId, String firstName, String lastName, String phone, String email) {
+        this.id = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.email = email;
+    }
+
     /**
      * 用户对象的字符串表示形式
      */

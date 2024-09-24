@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.jiang.mall.domain.entity.Propertie.max_address_num;
 import static com.jiang.mall.domain.entity.Propertie.regex_phone;
 import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
@@ -99,18 +100,16 @@ public class AddressController {
 	 * @return ResponseResult 插入地址操作的结果
 	 */
 	@PostMapping("/add")
-	public ResponseResult insertAddress(
-//			@RequestParam("firstName") String firstName,
-//	                                    @RequestParam("lastName") String lastName,
-//	                                    @RequestParam("phone") String phone,
-//										@RequestParam("country") String country,
-//	                                    @RequestParam("province") String province,
-//	                                    @RequestParam("city") String city,
-//	                                    @RequestParam("district") String district,
-//	                                    @RequestParam("addressDetail") String addressDetail,
-//										@RequestParam("postalCode") String postalCode,
-//	                                    @RequestParam("isDefault") boolean isDefault,
-										@RequestBody AddressVo addressVo,
+	public ResponseResult insertAddress(@RequestParam("firstName") String firstName,
+	                                    @RequestParam("lastName") String lastName,
+	                                    @RequestParam("phone") String phone,
+										@RequestParam("country") String country,
+	                                    @RequestParam("province") String province,
+	                                    @RequestParam("city") String city,
+	                                    @RequestParam("district") String district,
+	                                    @RequestParam("addressDetail") String addressDetail,
+										@RequestParam("postalCode") String postalCode,
+	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkUserLogin(session);
@@ -119,19 +118,21 @@ public class AddressController {
 		}
 	    Integer userId = (Integer) result.getData();
 	    // 验证手机号格式
-	    if (StringUtils.hasText(addressVo.getPhone()) && !addressVo.getPhone().matches(regex_phone)){
+	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
-
+		if ((Integer)getNum(session).getData()>max_address_num){
+			return ResponseResult.failResult("最多只能添加"+max_address_num+"个收货地址");
+		}
 	    // 创建新的地址对象
-	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
+	    Address address = new Address(userId,firstName, lastName, phone, country, province, city, district, addressDetail, postalCode);
 		address.setUserId(userId);
 	    // 尝试插入地址信息
 	    if (addressService.getBaseMapper().insert(address)>0){
 	        // 获取新插入地址的ID
 	        Integer addressId = address.getId();
 	        // 如果设置为默认地址，则更新用户的默认地址信息
-	        if (addressVo.isDefault()){
+	        if (isDefault){
 	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
 	            if (defaultAddressId!=null){
 	                if (!defaultAddressId.equals(addressId)){
@@ -178,19 +179,17 @@ public class AddressController {
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
-	public ResponseResult updateAddress(
-//			@RequestParam("id") Integer id,
-//	                                    @RequestParam("firstName") String firstName,
-//	                                    @RequestParam("lastName") String lastName,
-//	                                    @RequestParam("phone") String phone,
-//	                                    @RequestParam("country") String country,
-//	                                    @RequestParam("province") String province,
-//	                                    @RequestParam("city") String city,
-//	                                    @RequestParam("district") String district,
-//	                                    @RequestParam("addressDetail") String addressDetail,
-//	                                    @RequestParam("postalCode") String postalCode,
-//	                                    @RequestParam("isDefault") boolean isDefault,
-										@RequestBody AddressVo addressVo,
+	public ResponseResult updateAddress(@RequestParam("id") Integer id,
+	                                    @RequestParam("firstName") String firstName,
+	                                    @RequestParam("lastName") String lastName,
+	                                    @RequestParam("phone") String phone,
+	                                    @RequestParam("country") String country,
+	                                    @RequestParam("province") String province,
+	                                    @RequestParam("city") String city,
+	                                    @RequestParam("district") String district,
+	                                    @RequestParam("addressDetail") String addressDetail,
+	                                    @RequestParam("postalCode") String postalCode,
+	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
         ResponseResult result = checkUserLogin(session);
@@ -200,27 +199,27 @@ public class AddressController {
 		}
 	    Integer userId = (Integer) result.getData();
 	    // 验证电话号码格式
-	    if (StringUtils.hasText(addressVo.getPhone()) && !addressVo.getPhone().matches(regex_phone)) {
+	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
 
 		// 创建新的地址对象
-	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
-
+//	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
+		Address address = new Address(userId,firstName, lastName, phone, country, province, city, district, addressDetail, postalCode);
+		address.setId(id);
 	    // 验证用户是否有权修改该地址
-	    Address oldaddress = addressService.getById(addressVo.getId());
+	    Address oldaddress = addressService.getById(id);
 	    if (!oldaddress.getUserId().equals(userId)) {
 	        return ResponseResult.failResult("您没有权限修改此地址");
 	    }
-
 	    // 尝试更新地址
 	    if (addressService.updateAddress(address)) {
 	        // 处理设为默认地址的逻辑
-	        if (addressVo.isDefault()) {
+	        if (isDefault) {
 	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
 	            if (defaultAddressId != null) {
-	                if (!defaultAddressId.equals(oldaddress.getUserId())) {
-	                    if (userService.updateDefaultAddress(addressVo.getId(), userId)) {
+	                if (!defaultAddressId.equals(oldaddress.getId())) {
+	                    if (userService.updateDefaultAddress(id, userId)) {
 	                        return ResponseResult.okResult("修改成功");
 	                    } else {
 	                        return ResponseResult.failResult("修改默认地址失败");
@@ -229,7 +228,7 @@ public class AddressController {
 	                    return ResponseResult.okResult("修改成功");
 	                }
 	            } else {
-	                if (userService.updateDefaultAddress(addressVo.getId(), userId)) {
+	                if (userService.updateDefaultAddress(id, userId)) {
 	                    return ResponseResult.okResult("修改成功");
 	                } else {
 	                    return ResponseResult.failResult("修改默认地址失败");
