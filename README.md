@@ -17,9 +17,10 @@ yml配置文件在resources目录下
 
 #### 使用说明
 
-1.  git源码
-2.  maven项目
-3.  docker部署或者tomcat部署
+1. git源码
+2. 修改数据库配置文件
+3. maven项目
+4. docker部署或者tomcat部署
 
 #### 参与贡献
 
