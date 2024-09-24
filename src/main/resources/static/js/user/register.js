@@ -1,3 +1,28 @@
+document.addEventListener('DOMContentLoaded', function () {
+  const birthdayInput = document.getElementById('birthday');
+  const today = new Date();
+  const maxDate = today.toISOString().split('T')[0];
+  // 设置 max 属性
+  birthdayInput.setAttribute('max', maxDate);
+
+  // 验证日期是否在未来
+  function validateBirthday() {
+    const selectedDate = new Date(birthdayInput.value);
+    if (selectedDate > today) {
+      openModal("警告",'生日不能在未来，请输入正确的日期');
+      return false;
+    }
+    return true;
+  }
+  // 在表单提交时进行验证
+  const form = document.getElementById("step2");
+  form.addEventListener('submit', function (event) {
+    if (!validateBirthday()) {
+      event.preventDefault(); // 阻止表单提交
+    }
+  });
+});
+
 // 注册表单提交处理函数
 function submitRegisterStepOneForm() {
   // 获取表单数据
@@ -34,13 +59,15 @@ function submitRegisterStepOneForm() {
             }
         } else {
             openModal('错误','用户注册失败:'+data.message);
-            $('#captchaImg').attr('src', "/common/captcha");
+            let captchaImg = document.getElementById('captchaImg');
+            captchaImg.src = '/common/captcha';
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
       openModal('错误','注册失败，请联系管理员！'+error);
-      $('#captchaImg').attr('src', "/common/captcha");
+      let captchaImg = document.getElementById('captchaImg');
+      captchaImg.src = '/common/captcha';
     }
   });
 }

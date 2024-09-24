@@ -59,12 +59,12 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-envelope form-control-feedback"></span>
                                     <label for="email"></label>
-                                    <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required="required">
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required="required"  maxlength="50">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-user form-control-feedback"></span>
                                     <label for="username"></label><input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名（用户名需唯一，不可更改）"
-                                                                         required="required">
+                                                                         required="required"  maxlength="100">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
@@ -80,7 +80,7 @@
                             <div class="row">
                                 <div class="col-6">
                                     <label>
-                                        <input type="text" class="form-control" name="captcha" id="captcha" placeholder="请输入验证码" required="required">
+                                        <input type="text" class="form-control" name="captcha" id="captcha" placeholder="请输入验证码" required="required"  maxlength="20">
                                     </label>
                                 </div>
                                 <div class="col-6">
@@ -104,23 +104,23 @@
                             <div class="form-group has-feedback">
                                 <span class="fa fa-phone form-control-feedback"></span>
                                 <label for="phone"></label>
-                                <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required="required">
+                                <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required="required"  maxlength="20">
                             </div>
                             <div class="form-group has-feedback">
                                 <span class="fa fa-user form-control-feedback"></span>
                                 <label for="firstName"></label>
-                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required">
+                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required"  maxlength="20">
                             </div>
                             <div class="form-group has-feedback">
                                 <span class="fa fa-user form-control-feedback"></span>
                                 <label for="lastName"></label>
-                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required">
+                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required"  maxlength="20">
                             </div>
                             <div class="form-group has-feedback">
                                 <span class="fa fa-calendar form-control-feedback"></span>
                                 <label for="birthday"></label>
                                 <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
-                                                                     required="required">
+                                                                     required="required" max="{{ max_date }}">
                             </div>
                             <!-- 提交按钮 -->
                             <div class="row d-flex justify-content-between mt-2">
