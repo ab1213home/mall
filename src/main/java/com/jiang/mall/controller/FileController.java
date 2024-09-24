@@ -86,5 +86,4 @@ public class FileController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
     }
-
 }

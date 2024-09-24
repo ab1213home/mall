@@ -46,6 +46,14 @@ function queryMyUserInfo(){
 				birthday.forEach(element => {
 					element.textContent = res.data.birthDate;
 				});
+				const img = document.querySelectorAll('.profile-picture');
+				img.forEach(element => {
+					if (res.data.img==null){
+						element.src = '/faces/default.jpg';
+					}else {
+						element.src = res.data.img;
+					}
+				});
 				const randomIndex = Math.floor(Math.random() * signList.length);
 				if (document.getElementById('randomText')!= null){
 					document.getElementById('randomText').textContent = signList[randomIndex];
