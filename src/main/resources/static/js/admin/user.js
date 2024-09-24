@@ -55,12 +55,23 @@ function queryUser(pn, pz) {
 				}
                 console.log(response.data);
                 response.data.forEach((user,index) => {
+                    if (user.img == null){
+                        user.img = '/faces/default.jpg';
+                    }
                     const row =
                         `
                         <tr id="user`+ user.id +`" class="address-row text-center">
                             <th scope="row">${user.id}</th>
                             <td id="username`+ user.id +`">${user.username}</td>
                             <td id="email`+ user.id +`">${user.email}</td>
+                            <td id="img`+ user.id +`">
+                                <div class="row" style="display: flex; justify-content: center;">
+                                    <!-- 图片列 -->
+                                    <div class="col-md-2">
+                                        <img src="` + user.img + `" alt="用户头像" class="img-fluid mx-auto d-block">
+                                    </div>
+                                </div>
+                            </td>
                             <td id="phone`+ user.id +`">${user.phone}</td>
                             <td id="name`+ user.id +`">${user.lastName+' '+user.firstName}</td>
                             <td id="birthDate`+ user.id +`">${user.birthDate}</td>
@@ -156,6 +167,7 @@ function updateUser(id) {
     let birthday = $("#birthday").val();
     let isAdmin = $("#isAdmin").prop("checked");
     let roleId = $("#roleId").val();
+    let img = $("#img").val();
     const data= {
         id: id,
         email: email,
@@ -165,6 +177,7 @@ function updateUser(id) {
         birthday: birthday,
         isAdmin: isAdmin,
         roleId: roleId,
+        img: img
     }
     $.ajax({
         type: "POST",
@@ -201,6 +214,8 @@ function getUser(id) {
     $("#birthday").val(user.birthDate);
     $("#isAdmin").prop("checked",user.admin);
     $("#roleId").val(user.roleId);
+    $("#imgPreview").src = user.img;
+    $("#img").val(user.img);
 }
 function lockUser(id) {
     $.ajax({
@@ -233,6 +248,8 @@ function clearModal() {
     $("#birthday").val("");
     $("#isAdmin").prop("checked",false);
     $("#roleId").val("");
+    $("#img").val("");
+    $("#imgPreview").src = "/images/no-image.png";
 }
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
@@ -280,3 +297,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function uploadFaces() {
+    const file = $('#imgUpload')[0].files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    $.ajax({
+        url: '/common/uploadFaces',
+        type: 'post',
+        data:formData,
+        contentType: false,
+        processData: false,
+        success: function (res){
+            $('#imgPreview').attr('src', res.data);
+            $('#img').val(res.data);
+        }
+    });
+}

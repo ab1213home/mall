@@ -86,6 +86,7 @@ function submitRegisterStepTwoForm() {
     const firstName = $('#firstName').val();
     const lastName = $('#lastName').val();
     const birthday = $('#birthday').val();
+    const img = $('#img').val();
 
     // 构建请求体
     const data = {
@@ -93,6 +94,7 @@ function submitRegisterStepTwoForm() {
         firstName: firstName,
         lastName: lastName,
         birthday: birthday,
+        img: img
     };
 
     // 发送 AJAX 请求
@@ -122,3 +124,20 @@ $(document).ready(function() {
     submitRegisterStepTwoForm(); // 自定义提交处理
   });
 });
+
+function uploadFaces() {
+    const file = $('#imgUpload')[0].files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    $.ajax({
+        url: '/common/uploadFaces',
+        type: 'post',
+        data:formData,
+        contentType: false,
+        processData: false,
+        success: function (res){
+            $('#imgPreview').attr('src', res.data);
+            $('#img').val(res.data);
+        }
+    });
+}

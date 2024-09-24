@@ -122,6 +122,16 @@
                                 <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
                                                                      required="required" max="{{ max_date }}">
                             </div>
+                            <div class="form-group has-feedback">
+                                <div class="row">
+                                    <span class="fa fa-picture-o form-control-feedback"></span>
+                                    <label for="img" class="form-label"></label>
+                                    <input class="form-control" type="file" id="imgUpload" onchange="uploadFaces()" placeholder="请上传头像图片(10M以内)">
+                                </div>
+                                <div id="img" class="input-group row"  style="text-align: center; height: 30vh;">
+                                    <img src="/images/no-image.png" id="imgPreview" alt="头像预览" class="img-thumbnail" style="height: 30vh;">
+                                </div>
+                            </div>
                             <!-- 提交按钮 -->
                             <div class="row d-flex justify-content-between mt-2">
                                 <div class="col-4">

@@ -137,6 +137,7 @@ public class UserController {
                                         @RequestParam("firstName") String firstName,
                                         @RequestParam("lastName") String lastName,
                                         @RequestParam("birthday") String birthDate,
+                                        @RequestParam("img") String img,
                                         HttpSession session) {
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
         if (session.getAttribute("UserId")==null){
@@ -157,6 +158,8 @@ public class UserController {
 
         // 创建User对象以保存用户信息
         User user = new User(UserId,firstName,lastName,phone);
+        user.setImg(img);
+
         // 验证和转换生日日期格式
         try {
             LocalDate localDate = LocalDate.parse(birthDate, formatter);
@@ -334,6 +337,7 @@ public class UserController {
                                          @RequestParam("lastName") String lastName,
                                          @RequestParam("birthday") String birthDate,
                                          @RequestParam("email") String email,
+                                         @RequestParam("img") String img,
                                          @RequestParam(required = false) boolean isAdmin,
                                          @RequestParam(required = false) Integer roleId,
                                          HttpSession session) {
@@ -354,6 +358,7 @@ public class UserController {
         }
         // 设置用户ID到用户信息对象中
         User userInfo = new User(userId, firstName, lastName, phone, email);
+        userInfo.setImg(img);
         // 验证和转换生日日期格式
         try {
             LocalDate localDate = LocalDate.parse(birthDate, formatter);
