@@ -46,6 +46,11 @@ public class UserVo {
     private String lastName;
 
     /**
+     * 头像
+     */
+    private String img;
+
+    /**
      * 出生日期
      */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -56,6 +61,9 @@ public class UserVo {
      */
     private Integer defaultAddressId;
 
+    /**
+     * 是否激活
+     */
     private boolean isActive;
 
     /**

@@ -71,6 +71,11 @@ public class User implements Serializable {
     private Date birthDate;
 
     /**
+     * 头像
+     */
+    private String img;
+
+    /**
      * 默认地址ID
      */
     private Integer defaultAddressId;

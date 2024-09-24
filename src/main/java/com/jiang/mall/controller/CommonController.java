@@ -99,4 +99,33 @@ public class CommonController {
         return  result;
     }
     //faces
+
+    @RequestMapping("/uploadFaces")
+    @ResponseBody
+    public ResponseResult upLoadFaces(MultipartFile file) throws IOException {
+        if (!AllowUploadFile){
+            return ResponseResult.failResult("上传文件被禁止");
+        }
+        // 检查文件是否为空
+        if (file.isEmpty()){
+            return ResponseResult.failResult("文件不能为空");
+        }
+        String FACE_UPLOAD_PATH=FILE_UPLOAD_PATH+"faces/";
+        // 检查并创建上传文件的目录
+        File dir = new File(FACE_UPLOAD_PATH);
+        if (!dir.exists() && !dir.isDirectory()){
+            dir.mkdir();
+        }
+
+        // 生成文件名，防止重名文件被覆盖
+        String filename = file.getOriginalFilename();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        String newName = sdf.format(new Date()) + filename;
+        file.transferTo(new File(FACE_UPLOAD_PATH + newName));
+
+        // 构建成功响应结果，包含文件访问路径
+        ResponseResult result = ResponseResult.okResult();
+        result.setData("/faces/" + newName);
+        return  result;
+    }
 }
