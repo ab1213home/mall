@@ -1,5 +1,6 @@
 package com.jiang.mall.controller;
 
+import com.jiang.mall.domain.ResponseResult;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -7,11 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 
 import static com.jiang.mall.controller.CommonController.FILE_UPLOAD_PATH;
+import static com.jiang.mall.controller.CommonController.imageSuffix;
+import static com.jiang.mall.util.CheckUser.checkAdminUser;
+import static com.jiang.mall.util.CheckUser.checkUserLogin;
+import static com.jiang.mall.util.FileUtils.getFileCount;
+import static com.jiang.mall.util.FileUtils.getFolderSize;
 
 @RestController
 public class FileController {
@@ -85,5 +92,61 @@ public class FileController {
                 .contentLength(resource.contentLength())
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
+    }
+
+    @GetMapping("/getSize")
+    public ResponseResult getSize(HttpSession session){
+    	// 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+        File folder = new File(FILE_UPLOAD_PATH);
+
+        if (!folder.exists() || !folder.isDirectory()) {
+            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+        }
+
+        long totalSize = getFolderSize(folder);
+        int fileCount = getFileCount(folder);
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalSize", totalSize);
+        data.put("fileCount", fileCount);
+        return ResponseResult.okResult(data);
+    }
+
+    @GetMapping("/getFaceTemplateList")
+    public ResponseResult getFaceTemplateList(HttpSession session){
+    	// 检查会话中是否设置表示用户已登录的标志
+//        ResponseResult result = checkUserLogin(session);
+//		if (!result.isSuccess()) {
+//			// 如果未登录，则直接返回
+//		    return result;
+//		}
+    	File folder = new File(FILE_UPLOAD_PATH+"faces/");
+
+    	if (!folder.exists() || !folder.isDirectory()) {
+            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+        }
+        List<String> fileList = new ArrayList<>();
+
+        for (File file : Objects.requireNonNull(folder.listFiles())) {
+            if (file.isFile()) {
+                int dotIndex = file.getName().lastIndexOf('.');
+                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
+
+                if (imageSuffix.contains(extension.toLowerCase())) {
+                    // 只添加图片文件
+                    if (file.getName().matches("^face.*") ){
+                        fileList.add(file.getName());
+                    }
+                }
+            }
+        }
+        if (fileList.isEmpty()) {
+            return ResponseResult.notFoundResourceResult("未找到任何文件！");
+        }
+        return ResponseResult.okResult(fileList);
     }
 }
