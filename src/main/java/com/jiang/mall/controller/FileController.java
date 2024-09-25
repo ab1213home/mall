@@ -94,36 +94,51 @@ public class FileController {
                 .body(resource);
     }
 
-    @GetMapping("/getSize")
+    /**
+     * 获取文件夹大小和文件数量
+     *
+     * @param session HttpSession对象，用于检查用户登录状态
+     * @return 包含文件夹总大小和文件数量的响应结果
+     */
+    @GetMapping("/file/getFileSize")
     public ResponseResult getSize(HttpSession session){
-    	// 检查会话中是否设置表示用户已登录的标志
+        // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = checkAdminUser(session);
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+            return result;
+        }
+        // 创建一个File对象，对应于要检查的文件夹路径
         File folder = new File(FILE_UPLOAD_PATH);
 
+        // 确认所创建的File对象确实代表一个文件夹
         if (!folder.exists() || !folder.isDirectory()) {
-            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
         }
 
+        // 计算文件夹的总大小
         long totalSize = getFolderSize(folder);
+        // 统计文件夹中的文件数量
         int fileCount = getFileCount(folder);
+        // 创建一个Map来存储结果数据
         Map<String, Object> data = new HashMap<>();
+        // 将总大小和文件数量放入数据Map
         data.put("totalSize", totalSize);
         data.put("fileCount", fileCount);
+        // 返回包含数据Map的成功响应结果
         return ResponseResult.okResult(data);
     }
+
 
     @GetMapping("/getFaceTemplateList")
     public ResponseResult getFaceTemplateList(HttpSession session){
     	// 检查会话中是否设置表示用户已登录的标志
-//        ResponseResult result = checkUserLogin(session);
-//		if (!result.isSuccess()) {
-//			// 如果未登录，则直接返回
-//		    return result;
-//		}
+        ResponseResult result = checkUserLogin(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
     	File folder = new File(FILE_UPLOAD_PATH+"faces/");
 
     	if (!folder.exists() || !folder.isDirectory()) {
@@ -139,7 +154,7 @@ public class FileController {
                 if (imageSuffix.contains(extension.toLowerCase())) {
                     // 只添加图片文件
                     if (file.getName().matches("^face.*") ){
-                        fileList.add(file.getName());
+                        fileList.add("/faces/" +file.getName());
                     }
                 }
             }

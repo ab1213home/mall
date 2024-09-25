@@ -56,10 +56,9 @@ public class CommonController {
      * @param request 用于获取请求信息，以便设置session属性
      * @param response 用于设置响应头，内容类型，并输出验证码图像
      * @throws IOException 如果在写入响应体过程中发生I/O错误
-     * @throws FontFormatException 如果加载自定义字体时发生格式错误
      */
     @RequestMapping("/captcha")
-    public void generateCaptcha(HttpServletRequest request, HttpServletResponse response) throws IOException, FontFormatException {
+    public void generateCaptcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // 禁止缓存响应数据，确保不同浏览器或缓存服务器下验证码图像不会被缓存
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
@@ -189,26 +188,63 @@ public class CommonController {
         // 设置用户头像上传路径
         String FACE_UPLOAD_PATH = FILE_UPLOAD_PATH + "faces/";
 
-        // 确保上传目录存在
-        File dir = new File(FACE_UPLOAD_PATH);
-        if (!dir.exists() && !dir.isDirectory()){
-            dir.mkdir();
+        // 文件的原始名称
+        String fileName = file.getOriginalFilename();
+        if (fileName == null) {
+            return ResponseResult.failResult("文件名称不能为空");
         }
 
-        // 生成唯一的文件名，避免文件重名覆盖
-        String filename = file.getOriginalFilename();
-        int dotIndex = filename != null ? filename.lastIndexOf('.') : 0;
-        String extension = dotIndex > 0 ? filename.substring(dotIndex) : "";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId);
-        String newName = sdf.format(new Date())  + extension;
+        // 解析出文件后缀
+        int index = fileName.lastIndexOf(".");
+        if (index == -1) {
+            return ResponseResult.failResult("文件后缀不能为空");
+        }
 
-        // 将文件保存到指定路径
-        file.transferTo(new File(FACE_UPLOAD_PATH + newName));
+        String suffix = fileName.substring(index + 1);
 
-        // 构建成功响应，包含文件访问路径
-        result = ResponseResult.okResult();
-        result.setData("/faces/" + newName);
-        return result;
+        if (!imageSuffix.contains(suffix.trim().toLowerCase())) {
+            return ResponseResult.failResult("非法的文件类型");
+        }
+
+        // 获取系统中的临时目录
+        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
+
+        // 临时文件使用 UUID 随机命名
+        Path tempFile = tempDir.resolve(Paths.get(UUID.randomUUID().toString()));
+
+        // copy 到临时文件
+        file.transferTo(tempFile);
+
+        try {
+            // 使用 ImageIO 读取文件
+            if (ImageIO.read(tempFile.toFile()) == null) {
+                return ResponseResult.failResult("非法的文件类型");
+            }
+            // 至此，这的确是一个图片资源文件
+
+            // 检查并创建上传文件的目录
+            File dir = new File(FILE_UPLOAD_PATH);
+            if (!dir.exists() && !dir.isDirectory()){
+                dir.mkdir();
+            }
+
+            // 生成唯一的文件名，避免文件重名覆盖
+            String filename = file.getOriginalFilename();
+            int dotIndex = filename != null ? filename.lastIndexOf('.') : 0;
+            String extension = dotIndex > 0 ? filename.substring(dotIndex) : "";
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId);
+            String newName = sdf.format(new Date()) + extension;
+            file.transferTo(new File(FACE_UPLOAD_PATH + newName));
+
+            // 返回相对访问路径
+            result = ResponseResult.okResult();
+            result.setData("/faces/" + newName);
+            return result;
+
+        } finally {
+            // 始终删除临时文件
+            Files.delete(tempFile);
+        }
     }
 
 
