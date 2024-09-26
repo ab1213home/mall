@@ -4,13 +4,13 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 购物车控制器
@@ -23,7 +23,10 @@ import static com.jiang.mall.util.CheckUser.checkUserLogin;
 public class CartController {
 
     @Autowired
-    ICartService cartService;
+    private ICartService cartService;
+
+    @Autowired
+    private IUserService userService;
 
     /**
      * 根据用户ID获取购物车列表
@@ -41,7 +44,7 @@ public class CartController {
                                       @RequestParam(defaultValue = "5") Integer pageSize,
                                       HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = checkUserLogin(session);
+	    ResponseResult result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -60,7 +63,7 @@ public class CartController {
     @GetMapping("/getNum")
     public ResponseResult getCartNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -84,7 +87,7 @@ public class CartController {
                                   @RequestParam("num") Integer num,
                                   HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -125,7 +128,7 @@ public class CartController {
                                      @RequestParam("num") Integer num,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -171,7 +174,7 @@ public class CartController {
     public ResponseResult deleteCart(@RequestParam("id") Integer id,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

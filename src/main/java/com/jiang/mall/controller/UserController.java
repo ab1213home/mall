@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import static com.jiang.mall.controller.AdminController.AllowRegistration;
 import static com.jiang.mall.domain.entity.Propertie.*;
-import static com.jiang.mall.util.CheckUser.*;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -297,7 +296,7 @@ public class UserController {
             return ResponseResult.failResult("旧密码不能为空！");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -342,7 +341,7 @@ public class UserController {
                                          @RequestParam(required = false) Integer roleId,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             return result; // 如果未登录，则直接返回
         }
@@ -444,7 +443,7 @@ public class UserController {
     @PostMapping("/modify/self-lock")
     public ResponseResult lockUser(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -598,7 +597,7 @@ public class UserController {
     @GetMapping("/isLogin")
     public ResponseResult isLogin(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    // 如果未登录，则直接返回
 		    return result;
@@ -686,7 +685,7 @@ public class UserController {
      */
     @GetMapping("/getDays")
     public ResponseResult getDaysNextBirthday(HttpSession session){
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    // 如果未登录，则直接返回
 		    return result;
@@ -714,7 +713,7 @@ public class UserController {
                                       @RequestParam(defaultValue = "5") Integer pageSize,
                                       HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -728,7 +727,7 @@ public class UserController {
     @GetMapping("/getNum")
     public ResponseResult getUserNum(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }

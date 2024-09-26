@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.service.ICollectionService;
+import com.jiang.mall.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,6 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 收藏控制器
@@ -27,12 +27,15 @@ public class CollectionController {
 	@Autowired
 	private ICollectionService collectionService;
 
+	@Autowired
+	private IUserService userService;
+
 
 	@PostMapping("/add")
 	public ResponseResult insertCollection(@RequestParam("productId") Integer productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -55,7 +58,7 @@ public class CollectionController {
 	public ResponseResult deleteCollection(@RequestParam("productId") Integer productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -80,7 +83,7 @@ public class CollectionController {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
 		// 检查会话中是否设置表示用户已登录的标志
-		ResponseResult result = checkUserLogin(session);
+		ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -101,7 +104,7 @@ public class CollectionController {
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -114,7 +117,7 @@ public class CollectionController {
 	@GetMapping("/getNum")
 	public ResponseResult getCollectionNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -128,7 +131,7 @@ public class CollectionController {
 	public ResponseResult isCollected(@RequestParam("productId") Integer productId,
 	                                  HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

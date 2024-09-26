@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.util.CheckUser.checkAdminUser;
 
 /**
  * 商品控制器
@@ -98,7 +97,7 @@ public class ProductController {
                                         @RequestParam("description") String description,
                                         HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -209,7 +208,7 @@ public class ProductController {
     @GetMapping("/getNum")
     public ResponseResult getProductNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }

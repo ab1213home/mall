@@ -1,6 +1,8 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,13 +17,14 @@ import java.util.*;
 
 import static com.jiang.mall.controller.CommonController.FILE_UPLOAD_PATH;
 import static com.jiang.mall.controller.CommonController.imageSuffix;
-import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 import static com.jiang.mall.util.FileUtils.getFileCount;
 import static com.jiang.mall.util.FileUtils.getFolderSize;
 
 @RestController
 public class FileController {
+
+    @Autowired
+    private IUserService userService;
 
     /**
      * 获取上传的文件
@@ -103,7 +106,7 @@ public class FileController {
     @GetMapping("/file/getFileSize")
     public ResponseResult getSize(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -134,7 +137,7 @@ public class FileController {
     @GetMapping("/getFaceTemplateList")
     public ResponseResult getFaceTemplateList(HttpSession session){
     	// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;

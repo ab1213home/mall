@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.util.CheckUser.checkAdminUser;
 
 /**
  * 商品控制器
@@ -24,7 +23,7 @@ import static com.jiang.mall.util.CheckUser.checkAdminUser;
 public class CategoryController {
 
     @Autowired
-    ICategoryService categoryService;
+    private ICategoryService categoryService;
     @Autowired
     private IUserService userService;
 
@@ -77,7 +76,7 @@ public class CategoryController {
                                          @RequestParam("name")String name,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
         // 如果用户未登录或无管理员权限，则返回错误结果
         if (!result.isSuccess()) {
             return result;

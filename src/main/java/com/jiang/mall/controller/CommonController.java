@@ -1,9 +1,11 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.IUserService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,8 +27,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.jiang.mall.controller.AdminController.AllowUploadFile;
-import static com.jiang.mall.util.CheckUser.checkAdminUser;
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 
 /**
@@ -39,6 +38,9 @@ import static com.jiang.mall.util.CheckUser.checkUserLogin;
 @Controller
 @RequestMapping("/common")
 public class CommonController {
+
+    @Autowired
+    private IUserService userService;
 
     // 文件上传的默认路径
     public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
@@ -91,7 +93,7 @@ public class CommonController {
         if (!AllowUploadFile){
             return ResponseResult.failResult("上传文件被禁止");
         }
-        ResponseResult result = checkAdminUser(session);
+        ResponseResult result = userService.checkAdminUser(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -173,7 +175,7 @@ public class CommonController {
         }
 
         // 检查用户登录状态
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

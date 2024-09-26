@@ -15,7 +15,6 @@ import java.util.List;
 
 import static com.jiang.mall.domain.entity.Propertie.max_address_num;
 import static com.jiang.mall.domain.entity.Propertie.regex_phone;
-import static com.jiang.mall.util.CheckUser.checkUserLogin;
 
 /**
  * 收货地址管理
@@ -46,7 +45,7 @@ public class AddressController {
                                          @RequestParam(defaultValue = "10") Integer pageSize,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -74,7 +73,7 @@ public class AddressController {
 	@GetMapping("/getNum")
 	public ResponseResult getNum(HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -112,7 +111,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -192,7 +191,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -253,7 +252,7 @@ public class AddressController {
 	public ResponseResult deleteAddress(@RequestParam("id") Integer id,
 	                                    HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -284,7 +283,7 @@ public class AddressController {
 	public ResponseResult getAddressById(@PathVariable("id") Integer id,
 	                                     HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = checkUserLogin(session);
+        ResponseResult result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
