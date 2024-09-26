@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.jiang.mall.controller.AdminController.AllowUploadFile;
+import static com.jiang.mall.domain.entity.Config.AllowUploadFile;
 
 
 /**

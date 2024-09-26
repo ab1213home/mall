@@ -1,8 +1,8 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+
+import static com.jiang.mall.domain.entity.Config.saveProperties;
 
 
 /**
@@ -26,9 +28,7 @@ public class AdminController {
 	@Autowired
 	private IUserService userService;
 
-	public static boolean AllowRegistration = true;
-	public static boolean AllowUploadFile = true;
-	public static boolean AllowModify = true;
+
 	public static boolean AllowDelete = true;
 	public static boolean AllowLock = true;
 	public static boolean AllowUnlock = true;
@@ -49,7 +49,7 @@ public class AdminController {
 	public static boolean AllowModifyCouponOrder = true;
 	public static boolean AllowModifyCouponUser = true;
 	public static boolean AllowModifyCouponOrderItem = true;
-	public static boolean AllowSendEmail = false;
+
 
 	@GetMapping("/admin")
 	public ResponseResult setAllowRegistration(@RequestParam(defaultValue = "true",required = false) boolean AllowRegistration,
@@ -89,39 +89,50 @@ public class AdminController {
 		}
 		String s = "";
 		if (AllowRegistration){
-			AdminController.AllowRegistration = true;
+			Config.AllowRegistration = true;
 			s += "已允许用户注册";
 		}else {
-			AdminController.AllowRegistration = false;
+			Config.AllowRegistration = false;
 			s += "已禁止用户注册";
 		}
 		if (AllowUploadFile){
-			AdminController.AllowUploadFile = true;
+			Config.AllowUploadFile = true;
 			s += "，已允许用户上传文件";
 		}else {
-			AdminController.AllowUploadFile = false;
+			Config.AllowUploadFile = false;
 			s += "，已禁止用户上传文件";
 		}
 		if (AllowModify){
-			AdminController.AllowModify = true;
+			Config.AllowModify = true;
 			s += "，已允许用户修改";
 		}else {
-			AdminController.AllowModify = false;
+			Config.AllowModify = false;
 			s += "，已禁止用户修改";
 		}
 		if (AllowSendEmail){
-			AdminController.AllowSendEmail = true;
+			Config.AllowSendEmail = true;
 			s += "，已允许发送邮件";
 		}else {
-			AdminController.AllowSendEmail = false;
+			Config.AllowSendEmail = false;
 			s += "，已禁止发送邮件";
 		}
 		if (HOST!=null&& !HOST.isEmpty() &&!HOST.equals("smtp.example.com")){
-			EmailUtils.HOST = HOST;
+			Config.HOST = HOST;
 		}
-		Map<String, Boolean> map = Map.of("AllowRegistration", AdminController.AllowRegistration,
-				"AllowUploadFile", AdminController.AllowUploadFile,
-				"AllowModify", AdminController.AllowModify);
+		Map<String, Boolean> map = Map.of("AllowRegistration", Config.AllowRegistration,
+				"AllowUploadFile", Config.AllowUploadFile,
+				"AllowModify", Config.AllowModify);
         return ResponseResult.okResult(map,s);
     }
+
+	@GetMapping("/save")
+	public ResponseResult save() {
+		saveProperties();
+		return ResponseResult.okResult("保存成功");
+	}
+
+	@GetMapping("/get")
+	public ResponseResult get() {
+		return ResponseResult.okResult(Config.regex_email);
+	}
 }

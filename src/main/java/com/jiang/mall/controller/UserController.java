@@ -4,7 +4,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
 import com.jiang.mall.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -20,8 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.controller.AdminController.AllowRegistration;
-import static com.jiang.mall.domain.entity.Propertie.*;
+import static com.jiang.mall.domain.entity.Config.*;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -36,6 +34,8 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+
+
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -153,6 +153,10 @@ public class UserController {
         // 验证手机号格式
         if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
             return ResponseResult.failResult("手机号格式不正确");
+        }
+
+        if (!StringUtils.hasText(img)){
+            return ResponseResult.failResult("请上传头像");
         }
 
         // 创建User对象以保存用户信息
@@ -733,4 +737,5 @@ public class UserController {
         }
         return ResponseResult.okResult(userService.getUserNum());
     }
+
 }

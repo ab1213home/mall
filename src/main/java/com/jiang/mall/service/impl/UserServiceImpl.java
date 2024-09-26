@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.jiang.mall.domain.entity.Propertie.AdminRoleId;
+import static com.jiang.mall.domain.entity.Config.AdminRoleId;
 import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 

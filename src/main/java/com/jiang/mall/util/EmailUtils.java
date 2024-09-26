@@ -3,22 +3,14 @@ package com.jiang.mall.util;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-@Getter
-@Setter
+import static com.jiang.mall.domain.entity.Config.*;
+
 public class EmailUtils {
-	public static String HOST = "smtp.126.com";
-	public static String PORT = "465";
-	public static String USERNAME = "jiangrongjun2004@126.com";
-	public static String SENDER_END = "mall.com";
-	public static String NICKNAME = "jiangrongjun";
-	public static String PASSWORD = "";
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailUtils.class);
 
@@ -32,6 +24,9 @@ public class EmailUtils {
 	 * @return 如果邮件发送成功，则返回 true；否则返回 false
 	 */
 	public static boolean sendEmail(String to, String subject, String content) {
+		if (!AllowSendEmail){
+			return false;
+		}
 	    // 配置邮件会话属性
 	    Properties properties = new Properties();
 		// 设置邮件服务器主机名
@@ -66,7 +61,7 @@ public class EmailUtils {
 	        // 设置邮件主题
 		    message.setSubject(subject);
 	        // 设置邮件内容
-		    message.setText(content);
+		    message.setContent(content, "text/html; charset=UTF-8");
 	        // 发送邮件
 	        Transport.send(message);
 

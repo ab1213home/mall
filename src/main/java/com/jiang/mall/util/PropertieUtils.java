@@ -6,7 +6,7 @@ public class PropertieUtils {
 	 */
 //	public static boolean getProperties(TextDatabase textDatabase) {
 //	    // 创建Properties类对象，用于读取配置文件
-//	    Properties prop = new Properties();
+//	    Config prop = new Config();
 //	    try {
 //	        // 打开配置文件的文件输入流
 //	        FileInputStream input = new FileInputStream("config.properties");
@@ -35,7 +35,7 @@ public class PropertieUtils {
 	 */
 //	public static void writeProperties(TextDatabase textDatabase) {
 //		// 初始化配置信息存储对象
-//		Properties properties = new Properties();
+//		Config properties = new Config();
 //		// 获取当前时间戳，用于文件版本控制
 //		Instant now = Instant.now();
 //	    // 将时间戳转换为字符串

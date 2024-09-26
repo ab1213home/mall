@@ -5,7 +5,6 @@ import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -13,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.domain.entity.Propertie.max_address_num;
-import static com.jiang.mall.domain.entity.Propertie.regex_phone;
+import static com.jiang.mall.domain.entity.Config.max_address_num;
+import static com.jiang.mall.domain.entity.Config.regex_phone;
 
 /**
  * 收货地址管理

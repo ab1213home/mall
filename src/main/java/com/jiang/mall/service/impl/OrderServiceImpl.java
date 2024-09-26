@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-import static com.jiang.mall.domain.entity.Propertie.paymentMethod;
-import static com.jiang.mall.domain.entity.Propertie.status;
+import static com.jiang.mall.domain.entity.Config.paymentMethod;
+import static com.jiang.mall.domain.entity.Config.status;
 
 /**
  * <p>
