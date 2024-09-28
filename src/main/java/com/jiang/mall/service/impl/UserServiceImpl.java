@@ -71,6 +71,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		return userList.size();
 	}
 
+	@Override
+	public User getUserByUserName(String username) {
+		// 创建查询条件，指定用户名和账号激活状态
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("username", encryptToMD5(username));
+
+	    // 根据查询条件尝试获取用户信息
+		return userMapper.selectOne(queryWrapper);
+	}
+
+	@Override
+	public User getUserByEmail(String email) {
+		// 创建查询条件，指定用户名和账号激活状态
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("email", email);
+
+	    // 根据查询条件尝试获取用户信息
+		return userMapper.selectOne(queryWrapper);
+	}
+
 	/**
 	 * 检查当前用户是否为管理员
 	 * 此方法首先调用checkUserLogin方法验证用户是否已登录

@@ -18,7 +18,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 import static com.jiang.mall.domain.entity.Config.paymentMethod;
-import static com.jiang.mall.domain.entity.Config.status;
+import static com.jiang.mall.domain.entity.Config.order_status;
 
 /**
  * <p>
@@ -91,7 +91,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
 			orderVo.setAddress(addressVo);
 			orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
-			orderVo.setStatus(status[order_item.getStatus()]);
+			orderVo.setStatus(order_status[order_item.getStatus()]);
 			QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 			queryWrapper_orderList.eq("order_id", order_item.getId());
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
@@ -165,7 +165,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 	        // 设置订单VO对象的支付方式和状态，通过数组获取对应的描述
 	        orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
-	        orderVo.setStatus(status[order_item.getStatus()]);
+	        orderVo.setStatus(order_status[order_item.getStatus()]);
 
 	        // 创建查询构造器，用于查询订单详情
 	        QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();

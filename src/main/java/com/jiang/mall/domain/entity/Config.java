@@ -1,6 +1,7 @@
 package com.jiang.mall.domain.entity;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -82,13 +83,95 @@ public class Config {
      */
     public static String[] paymentMethod = properties.getProperty("payment.method", "货到付款,在线支付")
             .split(",");
+    /**
+     * 支付方式枚举类
+     */
+    @Getter
+    public enum PaymentMethod {
+        OFFLINE(0,paymentMethod[0]),
+        ONLINE(1,paymentMethod[1]);
+
+        private final int value;
+        private final String name;
+
+        PaymentMethod(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+    }
 
     /**
      * 订单状态数组
      */
-    public static String[] status = properties.getProperty("order.status", "待付款,待发货,待收货,待评价,已完成")
+    public static String[] order_status = properties.getProperty("order.status", "待付款,待发货,待收货,待评价,已完成")
             .split(",");
 
+    /**
+     * 订单状态枚举类
+     */
+    @Getter
+    public enum OrderStatus {
+        WAIT_PAYMENT(0,order_status[0]),
+        WAIT_DELIVERY(1,order_status[1]),
+        WAIT_RECEIVE(2,order_status[3]),
+        WAIT_EVALUATE(3,order_status[2]),
+        FINISHED(4,order_status[4]);
+
+        private final int value;
+        private final String name;
+
+        OrderStatus(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+    }
+    /**
+     * 邮箱验证码状态数组
+     */
+    public static String[] email_status = properties.getProperty("email.status", "发送失败,发送成功,发送成功并已使用,发送成功并已失效")
+            .split(",");
+
+    @Getter
+    public enum EmailStatus {
+        FAILED(0,email_status[0]),
+        SUCCESS(1,email_status[1]),
+        USED(2,email_status[2]),
+        EXPIRED(3,email_status[3]);
+
+        private final int value;
+        private final String name;
+
+        EmailStatus(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+    }
+    /**
+     * 邮箱验证码用途数组
+     */
+    public static String[] email_purpose = properties.getProperty("email.purpose", "注册,重置密码")
+            .split(",");
+
+    /**
+     * 邮箱验证码用途枚举类
+     */
+    @Getter
+    public enum EmailPurpose {
+        REGISTER(0,email_purpose[0]),
+        RESET_PASSWORD(1,email_purpose[1]);
+
+        private final int value;
+        private final String name;
+
+        EmailPurpose(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+    }
     /**
      * 收货地址最大数量
      */
@@ -133,6 +216,11 @@ public class Config {
      * 邮箱验证码24小时最大请求数量
      */
     public static int max_request_num = Integer.parseInt(properties.getProperty("email.max.request.num", "10"));
+
+    /**
+     * 邮箱验证码24小时最小请求数量
+     */
+    public static int min_request_num = Integer.parseInt(properties.getProperty("email.min.request.num", "5"));
 
     /**
      * 邮箱验证码24小时最大失败率

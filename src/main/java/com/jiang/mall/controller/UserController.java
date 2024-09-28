@@ -2,7 +2,9 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.UserCode;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.IUserCodeService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -35,7 +38,8 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
-
+    @Autowired
+    private IUserCodeService userCodeService;
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -46,7 +50,7 @@ public class UserController {
      * @param password 密码
      * @param confirmPassword 确认密码
      * @param email 邮箱
-     * @param captcha 验证码
+     * @param code 验证码
      * @param session HTTP会话
      * @return 注册结果
      */
@@ -55,7 +59,7 @@ public class UserController {
                                         @RequestParam("password") String password,
                                         @RequestParam("confirmPassword") String confirmPassword,
                                         @RequestParam("email") String email,
-                                        @RequestParam("captcha") String captcha,
+                                        @RequestParam("code")String code,
                                         HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("UserIsLogin")!=null){
@@ -64,25 +68,11 @@ public class UserController {
             }
         }
 
-        // 检查验证码是否为空
-        if (!StringUtils.hasText(captcha)) {
-            return ResponseResult.failResult("验证码不能为空");
-        }
-
         // 验证邮箱格式
         if (StringUtils.hasText(email) && !email.matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 
-        // 获取并验证会话中的验证码
-        Object captchaObj = session.getAttribute("captcha");
-        if (captchaObj == null) {
-            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
-        }
-        String captchaCode = captchaObj.toString();
-        if (!captchaCode.toLowerCase().equals(captcha)) {
-            return ResponseResult.failResult("验证码错误");
-        }
         if (!AllowRegistration){
             return ResponseResult.failResult("管理员用户不允许注册");
         }
@@ -95,15 +85,18 @@ public class UserController {
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
         }
-
-        // 检查邮箱是否已注册
-        if (userService.queryByEmail(email)) {
-            return ResponseResult.failResult("邮箱已存在");
+        UserCode userCode = userCodeService.queryCodeByEmail(email);
+        if (userCode==null){
+            return ResponseResult.failResult("验证码错误或已过期");
         }
-
-        // 检查用户名是否已注册
-        if (userService.queryByUserName(username)) {
-            return ResponseResult.failResult("用户名已存在");
+        if (!Objects.equals(userCode.getCode(), code)){
+            return ResponseResult.failResult("验证码错误");
+        }
+        if (!Objects.equals(userCode.getUsername(), encryptToMD5(username))){
+            return ResponseResult.failResult("非法请求");
+        }
+        if (!Objects.equals(userCode.getPassword(), encryptToMD5(password))){
+            return ResponseResult.failResult("非法请求");
         }
 
         // 创建并注册用户
@@ -111,6 +104,7 @@ public class UserController {
         int userId = userService.registerStep(user);
         if (userId>0) {
             session.setAttribute("UserId",userId);
+            userCodeService.useCode(userId,userCode);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因注册失败");
@@ -639,7 +633,7 @@ public class UserController {
         // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
         if (session.getAttribute("UserBirthDate") != null){
             userVo.setBirthDate((Date) session.getAttribute("UserBirthDate"));
-            userVo.setNextBirthday(TimeUtils.getDaysUntilNextBirthday(userVo.getBirthDate()));
+            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
         }
         // 尝试从会话中获取并设置用户的默认地址ID
         if (session.getAttribute("UserDefaultAddressId") != null){

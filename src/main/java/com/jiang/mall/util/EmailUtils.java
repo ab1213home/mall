@@ -55,7 +55,7 @@ public class EmailUtils {
 	        // 创建邮件消息
 	        Message message = new MimeMessage(session);
 			// 设置发件人邮箱
-	        message.setFrom(new InternetAddress(NICKNAME + "@" + SENDER_END));
+	        message.setFrom(new InternetAddress(USERNAME));
 	        // 设置收件人邮箱
 		    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 	        // 设置邮件主题

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return true;
   }
   // 在表单提交时进行验证
-  const form = document.getElementById("step2");
+  const form = document.getElementById("step3");
   form.addEventListener('submit', function (event) {
     if (!validateBirthday()) {
       event.preventDefault(); // 阻止表单提交
@@ -23,53 +23,55 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// 注册表单提交处理函数
 function submitRegisterStepOneForm() {
-  // 获取表单数据
+    // 获取表单数据
     const email = $('#email').val();
     const username = $('#username').val();
     const password = $('#password').val();
     const confirmPassword = $('#confirmPassword').val();
     const captcha = $('#captcha').val();
-
-    // 构建请求体
     const data = {
         email: email,
+        captcha: captcha,
         username: username,
         password: password,
         confirmPassword: confirmPassword,
-        captcha: captcha
     };
-
-    // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/registerStep1',
-    type: 'POST',
-    data: data,
-    success: function (data) {
-        // 处理成功响应
-        if (data.code === 200) {
-            console.log('注册成功');
-            if (document.getElementById('step2')){
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').style.display = 'block';
-                document.getElementById('step2_title').style.display = 'block';
-            }else {
-                 window.location.href = '/user/register_step2.html';
+    $.ajax({
+        url: '/email/sendRegister',
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        beforeSend: function () {
+            // 发送请求前执行的操作
+        },
+        success: function (res) {
+            // 处理成功响应
+            if (res.code === 200) {
+                // 显示倒计时
+                const step2 = document.querySelectorAll('.step2');
+                const step1 = document.querySelectorAll('.step1');
+                step1.forEach(element => {
+					element.style.display = 'none';
+				});
+                step2.forEach(element => {
+					element.style.display = 'block';
+				});
+                openModal('提示','验证码已发送，请查收');
+                startIntervalTimer(60);
+            } else {
+                openModal('错误','发送验证码失败:'+res.message);
+                let captchaImg = document.getElementById('captchaImg');
+                captchaImg.src = '/common/captcha';
             }
-        } else {
-            openModal('错误','用户注册失败:'+data.message);
+        },
+        fail: function(xhr, status, error) {
+            // 显示错误信息给用户
+            openModal('错误','发送验证码失败，请联系管理员！'+error);
             let captchaImg = document.getElementById('captchaImg');
             captchaImg.src = '/common/captcha';
         }
-    },
-    fail: function(xhr, status, error) {
-      // 显示错误信息给用户
-      openModal('错误','注册失败，请联系管理员！'+error);
-      let captchaImg = document.getElementById('captchaImg');
-      captchaImg.src = '/common/captcha';
-    }
-  });
+    })
 }
 
 // 绑定表单提交事件
@@ -80,7 +82,82 @@ $(document).ready(function() {
   });
 });
 
-function submitRegisterStepTwoForm() {
+function startIntervalTimer(duration) {
+    let timer = duration, minutes, seconds;
+    const interval = setInterval(function () {
+
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        document.querySelector('#sendmail').disabled = disabled;
+        document.querySelector('#sendmail').textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            clearInterval(interval);
+            document.querySelector('#sendmail').disabled = false;
+            document.querySelector('#sendmail').textContent = "重新发送";
+            // 这里可以添加倒计时结束后需要执行的代码
+        }
+    }, 1000);
+}
+// 注册表单提交处理函数
+function submitRegisterStepTowForm() {
+    // 获取表单数据
+    const email = $('#email').val();
+    const username = $('#username').val();
+    const password = $('#password').val();
+    const confirmPassword = $('#confirmPassword').val();
+    const code = $('#code').val();
+
+    // 构建请求体
+    const data = {
+        email: email,
+        username: username,
+        password: password,
+        confirmPassword: confirmPassword,
+        code: code,
+    };
+
+    // 发送 AJAX 请求
+  $.ajax({
+    url: '/user/registerStep1',
+    type: 'POST',
+    data: data,
+    success: function (data) {
+        // 处理成功响应
+        if (data.code === 200) {
+            const step3 = document.querySelectorAll('.step3');
+            const step2 = document.querySelectorAll('.step2');
+            step2.forEach(element => {
+                element.style.display = 'none';
+            });
+            step3.forEach(element => {
+                element.style.display = 'block';
+            });
+            openModal('提示','用户注册成功');
+        } else {
+            openModal('错误','用户注册失败:'+data.message);
+        }
+    },
+    fail: function(xhr, status, error) {
+      // 显示错误信息给用户
+      openModal('错误','注册失败，请联系管理员！'+error);
+    }
+  });
+}
+
+// 绑定表单提交事件
+$(document).ready(function() {
+  $('#step2').on('submit', function(event) {
+    event.preventDefault(); // 阻止默认提交行为
+    submitRegisterStepTowForm(); // 自定义提交处理
+  });
+});
+
+function submitRegisterStepThreeForm() {
   // 获取表单数据
     const phone = $('#phone').val();
     const firstName = $('#firstName').val();
@@ -119,9 +196,9 @@ function submitRegisterStepTwoForm() {
 
 // 绑定表单提交事件
 $(document).ready(function() {
-  $('#step2').on('submit', function(event) {
+  $('#step3').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    submitRegisterStepTwoForm(); // 自定义提交处理
+    submitRegisterStepThreeForm(); // 自定义提交处理
   });
 });
 

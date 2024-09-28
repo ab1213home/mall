@@ -23,6 +23,11 @@ public class UserCode implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+	/**
+     * 用户ID
+     */
+	private Integer userId;
+
     /**
      * 用户名
      */
@@ -43,6 +48,11 @@ public class UserCode implements Serializable {
      */
 	private String code;
 
+	/**
+     * 用途
+     */
+	private Integer purpose;
+
     /**
      * 创建时间，自动填充
      */
@@ -50,20 +60,28 @@ public class UserCode implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createdAt;
 
-	private boolean isUsed;
-
 	/**
-     * 逻辑删除标记，默认为 false
+     * 状态
      */
-	@TableLogic
-    private boolean isDel;
+	private Integer status;
 
-	public UserCode(String username, String email, String code) {
+	public UserCode(String username, String email, String code, Config.EmailPurpose purpose, Config.EmailStatus status) {
 		this.username = username;
 		this.email = email;
 		this.code = code;
+		this.purpose = purpose.getValue();
+		this.status = status.getValue();
 	}
 
 	public UserCode() {
+	}
+
+	public UserCode(String username, String email, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus, Integer userId) {
+		this.username = username;
+		this.email = email;
+		this.code = code;
+		this.purpose = emailPurpose.getValue();
+		this.status = emailStatus.getValue();
+		this.userId = userId;
 	}
 }
