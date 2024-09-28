@@ -92,14 +92,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email,code,EmailPurpose.REGISTER,EmailStatus.SUCCESS);
+            UserCode userCode = new UserCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email,code,EmailPurpose.REGISTER,EmailStatus.FAILED);
+            UserCode userCode = new UserCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -190,14 +190,14 @@ public class EmailController {
                 "</body></html>";
         // 发送邮件并处理结果
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email,code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,user.getId());
+            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email,code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED,user.getId());
+            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -254,14 +254,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email,code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,(Integer)result.getData());
+            UserCode userCode = new UserCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email,code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED,(Integer)result.getData());
+            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

@@ -65,14 +65,6 @@ public class UserCode implements Serializable {
      */
 	private Integer status;
 
-	public UserCode(String username, String email, String code, Config.EmailPurpose purpose, Config.EmailStatus status) {
-		this.username = username;
-		this.email = email;
-		this.code = code;
-		this.purpose = purpose.getValue();
-		this.status = status.getValue();
-	}
-
 	public UserCode() {
 	}
 
@@ -83,5 +75,14 @@ public class UserCode implements Serializable {
 		this.purpose = emailPurpose.getValue();
 		this.status = emailStatus.getValue();
 		this.userId = userId;
+	}
+
+	public UserCode(String username, String email, String password, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.code = code;
+		this.purpose = emailPurpose.getValue();
+		this.status = emailStatus.getValue();
 	}
 }

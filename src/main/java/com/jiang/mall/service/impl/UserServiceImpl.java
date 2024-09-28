@@ -38,7 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Resource
 	private UserMapper userMapper;
 
-		/**
+	/**
 	 * 检查用户是否已登录
 	 * <p>
 	 * 此方法检查会话中的 "UserIsLogin" 和 "UserId" 属性以确认用户是否已经登录。
@@ -75,7 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public User getUserByUserName(String username) {
 		// 创建查询条件，指定用户名和账号激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("username", encryptToMD5(username));
+	    queryWrapper.eq("username",username);
 
 	    // 根据查询条件尝试获取用户信息
 		return userMapper.selectOne(queryWrapper);
@@ -163,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public User login(String username, String password) {
 	    // 创建查询条件，指定用户名和账号激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("username", encryptToMD5(username));
+	    queryWrapper.eq("username", username);
 	    queryWrapper.eq("is_active", true);
 
 	    // 根据查询条件尝试获取用户信息
@@ -300,7 +300,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 创建一个查询包装器，用于构建查询条件
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件，用户名经过MD5加密
-	    queryWrapper.eq("username", encryptToMD5(userName));
+	    queryWrapper.eq("username", userName);
 
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper);
@@ -345,7 +345,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setIsActive(true);
 	        // 加密用户密码和用户名以确保安全性
 	        user.setPassword(encryptToMD5(user.getPassword()));
-	        user.setUsername(encryptToMD5(user.getUsername()));
+	        user.setUsername(user.getUsername());
 	        // 设置用户角色为普通用户
 	        user.setRoleId(1);
 	        // 插入用户信息，若成功则返回用户ID，否则返回0

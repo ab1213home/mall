@@ -92,7 +92,7 @@ function startIntervalTimer(duration) {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        document.querySelector('#sendmail').disabled = disabled;
+        document.querySelector('#sendmail').disabled = true;
         document.querySelector('#sendmail').textContent = minutes + ":" + seconds;
 
         if (--timer < 0) {

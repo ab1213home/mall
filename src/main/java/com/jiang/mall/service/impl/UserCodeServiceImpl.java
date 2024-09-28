@@ -90,8 +90,8 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    // 构建查询条件
 	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email);
-	    queryWrapper.ge("create_at", yesterday);
-	    queryWrapper.le("create_at", now);
+	    queryWrapper.ge("created_at", yesterday);
+	    queryWrapper.le("created_at", now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
@@ -116,8 +116,8 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    // 构建查询条件
 	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("user_id", id);
-	    queryWrapper.ge("create_at", yesterday);
-	    queryWrapper.le("create_at", now);
+	    queryWrapper.ge("created_at", yesterday);
+	    queryWrapper.le("created_at", now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
@@ -146,8 +146,8 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
 	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
-	    queryWrapper.ge("create_at", yesterday); // 创建时间大于等于yesterday，即expiration_time分钟内创建的
-	    queryWrapper.le("create_at", now); // 创建时间小于等于当前时间，即还未过期的
+	    queryWrapper.ge("created_at", yesterday); // 创建时间大于等于yesterday，即expiration_time分钟内创建的
+	    queryWrapper.le("created_at", now); // 创建时间小于等于当前时间，即还未过期的
 	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
 
 	    // 执行查询
