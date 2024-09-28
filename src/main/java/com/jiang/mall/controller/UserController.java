@@ -6,6 +6,7 @@ import com.jiang.mall.domain.entity.UserCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserCodeService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.BeanCopyUtils;
 import com.jiang.mall.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -80,7 +81,12 @@ public class UserController {
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
             return ResponseResult.failResult("请输入完整的注册信息");
         }
-
+//        if (!password.matches(regex_password)){
+//            return ResponseResult.failResult("密码格式不正确");
+//        }
+        if (!StringUtils.hasText(code)){
+            return ResponseResult.failResult("请输入验证码");
+        }
         // 验证密码一致性
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
@@ -89,10 +95,11 @@ public class UserController {
         if (userCode==null){
             return ResponseResult.failResult("验证码错误或已过期");
         }
-        if (!Objects.equals(userCode.getCode(), code)){
+        System.out.println(userCode);
+        if (!Objects.equals(userCode.getCode(),code)){
             return ResponseResult.failResult("验证码错误");
         }
-        if (!Objects.equals(userCode.getUsername(), encryptToMD5(username))){
+        if (!Objects.equals(userCode.getUsername(), username)){
             return ResponseResult.failResult("非法请求");
         }
         if (!Objects.equals(userCode.getPassword(), encryptToMD5(password))){
@@ -224,33 +231,10 @@ public class UserController {
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {
+            UserVo userVo= BeanCopyUtils.copyBean(user, UserVo.class);
+	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
             // 登录成功，存储用户信息到session
-            session.setAttribute("UserId", user.getId());
-            session.setAttribute("UserName", username);
-            session.setAttribute("UserRole", user.getRoleId());
-            session.setAttribute("UserEmail", user.getEmail());
-            if (user.getBirthDate()!=null){
-                session.setAttribute("UserBirthDate", user.getBirthDate());
-            }
-            if (user.getPhone()!=null){
-                session.setAttribute("UserPhone", user.getPhone());
-            }
-            if (user.getFirstName()!=null) {
-                session.setAttribute("UserFirstName", user.getFirstName());
-            }
-            if (user.getLastName()!=null){
-                session.setAttribute("UserLastName", user.getLastName());
-            }
-            if (user.getDefaultAddressId()!=null){
-                session.setAttribute("UserDefaultAddressId", user.getDefaultAddressId());
-            }
-            // 判断用户角色，如果是管理员，设置相应标志
-            if (user.getRoleId() >= AdminRoleId) {
-                session.setAttribute("UserIsAdmin", "true");
-            } else {
-                session.setAttribute("UserIsAdmin", "false");
-            }
-            session.setAttribute("UserIsLogin","true");
+            session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 2);
             return ResponseResult.okResult();
@@ -536,49 +520,9 @@ public class UserController {
      */
     @GetMapping("/logout")
     public ResponseResult logout(HttpSession session){
-        // 检查会话中是否存在用户是否为管理员的属性，并移除
-        if (session.getAttribute("UserIsAdmin")!=null){
-            session.removeAttribute("UserIsAdmin");
-        }
-        // 检查会话中是否存在用户名属性，并移除
-        if (session.getAttribute("UserName")!=null){
-            session.removeAttribute("UserName");
-        }
-        // 检查会话中是否存在用户角色属性，并移除
-        if (session.getAttribute("UserRole")!=null){
-            session.removeAttribute("UserRole");
-        }
-        // 检查会话中是否存在用户邮箱属性，并移除
-        if (session.getAttribute("UserEmail")!=null){
-            session.removeAttribute("UserEmail");
-        }
-        // 检查会话中是否存在用户电话属性，并移除
-        if (session.getAttribute("UserPhone")!=null){
-            session.removeAttribute("UserPhone");
-        }
-        // 检查会话中是否存在用户名属性，并移除
-        if (session.getAttribute("UserFirstName")!=null){
-            session.removeAttribute("UserFirstName");
-        }
-        // 检查会话中是否存在用户姓氏属性，并移除
-        if (session.getAttribute("UserLastName")!=null){
-            session.removeAttribute("UserLastName");
-        }
-        // 检查会话中是否存在用户出生日期属性，并移除
-        if (session.getAttribute("UserBirthDate")!=null){
-            session.removeAttribute("UserBirthDate");
-        }
-        // 检查会话中是否存在用户登录状态属性，并移除
-        if (session.getAttribute("UserIsLogin")!=null){
-            session.removeAttribute("UserIsLogin");
-        }
-        // 检查会话中是否存在用户ID属性，并移除
-        if (session.getAttribute("UserId")!=null){
-            session.removeAttribute("userId");
-        }
-        // 检查会话中是否存在用户默认地址ID属性，并移除
-        if (session.getAttribute("UserDefaultAddressId")!=null){
-            session.removeAttribute("UserDefaultAddressId");
+        // 检查会话中是否存在用户并移除
+        if (session.getAttribute("User")!=null){
+            session.removeAttribute("User");
         }
         // 返回登出成功的结果
         return ResponseResult.okResult();
@@ -600,46 +544,15 @@ public class UserController {
 		    // 如果未登录，则直接返回
 		    return result;
 		}
-	    // 获取用户ID
-	    Integer userId = (Integer) result.getData();
-        // 从会话中获取用户名、邮箱和角色ID
-        String username = (String) session.getAttribute("UserName");
-        String email = (String) session.getAttribute("UserEmail");
-        Integer roleId = (Integer) session.getAttribute("UserRole");
-
-        // 检查会话中是否设置用户是否为管理员的标志
-        if (session.getAttribute("UserIsAdmin") == null){
-            // 如果未设置，则返回系统错误
-            return ResponseResult.serverErrorResult("系统错误！");
-        }
-        // 将用户是否为管理员的标志转换为布尔值
-        boolean isAdmin = !session.getAttribute("UserIsAdmin").equals("false");
-
-        // 创建UserVo对象以封装用户信息
-        UserVo userVo = new UserVo(userId,username,email,isAdmin,roleId);
-
-        // 尝试从会话中获取并设置用户的电话号码
-        if (session.getAttribute("UserPhone") != null){
-            userVo.setPhone((String) session.getAttribute("UserPhone"));
-        }
-        // 尝试从会话中获取并设置用户的名
-        if (session.getAttribute("UserFirstName") != null){
-            userVo.setFirstName((String) session.getAttribute("UserFirstName"));
-        }
-        // 尝试从会话中获取并设置用户的姓
-        if (session.getAttribute("UserLastName") != null){
-            userVo.setLastName((String) session.getAttribute("UserLastName"));
-        }
+        UserVo userVo =(UserVo)session.getAttribute("User");
+	    if (userVo == null)
+	        return ResponseResult.failResult("用户信息获取失败！");
         // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
-        if (session.getAttribute("UserBirthDate") != null){
+        if (userVo.getBirthDate()!= null){
             userVo.setBirthDate((Date) session.getAttribute("UserBirthDate"));
             userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+            session.setAttribute("User", userVo);
         }
-        // 尝试从会话中获取并设置用户的默认地址ID
-        if (session.getAttribute("UserDefaultAddressId") != null){
-            userVo.setDefaultAddressId((Integer) session.getAttribute("UserDefaultAddressId"));
-        }
-
         // 返回包含用户信息的结果
         return ResponseResult.okResult(userVo);
     }

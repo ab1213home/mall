@@ -58,7 +58,7 @@ function submitRegisterStepOneForm() {
 					element.style.display = 'block';
 				});
                 openModal('提示','验证码已发送，请查收');
-                startIntervalTimer(60);
+                startIntervalTimer(600);
             } else {
                 openModal('错误','发送验证码失败:'+res.message);
                 let captchaImg = document.getElementById('captchaImg');

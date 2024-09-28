@@ -41,7 +41,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	/**
 	 * 检查用户是否已登录
 	 * <p>
-	 * 此方法检查会话中的 "UserIsLogin" 和 "UserId" 属性以确认用户是否已经登录。
+	 * 此方法检查会话中的 "User" 属性以确认用户是否已经登录。
 	 * 如果用户未登录，则返回失败的结果；如果已登录，则返回用户ID。
 	 *
 	 * @param session 当前用户的会话
@@ -49,20 +49,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	public ResponseResult checkUserLogin(HttpSession session) {
 	    // 检查用户是否已登录
-	    if (session.getAttribute("UserIsLogin") != null) {
-	        if ("false".equals(session.getAttribute("UserIsLogin"))) {
-	            return ResponseResult.notLoggedResult("您未登录，请先登录");
-	        }
-	    }
-	    // 确保用户ID存在
-	    if (session.getAttribute("UserId") == null) {
-	        return ResponseResult.notLoggedResult("您未登录，请先登录");
-	    }
-	    Integer userId = (Integer) session.getAttribute("UserId");
-		if (userId == null) {
+	    if (session.getAttribute("User") != null) {
+	        UserVo user = (UserVo) session.getAttribute("User");
+			if (user.getId()==null){
+				return ResponseResult.failResult("用户信息获取失败！");
+			}else{
+				return ResponseResult.okResult(user.getId());
+			}
+	    }else {
 			return ResponseResult.notLoggedResult("您未登录，请先登录");
-		}
-	    return ResponseResult.okResult(userId);
+	    }
 	}
 
 	@Override
@@ -108,19 +104,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Integer userId = (Integer) result.getData();
-	    // 检查用户是否具有管理员权限
-	    if (session.getAttribute("UserIsAdmin") == null) {
-	        // 如果不是管理员，则返回未登录结果，提示用户先登录
-	        return ResponseResult.notLoggedResult("您未登录，请先登录");
-	    }
-	    // 判断用户是否是管理员
-	    if (!"true".equals(session.getAttribute("UserIsAdmin"))) {
-	        // 如果用户不是管理员，则返回无权限访问结果
-	        return ResponseResult.notLoggedResult("您没有权限访问此页面");
-	    }
-	    // 用户已登录且是管理员，返回成功的验证结果
-	    return ResponseResult.okResult(userId);
+		UserVo user = (UserVo) session.getAttribute("User");
+		if (user.isAdmin()){
+			return ResponseResult.okResult(user.getId());
+		}else{
+			return ResponseResult.failResult("您没有权限访问此页面");
+		}
 	}
 
 	/**
@@ -139,6 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    if (!result.isSuccess()) {
 	        return result;
 	    }
+		UserVo user = (UserVo) session.getAttribute("User");
 	    // 获取创建修改用户的信息
 		if (userMapper.selectById(oldUserId) == null) {
 //			return ResponseResult.notLoggedResult("用户不存在");
@@ -146,7 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 		User old_user = userMapper.selectById(oldUserId);
 	    // 检查尝试修改轮播图的用户的权限是否足够
-	    if (old_user.getRoleId() > (Integer)session.getAttribute("UserRole")) {
+	    if (old_user.getRoleId() >user.getRoleId()) {
 	        return ResponseResult.notLoggedResult("您没有权限修改此资源");
 	    }
 	    return ResponseResult.okResult(result.getData());

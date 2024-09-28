@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Random;
 
 import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 
 @RestController
 @RequestMapping("/email")
@@ -92,14 +93,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
+            UserCode userCode = new UserCode(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
+            UserCode userCode = new UserCode(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

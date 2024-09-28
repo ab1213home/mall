@@ -158,9 +158,8 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    }
 		// 按照创建时间降序排序
 	    list.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-
 	    // 只保留最后一条记录为有效状态，其余设置为失效状态
-	    for (int i = 0; i < list.size() - 1; i++) {
+	    for (int i = 1; i < list.size(); i++) {
 	        UserCode userCode = list.get(i);
 	        userCode.setStatus(EmailStatus.EXPIRED.getValue());
 	        // 更新数据库中的状态
@@ -168,7 +167,7 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    }
 
 	    // 返回最后一条记录，即最新的有效验证码
-	    return list.get(list.size() - 1);
+	    return list.get(0);
 	}
 
 	/**
