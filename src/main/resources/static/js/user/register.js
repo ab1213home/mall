@@ -202,9 +202,8 @@ $(document).ready(function() {
     submitRegisterStepTowForm(); // 自定义提交处理
   });
 });
-
-function submitRegisterStepThreeForm() {
-  // 获取表单数据
+function submitRegisterStepFourForm() {
+    // 获取表单数据
     const phone = $('#phone').val();
     const firstName = $('#firstName').val();
     const lastName = $('#lastName').val();
@@ -237,6 +236,23 @@ function submitRegisterStepThreeForm() {
       // 显示错误信息给用户
       openModal('错误','用户信息补充失败，请联系管理员！'+error);
     }
+  });
+}
+// 绑定表单提交事件
+$(document).ready(function() {
+  $('#step4').on('submit', function(event) {
+    event.preventDefault(); // 阻止默认提交行为
+    submitRegisterStepFourForm(); // 自定义提交处理
+  });
+});
+function submitRegisterStepThreeForm() {
+  const step4 = document.querySelectorAll('.step4');
+  const step3 = document.querySelectorAll('.step3');
+  step3.forEach(element => {
+      element.style.display = 'none';
+  });
+  step4.forEach(element => {
+      element.style.display = 'block';
   });
 }
 

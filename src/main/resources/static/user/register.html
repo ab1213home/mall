@@ -132,8 +132,8 @@
                                 </div>
                             </div>
                         </form>
-                        <h1 id="step3_title" class="h3 mb-3 font-weight-normal step3" style="text-align: center;font-size: 1.25rem;display:none;">完善用户信息</h1>
                         <form id="step3" class="step3" >
+                            <h1 class="h3 mb-3 font-weight-normal step3 mt-2" style="text-align: center;font-size: 1.25rem;display:none;">完善用户信息</h1>
                             <!-- 补充信息字段 -->
                             <div class="d-flex flex-column gap-2">
                                 <div class="form-group has-feedback">
@@ -157,10 +157,36 @@
                                     <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
                                                                          required="required" max="{{ max_date }}">
                                 </div>
+<!--                                <div class="form-group has-feedback">-->
+<!--                                    <div class="row" id="imageContainer"></div>-->
+<!--                                    <div class="row">-->
+<!--                                        <span class="fa fa-picture-o form-control-feedback"></span>-->
+<!--                                        <label for="img" class="form-label"></label>-->
+<!--                                        <input class="form-control" type="file" id="imgUpload" onchange="uploadFaces()" placeholder="请上传头像图片(10M以内)" accept="image/*">-->
+<!--                                    </div>-->
+<!--                                    <div id="img" class="input-group row"  style="text-align: center; height: 80%;width: auto;">-->
+<!--                                        <img src="/images/no-image.png" id="imgPreview" alt="头像预览" class="img-thumbnail">-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                                <!-- 提交按钮 -->
+                                <div class="row d-flex justify-content-between mt-2">
+                                    <div class="col-4">
+                                        <a href="/user/login.html" class="text-center">稍后完善，去登录</a>
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">下一步</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="step4" class="step4" style="display: none">
+                            <h1 class="h3 font-weight-normal step4" style="text-align: center;font-size: 1.25rem;display:none;">请选择以下头像之一或上传新头像</h1>
+                            <!-- 补充信息字段 -->
+                            <div class="d-flex flex-column gap-2">
                                 <div class="form-group has-feedback">
+                                    <span class="fa fa-picture-o form-control-feedback"></span>
                                     <div class="row" id="imageContainer"></div>
                                     <div class="row">
-                                        <span class="fa fa-picture-o form-control-feedback"></span>
                                         <label for="img" class="form-label"></label>
                                         <input class="form-control" type="file" id="imgUpload" onchange="uploadFaces()" placeholder="请上传头像图片(10M以内)" accept="image/*">
                                     </div>
