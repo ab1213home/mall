@@ -5,11 +5,15 @@ import com.jiang.mall.domain.entity.Cart;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * <p>
- *  Mapper 接口
- * </p>
- *作者： 蒋神 HJL
- * @since 2024-08-05
+ * Cart的映射接口，继承自BaseMapper<Cart>
+ * 本接口用于定义与数据库中tb_carts表进行交互的方法，专门用于处理Cart实体的CRUD操作
+ *
+ * @author jiang
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @apiNote Cart的映射接口
+ * @version 1.0
+ * @since 2024年9月8日
  */
 @Mapper
 public interface CartMapper extends BaseMapper<Cart> {

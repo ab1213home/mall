@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 轮播图实体类，对应数据库表 tb_banner
+ * 轮播图实体类，对应数据库表 tb_banners
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_banner")
+@TableName("tb_banners")
 public class Banner implements Serializable {
 
     /**

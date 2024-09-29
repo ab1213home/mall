@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 商品分类实体类，对应数据库表 tb_category
+ * 商品分类实体类，对应数据库表 tb_categories
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_category")
+@TableName("tb_categories")
 public class Category implements Serializable {
 
     /**

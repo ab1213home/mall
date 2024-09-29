@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.time.LocalDateTime;
 
 /**
- * 商品分类实体类，对应数据库表 tb_collection
+ * 商品分类实体类，对应数据库表 tb_collections
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
  * @since 2024年9月20日
  */
 @Data
-@TableName("tb_collection")
+@TableName("tb_collections")
 public class Collection {
 
 	/**

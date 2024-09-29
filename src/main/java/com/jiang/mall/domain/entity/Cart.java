@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 购物车实体类，对应数据库表 tb_cart
+ * 购物车实体类，对应数据库表 tb_carts
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
@@ -19,7 +19,7 @@ import java.io.Serializable;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_cart")
+@TableName("tb_carts")
 public class Cart implements Serializable {
 
     /**

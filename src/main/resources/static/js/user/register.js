@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
-
+let imagesArr = [];
+getFaceTemplateList();
 function submitRegisterStepOneForm() {
     // 获取表单数据
     const email = $('#email').val();
@@ -103,6 +104,50 @@ function startIntervalTimer(duration) {
         }
     }, 1000);
 }
+
+function getRandomImages(images, n) {
+    let shuffled = images.slice(0); // 复制数组
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // 交换元素
+    }
+    return shuffled.slice(0, n); // 返回前n个元素
+}
+
+function displayImages(images) {
+    const container = $('#imageContainer');
+    container.empty(); // 清空容器
+    let row=`<div class="row">`;
+    for (let i = 0; i < images.length; i++) {
+        if(i%3==0 && i != 0){
+            row+=`</div><div class="row">`;
+        }
+        row+=`<div class="col-md-4"><img src="`+images[i]+`" id="images`+i+`" alt="用户头像范例" class="img-fluid mx-auto d-block" onclick="toggleSelection(${i})"></div>`;
+    }
+    row+='</div>';
+    container.append(row);
+}
+function toggleSelection(i) {
+    // 移除所有图片的 .selected 类
+    $('.img-fluid').removeClass('selected');
+    // 为当前点击的图片添加 .selected 类
+    $('#images'+i).toggleClass('selected');
+    $('#img').val(imagesArr[i]);
+}
+function getFaceTemplateList() {
+    $.ajax({
+    url: '/getFaceTemplateList',
+    type: 'GET',
+    success: function (res) {
+        imagesArr = getRandomImages(res.data, 9);
+        displayImages(imagesArr);
+    },
+    error: function (error) {
+      openModal("错误", "获取图片列表失败" + error)
+    }
+  });
+}
+
 // 注册表单提交处理函数
 function submitRegisterStepTowForm() {
     // 获取表单数据
@@ -137,6 +182,7 @@ function submitRegisterStepTowForm() {
             step3.forEach(element => {
                 element.style.display = 'block';
             });
+            getFaceTemplateList();
             openModal('提示','用户注册成功');
         } else {
             openModal('错误','用户注册失败:'+data.message);

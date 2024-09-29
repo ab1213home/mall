@@ -143,12 +143,7 @@ public class FileController {
 
     @GetMapping("/getFaceTemplateList")
     public ResponseResult getFaceTemplateList(HttpSession session){
-    	// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
+
     	File folder = new File(FILE_UPLOAD_PATH+"faces/");
 
     	if (!folder.exists() || !folder.isDirectory()) {

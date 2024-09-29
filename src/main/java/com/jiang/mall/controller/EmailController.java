@@ -3,6 +3,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICodeService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.EmailUtils;
@@ -40,9 +41,10 @@ public class EmailController {
                                        @RequestParam("captcha") String captcha,
                                        HttpSession session) {
         // 检查用户是否已登录
-        if (session.getAttribute("UserIsLogin")!=null){
-            if ("true".equals(session.getAttribute("UserIsLogin"))) {
-	            return ResponseResult.failResult("您已登录，请勿重复注册");
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
+                return ResponseResult.failResult("您已登录，请勿重复注册");
             }
         }
         if (!AllowSendEmail){
