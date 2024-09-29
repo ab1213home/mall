@@ -7,7 +7,6 @@ import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserCodeService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
-import com.jiang.mall.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -63,9 +62,10 @@ public class UserController {
                                         @RequestParam("code")String code,
                                         HttpSession session) {
         // 检查用户是否已登录
-        if (session.getAttribute("UserIsLogin")!=null){
-            if ("true".equals(session.getAttribute("UserIsLogin"))) {
-	            return ResponseResult.failResult("您已登录，请勿重复注册");
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
+                return ResponseResult.failResult("您已登录，请勿重复注册");
             }
         }
 
@@ -144,8 +144,9 @@ public class UserController {
             return ResponseResult.failResult("请先完成第一步注册，会话已过期");
         }
         // 防止已登录用户重复注册
-        if (session.getAttribute("UserIsLogin")!=null){
-            if ("true".equals(session.getAttribute("UserIsLogin"))) {
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
                 return ResponseResult.failResult("您已登录，请勿重复注册");
             }
         }
@@ -402,11 +403,13 @@ public class UserController {
             if (!userService.modifyUserInfo(userInfo))
                 return ResponseResult.serverErrorResult("修改失败！");
             // 更新会话中的用户信息属性
-            session.setAttribute("UserEmail", userInfo.getEmail());
-            session.setAttribute("UserPhone", userInfo.getPhone());
-            session.setAttribute("UserFirstName", userInfo.getFirstName());
-            session.setAttribute("UserLastName", userInfo.getLastName());
-            session.setAttribute("UserBirthDate", userInfo.getBirthDate());
+            UserVo user= (UserVo) session.getAttribute("User");
+            user.setEmail(userInfo.getEmail());
+            user.setPhone(userInfo.getPhone());
+            user.setFirstName(userInfo.getFirstName());
+            user.setLastName(userInfo.getLastName());
+            user.setBirthDate(userInfo.getBirthDate());
+            session.setAttribute("User",user);
             // 返回操作成功的结果，告知用户信息更新成功
             return ResponseResult.okResult("用户信息更新成功！");
         }
@@ -436,6 +439,7 @@ public class UserController {
         if (!userService.lockUser(userId))
             return ResponseResult.serverErrorResult("修改失败！");
         // 用户锁定成功，返回成功信息
+        logout(session);
         return ResponseResult.okResult("用户锁定成功！");
     }
 
@@ -549,7 +553,6 @@ public class UserController {
 	        return ResponseResult.failResult("用户信息获取失败！");
         // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
         if (userVo.getBirthDate()!= null){
-            userVo.setBirthDate((Date) session.getAttribute("UserBirthDate"));
             userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
             session.setAttribute("User", userVo);
         }
@@ -567,21 +570,11 @@ public class UserController {
      */
     @GetMapping("/isAdminUser")
     public ResponseResult isAdminUser(HttpSession session){
-        // 检查会话中是否含有用户是否为管理员的标记
-        if (session.getAttribute("UserIsAdmin") == null){
-            // 如果没有该标记，返回服务器错误
+        if (session.getAttribute("User") == null){
             return ResponseResult.serverErrorResult("系统错误！");
-        }else {
-            // 如果管理员标记为"false"，表示用户不是管理员
-            if (session.getAttribute("UserIsAdmin").equals("false")){
-                // 返回OK结果，包含标志值false
-                return ResponseResult.okResult(false);
-            }else {
-                // 其他情况下，默认用户是管理员
-                // 返回OK结果，包含标志值true
-                return ResponseResult.okResult(true);
-            }
         }
+        UserVo user = (UserVo) session.getAttribute("User");
+        return ResponseResult.okResult(user.isAdmin());
     }
 
     /**
@@ -590,7 +583,7 @@ public class UserController {
      * @param session HttpSession对象，用于获取用户 session 信息
      * @return ResponseResult包含距离下一次生日的天数或错误信息
      *
-     * 本方法首先检查用户是否设置了生日（通过UserBirthDate键存储在session中），
+     * 本方法首先检查用户是否设置了生日，
      * 如果没有设置或者设置的值是"null"字符串，则返回失败结果并提示用户未设置生日。
      * 如果生日已设置，则计算距离下一次生日的天数，并返回成功结果。
      */
@@ -601,22 +594,17 @@ public class UserController {
 		    // 如果未登录，则直接返回
 		    return result;
 		}
+        if (session.getAttribute("User") == null){
+            return ResponseResult.failResult("用户信息获取失败！");
+        }
+        UserVo user = (UserVo) session.getAttribute("User");
+
         // 检查session中是否设置了用户生日
-        if (session.getAttribute("UserBirthDate") == null){
+        if (user.getBirthDate() == null){
             return ResponseResult.failResult("未设置生日！");
         }
-        // 检查用户生日是否为空字符串
-        if (session.getAttribute("UserBirthDate").equals("")){
-            return ResponseResult.failResult("未设置生日！");
-        }
-        // 检查用户生日是否为"null"字符串
-        if (session.getAttribute("UserBirthDate").equals("null")){
-            return ResponseResult.failResult("未设置生日！");
-        }
-        // 从session中获取用户生日日期
-        Date birthDate = (Date) session.getAttribute("UserBirthDate");
         // 计算并返回距离下一次生日的天数
-        return ResponseResult.okResult(getDaysUntilNextBirthday(birthDate));
+        return ResponseResult.okResult(getDaysUntilNextBirthday(user.getBirthDate()));
     }
 
     @GetMapping("/getList")

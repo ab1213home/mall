@@ -1,5 +1,7 @@
 package com.jiang.mall.intercepter;
 
+import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.UserVo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -15,21 +17,16 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         String requestURI = request.getRequestURI();
-		if (null != request.getSession().getAttribute("UserIsLogin")) {
-            if ("true" == request.getSession().getAttribute("UserIsLogin")){
-                if (null != request.getSession().getAttribute("UserIsAdmin")) {
-                    if ("true" == request.getSession().getAttribute("UserIsAdmin")){
-                        return true;
-                    }else {
-                        response.sendRedirect(request.getContextPath() + "/user/index.html");
-                        return false;
-                    }
-                }else {
-                    redirectToLogin(request, response, requestURI);
-                    return false;
-                }
-            }else {
+        if (request.getSession().getAttribute("User")!=null){
+            UserVo user = (UserVo) request.getSession().getAttribute("User");
+            if (user.getId()==null){
                 redirectToLogin(request, response, requestURI);
+                return false;
+            }
+            if (user.isAdmin()){
+                return true;
+            }else {
+                response.sendRedirect(request.getContextPath() + "/user/index.html");
                 return false;
             }
         }else {

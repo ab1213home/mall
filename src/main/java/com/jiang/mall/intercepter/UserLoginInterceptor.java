@@ -1,5 +1,6 @@
 package com.jiang.mall.intercepter;
 
+import com.jiang.mall.domain.vo.UserVo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -29,19 +30,15 @@ public class UserLoginInterceptor implements HandlerInterceptor {
         // 获取请求的URI
         String requestURI = request.getRequestURI();
 
-        // 检查session中是否含有用户登录状态和用户ID
-        if (null != request.getSession().getAttribute("UserIsLogin") && request.getSession().getAttribute("UserId") != null) {
-            // 如果登录状态为true，表示用户已登录
-            if ("true".equals(request.getSession().getAttribute("UserIsLogin"))) {
-                // 用户已登录，继续访问
-                return true;
-            } else {
-                // 用户登录状态不为true，重定向到登录页面
+        if (request.getSession().getAttribute("User")!=null){
+            UserVo user = (UserVo) request.getSession().getAttribute("User");
+            if (user.getId()==null){
                 redirectToLogin(request, response, requestURI);
                 return false;
+            }else {
+                return true;
             }
-        } else {
-            // 未登录，重定向到登录页面
+        }else {
             redirectToLogin(request, response, requestURI);
             return false;
         }
