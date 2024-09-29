@@ -15,10 +15,24 @@
     <description>mall</description>
     <url/>
     <licenses>
-        <license/>
+        <license>
+                <name>Mulan PSL v2</name>
+                <url>http://license.coscl.org.cn/MulanPSL2</url>
+                <distribution>repo</distribution>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>ab1213home</id>
+            <name>jiangrongjun</name>
+            <email>jiangrongjun2004@163.com</email>
+            <organization>jiangrongjun</organization>
+            <organizationUrl>https://gitee.com/jiangrongjun/mall</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
     </developers>
     <scm>
         <connection/>
