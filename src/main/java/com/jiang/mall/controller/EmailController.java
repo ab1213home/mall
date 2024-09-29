@@ -1,9 +1,9 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.UserCode;
-import com.jiang.mall.service.IUserCodeService;
+import com.jiang.mall.service.ICodeService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
@@ -21,7 +21,7 @@ import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 public class EmailController {
 
     @Autowired
-    private IUserCodeService userCodeService;
+    private ICodeService userCodeService;
 
     @Autowired
     private IUserService userService;
@@ -93,14 +93,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
+            Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
+            Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -191,14 +191,14 @@ public class EmailController {
                 "</body></html>";
         // 发送邮件并处理结果
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
+            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
+            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -255,14 +255,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            UserCode userCode = new UserCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
+            Code userCode = new Code(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
             if (userCodeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            UserCode userCode = new UserCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
+            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
             userCodeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

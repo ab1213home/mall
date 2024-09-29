@@ -2,23 +2,22 @@ package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.UserCodeMapper;
-import com.jiang.mall.domain.entity.UserCode;
-import com.jiang.mall.service.IUserCodeService;
+import com.jiang.mall.dao.CodeMapper;
+import com.jiang.mall.domain.entity.Code;
+import com.jiang.mall.service.ICodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.*;
 
 @Service
-public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> implements IUserCodeService {
+public class CodeServiceImpl extends ServiceImpl<CodeMapper, Code> implements ICodeService {
 
 	@Autowired
-	private UserCodeMapper userCodeMapper;
+	private CodeMapper codeMapper;
 
 	/**
 	 * 根据邮箱检查发送状态
@@ -37,7 +36,7 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
 	    // 构建查询条件
-	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
+	    QueryWrapper<Code> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email);
 	    queryWrapper.ge("created_at", yesterday);
 	    queryWrapper.le("created_at", now);
@@ -46,12 +45,12 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    int success = 0;
 	    int fail = 0;
 	    // 查询并返回结果数量
-	    List<UserCode> list = userCodeMapper.selectList(queryWrapper);
-	    for (UserCode userCode : list) {
+	    List<Code> list = codeMapper.selectList(queryWrapper);
+	    for (Code code : list) {
 	        count++;
-	        if (userCode.getStatus() == EmailStatus.SUCCESS.getValue()) {
+	        if (code.getStatus() == EmailStatus.SUCCESS.getValue()) {
 	            success++;
-	        } else if (userCode.getStatus() == EmailStatus.FAILED.getValue()) {
+	        } else if (code.getStatus() == EmailStatus.FAILED.getValue()) {
 	            continue;
 	        } else {
 	            fail++;
@@ -88,14 +87,14 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
 
 	    // 构建查询条件
-	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
+	    QueryWrapper<Code> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email);
 	    queryWrapper.ge("created_at", yesterday);
 	    queryWrapper.le("created_at", now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
-	    List<UserCode> list = userCodeMapper.selectList(queryWrapper);
+	    List<Code> list = codeMapper.selectList(queryWrapper);
 	    return !list.isEmpty();
 	}
 
@@ -114,14 +113,14 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
 
 	    // 构建查询条件
-	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
+	    QueryWrapper<Code> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("user_id", id);
 	    queryWrapper.ge("created_at", yesterday);
 	    queryWrapper.le("created_at", now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
-	    List<UserCode> list = userCodeMapper.selectList(queryWrapper);
+	    List<Code> list = codeMapper.selectList(queryWrapper);
 	    // 如果列表不为空，则返回true，表示存在有效的用户代码
 	    return !list.isEmpty();
 	}
@@ -137,21 +136,21 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	 * @return 返回查询到的验证码对象，如果没有找到则返回null
 	 */
 	@Override
-	public UserCode queryCodeByEmail(String email) {
+	public Code queryCodeByEmail(String email) {
 	    // 获取当前时间
 	    Date now = new Date();
 	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
 	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-	    QueryWrapper<UserCode> queryWrapper = new QueryWrapper<>();
+	    QueryWrapper<Code> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
 	    queryWrapper.ge("created_at", yesterday); // 创建时间大于等于yesterday，即expiration_time分钟内创建的
 	    queryWrapper.le("created_at", now); // 创建时间小于等于当前时间，即还未过期的
 	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
 
 	    // 执行查询
-	    List<UserCode> list = userCodeMapper.selectList(queryWrapper);
+	    List<Code> list = codeMapper.selectList(queryWrapper);
 		// 如果列表为空，则返回null
 		if (list.isEmpty()) {
 	        return null;
@@ -160,10 +159,10 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	    list.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
 	    // 只保留最后一条记录为有效状态，其余设置为失效状态
 	    for (int i = 1; i < list.size(); i++) {
-	        UserCode userCode = list.get(i);
-	        userCode.setStatus(EmailStatus.EXPIRED.getValue());
+	        Code code = list.get(i);
+	        code.setStatus(EmailStatus.EXPIRED.getValue());
 	        // 更新数据库中的状态
-	        userCodeMapper.updateById(userCode);
+	        codeMapper.updateById(code);
 	    }
 
 	    // 返回最后一条记录，即最新的有效验证码
@@ -177,16 +176,16 @@ public class UserCodeServiceImpl extends ServiceImpl<UserCodeMapper, UserCode> i
 	 * 它首先根据用户ID和验证码对象更新数据库中的记录，如果更新成功则返回true，否则返回false。
 	 *
 	 * @param userId   用户ID
-	 * @param userCode 验证码对象
+	 * @param code 验证码对象
 	 * @return 如果更新成功则返回true，否则返回false
 	 */
 	@Override
-	public boolean useCode(int userId, UserCode userCode) {
+	public boolean useCode(int userId, Code code) {
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
-	    userCode.setUserId(userId);
+	    code.setUserId(userId);
 	    // 将验证码状态更改为“已使用”
-	    userCode.setStatus(EmailStatus.USED.getValue());
+	    code.setStatus(EmailStatus.USED.getValue());
 	    // 更新数据库中的验证码记录，并返回更新结果
-	    return userCodeMapper.updateById(userCode) > 0;
+	    return codeMapper.updateById(code) > 0;
 	}
 }

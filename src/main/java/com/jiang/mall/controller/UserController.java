@@ -1,17 +1,16 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.UserCode;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IUserCodeService;
+import com.jiang.mall.service.ICodeService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpSession;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -39,7 +38,7 @@ public class UserController {
     private IUserService userService;
 
     @Autowired
-    private IUserCodeService userCodeService;
+    private ICodeService userCodeService;
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -91,7 +90,7 @@ public class UserController {
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
         }
-        UserCode userCode = userCodeService.queryCodeByEmail(email);
+        Code userCode = userCodeService.queryCodeByEmail(email);
         if (userCode==null){
             return ResponseResult.failResult("验证码错误或已过期");
         }

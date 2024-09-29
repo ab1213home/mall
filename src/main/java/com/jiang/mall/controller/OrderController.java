@@ -248,10 +248,6 @@ public class OrderController {
 	        return result;
 	    }
 	    Integer userId = (Integer) result.getData();
-	    if (userId == null) {
-	        // 如果获取用户ID失败，表示检查登录状态时出现异常
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    }
 	    // 调用服务方法，根据用户ID获取订单列表
 	    List<OrderVo> orderList = orderService.getOrderList(userId, pageNum, pageSize);
 	    if (orderList == null) {
@@ -260,7 +256,7 @@ public class OrderController {
 	    }
 	    if (orderList.isEmpty()) {
 	        // 如果订单列表为空
-	        return ResponseResult.failResult("暂无订单");
+	        return ResponseResult.okResult(orderList,"暂无订单");
 	    }
 	    // 获取订单列表成功
 	    return ResponseResult.okResult(orderList);
@@ -275,10 +271,6 @@ public class OrderController {
 	        return result;
 	    }
 	    Integer userId = (Integer) result.getData();
-	    if (userId == null) {
-	        // 如果获取用户ID失败，表示检查登录状态时出现异常
-	        return ResponseResult.failResult("您未登录，请先登录");
-	    }
 		return ResponseResult.okResult(orderService.getOrderNum(userId));
 	}
 
@@ -300,7 +292,7 @@ public class OrderController {
 	    }
 	    if (orderList.isEmpty()) {
 	        // 如果订单列表为空
-	        return ResponseResult.failResult("暂无订单");
+	        return ResponseResult.okResult(orderList,"暂无订单");
 	    }
 	    // 获取订单列表成功
 	    return ResponseResult.okResult(orderList);

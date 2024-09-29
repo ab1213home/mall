@@ -8,9 +8,19 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+/**
+ * 邮箱验证码实体类，对应数据库表 tb_codes
+ *
+ * @author jiang
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @apiNote 邮箱验证码实体类
+ * @version 1.0
+ * @since 2024年9月20日
+ */
 @Data
-@TableName("tb_user_codes")
-public class UserCode implements Serializable {
+@TableName("tb_codes")
+public class Code implements Serializable {
 	/**
      * 序列化版本UID
      */
@@ -65,10 +75,10 @@ public class UserCode implements Serializable {
      */
 	private Integer status;
 
-	public UserCode() {
+	public Code() {
 	}
 
-	public UserCode(String username, String email, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus, Integer userId) {
+	public Code(String username, String email, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus, Integer userId) {
 		this.username = username;
 		this.email = email;
 		this.code = code;
@@ -77,7 +87,7 @@ public class UserCode implements Serializable {
 		this.userId = userId;
 	}
 
-	public UserCode(String username, String email, String password, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus) {
+	public Code(String username, String email, String password, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

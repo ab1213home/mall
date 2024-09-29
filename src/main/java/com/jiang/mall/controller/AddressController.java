@@ -57,7 +57,7 @@ public class AddressController {
         }
         // 如果地址列表为空，则返回失败结果并提示暂无收货地址
         if (address_List.isEmpty()) {
-	        return ResponseResult.failResult("暂无收货地址");
+	        return ResponseResult.okResult(address_List,"暂无收货地址");
         }
         // 如果成功获取到地址列表，则返回成功结果及地址列表数据
         return ResponseResult.okResult(address_List);
