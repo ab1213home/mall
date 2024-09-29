@@ -16,6 +16,12 @@ import java.util.Random;
 import static com.jiang.mall.domain.entity.Config.*;
 import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 
+/**
+ * 邮箱验证码控制器
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月20日
+ */
 @RestController
 @RequestMapping("/email")
 public class EmailController {

@@ -2,6 +2,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IUserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -10,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.HttpSession;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +21,12 @@ import static com.jiang.mall.controller.CommonController.imageSuffix;
 import static com.jiang.mall.util.FileUtils.getFileCount;
 import static com.jiang.mall.util.FileUtils.getFolderSize;
 
+/**
+ * 文件控制器
+ * @author jiang
+ * @version 1.0
+ * @since 2024年9月20日
+ */
 @RestController
 public class FileController {
 
