@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-import static com.jiang.mall.domain.entity.Config.paymentMethod;
 import static com.jiang.mall.domain.entity.Config.order_status;
+import static com.jiang.mall.domain.entity.Config.paymentMethod;
 
 /**
  * <p>
@@ -232,7 +232,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         List<Map<String, Object>> resultList = orderMapper.selectMaps(queryWrapper);
 
         // 返回结果
-        if (!resultList.isEmpty()) {
+        if (!resultList.isEmpty() && resultList.get(0) != null) {
             return resultList.get(0).get("total_amount").toString();
         }
         return "0.00";
