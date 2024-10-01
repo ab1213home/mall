@@ -73,69 +73,137 @@
             <div class="sidebar-wrapper">
                 <nav class="mt-2"> <!--begin::Sidebar Menu-->
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item"> <a href="../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
-                                <p>用户中心首页</p>
-                            </a> </li>
-                        <li class="nav-item"> <a href="../../index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                        <li class="nav-item"> <a href="/index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
                                 <p>商城首页</p>
                             </a> </li>
                         <li class="nav-header text-center">设置</li>
-                        <li class="nav-item"> <a href="../../collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
+                        <li class="nav-item"> <a href="/user/index.html" class="nav-link active"> <i class="nav-icon bi bi-house"></i>
+                                <p>用户首页</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="/collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
                                 <p>我的收藏</p>
                             </a> </li>
-                        <li class="nav-item"> <a href="./address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                        <li class="nav-item"> <a href="/user/modify/address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
                                 <p>我的收货地址</p>
                             </a>
                         </li>
-                        <li class="nav-item"> <a href="../../cart.html"  class="nav-link"> <i class="nav-icon bi bi-cart-dash"></i>
+                        <li class="nav-item"> <a href="/cart.html"  class="nav-link"> <i class="nav-icon bi bi-cart-dash"></i>
                                 <p>我的购物车</p>
                             </a>
                         </li>
-                        <li class="nav-item"> <a href="../../orders.html"  class="nav-link"> <i class="nav-icon bi bi-list-ul"></i>
+                        <li class="nav-item"> <a href="/orders.html"  class="nav-link"> <i class="nav-icon bi bi-list-ul"></i>
                                 <p>我的订单</p>
                             </a>
                         </li>
-                        <li class="nav-item menu-open"> <a href="#" class="nav-link active"> <i class="nav-icon bi bi-person"></i>
+                        <li class="nav-item "> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
                                 <p>
                                     账号与安全
                                     <i class="nav-arrow bi bi-chevron-right"></i>
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-                                <li class="nav-item"> <a href="./password.html" class="nav-link"> <i class="nav-icon bi bi-key"></i>
+                                <li class="nav-item"> <a href="/user/modify/password.html" class="nav-link"> <i class="nav-icon bi bi-key"></i>
                                         <p>修改密码</p>
                                     </a> </li>
-                                <li class="nav-item"> <a href="./info.html" class="nav-link active"> <i class="nav-icon bi bi-info-circle"></i>
+                                <li class="nav-item"> <a href="/user/modify/email.html" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                        <p>修改邮箱</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/portrait.html" class="nav-link"> <i class="nav-icon bi bi-person-square"></i>
+                                        <p>修改头像</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
                                         <p>修改用户信息</p>
                                     </a> </li>
                             </ul>
                         </li>
+                        <li class="nav-header text-center">消息</li>
+                        <li class="nav-item"> <a href="/message/index.html" class="nav-link"> <i class="nav-icon bi bi-bell"></i>
+                                <p>站内消息</p>
+                            </a> </li>
                         <li class="nav-header text-center admin" style="display: none;">管理后台</li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                        <li class="nav-item admin palette" style="display: none;"> <a href="../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
                                 <p>仪表盘</p>
                             </a> </li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/user.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
-                                <p>用户管理</p>
-                            </a> </li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                        <li class="nav-item admin user" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-people-fill"></i>
+                                <p>
+                                    用户管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/user/setting.html" class="nav-link"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/user/overview.html" class="nav-link"> <i class="nav-icon bi bi-view-list"></i>
+                                        <p>用户概览</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/user/audit.html" class="nav-link"> <i class="nav-icon bi bi-check2-square"></i>
+                                        <p>用户审核</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item admin category" style="display: none;"> <a href="../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
                                 <p>商品分类管理</p>
                             </a> </li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin order" style="display: none;"> <a href="../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>商品管理</p>
                             </a> </li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin order" style="display: none;"> <a href="../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>订单管理</p>
                             </a> </li>
-                        <li class="nav-item admin" style="display: none;"> <a href="../../admin/banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
+                        <li class="nav-item admin banner" style="display: none;"> <a href="../admin/banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
                                 <p>轮播图管理</p>
                             </a> </li>
-                        <li class="nav-header text-center">Bug与反馈</li>
-                        <li class="nav-item"> <a href="https://gitee.com/jiangrongjun/mall" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
-                                <p>Gitee</p>
-                            </a> </li>
-                        <li class="nav-item"> <a href="mailto:jiangrongjun2004@163.com" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
-                                <p>电子邮箱</p>
-                            </a> </li>
+                        <li class="nav-item admin file" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-files"></i>
+                                <p>
+                                    文件管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/file/setting.html" class="nav-link"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/file/browser.html" class="nav-link"> <i class="nav-icon bi bi-folder"></i>
+                                        <p>文件浏览器</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item admin email" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                <p>
+                                    SMTP邮箱管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/email/setting.html" class="nav-link"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/email/record.html" class="nav-link"> <i class="nav-icon bi bi-clipboard-data"></i>
+                                        <p>发件记录</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header text-center">关于商城</li>
+                        <li class="nav-item"><a href="/about.html" class="nav-link"> <i class="nav-icon bi bi-exclamation-circle"></i>
+                                <p>关于商城</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
+                                <p>
+                                    Bug与反馈
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/github.html" class="nav-link"> <i class="nav-icon bi bi-github"></i>
+                                    <p>Github</p>
+                                </a> </li>
+                                <li class="nav-item"> <a href="mailto:jiangrongjun2004@163.com" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                    <p>电子邮箱</p>
+                                </a> </li>
+                            </ul>
+                        </li>
                     </ul> <!--end::Sidebar Menu-->
                 </nav>
             </div> <!--end::Sidebar Wrapper-->

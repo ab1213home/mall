@@ -20,7 +20,7 @@ function queryBirthday() {
 					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
 				}
 				else {
-					$("#birthday").html("距离您的下一个生日还有 "+res.data+" 天。");
+					$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+res.data+" 天。");
 				}
 
 			}
