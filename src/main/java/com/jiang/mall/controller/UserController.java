@@ -38,7 +38,7 @@ public class UserController {
     private IUserService userService;
 
     @Autowired
-    private ICodeService userCodeService;
+    private ICodeService codeService;
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -90,11 +90,10 @@ public class UserController {
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
         }
-        Code userCode = userCodeService.queryCodeByEmail(email);
+        Code userCode = codeService.queryCodeByEmail(email);
         if (userCode==null){
             return ResponseResult.failResult("验证码错误或已过期");
         }
-        System.out.println(userCode);
         if (!Objects.equals(userCode.getCode(),code)){
             return ResponseResult.failResult("验证码错误");
         }
@@ -110,7 +109,7 @@ public class UserController {
         int userId = userService.registerStep(user);
         if (userId>0) {
             session.setAttribute("UserId",userId);
-            userCodeService.useCode(userId,userCode);
+            codeService.useCode(userId,userCode);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因注册失败");
@@ -244,6 +243,33 @@ public class UserController {
         }
     }
 
+    @PostMapping("/modify/email")
+    public ResponseResult modifyEmail(@RequestParam("email") String email,
+                                      @RequestParam("code") String code,
+                                       HttpSession session) {
+        ResponseResult result = userService.checkUserLogin(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        Integer userId = (Integer) result.getData();
+        Code userCode = codeService.queryCodeByEmail(email);
+        if (userCode==null){
+            return ResponseResult.failResult("验证码错误或已过期");
+        }
+        if (!Objects.equals(userCode.getCode(),code)){
+            return ResponseResult.failResult("验证码错误");
+        }
+//        User user = userService.getUserInfo(userId);
+        User user = new User();
+        user.setId(userId);
+        user.setEmail(email);
+        if (userService.updateById(user)) {
+            codeService.useCode(userId,userCode);
+            return ResponseResult.okResult();
+        }else {
+            return ResponseResult.serverErrorResult("未知原因修改邮箱失败");
+        }
+    }
     /**
      * 修改密码的处理方法
      * <p>
@@ -317,8 +343,8 @@ public class UserController {
                                          @RequestParam("firstName") String firstName,
                                          @RequestParam("lastName") String lastName,
                                          @RequestParam("birthday") String birthDate,
-                                         @RequestParam("email") String email,
-                                         @RequestParam("img") String img,
+                                         @RequestParam(required = false) String email,
+                                         @RequestParam(required = false) String img,
                                          @RequestParam(required = false) boolean isAdmin,
                                          @RequestParam(required = false) Integer roleId,
                                          HttpSession session) {
@@ -333,13 +359,9 @@ public class UserController {
         if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
             return ResponseResult.failResult("手机号格式不正确");
         }
-        // 验证邮箱格式是否正确
-        if (StringUtils.hasText(email) && !email.matches(regex_email)) {
-            return ResponseResult.failResult("邮箱格式不正确");
-        }
+
         // 设置用户ID到用户信息对象中
-        User userInfo = new User(userId, firstName, lastName, phone, email);
-        userInfo.setImg(img);
+        User userInfo = new User(userId, firstName, lastName, phone,img);
         // 验证和转换生日日期格式
         try {
             LocalDate localDate = LocalDate.parse(birthDate, formatter);
@@ -356,6 +378,10 @@ public class UserController {
             // 管理员后台修改信息时，不允许修改自己的信息
             if (Objects.equals(id, userId)) {
                 return ResponseResult.failResult("不能通过管理后台修改自己的信息");
+            }
+            // 验证邮箱格式是否正确
+            if (StringUtils.hasText(email) && !email.matches(regex_email)) {
+                return ResponseResult.failResult("邮箱格式不正确");
             }
             result = userService.hasPermission(id,session);
             // 如果用户未登录或不是管理员，则返回错误信息
@@ -387,23 +413,18 @@ public class UserController {
             userInfo.setId(id);
             // 设置角色ID
             userInfo.setRoleId(roleId);
+            userInfo.setEmail(email);
             if (userService.updateUser(userInfo)) {
                 return ResponseResult.okResult("修改成功");
             } else {
                 return ResponseResult.serverErrorResult("修改失败");
             }
         } else {
-            User oldUser = userService.getUserInfo(userId);
-            // 检查邮箱是否已被其他用户使用
-            if (!oldUser.getEmail().equals(email) && userService.queryByEmail(email)) {
-                return ResponseResult.failResult("邮箱已存在");
-            }
             // 尝试修改用户信息，如果失败则返回错误结果
             if (!userService.modifyUserInfo(userInfo))
                 return ResponseResult.serverErrorResult("修改失败！");
             // 更新会话中的用户信息属性
             UserVo user= (UserVo) session.getAttribute("User");
-            user.setEmail(userInfo.getEmail());
             user.setPhone(userInfo.getPhone());
             user.setFirstName(userInfo.getFirstName());
             user.setLastName(userInfo.getLastName());

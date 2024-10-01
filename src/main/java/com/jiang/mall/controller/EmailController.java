@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.Random;
 
 import static com.jiang.mall.domain.entity.Config.*;
@@ -28,7 +29,7 @@ import static com.jiang.mall.util.MD5Utils.encryptToMD5;
 public class EmailController {
 
     @Autowired
-    private ICodeService userCodeService;
+    private ICodeService codeService;
 
     @Autowired
     private IUserService userService;
@@ -79,7 +80,7 @@ public class EmailController {
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
         }
-        if (userCodeService.inspectByEmail(email)){
+        if (codeService.inspectByEmail(email)){
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 检查邮箱是否已注册
@@ -102,14 +103,14 @@ public class EmailController {
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
-            if (userCodeService.save(userCode)){
+            if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
             Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
-            userCodeService.save(userCode);
+            codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }
@@ -122,7 +123,7 @@ public class EmailController {
             // 如果未登录，则直接返回
             return result;
         }
-        if (userCodeService.checkingByUserId((Integer)result.getData())){
+        if (codeService.checkingByUserId((Integer)result.getData())){
             return ResponseResult.okResult("在"+expiration_time+"分钟内已经验证通过");
         }
         return ResponseResult.failResult("验证码已过期，请重新获取");
@@ -183,7 +184,7 @@ public class EmailController {
             return ResponseResult.failResult("用户不存在");
         }
         // 检查邮箱是否请求过多验证码
-        if (userCodeService.inspectByEmail(user.getEmail())) {
+        if (codeService.inspectByEmail(user.getEmail())) {
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 生成验证码和邮件内容
@@ -200,14 +201,93 @@ public class EmailController {
         // 发送邮件并处理结果
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
-            if (userCodeService.save(userCode)){
+            if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
             }
         }else {
             Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
-            userCodeService.save(userCode);
+            codeService.save(userCode);
+            return ResponseResult.failResult("邮件发送失败，请重试");
+        }
+    }
+
+    @PostMapping("/sendChangeEmail")
+    public ResponseResult sendChangeEmail(@RequestParam("password") String password,
+                                          @RequestParam("email") String email,
+                                          @RequestParam("captcha") String captcha,
+                                          HttpSession session) {
+        if (!AllowSendEmail){
+			return ResponseResult.failResult("管理员不允许发送邮件");
+		}
+        ResponseResult result = userService.checkUserLogin(session);
+        if (!result.isSuccess()) {
+            // 如果未登录，则直接返回
+            return result;
+        }
+        Integer userId = (Integer) result.getData();
+
+        // 检查验证码是否为空
+        if (!StringUtils.hasText(captcha)) {
+            return ResponseResult.failResult("验证码不能为空");
+        }
+
+        // 验证邮箱格式
+        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+            return ResponseResult.failResult("邮箱格式不正确");
+        }
+
+        // 获取并验证会话中的验证码
+        Object captchaObj = session.getAttribute("captcha");
+        if (captchaObj == null) {
+            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
+        }
+        String captchaCode = captchaObj.toString();
+        if (!captchaCode.toLowerCase().equals(captcha)) {
+            return ResponseResult.failResult("验证码错误");
+        }
+
+        User user = userService.getUserInfo(userId);
+        if (!Objects.equals(user.getPassword(), encryptToMD5(password))) {
+            return ResponseResult.failResult("密码错误");
+        }
+        if (!StringUtils.hasText(email)){
+            return ResponseResult.failResult("邮箱不能为空");
+        }
+
+        if (Objects.equals(user.getEmail(), email)){
+            return ResponseResult.failResult("新邮箱不能与旧邮箱相同");
+        }
+
+        if (codeService.inspectByEmail(email)){
+            return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
+        }
+        // 检查邮箱是否已注册
+        if (userService.queryByEmail(email)) {
+            return ResponseResult.failResult("邮箱已存在");
+        }
+
+        String code = generateRandomCode(8);
+        String htmlContent = "<html><body>" +
+                "<h1>【"+SENDER_END+"】验证码通知</h1>" +
+                "<p>尊敬的"+user.getUsername()+"用户，您正在尝试使用"+EmailPurpose.CHANGE_EMAIL.getName()+"功能。</p>" +
+                "<div style='font-size: 24px; color: #007bff; font-weight: bold; text-align: center;'>" +
+                "您的验证码是：<span style='font-size: 36px;'>"+code+"</span></div>" +
+                "<p>请在接下来的 "+expiration_time+" 分钟内使用此验证码完成操作。为保证账户安全，请勿向任何人透露此验证码。</p>" +
+                "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
+                "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
+                "</body></html>";
+        if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
+            Code userCode = new Code(user.getUsername(),email, encryptToMD5(password), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
+            if (codeService.save(userCode)){
+                return ResponseResult.okResult();
+            }else {
+                return ResponseResult.serverErrorResult("未知原因"+EmailPurpose.CHANGE_EMAIL.getName()+"失败");
+            }
+        }else {
+            Code userCode = new Code(user.getUsername(),email, encryptToMD5(password), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
+            codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }
@@ -244,7 +324,7 @@ public class EmailController {
         if (!captchaCode.toLowerCase().equals(captcha)) {
             return ResponseResult.failResult("验证码错误");
         }
-        if (userCodeService.inspectByEmail(email)){
+        if (codeService.inspectByEmail(email)){
              return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 检查邮箱是否已注册
@@ -264,14 +344,14 @@ public class EmailController {
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             Code userCode = new Code(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
-            if (userCodeService.save(userCode)){
+            if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
             Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
-            userCodeService.save(userCode);
+            codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }

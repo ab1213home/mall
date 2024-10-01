@@ -152,7 +152,7 @@ public class Config {
     /**
      * 邮箱验证码用途数组
      */
-    public static String[] email_purpose = properties.getProperty("email.purpose", "注册,重置密码")
+    public static String[] email_purpose = properties.getProperty("email.purpose", "注册,重置密码,修改邮箱")
             .split(",");
 
     /**
@@ -161,7 +161,8 @@ public class Config {
     @Getter
     public enum EmailPurpose {
         REGISTER(0,email_purpose[0]),
-        RESET_PASSWORD(1,email_purpose[1]);
+        RESET_PASSWORD(1,email_purpose[1]),
+        CHANGE_EMAIL(2,email_purpose[2]);
 
         private final int value;
         private final String name;

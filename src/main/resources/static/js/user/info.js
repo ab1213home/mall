@@ -30,21 +30,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // 修改用户信息处理函数
 function changeInfo() {
-  const email = $('#email').val();
   const phone = $('#phone').val();
   const firstName = $('#firstName').val();
   const lastName = $('#lastName').val();
   const birthday = $('#birthday').val();
-  const img = $('#img').val();
 
   // 构建请求体
   const data = {
-    email: email,
     phone: phone,
     firstName: firstName,
     lastName: lastName,
     birthday: birthday,
-    img: img
   };
 
   // 发送 AJAX 请求

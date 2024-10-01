@@ -1,13 +1,13 @@
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.*;
+import com.jiang.mall.intercepter.AdminLoginInterceptor;
+import com.jiang.mall.intercepter.CheckoutInterceptor;
+import com.jiang.mall.intercepter.RegistrationInterceptor;
+import com.jiang.mall.intercepter.UserLoginInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import static com.jiang.mall.controller.CommonController.FILE_UPLOAD_PATH;
 
 @Configuration
 public class MyMvcConfig implements WebMvcConfigurer {
@@ -55,8 +55,10 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/address.html")
                 .addPathPatterns("/collections")
                 .addPathPatterns("/collections.html")
+                .addPathPatterns("/about")
+                .addPathPatterns("/about.html")
                 .addPathPatterns("/user/index.html");
-//        registry.addInterceptor(checkoutInterceptor)
-//                .addPathPatterns("/checkout.html");
+        registry.addInterceptor(checkoutInterceptor)
+                .addPathPatterns("/checkout.html");
     }
 }

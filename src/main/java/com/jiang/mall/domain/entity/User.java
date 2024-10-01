@@ -127,12 +127,12 @@ public class User implements Serializable {
 
     }
 
-    public User(Integer userId, String firstName, String lastName, String phone, String email) {
+    public User(Integer userId, String firstName, String lastName, String phone, String img) {
         this.id = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
-        this.email = email;
+        this.img = img;
     }
 
     /**

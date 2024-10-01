@@ -77,7 +77,7 @@
                                 <p>商城首页</p>
                             </a> </li>
                         <li class="nav-header text-center">设置</li>
-                        <li class="nav-item"> <a href="/user/index.html" class="nav-link active"> <i class="nav-icon bi bi-house"></i>
+                        <li class="nav-item"> <a href="/user/index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
                                 <p>用户首页</p>
                             </a> </li>
                         <li class="nav-item"> <a href="/collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
@@ -95,7 +95,7 @@
                                 <p>我的订单</p>
                             </a>
                         </li>
-                        <li class="nav-item "> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
+                        <li class="nav-item menu-open"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
                                 <p>
                                     账号与安全
                                     <i class="nav-arrow bi bi-chevron-right"></i>
@@ -111,7 +111,7 @@
                                 <li class="nav-item"> <a href="/user/modify/portrait.html" class="nav-link"> <i class="nav-icon bi bi-person-square"></i>
                                         <p>修改头像</p>
                                     </a> </li>
-                                <li class="nav-item"> <a href="/user/modify/info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
+                                <li class="nav-item"> <a href="/user/modify/info.html" class="nav-link active"> <i class="nav-icon bi bi-info-circle"></i>
                                         <p>修改用户信息</p>
                                     </a> </li>
                             </ul>
@@ -121,7 +121,7 @@
                                 <p>站内消息</p>
                             </a> </li>
                         <li class="nav-header text-center admin" style="display: none;">管理后台</li>
-                        <li class="nav-item admin palette" style="display: none;"> <a href="../admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                        <li class="nav-item admin palette" style="display: none;"> <a href="/admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
                                 <p>仪表盘</p>
                             </a> </li>
                         <li class="nav-item admin user" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-people-fill"></i>
@@ -142,16 +142,16 @@
                                     </a> </li>
                             </ul>
                         </li>
-                        <li class="nav-item admin category" style="display: none;"> <a href="../admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                        <li class="nav-item admin category" style="display: none;"> <a href="/admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
                                 <p>商品分类管理</p>
                             </a> </li>
-                        <li class="nav-item admin order" style="display: none;"> <a href="../admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin order" style="display: none;"> <a href="/admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>商品管理</p>
                             </a> </li>
-                        <li class="nav-item admin order" style="display: none;"> <a href="../admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                        <li class="nav-item admin order" style="display: none;"> <a href="/admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
                                 <p>订单管理</p>
                             </a> </li>
-                        <li class="nav-item admin banner" style="display: none;"> <a href="../admin/banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
+                        <li class="nav-item admin banner" style="display: none;"> <a href="/admin/banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
                                 <p>轮播图管理</p>
                             </a> </li>
                         <li class="nav-item admin file" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-files"></i>
@@ -233,24 +233,21 @@
                             <div class="card-body login-card-body">
                                 <form id="change-info">
                                     <div class="form-group has-feedback">
-                                        <span class="fa fa-envelope form-control-feedback"></span>
-                                        <label for="email"></label>
-                                        <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required="required"  maxlength="50">
-                                    </div>
-                                    <div class="form-group has-feedback">
                                         <span class="fa fa-phone form-control-feedback"></span>
                                         <label for="phone"></label>
                                         <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required="required"  maxlength="20">
                                     </div>
-                                    <div class="form-group has-feedback">
-                                        <span class="fa fa-user form-control-feedback"></span>
-                                        <label for="firstName"></label>
-                                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required"  maxlength="20">
-                                    </div>
-                                    <div class="form-group has-feedback">
-                                        <span class="fa fa-user form-control-feedback"></span>
-                                        <label for="lastName"></label>
-                                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required"  maxlength="20">
+                                    <div class="row">
+                                        <div class="form-group has-feedback col-6">
+                                            <span class="fa fa-user form-control-feedback"></span>
+                                            <label for="firstName"></label>
+                                            <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required"  maxlength="20">
+                                        </div>
+                                        <div class="form-group has-feedback col-6">
+                                            <span class="fa fa-user form-control-feedback"></span>
+                                            <label for="lastName"></label>
+                                            <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required"  maxlength="20">
+                                        </div>
                                     </div>
                                     <div class="form-group has-feedback">
                                         <span class="fa fa-calendar form-control-feedback"></span>
