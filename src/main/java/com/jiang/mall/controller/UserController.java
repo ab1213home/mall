@@ -42,6 +42,17 @@ public class UserController {
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+
+    /**
+     * 处理用户忘记密码后的第二步操作，包括验证邮箱、验证码、新密码及其确认，并修改密码
+     *
+     * @param email 用户邮箱，用于识别用户和验证
+     * @param code 验证码，用于验证用户身份
+     * @param password 新密码，用户希望设置的新密码
+     * @param confirmPassword 确认密码，用于确认新密码输入无误
+     * @param session HTTP会话，用于检查用户登录状态
+     * @return 返回密码重置结果的响应对象
+     */
     @PostMapping("/forgot")
     public ResponseResult forgotStep2(@RequestParam("email") String email,
                                       @RequestParam("code") String code,
@@ -76,6 +87,7 @@ public class UserController {
             return ResponseResult.failResult("验证码错误");
         }
         if (userService.modifyPassword(userCode.getUserId(),password)){
+            userCode.setPassword(encryptToSHA256(password,AES_SALT));
             codeService.useCode(userCode.getUserId(),userCode);
             return ResponseResult.okResult("密码修改成功");
         }else{
