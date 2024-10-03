@@ -4,6 +4,8 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IUserService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -23,10 +22,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 
-import static com.jiang.mall.domain.entity.Config.AllowUploadFile;
+import static com.jiang.mall.domain.entity.Config.*;
 
 
 /**
@@ -41,14 +39,6 @@ public class CommonController {
 
     @Autowired
     private IUserService userService;
-
-    // 文件上传的默认路径
-    public static String FILE_UPLOAD_PATH = System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\";
-    //docker需要修改为"/home/upload/"，正常使用可以自定义，但需要有对应权限
-//    public static String FILE_UPLOAD_PATH = "/home/upload/";
-
-    // 允许上传的图片后缀
-    public static Set<String> imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
 
     /**
      * 生成验证码并作为响应返回

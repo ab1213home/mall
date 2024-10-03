@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * 属性配置类，包含系统常量和正则表达式
@@ -252,5 +253,18 @@ public class Config {
      * AES254的salt
      */
     public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
+
+    /**
+     * 文件路径
+     */
+    public static String FILE_UPLOAD_PATH = properties.getProperty("upload.path", System.getProperty("user.dir") + "\\src\\main\\resources\\upload\\");
+    //docker需要修改为"/home/upload/"，正常使用可以自定义，但需要有对应权限
+
+    /**
+     * 允许上传的图片后缀
+     */
+    public static Set<String> imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+
+
 }
 

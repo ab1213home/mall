@@ -16,8 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.jiang.mall.controller.CommonController.FILE_UPLOAD_PATH;
-import static com.jiang.mall.controller.CommonController.imageSuffix;
+import static com.jiang.mall.domain.entity.Config.FILE_UPLOAD_PATH;
+import static com.jiang.mall.domain.entity.Config.imageSuffix;
 import static com.jiang.mall.util.FileUtils.getFileCount;
 import static com.jiang.mall.util.FileUtils.getFolderSize;
 
