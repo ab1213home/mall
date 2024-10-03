@@ -247,5 +247,10 @@ public class Config {
      * 是否允许发送邮件
      */
     public static boolean AllowSendEmail = Boolean.parseBoolean(properties.getProperty("allow.send.email", "false"));
+
+    /**
+     * AES254的salt
+     */
+    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
 }
 

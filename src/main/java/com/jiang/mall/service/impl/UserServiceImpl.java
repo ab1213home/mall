@@ -19,9 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.entity.Config.AdminRoleId;
-import static com.jiang.mall.domain.entity.Config.regex_email;
-import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
+import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -63,31 +62,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
 	}
 
+	/**
+	 * 用于获取用户数量
+	 *
+	 * @return 用户数量
+	 */
 	@Override
 	public Integer getUserNum() {
-		List<User> userList = userMapper.selectList(null);
-		return userList.size();
+	    // 通过userMapper查询所有用户，null参数表示不使用任何条件
+	    List<User> userList = userMapper.selectList(null);
+	    // 返回用户列表的大小，即用户数量
+	    return userList.size();
 	}
 
-	@Override
-	public User getUserByUserName(String username) {
-		// 创建查询条件，指定用户名和账号激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("username",username);
-
-	    // 根据查询条件尝试获取用户信息
-		return userMapper.selectOne(queryWrapper);
-	}
-
-	@Override
-	public User getUserByEmail(String email) {
-		// 创建查询条件，指定用户名和账号激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email", email);
-
-	    // 根据查询条件尝试获取用户信息
-		return userMapper.selectOne(queryWrapper);
-	}
 
 	/**
 	 * 检查当前用户是否为管理员
@@ -143,6 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
 	    return ResponseResult.okResult(result.getData());
 	}
+
 	/**
 	 * 用户登录方法
 	 * 通过用户名(邮箱)和密码尝试登录系统。用户密码是经过MD5加密的，以提高安全性。
@@ -161,29 +149,135 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 根据查询条件尝试获取用户信息
 	    User user_username = userMapper.selectOne(queryWrapper_username);
 
-		if (username.matches(regex_email)) {
-			QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
-			queryWrapper_email.eq("email", username);
-			queryWrapper_email.eq("is_active", true);
-			User user_email = userMapper.selectOne(queryWrapper_email);
-			if (user_email!=null){
-				if (user_username==null|| Objects.equals(user_email.getId(), user_username.getId())){
-					if (encryptToMD5(password).equals(user_email.getPassword())){
+	    // 根据邮箱格式匹配用户
+	    if (username.matches(regex_email)) {
+	        // 创建基于邮箱的查询条件
+	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
+	        queryWrapper_email.eq("email", username);
+	        queryWrapper_email.eq("is_active", true);
+	        User user_email = userMapper.selectOne(queryWrapper_email);
+
+	        // 判断邮箱是否对应用户
+	        if (user_email == null) {
+	            // 如果邮箱未注册，检查用户名是否注册
+	            if (user_username == null) {
+					// 用户名和邮箱均未注册
+	                return null;
+	            } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+					// 用户名注册且密码匹配
+	                return user_username;
+	            } else {
+					// 用户名注册但密码不匹配
+	                return null;
+	            }
+	        } else {
+	            // 邮箱已注册，检查是否与用户名对应同一用户
+		        if (user_username==null){
+					if (user_email.getPassword().equals(encryptToSHA256(password,AES_SALT))){
 						return user_email;
 					}else {
 						return null;
 					}
-				}
-			}
-		}
+		        }else if (Objects.equals(user_email.getId(), user_username.getId())) {
+	                // 同一用户，检查密码
+	                if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+						// 密码匹配
+	                    return user_username;
+	                } else {
+						// 密码不匹配
+	                    return null;
+	                }
+	            } else {
+	                // 不是同一用户，分别检查密码
+	                if (user_email.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+						// 邮箱用户密码匹配
+	                    return user_email;
+	                } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+						// 用户名用户密码匹配
+	                    return user_username;
+	                } else {
+						// 密码均不匹配
+	                    return null;
+	                }
+	            }
+	        }
+	    } else {
+	        // 如果不是邮箱格式，直接检查用户名是否注册
+	        if (user_username == null) {
+				// 用户名未注册
+	            return null;
+	        } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+				// 用户名注册且密码匹配
+	            return user_username;
+	        } else {
+				// 用户名注册但密码不匹配
+	            return null;
+	        }
+	    }
+	}
 
-	    // 验证用户密码是否匹配，如果匹配则返回用户对象，否则返回null
-	    if (user_username != null && encryptToMD5(password).equals(user_username.getPassword())) {
+	/**
+	 * 根据用户名或电子邮件地址获取用户信息
+	 *
+	 * @param username 用户名或电子邮件地址
+	 * @return 如果找到对应的用户信息，则返回User对象；否则返回null
+	 */
+	@Override
+	public User getUserByUserNameOrEmail(String username) {
+	    // 创建查询条件，指定用户名
+	    QueryWrapper<User> queryWrapper_username = new QueryWrapper<>();
+	    queryWrapper_username.eq("username", username);
+
+	    // 根据查询条件尝试获取用户信息
+	    User user_username = userMapper.selectOne(queryWrapper_username);
+
+	    // 根据邮箱格式匹配用户
+	    if (username.matches(regex_email)) {
+	        // 创建基于邮箱的查询条件
+	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
+	        queryWrapper_email.eq("email", username);
+	        User user_email = userMapper.selectOne(queryWrapper_email);
+
+	        // 判断邮箱是否对应用户
+	        if (user_email == null) {
+	            // 如果邮箱未注册，检查用户名是否注册
+	            return user_username;
+	        } else {
+	            // 邮箱已注册，检查是否与用户名对应同一用户
+		        if (user_username==null){
+					return user_email;
+		        }else if (Objects.equals(user_email.getId(), user_username.getId())) {
+	                return user_username;
+	            } else {
+	                return null;
+	            }
+	        }
+	    } else {
+	        // 如果不是邮箱格式，直接检查用户名是否注册
 	        return user_username;
 	    }
+	}
 
-	    // 密码不匹配或用户不存在，返回null
-	    return null;
+	@Override
+	public boolean modifyPassword(Integer userId, String newPassword) {
+		// 创建查询条件，指定用户ID和账号激活状态。
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id",userId);
+
+	    // 根据查询条件尝试获取用户信息。
+	    User user = userMapper.selectOne(queryWrapper);
+
+	    // 验证用户是否存在且旧密码是否正确。
+	    if (user != null) {
+	        // 如果验证成功，更新用户密码为新密码。
+	        user.setPassword(encryptToSHA256(newPassword,AES_SALT));
+			user.setIsActive(true);
+			// 通过ID更新用户信息。
+		    return userMapper.updateById(user) > 0;
+	    }else {
+			// 如果用户不存在或旧密码验证失败，返回false。
+			return false;
+	    }
 	}
 
 	/**
@@ -205,22 +299,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    User user = userMapper.selectOne(queryWrapper);
 
 	    // 验证用户是否存在且旧密码是否正确。
-	    if (user != null && encryptToMD5(oldPassword).equals(user.getPassword())) {
+	    if (user != null && encryptToSHA256(oldPassword,AES_SALT).equals(user.getPassword())) {
 	        // 如果验证成功，更新用户密码为新密码。
-	        user.setPassword(encryptToMD5(newPassword));
+	        user.setPassword(encryptToSHA256(newPassword,AES_SALT));
 			// 通过ID更新用户信息。
-			int result =userMapper.updateById(user);
-		    // 返回密码更新是否成功的标志。
-		    return result > 0;
+		    return userMapper.updateById(user) > 0;
 	    }else {
 			// 如果用户不存在或旧密码验证失败，返回false。
 			return false;
 	    }
 	}
 
+	/**
+	 * 根据用户ID获取用户信息
+	 * 此方法覆盖了父类的抽象方法，用于根据用户ID获取相应的用户信息
+	 * 它委托给userMapper的selectById方法来实现数据库查询
+	 *
+	 * @param userId 用户ID，用于标识特定的用户
+	 * @return 返回查询到的用户信息对象，如果未找到则返回null
+	 */
 	@Override
-    public User getUserInfo(Integer userId) {
-		return userMapper.selectById(userId);
+	public User getUserInfo(Integer userId) {
+	    return userMapper.selectById(userId);
 	}
 
 
@@ -250,7 +350,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        newUser.setPassword(user.getPassword());
 			newUser.setUsername(user.getUsername());
 	        // 将用户状态设置为激活，确保用户不会因为信息修改而失去访问权限。
-	        newUser.setIsActive(true);
+	        newUser.setIsActive(user.getIsActive());
 			newUser.setRoleId(user.getRoleId());
 	        // 更新数据库中的用户信息。
 	        int result = userMapper.updateById(newUser);
@@ -307,7 +407,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public boolean queryByUserName(String userName) {
 	    // 创建一个查询包装器，用于构建查询条件
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    // 设置查询条件，用户名经过MD5加密
+	    // 设置查询条件
 	    queryWrapper.eq("username", userName);
 
 	    // 根据查询条件尝试获取用户信息
@@ -352,7 +452,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 设置用户账户为激活状态
 	        user.setIsActive(true);
 	        // 加密用户密码和用户名以确保安全性
-	        user.setPassword(encryptToMD5(user.getPassword()));
+	        user.setPassword(encryptToSHA256(user.getPassword(),AES_SALT));
 	        user.setUsername(user.getUsername());
 	        // 设置用户角色为普通用户
 	        user.setRoleId(1);

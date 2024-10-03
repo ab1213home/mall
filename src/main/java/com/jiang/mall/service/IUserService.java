@@ -52,7 +52,7 @@ public interface IUserService extends IService<User> {
 
     Integer getUserNum();
 
-    User getUserByUserName(String username);
+	User getUserByUserNameOrEmail(String username);
 
-    User getUserByEmail(String email);
+    boolean modifyPassword(Integer userId, String newPassword);
 }

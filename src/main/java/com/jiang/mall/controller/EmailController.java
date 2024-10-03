@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
+import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
 
 /**
  * 邮箱验证码控制器
@@ -102,14 +102,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
+            Code userCode = new Code(username,email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            Code userCode = new Code(username,email, encryptToMD5(password), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
+            Code userCode = new Code(username,email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -132,15 +132,13 @@ public class EmailController {
     /**
      * 发送重置密码验证码
      *
-     * @param username 用户名（可选）
-     * @param email 邮箱（可选）
-     * @param captcha 验证码（必填）
+     * @param username 用户名或者邮箱
+     * @param captcha 验证码
      * @param session HTTP会话
      * @return 操作结果
      */
     @PostMapping("/sendResetPassword")
-    public ResponseResult sendResetPassword(@RequestParam(required = false) String username,
-                                            @RequestParam(required = false) String email,
+    public ResponseResult sendResetPassword(@RequestParam("username") String username,
                                             @RequestParam("captcha") String captcha,
                                             HttpSession session) {
         if (session.getAttribute("User")!=null){
@@ -166,25 +164,14 @@ public class EmailController {
         if (!captchaCode.toLowerCase().equals(captcha)) {
             return ResponseResult.failResult("验证码错误");
         }
-        // 检查用户名和邮箱参数
-        if (StringUtils.hasText(email) && StringUtils.hasText(username)) {
-            return ResponseResult.failResult("用户名和邮箱不能同时有值");
-        } else if (!StringUtils.hasText(email) && !StringUtils.hasText(username)) {
-            return ResponseResult.failResult("用户名或邮箱必须有一个有值");
+        // 检查用户名是否为空
+        if (!StringUtils.hasText(username)) {
+            return ResponseResult.failResult("用户名(邮箱)不能为空");
         }
-        // 验证用户名或邮箱是否存在
-        else if (StringUtils.hasText(username) && !userService.queryByUserName(username)) {
-            return ResponseResult.failResult("用户名不存在");
-        }else if (StringUtils.hasText(email) && !email.matches(regex_email)&&!userService.queryByEmail(email)) {
-            return ResponseResult.failResult("邮箱不存在");
-        }
+
         // 获取用户信息
-        User user;
-        if (StringUtils.hasText(username)) {
-            user = userService.getUserByUserName(username);
-        }else{
-            user = userService.getUserByEmail(email);
-        }
+        User user=userService.getUserByUserNameOrEmail(username);
+
         // 再次验证用户是否存在
         if (user == null) {
             return ResponseResult.failResult("用户不存在");
@@ -197,7 +184,7 @@ public class EmailController {
         String code = generateRandomCode(8);
         String htmlContent = "<html><body>" +
                 "<h1>【"+SENDER_END+"】验证码通知</h1>" +
-                "<p>尊敬的"+user.getUsername()+"用户，您正在尝试使用"+EmailPurpose.REGISTER.getName()+"功能。</p>" +
+                "<p>尊敬的"+user.getUsername()+"用户，您正在尝试使用"+EmailPurpose.RESET_PASSWORD.getName()+"功能。</p>" +
                 "<div style='font-size: 24px; color: #007bff; font-weight: bold; text-align: center;'>" +
                 "您的验证码是：<span style='font-size: 36px;'>"+code+"</span></div>" +
                 "<p>请在接下来的 "+expiration_time+" 分钟内使用此验证码完成操作。为保证账户安全，请勿向任何人透露此验证码。</p>" +
@@ -205,15 +192,15 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         // 发送邮件并处理结果
-        if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
+        if (EmailUtils.sendEmail(user.getEmail(), "【"+SENDER_END+"】验证码通知", htmlContent)){
+            Code userCode = new Code(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
             if (codeService.save(userCode)){
-                return ResponseResult.okResult();
+                return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
             }
         }else {
-            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
+            Code userCode = new Code(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
             codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -255,7 +242,7 @@ public class EmailController {
         }
 
         User user = userService.getUserInfo(userId);
-        if (!Objects.equals(user.getPassword(), encryptToMD5(password))) {
+        if (!Objects.equals(user.getPassword(), encryptToSHA256(password,AES_SALT))) {
             return ResponseResult.failResult("密码错误");
         }
         if (!StringUtils.hasText(email)){
@@ -285,14 +272,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(user.getUsername(),email, encryptToMD5(password), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
+            Code userCode = new Code(user.getUsername(),email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因"+EmailPurpose.CHANGE_EMAIL.getName()+"失败");
             }
         }else {
-            Code userCode = new Code(user.getUsername(),email, encryptToMD5(password), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
+            Code userCode = new Code(user.getUsername(),email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
             codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

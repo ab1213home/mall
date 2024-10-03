@@ -17,7 +17,7 @@ public class PropertieUtils {
 //	        textDatabase.setDatabaseHost(prop.getProperty("database.host"));
 //	        textDatabase.setDatabasePort(prop.getProperty("database.port"));
 //	        textDatabase.setDatabaseUser(prop.getProperty("database.username"));
-//	        textDatabase.setDatabasePassword(AESCipherExample.decrypt(prop.getProperty("database.password")));
+//	        textDatabase.setDatabasePassword(AESCipherExample.decryptToAES(prop.getProperty("database.password")));
 //			return true;
 //	    } catch (IOException e) {
 //	        // 处理文件读取异常

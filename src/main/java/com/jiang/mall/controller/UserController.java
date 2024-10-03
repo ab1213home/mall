@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
+import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -41,6 +41,47 @@ public class UserController {
     private ICodeService codeService;
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    @PostMapping("/forgot")
+    public ResponseResult forgotStep2(@RequestParam("email") String email,
+                                      @RequestParam("code") String code,
+                                      @RequestParam("password") String password,
+                                      @RequestParam("confirmPassword") String confirmPassword,
+                                      HttpSession session) {
+        // 检查用户是否已登录
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
+                return ResponseResult.failResult("您已登录，请退出");
+            }
+        }
+        if (!StringUtils.hasText(password)){
+            return ResponseResult.failResult("请输入新密码");
+        }
+        if (!StringUtils.hasText(confirmPassword)){
+            return ResponseResult.failResult("请输入确认密码");
+        }
+        if (!password.equals(confirmPassword)){
+            return ResponseResult.failResult("两次密码输入不一致");
+        }
+        // 验证码正确性及有效期检查
+        Code userCode = codeService.queryCodeByEmail(email);
+        if (userCode==null){
+            // 如果验证码不存在或已过期，则提示错误或过期信息
+            return ResponseResult.failResult("验证码错误或已过期");
+        }
+        // 检查用户输入的验证码与发送的验证码是否一致
+        if (!Objects.equals(userCode.getCode(),code)){
+            // 如果验证码不正确，则提示错误
+            return ResponseResult.failResult("验证码错误");
+        }
+        if (userService.modifyPassword(userCode.getUserId(),password)){
+            codeService.useCode(userCode.getUserId(),userCode);
+            return ResponseResult.okResult("密码修改成功");
+        }else{
+            return ResponseResult.serverErrorResult("密码修改失败");
+        }
+    }
 
     /**
      * 处理用户注册第一步的请求
@@ -100,7 +141,7 @@ public class UserController {
         if (!Objects.equals(userCode.getUsername(), username)){
             return ResponseResult.failResult("非法请求");
         }
-        if (!Objects.equals(userCode.getPassword(), encryptToMD5(password))){
+        if (!Objects.equals(userCode.getPassword(), encryptToSHA256(password,AES_SALT))){
             return ResponseResult.failResult("非法请求");
         }
 

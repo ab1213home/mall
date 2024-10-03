@@ -87,6 +87,11 @@
                             <!-- 验证邮箱真实性 -->
                             <div class="d-flex flex-column gap-2">
                                 <div class="form-group has-feedback">
+                                    <span class="fa fa-envelope form-control-feedback"></span>
+                                    <label for="email_show"></label>
+                                    <p id="email_show" class="text-muted"></p>
+                                </div>
+                                <div class="form-group has-feedback">
                                     <span class="fa fa-shield form-control-feedback"></span>
                                     <label for="code"></label>
                                     <input type="text" id="code" name="code" class="form-control" placeholder="请输入邮箱验证码" required="required"  maxlength="20">
@@ -95,22 +100,9 @@
                                     <div class="col-6">
                                     </div>
                                     <div class="col-6">
-                                        <button type="button" disabled="disabled" class="btn btn-secondary btn-block btn-flat" id="sendmail" onclick="submitRegisterStepOneForm()">重新发送</button>
+                                        <button type="button" disabled="disabled" class="btn btn-secondary btn-block btn-flat" id="sendmail" onclick="submitForgotStepOneForm()">重新发送</button>
                                     </div>
                                 </div>
-                                <div class="row d-flex justify-content-between mt-2">
-                                    <div class="col-4">
-                                    </div>
-                                    <div class="col-4">
-                                        <button type="submit" class="btn btn-primary btn-block btn-flat">验证</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <form id="step3" class="step3" style="display: none">
-                            <h1 class="h3 mb-3 font-weight-normal step3 mt-2" style="text-align: center;font-size: 1.25rem;display:none;">完善用户信息</h1>
-                            <!-- 补充信息字段 -->
-                            <div class="d-flex flex-column gap-2">
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
                                     <label for="password"></label><input type="password" id="password" name="password" class="form-control" placeholder="请输入密码"
@@ -121,7 +113,6 @@
                                     <label for="confirmPassword"></label><input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="请再次输入密码"
                                                                                 required="required">
                                 </div>
-                                <!-- 提交按钮 -->
                                 <div class="row d-flex justify-content-between mt-2">
                                     <div class="col-4"></div>
                                     <div class="col-4">

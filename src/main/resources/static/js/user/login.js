@@ -30,7 +30,6 @@ function submitLoginForm() {
     success: function (data) {
         // 处理成功响应
         if (data.code === 200) {
-            console.log('登录成功');
             if (url!=null){
                 window.location.href = url;
             }else {
