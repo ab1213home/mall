@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.MD5Utils.encryptToMD5;
+import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
 
 /**
  * 邮箱验证码控制器
@@ -143,6 +143,12 @@ public class EmailController {
                                             @RequestParam(required = false) String email,
                                             @RequestParam("captcha") String captcha,
                                             HttpSession session) {
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
+                return ResponseResult.failResult("您已登录，请退出");
+            }
+        }
         // 检查系统是否允许发送邮件
         if (!AllowSendEmail) {
             return ResponseResult.failResult("管理员不允许发送邮件");

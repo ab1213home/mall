@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.MD5Utils.encryptToMD5;
+import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -200,8 +200,9 @@ public class UserController {
                                 @RequestParam("captcha") String captcha,
                                 HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
-        if (session.getAttribute("UserIsLogin")!=null){
-            if ("true".equals(session.getAttribute("UserIsLogin"))) {
+        if (session.getAttribute("User")!=null){
+            UserVo user = (UserVo) session.getAttribute("User");
+            if (user.getId()!=null){
                 return ResponseResult.failResult("您已登录，请勿重复登录");
             }
         }
@@ -224,7 +225,7 @@ public class UserController {
         }
         // 检查用户名和密码是否为空
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            return ResponseResult.failResult("用户名或密码不能为空");
+            return ResponseResult.failResult("用户名(邮箱)或密码不能为空");
         }
 
         // 调用userService的login方法进行用户登录验证
@@ -239,7 +240,7 @@ public class UserController {
             return ResponseResult.okResult();
         } else {
             // 登录失败，返回相应错误信息
-            return ResponseResult.failResult("用户不存在或用户名或密码错误");
+            return ResponseResult.failResult("用户不存在或用户名(邮箱)或密码错误");
         }
     }
 

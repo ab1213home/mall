@@ -62,6 +62,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!--数据库连接池 HikariCP-->
+        <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP</artifactId>
+          <version>5.0.1</version>
+        </dependency>
+
         <!--mybatis-plus-->
         <dependency>
             <groupId>com.baomidou</groupId>

@@ -17,9 +17,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.AdminRoleId;
-import static com.jiang.mall.util.MD5Utils.encryptToMD5;
+import static com.jiang.mall.domain.entity.Config.regex_email;
+import static com.jiang.mall.util.EncryptionUtils.encryptToMD5;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -143,25 +145,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 	/**
 	 * 用户登录方法
-	 * 通过用户名和密码尝试登录系统。用户名密码是经过MD5加密的，以提高安全性。
+	 * 通过用户名(邮箱)和密码尝试登录系统。用户密码是经过MD5加密的，以提高安全性。
 	 *
-	 * @param username 用户名，用于登录验证
+	 * @param username 用户名或者邮箱，用于登录验证
 	 * @param password 明文密码，用于登录验证
 	 * @return 如果验证成功，返回对应的User对象；如果验证失败或用户不存在，返回null
 	 */
 	@Override
 	public User login(String username, String password) {
 	    // 创建查询条件，指定用户名和账号激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("username", username);
-	    queryWrapper.eq("is_active", true);
+	    QueryWrapper<User> queryWrapper_username = new QueryWrapper<>();
+	    queryWrapper_username.eq("username", username);
+	    queryWrapper_username.eq("is_active", true);
 
 	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
+	    User user_username = userMapper.selectOne(queryWrapper_username);
+
+		if (username.matches(regex_email)) {
+			QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
+			queryWrapper_email.eq("email", username);
+			queryWrapper_email.eq("is_active", true);
+			User user_email = userMapper.selectOne(queryWrapper_email);
+			if (user_email!=null){
+				if (user_username==null|| Objects.equals(user_email.getId(), user_username.getId())){
+					if (encryptToMD5(password).equals(user_email.getPassword())){
+						return user_email;
+					}else {
+						return null;
+					}
+				}
+			}
+		}
 
 	    // 验证用户密码是否匹配，如果匹配则返回用户对象，否则返回null
-	    if (user != null && encryptToMD5(password).equals(user.getPassword())) {
-	        return user;
+	    if (user_username != null && encryptToMD5(password).equals(user_username.getPassword())) {
+	        return user_username;
 	    }
 
 	    // 密码不匹配或用户不存在，返回null

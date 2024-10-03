@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>mall统一用户管理系统 | Forgot</title>
+  <meta name="description" content="mall统一用户管理系统 | Forgot">
+  <meta name="author" content="jiang" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Tell the browser to be responsive to screen width -->
+  <link rel="shortcut icon" href="/images/logo.png"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/css/adminlte.min.css">
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/user/style.css">
+  <style>
+    canvas {
+      display: block;
+      vertical-align: bottom;
+    }
+    .register-box {
+      background-color: rgba(255, 255, 255, 0);
+      z-index: 1;
+    }
+    .selected {
+        border: 5px solid orange; /* 可以根据需要调整边框颜色和宽度 */
+    }
+  </style>
+</head>
+<body class="hold-transition register-page">
+
+    <section>
+        <!-- 背景颜色 -->
+        <div class="color"></div>
+        <div class="color"></div>
+        <div class="color"></div>
+        <div class="box">
+            <!-- 背景圆 -->
+            <div class="circle" style="--x:0"></div>
+            <div class="circle" style="--x:1"></div>
+            <div class="circle" style="--x:2"></div>
+            <div class="circle" style="--x:3"></div>
+            <div class="circle" style="--x:4"></div>
+            <!-- 注册框 -->
+            <div class="register-box">
+                <div class="card">
+                    <div class="card-body register-card-body">
+                        <div class="register-logo" style="color: #1baeae;">
+                            <img src="/images/logo.png" style="height: 58px; float: left; margin-left: 10px;" alt="">
+                            <h1 class="h3 mb-3 font-weight-normal">统一用户管理系统</h1>
+                        </div>
+                        <!-- /.register-logo -->
+                        <form id="step1" class="step1">
+                            <!-- 基本信息字段 -->
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-group has-feedback">
+                                    <span class="fa fa-user form-control-feedback"></span>
+                                    <label for="username"></label><input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名或者邮箱"
+                                                                         required="required"  maxlength="100">
+                                </div>
+                                <div class="form-group row">
+                                    <span class="fa fa-shield form-control-feedback"></span>
+                                    <div class="col-6">
+                                        <label>
+                                            <input type="text" class="form-control" name="captcha" id="captcha" placeholder="请输入验证码" required="required"  maxlength="20">
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <img alt="单击图片刷新！" class="pointer" id="captchaImg" src="/common/captcha"
+                                             onclick="this.src='/common/captcha'">
+                                    </div>
+                                </div>
+                                <div class="form-group d-flex justify-content-between">
+                                    <div class="col-4"></div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">下一步</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="step2" class="step2" style="display: none;">
+                            <!-- 验证邮箱真实性 -->
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-group has-feedback">
+                                    <span class="fa fa-shield form-control-feedback"></span>
+                                    <label for="code"></label>
+                                    <input type="text" id="code" name="code" class="form-control" placeholder="请输入邮箱验证码" required="required"  maxlength="20">
+                                </div>
+                                <div class="row d-flex justify-content-between">
+                                    <div class="col-6">
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" disabled="disabled" class="btn btn-secondary btn-block btn-flat" id="sendmail" onclick="submitRegisterStepOneForm()">重新发送</button>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-between mt-2">
+                                    <div class="col-4">
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">验证</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="step3" class="step3" style="display: none">
+                            <h1 class="h3 mb-3 font-weight-normal step3 mt-2" style="text-align: center;font-size: 1.25rem;display:none;">完善用户信息</h1>
+                            <!-- 补充信息字段 -->
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-group has-feedback">
+                                    <span class="fa fa-lock form-control-feedback"></span>
+                                    <label for="password"></label><input type="password" id="password" name="password" class="form-control" placeholder="请输入密码"
+                                                                         required="required">
+                                </div>
+                                <div class="form-group has-feedback">
+                                    <span class="fa fa-lock form-control-feedback"></span>
+                                    <label for="confirmPassword"></label><input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="请再次输入密码"
+                                                                                required="required">
+                                </div>
+                                <!-- 提交按钮 -->
+                                <div class="row d-flex justify-content-between mt-2">
+                                    <div class="col-4"></div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">保存</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <p class="mt-5 mb-3 text-muted" style="text-align: center;">&copy; 2022-2024</p>
+            </div>
+        </div>
+    </section>
+  <!-- Register form -->
+	<!-- 固定提示框 -->
+	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+			</div>
+		</div>
+	</div>
+  <!-- /.register-box -->
+
+  <!-- jQuery -->
+  <script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+  <!-- Bootstrap 5 -->
+  <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/modal.js"></script>
+  <script src="/js/user/forgot.js"></script>
+</body>
+</html>
