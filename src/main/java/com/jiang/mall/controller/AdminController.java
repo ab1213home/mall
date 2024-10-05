@@ -133,6 +133,6 @@ public class AdminController {
 
 	@GetMapping("/get")
 	public ResponseResult get() {
-		return ResponseResult.okResult(Config.regex_email);
+		return ResponseResult.okResult(Config.FILE_UPLOAD_PATH);
 	}
 }
