@@ -101,6 +101,7 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <!--servlet-->
         <dependency>
         	<groupId>javax.servlet</groupId>
         	<artifactId>javax.servlet-api</artifactId>
@@ -108,18 +109,14 @@
         	<scope>provided</scope>
     	</dependency>
 
-
+        <!--lombok-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
+
+        <!--JSR303-->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
