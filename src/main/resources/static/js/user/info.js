@@ -74,20 +74,3 @@ $(document).ready(function() {
     changeInfo(); // 自定义提交处理
   });
 });
-
-function uploadFaces() {
-    const file = $('#imgUpload')[0].files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    $.ajax({
-        url: '/common/uploadFaces',
-        type: 'post',
-        data:formData,
-        contentType: false,
-        processData: false,
-        success: function (res){
-            $('#imgPreview').attr('src', res.data);
-            $('#img').val(res.data);
-        }
-    });
-}

@@ -1,16 +1,16 @@
-package com.jiang.mall.domain.temporary;
+package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
 /**
- * 结算项实体类
+ * 结算项视图对象
  *
  * @author jiang
  * @version 1.0
  * @since 2024年9月8日
  */
 @Data
-public class Checkout {
+public class CheckoutVo {
 
     /**
      * 结算项ID

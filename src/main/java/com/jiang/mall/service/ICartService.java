@@ -3,8 +3,8 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
-import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
 
 import java.util.List;
 
@@ -68,10 +68,10 @@ public interface ICartService extends IService<Cart> {
 	 *
 	 * @param listCartId 购物车ID列表，标识需要删除的购物车记录
 	 * @param userId 用户ID，用于验证购物车记录属于当前用户
-	 * @param listCheckout 结账列表，可能包含与购物车ID相关的信息
+	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
 	 * @return 返回一个布尔值，表示删除操作是否成功
 	 */
-	boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<Checkout> listCheckout);
+	boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<CheckoutVo> listCheckoutVo);
 
 	boolean deleteCart(Integer id, Integer userId);
 }

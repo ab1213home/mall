@@ -393,10 +393,10 @@ public class UserController {
      */
     @PostMapping("/modify/info")
     public ResponseResult modifyUserInfo(@RequestParam(required = false) Integer id,
-                                         @RequestParam("phone") String phone,
-                                         @RequestParam("firstName") String firstName,
-                                         @RequestParam("lastName") String lastName,
-                                         @RequestParam("birthday") String birthDate,
+                                         @RequestParam(required = false) String phone,
+                                         @RequestParam(required = false) String firstName,
+                                         @RequestParam(required = false) String lastName,
+                                         @RequestParam(required = false) String birthDate,
                                          @RequestParam(required = false) String email,
                                          @RequestParam(required = false) String img,
                                          @RequestParam(required = false) boolean isAdmin,
@@ -410,23 +410,25 @@ public class UserController {
         Integer userId = (Integer) result.getData();
 
         // 验证手机号格式是否正确
-        if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
+        if (StringUtils.hasText(phone)&&!phone.matches(regex_phone)) {
             return ResponseResult.failResult("手机号格式不正确");
         }
 
         // 设置用户ID到用户信息对象中
         User userInfo = new User(userId, firstName, lastName, phone,img);
         // 验证和转换生日日期格式
-        try {
-            LocalDate localDate = LocalDate.parse(birthDate, formatter);
-            // 检查生日是否在过去
-            if (localDate.isAfter(LocalDate.now())) {
-                return ResponseResult.failResult("生日不能在未来，请输入正确的日期");
+        if (birthDate != null){
+            try {
+                LocalDate localDate = LocalDate.parse(birthDate, formatter);
+                // 检查生日是否在过去
+                if (localDate.isAfter(LocalDate.now())) {
+                    return ResponseResult.failResult("生日不能在未来，请输入正确的日期");
+                }
+                Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                userInfo.setBirthDate(date);
+            } catch (DateTimeParseException e) {
+                return ResponseResult.failResult("日期格式不正确，请使用yyyy-MM-dd");
             }
-            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            userInfo.setBirthDate(date);
-        } catch (DateTimeParseException e) {
-            return ResponseResult.failResult("日期格式不正确，请使用yyyy-MM-dd");
         }
         if (id != null) {
             // 管理员后台修改信息时，不允许修改自己的信息

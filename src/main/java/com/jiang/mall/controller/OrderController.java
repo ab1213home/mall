@@ -2,8 +2,8 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
-import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
@@ -43,14 +43,14 @@ public class OrderController {
 	/**
 	 * 处理结账请求
 	 *
-	 * @param list_checkout 包含选购商品信息的列表，用于结账
+	 * @param list_checkoutVo 包含选购商品信息的列表，用于结账
 	 * @param session HTTP会话，用于管理用户登录状态及购物车信息
 	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
 	 */
 	@PostMapping("/checkout")
-	public ResponseResult checkout(@RequestBody List<Checkout> list_checkout, HttpSession session) {
+	public ResponseResult checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
-	    if (list_checkout.isEmpty()) {
+	    if (list_checkoutVo.isEmpty()) {
 	        return ResponseResult.failResult("请选择商品");
 	    }
 	    // 检查会话中是否设置表示用户已登录的标志
@@ -61,19 +61,19 @@ public class OrderController {
 	    }
 	    // 用于存储已选商品的购物车ID
 	    List<Integer> list_cartId = new ArrayList<>();
-	    for (Checkout checkout : list_checkout) {
+	    for (CheckoutVo checkoutVo : list_checkoutVo) {
 	        // 检查商品是否被选中
-	        if (checkout.isIschecked()){
+	        if (checkoutVo.isIschecked()){
 	            // 检查商品数量是否合法
-	            if (checkout.getNum() <= 0) {
+	            if (checkoutVo.getNum() <= 0) {
 	                return ResponseResult.failResult("请选择正确的商品数量");
 	            }
 	            // 检查商品库存是否充足
-	            if (productService.queryStoksById(checkout.getProdId()) < checkout.getNum()) {
-	                return ResponseResult.failResult("商品"+checkout.getProdName()+"库存不足，提交失败！");
+	            if (productService.queryStoksById(checkoutVo.getProdId()) < checkoutVo.getNum()) {
+	                return ResponseResult.failResult("商品"+ checkoutVo.getProdName()+"库存不足，提交失败！");
 	            }
 	            // 将购物车商品ID添加到确认购买的商品ID列表中
-	            list_cartId.add(checkout.getId());
+	            list_cartId.add(checkoutVo.getId());
 	        }
 	    }
 	    // 将确认购买的商品ID列表保存到会话中，以便后续操作使用
@@ -176,7 +176,7 @@ public class OrderController {
 	 * @param addressId 地址ID，用于确定送货地址
 	 * @param paymentMethod 支付方式，用于订单支付
 	 * @param status 订单状态，用于标记订单的情况
-	 * @param list_checkout 购物车项列表，包含待购买的商品信息
+	 * @param list_checkoutVo 购物车项列表，包含待购买的商品信息
 	 * @param session HTTP会话，用于管理用户状态和数据
 	 * @return ResponseResult 包含操作结果和订单ID的响应对象
 	 */
@@ -184,7 +184,7 @@ public class OrderController {
 	public ResponseResult insertOrder(@RequestParam("addressId") Integer addressId,
 									  @RequestParam("paymentMethod") Integer paymentMethod,
 									  @RequestParam("status") Integer status,
-									  @RequestBody List<Checkout> list_checkout,
+									  @RequestBody List<CheckoutVo> list_checkoutVo,
 									  HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
 	    ResponseResult result = userService.checkUserLogin(session);
@@ -199,7 +199,7 @@ public class OrderController {
 	        return ResponseResult.failResult("您没有权限提交此订单");
 	    }
 	    // 调用服务层方法插入新订单
-	    Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, list_checkout);
+	    Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
 	    List<Integer> list_cartId;
 	    Object listObj = session.getAttribute("List_cartId");
@@ -217,7 +217,7 @@ public class OrderController {
 	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
 	    }
 	    // 根据订单删除购物车中的商品
-	    cartService.deleteCartByOrder(list_cartId, userId, list_checkout);
+	    cartService.deleteCartByOrder(list_cartId, userId, list_checkoutVo);
 	    if (session.getAttribute("List_cartId") != null) {
 	        // 删除会话中的购物车ID列表
 	        session.removeAttribute("List_cartId");

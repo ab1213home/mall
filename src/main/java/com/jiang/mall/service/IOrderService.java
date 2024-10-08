@@ -2,7 +2,7 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Order;
-import com.jiang.mall.domain.temporary.Checkout;
+import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
 
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface IOrderService extends IService<Order> {
 
-	Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<Checkout> listCheckout);
+	Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<CheckoutVo> listCheckoutVo);
 
 	List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize);
 

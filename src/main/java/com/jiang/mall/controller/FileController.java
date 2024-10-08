@@ -1,6 +1,8 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.jiang.mall.domain.entity.Config.FILE_UPLOAD_PATH;
-import static com.jiang.mall.domain.entity.Config.imageSuffix;
-import static com.jiang.mall.util.FileUtils.getFileCount;
-import static com.jiang.mall.util.FileUtils.getFolderSize;
 
 /**
  * 文件控制器
@@ -32,6 +33,9 @@ public class FileController {
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IFileService fileService;
 
     /**
      * 获取上传的文件
@@ -128,9 +132,9 @@ public class FileController {
         }
 
         // 计算文件夹的总大小
-        long totalSize = getFolderSize(folder);
+        long totalSize = fileService.getFolderSize(folder);
         // 统计文件夹中的文件数量
-        int fileCount = getFileCount(folder);
+        int fileCount = fileService.getFileCount(folder);
         // 创建一个Map来存储结果数据
         Map<String, Object> data = new HashMap<>();
         // 将总大小和文件数量放入数据Map
@@ -149,24 +153,33 @@ public class FileController {
     	if (!folder.exists() || !folder.isDirectory()) {
             ResponseResult.failResult("给定路径不是一个有效的文件夹！");
         }
-        List<String> fileList = new ArrayList<>();
+        List<String> fileList = fileService.getFaceTemplateList(folder);
 
-        for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.isFile()) {
-                int dotIndex = file.getName().lastIndexOf('.');
-                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
-
-                if (imageSuffix.contains(extension.toLowerCase())) {
-                    // 只添加图片文件
-                    if (file.getName().matches("^face.*") ){
-                        fileList.add("/faces/" +file.getName());
-                    }
-                }
-            }
-        }
         if (fileList.isEmpty()) {
             return ResponseResult.notFoundResourceResult("未找到任何文件！");
         }
         return ResponseResult.okResult(fileList);
+    }
+
+    @GetMapping("/file/getList")
+    public ResponseResult getList(HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkAdminUser(session);
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+//            return result;
+        }
+        // 创建一个File对象，对应于要检查的文件夹路径
+        File folder = new File(FILE_UPLOAD_PATH);
+
+        // 确认所创建的File对象确实代表一个文件夹
+        if (!folder.exists() || !folder.isDirectory()) {
+            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+        }
+
+        DirectoryVo directoryList = fileService.getFileList(folder);
+
+        return ResponseResult.okResult(directoryList);
     }
 }

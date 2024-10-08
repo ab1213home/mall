@@ -9,8 +9,8 @@ import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Product;
-import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,11 +197,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      *
      * @param listCartId 购物车商品ID列表，用于定位需要更新的购物车商品
      * @param userId 用户ID，用于验证购物车商品是否属于当前用户
-     * @param listCheckout 订单详情列表，包含已购买的商品信息
+     * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
      * @return 如果成功更新购物车则返回true，否则返回false
      */
     @Override
-    public boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<Checkout> listCheckout) {
+    public boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<CheckoutVo> listCheckoutVo) {
         // 根据购物车商品ID列表查询购物车商品信息
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
@@ -219,11 +219,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             }
 
             // 遍历订单详情，对比购物车中的商品
-            for (Checkout checkout : listCheckout) {
+            for (CheckoutVo checkoutVo : listCheckoutVo) {
                 // 如果购物车商品ID与订单中的商品ID匹配
-                if (cart.getProdId().equals(checkout.getProdId())) {
+                if (cart.getProdId().equals(checkoutVo.getProdId())) {
                     // 计算购物车中商品的新数量
-                    int num = cart.getNum() - checkout.getNum();
+                    int num = cart.getNum() - checkoutVo.getNum();
 
                     // 如果新数量大于0，则更新购物车商品数量
                     if (num > 0) {

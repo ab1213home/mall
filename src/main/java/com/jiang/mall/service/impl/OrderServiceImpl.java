@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.entity.*;
-import com.jiang.mall.domain.temporary.Checkout;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -43,23 +42,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	private ProductMapper productMapper;
 
 	@Override
-	public Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<Checkout> listCheckout) {
+	public Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<CheckoutVo> listCheckoutVo) {
 		Order order = new Order();
 		order.setUserId(userId);
 		order.setAddressId(addressId);
 		order.setDate(new Date());
 		order.setTotalAmount(0.0);
-		for (Checkout checkout : listCheckout) {
-			order.setTotalAmount(order.getTotalAmount()+(checkout.getPrice()*checkout.getNum()));
+		for (CheckoutVo checkoutVo : listCheckoutVo) {
+			order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getPrice()* checkoutVo.getNum()));
 		}
 		order.setPaymentMethod(paymentMethod);
 		order.setStatus(status);
 		if (orderMapper.insert(order) > 0) {
-			for (Checkout checkout : listCheckout) {
+			for (CheckoutVo checkoutVo : listCheckoutVo) {
 				OrderList orderList = new OrderList();
-				orderList.setNum(checkout.getNum());
-				orderList.setPrice(checkout.getPrice());
-				orderList.setProdId(checkout.getProdId());
+				orderList.setNum(checkoutVo.getNum());
+				orderList.setPrice(checkoutVo.getPrice());
+				orderList.setProdId(checkoutVo.getProdId());
 				orderList.setOrderId(order.getId());
 				if (orderListMapper.insert(orderList)>0){
 					continue;

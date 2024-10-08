@@ -54,6 +54,13 @@ function queryMyUserInfo(){
 						element.src = res.data.img;
 					}
 				});
+				if (document.getElementById('imgPreview')!= null){
+					if (res.data.img==null){
+						document.getElementById('imgPreview').src = '/images/no-image.png';
+					}else {
+						document.getElementById('imgPreview').src = res.data.img;
+					}
+				}
 				const randomIndex = Math.floor(Math.random() * signList.length);
 				if (document.getElementById('randomText')!= null){
 					document.getElementById('randomText').textContent = signList[randomIndex];
