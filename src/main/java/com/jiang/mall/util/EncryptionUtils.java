@@ -1,5 +1,7 @@
 package com.jiang.mall.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class EncryptionUtils {
@@ -74,7 +77,7 @@ public class EncryptionUtils {
      * @param file 要计算哈希值的文件
      * @return 文件的MD5哈希值字符串
      */
-    public static String calculateToMD5(File file){
+    public static @NotNull String calculateToMD5(File file){
 	    // 获取MD5算法的MessageDigest实例
 	    MessageDigest md;
 	    try {
@@ -118,12 +121,20 @@ public class EncryptionUtils {
      * 加密后的字节数组通过Base64编码转换为字符串
      *
      * @param valueToEncrypt 待加密的字符串
+     * @param KEY_VALUE KEY_VALUE为密钥值
      * @return 加密并Base64编码后的字符串
      */
-    public static String encryptToAES(String valueToEncrypt) {
+    public static String encryptToAES(String valueToEncrypt,String KEY_VALUE) {
+        if(KEY_VALUE==null){
+            return null;
+        }
+        byte[] keyBytes = KEY_VALUE.getBytes(StandardCharsets.UTF_8);
+        if(keyBytes.length<16){
+            return null;
+        }
         try {
             // 根据预定义的密钥值和算法创建密钥
-            SecretKeySpec key = new SecretKeySpec(KEY_VALUE, "AES");
+            SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(keyBytes, 16), "AES");
             // 获取Cipher实例，指定加密算法
             Cipher cipher = Cipher.getInstance("AES");
             // 初始化Cipher为加密模式，传入密钥
@@ -147,10 +158,17 @@ public class EncryptionUtils {
      * @return 解密后的明文字符串
      * @throws RuntimeException 如果解密过程失败，将抛出此运行时异常
      */
-    public static String decryptToAES(String valueToDecrypt) {
+    public static String decryptToAES(String valueToDecrypt,String KEY_VALUE) {
+        if(KEY_VALUE==null){
+            return null;
+        }
+        byte[] keyBytes = KEY_VALUE.getBytes(StandardCharsets.UTF_8);
+        if(keyBytes.length<16){
+            return null;
+        }
         try {
             // 根据预定义的密钥和算法创建一个SecretKeySpec对象
-            SecretKeySpec key = new SecretKeySpec(KEY_VALUE, "AES");
+            SecretKeySpec key = new SecretKeySpec(Arrays.copyOf(keyBytes,16), "AES");
             // 创建一个Cipher对象，用于执行加密和解密操作
             Cipher cipher = Cipher.getInstance("AES");
             // 初始化Cipher对象为解密模式
