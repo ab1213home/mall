@@ -1,6 +1,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
@@ -224,7 +225,8 @@ public class CommonController {
             String filename = file.getOriginalFilename();
             int dotIndex = filename != null ? filename.lastIndexOf('.') : 0;
             String extension = dotIndex > 0 ? filename.substring(dotIndex) : "";
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId);
+            UserVo user = (UserVo) session.getAttribute("User");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
             String newName = sdf.format(new Date()) + extension;
             file.transferTo(new File(FACE_UPLOAD_PATH + newName));
 

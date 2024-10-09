@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,6 +32,7 @@ public class Config {
     static {
         loadProperties();
     }
+
     /**
      * 加载配置文件
      */
@@ -265,6 +268,30 @@ public class Config {
      */
     public static Set<String> imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
 
+    /**
+     * 文件类型映射表
+     */
+    public static final Map<String, String> fileTypeMap = new HashMap<>();
 
+    static {
+        // 初始化文件类型映射表
+        fileTypeMap.put("jpg", "图片");
+        fileTypeMap.put("jpeg", "图片");
+        fileTypeMap.put("png", "图片");
+        fileTypeMap.put("gif", "图片");
+        fileTypeMap.put("bmp", "图片");
+
+        fileTypeMap.put("mp3", "音频");
+        fileTypeMap.put("wav", "音频");
+        fileTypeMap.put("aac", "音频");
+        fileTypeMap.put("flac", "音频");
+
+        fileTypeMap.put("pdf", "文档");
+        fileTypeMap.put("doc", "文档");
+        fileTypeMap.put("docx", "文档");
+        fileTypeMap.put("txt", "文档");
+        fileTypeMap.put("xls", "文档");
+        fileTypeMap.put("xlsx", "文档");
+    }
 }
 
