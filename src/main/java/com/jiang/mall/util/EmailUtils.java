@@ -65,6 +65,7 @@ public class EmailUtils {
 	        // 发送邮件
 	        Transport.send(message);
 
+		    logger.info("邮件发送成功，收件人：{}", to);
 	        return true;
 
 	    } catch (MessagingException e) {

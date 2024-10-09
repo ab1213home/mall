@@ -2,6 +2,8 @@ package com.jiang.mall.domain.entity;
 
 import lombok.Data;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 属性配置类，包含系统常量和正则表达式
@@ -25,7 +29,12 @@ import java.util.Set;
 @Data
 public class Config {
 
-    private static final String CONFIG_FILE_PATH = "config.properties"; // 配置文件路径
+    /**
+     * 配置文件路径
+     */
+    private static final String CONFIG_FILE_PATH = "config.properties";
+
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     public static Properties properties = new Properties();
 
@@ -38,9 +47,11 @@ public class Config {
      */
     private static void loadProperties() {
         try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
+            // 加载配置文件
             properties.load(fis);
+
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("加载配置文件失败！",e);
         }
     }
 
@@ -57,7 +68,7 @@ public class Config {
         try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE_PATH)) {
             properties.store(fos, "配置文件");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("保存配置文件失败！",e);
         }
     }
 
@@ -78,10 +89,19 @@ public class Config {
     public static String regex_phone = properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
 
     /**
+     * 日期时间格式
+     */
+    public static String PATTERN = properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+
+    /**
+     * 时区
+     */
+    public static String timeZone = properties.getProperty("time.zone", "GMT+8");
+
+    /**
      * 日期时间格式化器
      */
-    public static SimpleDateFormat ft = new SimpleDateFormat(properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss"));
-
+    public static SimpleDateFormat ft = new SimpleDateFormat(PATTERN);
     /**
      * 支付方式数组
      */
@@ -266,12 +286,15 @@ public class Config {
     /**
      * 允许上传的图片后缀
      */
-    public static Set<String> imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+    public static String imageSuffixStr = properties.getProperty("image.suffix", "xbm,tif,pjp,apng,svgz,jpg,jpeg,ico,tiff,gif,svg,jfif,webp,png,bmp,pjpeg,avif");
+//    public static Set<String> imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+
+    public static Set<String> imageSuffix=Stream.of(imageSuffixStr.split(",")).map(String::trim).collect(Collectors.toSet());
 
     /**
      * 文件类型映射表
      */
-    public static final Map<String, String> fileTypeMap = new HashMap<>();
+    public static Map<String, String> fileTypeMap = new HashMap<>();
 
     static {
         // 初始化文件类型映射表

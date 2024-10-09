@@ -5,8 +5,6 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
 /**
  * 响应结果类
  * 封装了操作结果，包括状态码、消息和数据等。
@@ -14,47 +12,96 @@ import java.io.Serializable;
  * @param <T> 响应结果的数据类型，可以是任何类型
  *             默认为null
  */
+@Getter
+@Setter
 public class ResponseResult<T> implements Serializable {
 
+    /**
+     * 状态码，用于标识操作的结果
+     */
     private int code;
+
+    /**
+     * 消息，用于描述操作的结果
+     */
     private String message;
+
+    /**
+     * 数据，用于返回操作的结果数据
+     */
     private T data;
 
-    // 默认成功消息
-    private static final String DEFAULT_SUCCESS_MESSAGE = "success";
-    // 默认失败消息
+    /**
+     * 默认成功消息
+     */
+    private static final String DEFAULT_SUCCESS_MESSAGE = "默认成功消息提示";
+    /**
+     * 默认失败消息
+     */
     private static final String DEFAULT_FAIL_MESSAGE = "fail";
-    // 默认成功状态码
+    /**
+     * 默认成功状态码
+     */
     private static final int DEFAULT_SUCCESS_CODE = 200;
-    // 默认失败状态码
+    /**
+     * 默认失败状态码
+     */
     private static final int DEFAULT_FAIL_CODE = 500;
-    // 默认错误状态码
+    /**
+     * 默认错误状态码
+     */
     private static final int DEFAULT_ERROR_CODE = 400;
-    // 默认未授权状态码
+    /**
+     * 默认未授权状态码
+     */
     private static final int DEFAULT_UNAUTHORIZED_CODE = 401;
-    // 默认禁止访问状态码
+    /**
+     * 默认禁止状态码
+     */
     private static final int DEFAULT_FORBIDDEN_CODE = 403;
-    // 默认未找到资源状态码
+    /**
+     * 默认未找到资源状态码
+     */
     private static final int DEFAULT_NOT_FOUND_CODE = 404;
-    // 默认服务器错误状态码
+    /**
+     * 默认服务器错误状态码
+     */
     private static final int DEFAULT_SERVER_ERROR_CODE = 500;
-    // 默认不良请求状态码
+    /**
+     * 默认错误状态码
+     */
     private static final int DEFAULT_BAD_REQUEST_CODE = 400;
-    // 默认不可接受状态码
+    /**
+     * 默认不可接受状态码
+     */
     private static final int DEFAULT_NOT_ACCEPTABLE_CODE = 406;
-    // 默认不可处理实体状态码
+    /**
+     * 默认不可处理实体状态码
+     */
     private static final int DEFAULT_UNPROCESSABLE_ENTITY_CODE = 422;
-    // 默认内部服务器错误状态码
+    /**
+     * 默认服务器错误状态码
+     */
     private static final int DEFAULT_INTERNAL_SERVER_ERROR_CODE = 500;
-    // 默认未实现状态码
+    /**
+     * 默认未实现状态码
+     */
     private static final int DEFAULT_NOT_IMPLEMENTED_CODE = 501;
-    // 默认未找到资源状态码
+    /**
+     * 默认未找到资源状态码
+     */
     private static final int DEFAULT_NOT_FOUND_RESOURCE_CODE = 404;
-    // 默认未授权资源状态码
+    /**
+     * 创建一个表示未授权资源的响应结果对象
+     */
     private static final int DEFAULT_UNAUTHORIZED_RESOURCE_CODE = 401;
-    // 默认未找到资源消息对应状态码
+    /**
+     * 创建一个表示未找到资源的响应结果对象
+     */
     private static final int DEFAULT_NOT_FOUND_RESOURCE_MESSAGE = 404;
-    // 默认未授权资源消息对应状态码
+    /**
+     * 创建一个表示未授权资源的响应结果对象
+     */
     private static final int DEFAULT_UNAUTHORIZED_RESOURCE_MESSAGE = 401;
 
     /**
@@ -68,7 +115,7 @@ public class ResponseResult<T> implements Serializable {
         // 设置响应结果的状态码为默认的成功码
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
         // 设置响应结果的消息为传入的默认消息
-        responseResult.setMessage("默认成功消息提示");
+        responseResult.setMessage(DEFAULT_SUCCESS_MESSAGE);
         // 返回构建好的响应结果对象
         return responseResult;
     }
@@ -173,6 +220,13 @@ public class ResponseResult<T> implements Serializable {
         return responseResult;
     }
 
+    /**
+     * 创建一个表示未找到资源的响应结果
+     * 此方法用于生成一个特殊的响应结果，指示请求的资源不存在于服务器上，通常用于处理无效的请求路径等错误情况
+     *
+     * @param message 错误消息，用于详细说明未找到资源的原因
+     * @return 返回一个 ResponseResult 对象，其中包含了默认的未找到资源状态码和给定的错误消息
+     */
     public static ResponseResult notFoundResourceResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_NOT_FOUND_RESOURCE_CODE);
@@ -180,7 +234,13 @@ public class ResponseResult<T> implements Serializable {
         return responseResult;
     }
 
-    //服务器内部错误
+    /**
+     * 创建一个表示服务器错误的响应结果
+     * 此方法用于生成一个特殊的响应结果，指示服务器内部发生错误，通常用于处理程序逻辑错误等错误情况
+     *
+     * @param message 错误消息，用于详细说明服务器错误的原因
+     * @return 返回一个 ResponseResult 对象，其中包含了默认的服务器错误状态码和给定的错误消息
+     */
     public static ResponseResult serverErrorResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_NOT_IMPLEMENTED_CODE);
@@ -188,14 +248,28 @@ public class ResponseResult<T> implements Serializable {
         return responseResult;
     }
 
-    public static ResponseResult okResult(Object date, String message) {
+    /**
+     * 创建一个表示操作成功的响应结果，同时携带数据对象
+     * 此方法用于封装一个成功的响应结果，同时携带数据对象，用于返回API调用的结果
+     * 它会创建一个新的ResponseResult实例，设置默认的成功状态码和成功消息，并将给定的数据对象封装进去
+     *
+     * @param data 成功响应中要封装的数据对象，可以是任何类型的对象
+     * @param message 响应结果的消息，用于提供额外的信息
+     * @return 返回一个填充了默认成功状态、数据对象和消息的ResponseResult对象
+     */
+    public static ResponseResult okResult(Object data, String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
-        responseResult.setData(date);
+        responseResult.setData(data);
         responseResult.setMessage(message);
         return responseResult;
     }
 
+    /**
+     * 判断当前响应结果是否表示成功状态
+     *
+     * @return 如果响应结果的状态码等于默认的成功状态码，则返回true；否则返回false
+     */
     public boolean isSuccess() {
 	    return code == DEFAULT_SUCCESS_CODE;
     }

@@ -28,29 +28,6 @@ public class AdminController {
 	@Autowired
 	private IUserService userService;
 
-
-	public static boolean AllowDelete = true;
-	public static boolean AllowLock = true;
-	public static boolean AllowUnlock = true;
-	public static boolean AllowUnlockUser = true;
-	public static boolean AllowModifyUser = true;
-	public static boolean AllowModifyAdmin = true;
-	public static boolean AllowModifyRole = true;
-	public static boolean AllowModifyCategory = true;
-	public static boolean AllowModifyProduct = true;
-	public static boolean AllowModifyOrder = true;
-	public static boolean AllowModifyAddress = true;
-	public static boolean AllowModifyPayment = true;
-	public static boolean AllowModifyShipping = true;
-	public static boolean AllowModifyCoupon = true;
-	public static boolean AllowModifyCouponCategory = true;
-	public static boolean AllowModifyCouponProduct = true;
-	public static boolean AllowModifyOrderItem = true;
-	public static boolean AllowModifyCouponOrder = true;
-	public static boolean AllowModifyCouponUser = true;
-	public static boolean AllowModifyCouponOrderItem = true;
-
-
 	@GetMapping("/admin")
 	public ResponseResult setAllowRegistration(@RequestParam(defaultValue = "true",required = false) boolean AllowRegistration,
 										       @RequestParam(defaultValue = "true",required = false) boolean AllowUploadFile,

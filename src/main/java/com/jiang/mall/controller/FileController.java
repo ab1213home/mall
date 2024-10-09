@@ -1,6 +1,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
@@ -10,17 +11,16 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import static com.jiang.mall.domain.entity.Config.FILE_UPLOAD_PATH;
+import static com.jiang.mall.domain.entity.Config.*;
 
 /**
  * 文件控制器
@@ -167,7 +167,7 @@ public class FileController {
         ResponseResult result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
-//            return result;
+            return result;
         }
         // 创建一个File对象，对应于要检查的文件夹路径
         File folder = new File(FILE_UPLOAD_PATH);
@@ -181,5 +181,89 @@ public class FileController {
         DirectoryVo directoryList = fileService.getFileList(folder);
 
         return ResponseResult.okResult(directoryList);
+    }
+
+    /**
+     * 获取文件设置信息
+     * <p>
+     * 本方法主要用于获取文件上传的相关设置，包括是否允许上传文件、文件上传路径、支持的图片后缀等
+     * 仅在用户通过管理员身份验证后才可访问这些设置信息
+     *
+     * @param session HTTP会话，用于检查用户登录状态
+     * @return 返回包含文件设置信息的响应结果
+     */
+    @GetMapping("/file/getSetting")
+    public ResponseResult getSetting(HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkAdminUser(session);
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+            return result;
+        }
+        Map<String,Object> setting = new HashMap<>();
+        setting.put("AllowUploadFile",AllowUploadFile);
+        setting.put("FileUploadPath",FILE_UPLOAD_PATH);
+        Map<String,Boolean> imageSuffix_with_parameters = new HashMap<>();
+        Set<String> standard_imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+        for (String suffix : standard_imageSuffix) {
+            if (imageSuffix.contains(suffix)){
+                imageSuffix_with_parameters.put(suffix,true);
+            }else {
+                imageSuffix_with_parameters.put(suffix, false);
+            }
+        }
+        setting.put("imageSuffix",imageSuffix_with_parameters);
+        setting.put("fileTypeMap", fileTypeMap);
+        return ResponseResult.okResult(setting);
+    }
+
+    /**
+     * 设置文件上传配置
+     * <p>
+     * 该方法用于更新文件上传的相关配置，包括是否允许上传文件、上传路径以及允许上传的图片后缀
+     * 只有管理员用户才能访问该方法进行配置更新
+     *
+     * @param AllowUploadFile 是否允许上传文件
+     * @param FileUploadPath 文件上传路径
+     * @param imageSuffix 允许上传的图片后缀及其状态
+     * @param session HTTP会话，用于验证用户登录状态
+     * @return 返回更新配置的结果
+     */
+    @PostMapping("/file/setSetting")
+    public ResponseResult setSetting(@RequestParam(required = false) boolean AllowUploadFile,
+                                     @RequestParam(required = false) String FileUploadPath,
+                                     @RequestBody(required = false) Map<String, Boolean> imageSuffix,
+                                     HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkAdminUser(session);
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+            return result;
+        }
+        // 标准图片后缀集合，用于校验传入的图片后缀是否合法
+        Set<String> standard_imageSuffix = Set.of("xbm", "tif", "pjp", "apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+        // 遍历传入的图片后缀，校验其合法性并更新配置
+        for (Map.Entry<String, Boolean> suffix : imageSuffix.entrySet()) {
+            if (!standard_imageSuffix.contains(suffix.getKey())) {
+                return ResponseResult.failResult("非法的图片后缀");
+            }
+            if (suffix.getValue()) {
+                Config.imageSuffix.add(suffix.getKey());
+            } else {
+                Config.imageSuffix.remove(suffix.getKey());
+            }
+        }
+        // 更新是否允许上传文件的配置
+        Config.AllowUploadFile = AllowUploadFile;
+        // 如果上传路径不为空，则更新上传路径
+        if (FileUploadPath != null) {
+            Config.FILE_UPLOAD_PATH = FileUploadPath;
+        }
+        // 更新允许上传的图片后缀字符串，以逗号分隔
+        Config.imageSuffixStr = String.join(",", Config.imageSuffix);
+        // 保存更新后的配置
+        saveProperties();
+        // 返回成功结果
+        return ResponseResult.okResult();
     }
 }
