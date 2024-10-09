@@ -72,36 +72,6 @@ public class FileServiceImpl implements IFileService {
 	                String path = "/" + folder.getName() + "/" + file.getName();
 	                List<String> purpose = new ArrayList<>();
 
-	                // 查询该文件是否被用作商品图片
-	                QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
-	                productQueryWrapper.eq("img", path);
-	                List<Product> products = productMapper.selectList(productQueryWrapper);
-	                if (!products.isEmpty()) {
-	                    for (Product product : products) {
-	                        purpose.add("商品id:" + product.getId() + "(名称:" + product.getTitle() + ")的图片");
-	                    }
-	                }
-
-	                // 查询该文件是否被用作轮播图
-	                QueryWrapper<Banner> bannerQueryWrapper = new QueryWrapper<>();
-	                bannerQueryWrapper.eq("img", path);
-	                List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
-	                if (!banners.isEmpty()) {
-	                    for (Banner banner : banners) {
-	                        purpose.add("轮播图id:" + banner.getId() + "(描述信息:" + banner.getDescription() + ")");
-	                    }
-	                }
-
-	                // 查询该文件是否被用作用户头像
-	                QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-	                userQueryWrapper.eq("img", path);
-	                List<User> users = userMapper.selectList(userQueryWrapper);
-	                if (!users.isEmpty()) {
-	                    for (User user : users) {
-	                        purpose.add("用户id:" + user.getId() + "(用户名:" + user.getUsername() + ")的头像");
-	                    }
-	                }
-
 					int dotIndex = file.getName().lastIndexOf('.');
 	                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
 	                if (imageSuffix.contains(extension.toLowerCase())) {
@@ -114,6 +84,36 @@ public class FileServiceImpl implements IFileService {
 					if (file.getName().equals("default.jpg")){
 						purpose.add("默认头像");
 					}
+
+	                // 查询该文件是否被用作商品图片
+	                QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
+	                productQueryWrapper.eq("img", path);
+	                List<Product> products = productMapper.selectList(productQueryWrapper);
+	                if (!products.isEmpty()) {
+	                    for (Product product : products) {
+	                        purpose.add("商品" + product.getId() + "(id:" + product.getTitle() + ")的图片");
+	                    }
+	                }
+
+	                // 查询该文件是否被用作轮播图
+	                QueryWrapper<Banner> bannerQueryWrapper = new QueryWrapper<>();
+	                bannerQueryWrapper.eq("img", path);
+	                List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
+	                if (!banners.isEmpty()) {
+	                    for (Banner banner : banners) {
+	                        purpose.add("轮播图描述信息:" + banner.getId() + "(id:" + banner.getDescription() + ")");
+	                    }
+	                }
+
+	                // 查询该文件是否被用作用户头像
+	                QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+	                userQueryWrapper.eq("img", path);
+	                List<User> users = userMapper.selectList(userQueryWrapper);
+	                if (!users.isEmpty()) {
+	                    for (User user : users) {
+	                        purpose.add("用户" + user.getId() + "(id:" + user.getUsername() + ")的头像");
+	                    }
+	                }
 
 	                // 设置文件用途，如果未找到特定用途则标记为"未知"
 	                if (purpose.isEmpty()) {
