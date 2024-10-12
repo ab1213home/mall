@@ -91,7 +91,7 @@ public class FileServiceImpl implements IFileService {
 	                List<Product> products = productMapper.selectList(productQueryWrapper);
 	                if (!products.isEmpty()) {
 	                    for (Product product : products) {
-	                        purpose.add("商品" + product.getId() + "(id:" + product.getTitle() + ")的图片");
+	                        purpose.add("商品" + product.getTitle() + "(id:" + product.getId() + ")的图片");
 	                    }
 	                }
 
@@ -101,7 +101,7 @@ public class FileServiceImpl implements IFileService {
 	                List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
 	                if (!banners.isEmpty()) {
 	                    for (Banner banner : banners) {
-	                        purpose.add("轮播图描述信息:" + banner.getId() + "(id:" + banner.getDescription() + ")");
+	                        purpose.add("轮播图描述信息:" + banner.getDescription() + "(id:" + banner.getId() + ")");
 	                    }
 	                }
 
@@ -111,7 +111,7 @@ public class FileServiceImpl implements IFileService {
 	                List<User> users = userMapper.selectList(userQueryWrapper);
 	                if (!users.isEmpty()) {
 	                    for (User user : users) {
-	                        purpose.add("用户" + user.getId() + "(id:" + user.getUsername() + ")的头像");
+	                        purpose.add("用户" + user.getUsername() + "(id:" + user.getId() + ")的头像");
 	                    }
 	                }
 

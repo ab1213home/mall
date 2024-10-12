@@ -45,7 +45,7 @@ public class Config {
     /**
      * 加载配置文件
      */
-    private static void loadProperties() {
+    public static void loadProperties() {
         try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
             // 加载配置文件
             properties.load(fis);

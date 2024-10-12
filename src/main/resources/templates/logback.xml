@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60" debug="false">
+
+    <!-- 自定义变量 -->
+    <property name="appName" value="mall-logback" />
+
+    <!-- 日志文件名称, 可随便命名 -->
+    <property name="baseFile" value="mall-logback" />
+
+    <!-- 项目所在盘符的根目录下, 也可以指定具体盘符位置, 如：E:\\app\\ouyangjun-logback\\logs -->
+    <property name="rootPath" value="/logs" />
+
+    <!-- 日志输出格式 -->
+    <property name="pattern" value="%X{thread} [%date{yyyy-MM-dd HH:mm:ss.SSS}] %level %logger{36} %line - %msg%n"/>
+
+    <!-- 设置上下文名称 -->
+    <contextName>${appName}</contextName>
+
+    <!-- 把日志在控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 磁盘文件输出日志 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${rootPath}/${baseFile}.log</File>
+        <append>true</append>
+        <prudent>false</prudent>
+
+        <!-- 日志文件rolling策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${rootPath}/${baseFile}_%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+            <!-- 日志保留天数 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <!-- 日志输出格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 文件输出日志 (文件大小策略进行文件输出，每小时产生一个日志文件给异常监控平台进行分析) -->
+    <appender name="ERRORFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${rootPath}/${baseFile}_error.log</File>
+        <append>true</append>
+        <prudent>false</prudent>
+
+        <!-- 日志文件rolling策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${rootPath}/${baseFile}_error_%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+
+            <!-- 日志在磁盘上保留天数 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <!-- 过滤器，只ACCEPT接收ERROR级别的日志，其它日志级别都DENY拒绝 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!-- 日志输出格式 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${pattern}</pattern>
+
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 把日志异步输出到磁盘文件中，避免每次都进行磁盘IO操作 -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>10000</queueSize>
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <root level="INFO">
+        <!-- 生产环境,可以不需要再控制台输出日志 -->
+        <appender-ref ref="STDOUT" />
+
+        <!-- 异步输出日志到磁盘文件中 -->
+        <appender-ref ref="ASYNC" />
+
+        <!-- 错误文件,需要实时输出到磁盘中 -->
+        <appender-ref ref="ERRORFILE" />
+    </root>
+</configuration>

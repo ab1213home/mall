@@ -12,9 +12,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -229,10 +231,10 @@ public class FileController {
      * @param session HTTP会话，用于验证用户登录状态
      * @return 返回更新配置的结果
      */
-    @PostMapping("/file/setSetting")
+    @PostMapping("/file/saveSetting")
     public ResponseResult setSetting(@RequestParam(required = false) boolean AllowUploadFile,
                                      @RequestParam(required = false) String FileUploadPath,
-                                     @RequestBody(required = false) Map<String, Boolean> imageSuffix,
+                                     @RequestBody(required = false) Map<String, Object> imageSuffix,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkAdminUser(session);
@@ -243,26 +245,41 @@ public class FileController {
         // 标准图片后缀集合，用于校验传入的图片后缀是否合法
         Set<String> standard_imageSuffix = Set.of("xbm", "tif", "pjp", "apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
         // 遍历传入的图片后缀，校验其合法性并更新配置
-        for (Map.Entry<String, Boolean> suffix : imageSuffix.entrySet()) {
-            if (!standard_imageSuffix.contains(suffix.getKey())) {
-                return ResponseResult.failResult("非法的图片后缀");
+        if (imageSuffix != null) {
+            // 将 imageSuffix 转换为 Map 类型
+//            Map<String, Object> mapImageSuffix = (Map<String, Object>) imageSuffix.get("imageSuffix");
+            for (Map.Entry<String, Object> suffix : imageSuffix.entrySet()) {
+                if (!standard_imageSuffix.contains(suffix.getKey())) {
+                    return ResponseResult.failResult("非法的图片后缀");
+                }
+                if ((boolean)suffix.getValue()){
+                    Config.imageSuffix.add(suffix.getKey());
+                } else {
+                    Config.imageSuffix.remove(suffix.getKey());
+                }
+    //            if (Objects.equals(suffix.getValue(), "ture")) {
+    //                Config.imageSuffix.add(suffix.getKey());
+    //            } else if (Objects.equals(suffix.getValue(), "false")){
+    //                Config.imageSuffix.remove(suffix.getKey());
+    //            }else {
+    //                return ResponseResult.failResult("非法的状态");
+    //            }
             }
-            if (suffix.getValue()) {
-                Config.imageSuffix.add(suffix.getKey());
-            } else {
-                Config.imageSuffix.remove(suffix.getKey());
-            }
+        } else {
+            // 处理 imageSuffix 为 null 的情况
+            System.out.println("imageSuffix 为空，请检查数据源！");
         }
         // 更新是否允许上传文件的配置
         Config.AllowUploadFile = AllowUploadFile;
         // 如果上传路径不为空，则更新上传路径
         if (FileUploadPath != null) {
-            Config.FILE_UPLOAD_PATH = FileUploadPath;
+	        Config.FILE_UPLOAD_PATH = UriUtils.decode(FileUploadPath, StandardCharsets.UTF_8);
         }
         // 更新允许上传的图片后缀字符串，以逗号分隔
         Config.imageSuffixStr = String.join(",", Config.imageSuffix);
         // 保存更新后的配置
         saveProperties();
+        loadProperties();
         // 返回成功结果
         return ResponseResult.okResult();
     }
