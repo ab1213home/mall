@@ -11,9 +11,9 @@ function changePassword() {
 
   // 构建请求体
   const data = {
-    oldPassword: oldPassword,
-    newPassword: newPassword,
-    confirmPassword: confirmPassword
+    oldPassword: sha256(oldPassword),
+    newPassword: sha256(newPassword),
+    confirmPassword: sha256(confirmPassword),
   };
 
   // 发送 AJAX 请求

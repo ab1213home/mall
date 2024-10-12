@@ -18,7 +18,7 @@ function submitLoginForm() {
   // 构建请求体
   const data = {
     username: username,
-    password: password,
+    password: sha256(password),
     captcha: captcha
   };
 

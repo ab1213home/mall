@@ -35,8 +35,8 @@ function submitRegisterStepOneForm() {
         email: email,
         captcha: captcha,
         username: username,
-        password: password,
-        confirmPassword: confirmPassword,
+        password: sha256(password),
+        confirmPassword: sha256(confirmPassword),
     };
     $.ajax({
         url: '/email/sendRegister',

@@ -28,7 +28,7 @@ public class EncryptionUtils {
             // 获取SHA-256消息摘要对象
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             // 将密码与盐值合并，然后转换为字节数组
-            byte[] hash = digest.digest((input + salt).getBytes());
+            byte[] hash = digest.digest((input + salt).getBytes(StandardCharsets.UTF_8));
             // 构建哈希值的十六进制字符串表示
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {

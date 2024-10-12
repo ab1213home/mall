@@ -102,14 +102,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(username,email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
+            Code userCode = new Code(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            Code userCode = new Code(username,email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.REGISTER, EmailStatus.FAILED);
+            Code userCode = new Code(username,email,password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
@@ -272,14 +272,14 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(user.getUsername(),email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
+            Code userCode = new Code(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (codeService.save(userCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因"+EmailPurpose.CHANGE_EMAIL.getName()+"失败");
             }
         }else {
-            Code userCode = new Code(user.getUsername(),email, encryptToSHA256(password,AES_SALT), code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
+            Code userCode = new Code(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
             codeService.save(userCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

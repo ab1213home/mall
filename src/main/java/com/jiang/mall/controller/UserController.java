@@ -242,7 +242,7 @@ public class UserController {
      * 处理用户登录请求
      *
      * @param username 用户名
-     * @param password 密码
+     * @param password 密码(前端加密)
      * @param captcha 验证码
      * @param session HttpSession，用于存储会话信息
      * @return ResponseResult 登录结果

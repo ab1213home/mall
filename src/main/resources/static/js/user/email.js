@@ -25,7 +25,7 @@ function submitChangeEmailStupOneForm() {
     const email = $("#email").val();
     const captcha = $("#captcha").val();
     const data = {
-        password: password,
+        password: sha256(password),
         email: email,
         captcha: captcha
     };

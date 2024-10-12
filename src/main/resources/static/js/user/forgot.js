@@ -86,8 +86,8 @@ function submitForgotStepTwoForm() {
   const data = {
     code: code,
     email: email,
-    password: password,
-    confirmPassword: confirmPassword
+    password: sha256(password),
+    confirmPassword: sha256(confirmPassword),
   };
 
   // 发送 AJAX 请求

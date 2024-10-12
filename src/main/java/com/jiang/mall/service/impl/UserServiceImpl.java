@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
+import static com.jiang.mall.domain.entity.Config.AdminRoleId;
+import static com.jiang.mall.domain.entity.Config.regex_email;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -156,14 +156,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        queryWrapper_email.eq("email", username);
 	        queryWrapper_email.eq("is_active", true);
 	        User user_email = userMapper.selectOne(queryWrapper_email);
-
+//encryptToSHA256(password,AES_SALT)
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
 	            // 如果邮箱未注册，检查用户名是否注册
 	            if (user_username == null) {
 					// 用户名和邮箱均未注册
 	                return null;
-	            } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+	            } else if (user_username.getPassword().equals(password)) {
 					// 用户名注册且密码匹配
 	                return user_username;
 	            } else {
@@ -173,14 +173,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        } else {
 	            // 邮箱已注册，检查是否与用户名对应同一用户
 		        if (user_username==null){
-					if (user_email.getPassword().equals(encryptToSHA256(password,AES_SALT))){
+					if (user_email.getPassword().equals(password)){
 						return user_email;
 					}else {
 						return null;
 					}
 		        }else if (Objects.equals(user_email.getId(), user_username.getId())) {
 	                // 同一用户，检查密码
-	                if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+	                if (user_username.getPassword().equals(password)) {
 						// 密码匹配
 	                    return user_username;
 	                } else {
@@ -189,10 +189,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	                }
 	            } else {
 	                // 不是同一用户，分别检查密码
-	                if (user_email.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+	                if (user_email.getPassword().equals(password)) {
 						// 邮箱用户密码匹配
 	                    return user_email;
-	                } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+	                } else if (user_username.getPassword().equals(password)) {
 						// 用户名用户密码匹配
 	                    return user_username;
 	                } else {
@@ -206,7 +206,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        if (user_username == null) {
 				// 用户名未注册
 	            return null;
-	        } else if (user_username.getPassword().equals(encryptToSHA256(password,AES_SALT))) {
+	        } else if (user_username.getPassword().equals(password)) {
 				// 用户名注册且密码匹配
 	            return user_username;
 	        } else {
@@ -270,7 +270,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 验证用户是否存在且旧密码是否正确。
 	    if (user != null) {
 	        // 如果验证成功，更新用户密码为新密码。
-	        user.setPassword(encryptToSHA256(newPassword,AES_SALT));
+	        user.setPassword(newPassword);
 			user.setIsActive(true);
 			// 通过ID更新用户信息。
 		    return userMapper.updateById(user) > 0;
@@ -299,9 +299,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    User user = userMapper.selectOne(queryWrapper);
 
 	    // 验证用户是否存在且旧密码是否正确。
-	    if (user != null && encryptToSHA256(oldPassword,AES_SALT).equals(user.getPassword())) {
+	    if (user != null && oldPassword.equals(user.getPassword())) {
 	        // 如果验证成功，更新用户密码为新密码。
-	        user.setPassword(encryptToSHA256(newPassword,AES_SALT));
+	        user.setPassword(newPassword);
 			// 通过ID更新用户信息。
 		    return userMapper.updateById(user) > 0;
 	    }else {
@@ -452,7 +452,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 设置用户账户为激活状态
 	        user.setIsActive(true);
 	        // 加密用户密码和用户名以确保安全性
-	        user.setPassword(encryptToSHA256(user.getPassword(),AES_SALT));
+	        user.setPassword(user.getPassword());
 	        user.setUsername(user.getUsername());
 	        // 设置用户角色为普通用户
 	        user.setRoleId(1);
