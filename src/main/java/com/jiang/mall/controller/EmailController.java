@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.Random;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
 
 /**
  * 邮箱验证码控制器
@@ -242,7 +241,7 @@ public class EmailController {
         }
 
         User user = userService.getUserInfo(userId);
-        if (!Objects.equals(user.getPassword(), encryptToSHA256(password,AES_SALT))) {
+        if (!Objects.equals(user.getPassword(), password)) {
             return ResponseResult.failResult("密码错误");
         }
         if (!StringUtils.hasText(email)){

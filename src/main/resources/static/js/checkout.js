@@ -5,6 +5,7 @@ let num_cart = 0;
 $(document).ready(function(){
     isLogin();
 	getTemporaryNum();
+	getFooterInfo();
 	queryCart(1, 10);
 	bindPreNextPage_product();
 	queryAddress(1,10);

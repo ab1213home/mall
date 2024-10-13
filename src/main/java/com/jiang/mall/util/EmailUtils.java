@@ -10,6 +10,9 @@ import java.util.Properties;
 
 import static com.jiang.mall.domain.entity.Config.*;
 
+/**
+ * 邮件工具类
+ */
 public class EmailUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailUtils.class);

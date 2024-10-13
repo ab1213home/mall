@@ -2,8 +2,11 @@ let category_arr = [];
 let goodsMap = {};
 let banner_num = 0;
 $(document).ready(function(){
-	isLogin();
-	getCartNum();
+    let flag=isLogin();
+	getFooterInfo();
+	if (flag){
+		getCartNum();
+	}
     if (message!=null){
         openModal('提示', message);
     }

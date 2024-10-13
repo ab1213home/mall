@@ -1,6 +1,8 @@
 package com.jiang.mall.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -14,7 +16,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
-public class EncryptionUtils {
+/**
+ * 加密解密工具类，提供了加密和解密相关的方法。
+ */
+public class EncryptAndDecryptUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(EncryptAndDecryptUtils.class);
 
     /**
      * 使用SHA-256算法对密码进行哈希处理，并返回哈希值的十六进制表示。
@@ -41,6 +48,7 @@ public class EncryptionUtils {
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
             // 如果无法获取SHA-256实例，抛出运行时异常
+            logger.error("获取SHA256实例失败", e);
             throw new RuntimeException("获取SHA256实例失败", e);
         }
     }
@@ -68,6 +76,7 @@ public class EncryptionUtils {
             }
             return md5Hex.toString();
         } catch (NoSuchAlgorithmException e) {
+            logger.error("获取MD5实例失败", e);
             throw new RuntimeException("获取MD5实例失败", e);
         }
     }
@@ -98,7 +107,8 @@ public class EncryptionUtils {
             }
         } catch (IOException e) {
 	        // 如果文件读取发生错误，抛出运行时异常
-	        throw new RuntimeException(e);
+	        logger.error("读取文件MD5失败",e);
+            throw new RuntimeException("获取文件MD5失败",e);
         }
 
 	    // 获取计算出的MD5摘要字节数组
@@ -112,8 +122,6 @@ public class EncryptionUtils {
         // 返回MD5哈希值的字符串表示
         return sb.toString();
     }
-
-    public static byte[] KEY_VALUE;
 
     /**
      * 对给定的字符串进行加密
@@ -146,7 +154,8 @@ public class EncryptionUtils {
             return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
             // 如果加密过程中发生异常，抛出运行时异常，包含错误信息
-            throw new RuntimeException("Failed to encrypt", e);
+            logger.error("加密AES失败",e);
+            throw new RuntimeException("加密AES失败", e);
         }
     }
 
@@ -180,7 +189,8 @@ public class EncryptionUtils {
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
             // 如果解密过程中发生任何异常，转换为运行时异常并抛出
-            throw new RuntimeException("Failed to decryptToAES", e);
+            logger.error("解密AES失败",e);
+            throw new RuntimeException("解密AES失败", e);
         }
     }
 }

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.*;
-import static com.jiang.mall.util.EncryptionUtils.encryptToSHA256;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -87,7 +86,7 @@ public class UserController {
             return ResponseResult.failResult("验证码错误");
         }
         if (userService.modifyPassword(userCode.getUserId(),password)){
-            userCode.setPassword(encryptToSHA256(password,AES_SALT));
+            userCode.setPassword(password);
             codeService.useCode(userCode.getUserId(),userCode);
             return ResponseResult.okResult("密码修改成功");
         }else{
@@ -153,7 +152,7 @@ public class UserController {
         if (!Objects.equals(userCode.getUsername(), username)){
             return ResponseResult.failResult("非法请求");
         }
-        if (!Objects.equals(userCode.getPassword(), encryptToSHA256(password,AES_SALT))){
+        if (!Objects.equals(userCode.getPassword(), password)){
             return ResponseResult.failResult("非法请求");
         }
 

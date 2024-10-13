@@ -1,43 +1,134 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户协议</title>
-    <!-- 引入Bootstrap CSS -->
-    <link href="/bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            padding: 20px;
-        }
-        h1, h2 {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>用户协议</h1>
-        <p>欢迎使用我们的服务！在使用我们的产品或服务之前，请您务必审慎阅读、充分理解本协议。</p>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.min.css"/>
+		<link rel="stylesheet" href="css/index.css">
+		<link rel="stylesheet" href="./css/style.css">
+		<link rel="stylesheet" href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+		<link rel="shortcut icon" href="/images/logo.png"/>
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<script src="./jquery-3.7.1/jquery-3.7.1.min.js"></script>
+		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+		<script src="./js/index_login.js"></script>
+		<script src="./js/modal.js"></script>
+		<script src="./js/index_footer.js"></script>
+		<script src="./js/index_cart.js"></script>
+		<script src="js/protocol.js"></script>
+		<title>用户协议</title>
+		<style>
+            /*body {*/
+            /*    padding: 20px;*/
+            /*}*/
+            h1, h2 {
+                margin-bottom: 20px;
+            }
+    	</style>
+	</head>
+	<body class="index">
+		<div class="top">
+			<div class="inner-top w">
+				<ul class="fr">
+					<!-- li变为行内块元素 -->
+					<li id="username"><a href="./user/login.html">你好！请登录</a></li>
+					<li id="register_spacer" class="spacer"></li>
+					<li id="register"><a class="style-red" href="./user/register.html">免费注册</a></li>
+					<li class="spacer"></li>
+					<li><a href="javascript:">网络无障碍</a></li>
+				</ul>
+				<div class="cls"></div>
+			</div>
+		</div>
+		<div class="header">
+			<div class="w headerBody">
+				<div class="hb1">
+					<a href="index.html">
+						<img src="images/logo.png" alt="学校图标">
+					</a>
+				</div>
+				<!--父相子绝-->
+				<div class="hb2">
+					<div class="searchBody">
+						<input type="text" class="search_m" id="search" placeholder="搜你所想..."/>
+						<button id="search_btn" type="button" onclick="search_item()"><i class="bi bi-search search-icon"></i></button>
+						<div class="search_t"><ul>
+							<li><a href="#">端午节</a></li>
+							<li><a href="#">手机</a></li>
+							<li><a href="#">鞋子</a></li>
+						</ul></div>
+					</div>
+					<div class="shortCart">
+						<i class="bi bi-cart3"></i>
+						<div id="cartNum">0</div>
+						<a href="/cart.html">我的购物车</a>
+					</div>
+				</div>
+				<div class="hb3"></div>
+			</div>
+		</div>
+		<!-- 商品页 -->
+		<div class="main-content container justify-content-center">
+            <div class="container">
+                <h1>用户协议</h1>
+                <p>欢迎使用我们的服务！在使用我们的产品或服务之前，请您务必审慎阅读、充分理解本协议。</p>
 
-        <h2>一、协议概述</h2>
-        <p>本协议是您与我们之间关于您使用产品或服务所订立的协议。</p>
+                <h2>一、协议概述</h2>
+                <p>本协议是您与我们之间关于您使用产品或服务所订立的协议。</p>
 
-        <h2>二、用户权利与义务</h2>
-        <p>作为用户，您应当：</p>
-        <ul>
-            <li>遵守所有适用的法律和法规；</li>
-            <li>合理合法地使用服务；</li>
-            <li>保护您的账号安全；</li>
-        </ul>
+                <h2>二、用户权利与义务</h2>
+                <p>作为用户，您应当：</p>
+                <ul>
+                    <li>遵守所有适用的法律和法规；</li>
+                    <li>合理合法地使用服务；</li>
+                    <li>保护您的账号安全；</li>
+                </ul>
 
-        <h2>三、服务条款</h2>
-        <p>我们承诺提供稳定的服务，但不保证服务不会中断或没有错误。</p>
-
-        <!-- 更多内容 -->
-    </div>
-
-    <!-- 引入Bootstrap JS -->
-    <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-</body>
+                <h2>三、服务条款</h2>
+                <p>我们承诺提供稳定的服务，但不保证服务不会中断或没有错误。</p>
+                <!-- 更多内容 -->
+            </div>
+		</div>
+		<!-- 底部 -->
+		<div class="footer">
+			<div class="container py-4">
+				<div class="row align-items-center">
+					<div class="col-md-4 d-flex align-items-center">
+						<a href="tel:400-888-8888" class="social-button d-flex align-items-center" id="call-us">
+							<i class="bi bi-telephone-fill me-2"></i>
+							<span class="social-label" id="call-us-label">客服热线:400-888-8888</span>
+						</a>
+					</div>
+					<div class="col-md-4 d-flex justify-content-center">
+						<a href="/index.html" class="me-3">首页</a>
+						<a href="/protocol.html" class="me-3">用户协议</a>
+						<a href="/github.html" class="me-3">GitHub</a>
+					</div>
+					<div class="col-md-4 d-flex justify-content-end">
+						<a href="mailto:jiangrongjun2004@163.com" class="social-button d-flex align-items-center" id="email-us">
+							<i class="bi bi-envelope-at-fill me-2"></i>
+							<span class="social-label" id="email-us-label">电子邮件</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 固定提示框 -->
+	    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+			  </div>
+			</div>
+		</div>
+	</body>
 </html>

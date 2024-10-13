@@ -2,19 +2,20 @@
 <html lang="zh">
 	<head>
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.min.css">
-		<link rel="stylesheet" href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
-		<link rel="stylesheet" href="./css/style.css">
-		<link rel="stylesheet" href="./css/index.css">
-		<script src="./jquery-3.7.1/jquery-3.7.1.min.js"></script>
-		<script src="./js/index_banner.js"></script>
-		<script src="./js/index_cart.js"></script>
-		<script src="./js/index_login.js"></script>
-		<script src="./js/index_search.js"></script>
-		<script src="./js/modal.js"></script>
+		<link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/index.css">
+		<script src="/jquery-3.7.1/jquery-3.7.1.min.js"></script>
+		<script src="/js/index_banner.js"></script>
+		<script src="/js/index_cart.js"></script>
+		<script src="/js/index_login.js"></script>
+		<script src="/js/index_search.js"></script>
+		<script src="/js/modal.js"></script>
+		<script src="/js/index_footer.js"></script>
 <!--		<script src="./js/index_category.js"></script>-->
-		<script src="./js/index.js"></script>
-		<script src="./bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+		<script src="/js/index.js"></script>
+		<script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 		<!-- Tell the browser to be responsive to screen width -->
 		<link rel="shortcut icon" href="/images/logo.png"/>
 		<style>
@@ -29,9 +30,9 @@
 			<div class="inner-top w">
 				<ul class="fr">
 					<!-- li变为行内块元素 -->
-					<li id="username"><a href="./user/login.html">你好！请登录</a></li>
+					<li id="username"><a href="/user/login.html">你好！请登录</a></li>
 					<li id="register_spacer" class="spacer"></li>
-					<li id="register"><a class="style-red" href="./user/register.html">免费注册</a></li>
+					<li id="register"><a class="style-red" href="/user/register.html">免费注册</a></li>
 					<li class="spacer"></li>
 					<li><a href="javascript:">网络无障碍</a></li>
 				</ul>
@@ -103,19 +104,20 @@
 			<div class="container py-4">
 				<div class="row align-items-center">
 					<div class="col-md-4 d-flex align-items-center">
-						<i class="bi bi-telephone-fill me-2"></i>
-						<span>客服热线：400-888-8888</span>
+						<a href="tel:400-888-8888" class="social-button d-flex align-items-center" id="call-us">
+							<i class="bi bi-telephone-fill me-2"></i>
+							<span class="social-label" id="call-us-label">客服热线:400-888-8888</span>
+						</a>
 					</div>
 					<div class="col-md-4 d-flex justify-content-center">
-						<a href="./index.html" class="me-3">首页</a>
-						<a href="./user/login.html" class="me-3">登录</a>
-						<a href="./user/register.html" class="me-3">注册</a>
-						<a href="https://gitee.com/jiangrongjun/mall">Gitee</a>
+						<a href="/index.html" class="me-3">首页</a>
+						<a href="/protocol.html" class="me-3">用户协议</a>
+						<a href="/github.html" class="me-3">GitHub</a>
 					</div>
 					<div class="col-md-4 d-flex justify-content-end">
-						<a href="mailto:jiangrongjun2004@163.com" class="social-button d-flex align-items-center">
+						<a href="mailto:jiangrongjun2004@163.com" class="social-button d-flex align-items-center" id="email-us">
 							<i class="bi bi-envelope-at-fill me-2"></i>
-							<span class="social-label">电子邮件</span>
+							<span class="social-label" id="email-us-label">电子邮件</span>
 						</a>
 					</div>
 				</div>

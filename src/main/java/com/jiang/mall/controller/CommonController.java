@@ -25,6 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.jiang.mall.domain.entity.Config.*;
@@ -261,5 +263,12 @@ public class CommonController {
         return ResponseResult.okResult(Config.AES_SALT,"获取随机盐值");
     }
 
-
+    @GetMapping("/getFooter")
+    @ResponseBody
+    public ResponseResult getFooter(HttpSession session) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("phone", Config.phone);
+        map.put("email", Config.email);
+        return ResponseResult.okResult(map);
+    }
 }

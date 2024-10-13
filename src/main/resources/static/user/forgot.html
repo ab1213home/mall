@@ -61,7 +61,7 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-user form-control-feedback"></span>
                                     <label for="username"></label><input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名或者邮箱"
-                                                                         required="required"  maxlength="100">
+                                                                         required="required"  maxlength="100" autocomplete="username">
                                 </div>
                                 <div class="form-group row">
                                     <span class="fa fa-shield form-control-feedback"></span>
@@ -106,12 +106,12 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
                                     <label for="password"></label><input type="password" id="password" name="password" class="form-control" placeholder="请输入密码"
-                                                                         required="required">
+                                                                         required="required" autocomplete="new-password">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
                                     <label for="confirmPassword"></label><input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="请再次输入密码"
-                                                                                required="required">
+                                                                                required="required" autocomplete="new-password">
                                 </div>
                                 <div class="row d-flex justify-content-between mt-2">
                                     <div class="col-4"></div>
@@ -153,8 +153,8 @@
   <!-- Bootstrap 5 -->
   <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/modal.js"></script>
-    <script src="/crypto-js-4.2.0/crypto-js.min.js"></script>
-    <script src="/js/encryption.js"></script>
+  <script src="/crypto-js-4.2.0/crypto-js.min.js"></script>
+  <script src="/js/encrypt.js"></script>
   <script src="/js/user/forgot.js"></script>
 </body>
 </html>

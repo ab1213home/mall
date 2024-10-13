@@ -53,6 +53,7 @@ function isCollected() {
 
 $(document).ready(function(){
 	let flag=isLogin();
+	getFooterInfo();
 	if (flag){
 		getCartNum();
 		bool=isCollected();

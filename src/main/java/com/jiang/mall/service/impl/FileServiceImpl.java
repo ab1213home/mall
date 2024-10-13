@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import static com.jiang.mall.domain.entity.Config.fileTypeMap;
 import static com.jiang.mall.domain.entity.Config.imageSuffix;
-import static com.jiang.mall.util.EncryptionUtils.calculateToMD5;
+import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 
 @Service
 public class FileServiceImpl implements IFileService {
