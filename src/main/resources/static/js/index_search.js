@@ -72,6 +72,9 @@ function search(){
               document.getElementById('mid-swiper').style.display = 'none';
               category_arr = res.data;
               renderCategory(res.data);
+          }else if(res.code == 404){
+              document.getElementById('mid-swiper').style.display = 'none';
+              document.getElementById('goodList').innerHTML = '<div class="col-md-12 mt-4"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>'
           }else{
               openModal('错误','搜索失败，请联系管理员！');
           }

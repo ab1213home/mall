@@ -1,7 +1,6 @@
 package com.jiang.mall.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
@@ -13,8 +12,7 @@ import java.io.Serializable;
  * @param <T> 响应结果的数据类型，可以是任何类型
  *             默认为null
  */
-@Getter
-@Setter
+@Data
 public class ResponseResult<T> implements Serializable {
 
     /**
@@ -33,9 +31,10 @@ public class ResponseResult<T> implements Serializable {
     private T data;
 
     /**
-     * 是否成功，true表示成功，false表示失败
+     * 响应时间戳，用于记录响应的时间，以毫秒为单位
      */
-    private boolean success;
+    private long timestamp;
+
 
     /**
      * 默认成功消息
@@ -210,7 +209,7 @@ public class ResponseResult<T> implements Serializable {
     }
 
     public ResponseResult() {
-        this.success=true;
+        this.timestamp = System.currentTimeMillis();
     }
 
     /**
