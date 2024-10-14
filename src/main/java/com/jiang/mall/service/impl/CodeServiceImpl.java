@@ -16,8 +16,12 @@ import static com.jiang.mall.domain.entity.Config.*;
 @Service
 public class CodeServiceImpl extends ServiceImpl<CodeMapper, Code> implements ICodeService {
 
-	@Autowired
 	private CodeMapper codeMapper;
+
+	@Autowired
+	public void setCodeMapper(CodeMapper codeMapper) {
+		this.codeMapper = codeMapper;
+	}
 
 	/**
 	 * 根据邮箱检查发送状态

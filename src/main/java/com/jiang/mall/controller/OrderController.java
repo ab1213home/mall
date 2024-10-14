@@ -25,20 +25,65 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
 
-	@Autowired
     private IOrderService orderService;
 
+	/**
+	 * 注入订单服务实例
+	 *
+	 * @param orderService 订单服务实例
+	 */
 	@Autowired
+	public void setOrderService(IOrderService orderService) {
+	    this.orderService = orderService;
+	}
+
 	private IProductService productService;
 
+	/**
+	 * 注入商品服务实例
+	 *
+	 * @param productService 商品服务实例
+	 */
 	@Autowired
+	public void setProductService(IProductService productService) {
+	    this.productService = productService;
+	}
+
     private ICartService cartService;
 
+	/**
+	 * 注入购物车服务实例
+	 *
+	 * @param cartService 购物车服务实例
+	 */
 	@Autowired
+	public void setCartService(ICartService cartService) {
+	    this.cartService = cartService;
+	}
+
 	private IAddressService addressService;
 
+	/**
+	 * 注入地址服务实例
+	 *
+	 * @param addressService 地址服务实例
+	 */
 	@Autowired
+	public void setAddressService(IAddressService addressService) {
+	    this.addressService = addressService;
+	}
+
 	private IUserService userService;
+
+	/**
+	 * 注入用户服务实例
+	 *
+	 * @param userService 用户服务实例
+	 */
+	@Autowired
+	public void setUserService(IUserService userService) {
+	    this.userService = userService;
+	}
 
 	/**
 	 * 处理结账请求

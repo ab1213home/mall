@@ -11,9 +11,7 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.util.BeanCopyUtils;
-import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,12 +28,19 @@ import java.util.Objects;
 @Service
 public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> implements IAddressService {
 
-	@Resource
 	private AddressMapper addressMapper;
 
-	@Resource
+	@Autowired
+	public void setAddressMapper(AddressMapper addressMapper) {
+	    this.addressMapper = addressMapper;
+	}
+
 	private UserMapper userMapper;
 
+	@Autowired
+	public void setUserMapper(UserMapper userMapper) {
+	    this.userMapper = userMapper;
+	}
 	/**
 	 * 根据用户ID、页码和页面大小获取地址列表
 	 *

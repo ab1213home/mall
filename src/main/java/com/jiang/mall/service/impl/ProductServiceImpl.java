@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
@@ -27,10 +26,19 @@ import java.util.List;
 @Service
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements IProductService {
 
-    @Autowired
     private ProductMapper productMapper;
+
     @Autowired
+    public void setProductMapper(ProductMapper productMapper) {
+        this.productMapper = productMapper;
+    }
+
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    public void setCategoryMapper(CategoryMapper categoryMapper) {
+        this.categoryMapper = categoryMapper;
+    }
 
     /**
      * 根据名称、类别ID、页码和页面大小获取产品列表

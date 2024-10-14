@@ -22,11 +22,33 @@ import java.util.List;
 @RequestMapping("/product")
 public class ProductController {
 
-    @Autowired
     private IUserService userService;
 
+    /**
+     * 注入IUserService实例，用于处理用户相关的业务逻辑。
+     *
+     * @param userService IUserService实例，用于处理用户相关的业务逻辑
+     * @return 返回注入后的IUserService实例
+     */
     @Autowired
+    public IUserService setUserService(IUserService userService) {
+        this.userService = userService;
+        return userService;
+    }
+
     IProductService productService;
+
+    /**
+     * 注入IProductService实例，用于处理产品相关的业务逻辑。
+     *
+     * @param productService IProductService实例，用于处理产品相关的业务逻辑
+     * @return 返回注入后的IProductService实例
+     */
+    @Autowired
+    public IProductService productService(IProductService productService) {
+        this.productService = productService;
+        return productService;
+    }
 
     /**
      * 获取产品列表

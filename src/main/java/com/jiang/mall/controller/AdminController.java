@@ -25,8 +25,12 @@ import static com.jiang.mall.domain.entity.Config.saveProperties;
 @RequestMapping
 public class AdminController {
 
-	@Autowired
 	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
 
 	@GetMapping("/admin")
 	public ResponseResult setAllowRegistration(@RequestParam(defaultValue = "true",required = false) boolean AllowRegistration,

@@ -25,11 +25,29 @@ import static com.jiang.mall.domain.entity.Config.regex_phone;
 @RequestMapping("/address")
 public class AddressController {
 
-	@Autowired
 	private IAddressService addressService;
 
+	/**
+	 * 注入地址服务实例，用于处理地址相关的业务逻辑
+	 *
+	 * @param addressService 地址服务实例
+	 */
 	@Autowired
+	public void setAddressService(IAddressService addressService) {
+		this.addressService = addressService;
+	}
+
 	private IUserService userService;
+
+	/**
+	 * 注入用户服务实例，用于处理用户相关的业务逻辑
+	 *
+	 * @param userService 用户服务实例
+	 */
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
 
     /**
      * 获取收货地址列表

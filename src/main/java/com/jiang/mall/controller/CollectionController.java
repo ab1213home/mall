@@ -23,12 +23,29 @@ import java.util.Objects;
 @RequestMapping("/collection")
 public class CollectionController {
 
-	@Autowired
 	private ICollectionService collectionService;
 
+	/**
+	 * 注入收藏服务
+	 *
+	 * @param collectionService 收藏服务
+	 */
 	@Autowired
+	public void setCollectionService(ICollectionService collectionService) {
+		this.collectionService = collectionService;
+	}
+
 	private IUserService userService;
 
+	/**
+	 * 注入用户服务
+	 *
+	 * @param userService 用户服务
+	 */
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
 
 	@PostMapping("/add")
 	public ResponseResult insertCollection(@RequestParam("productId") Integer productId,

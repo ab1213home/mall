@@ -27,12 +27,25 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 @Service
 public class FileServiceImpl implements IFileService {
 
-	@Autowired
 	private UserMapper userMapper;
+
 	@Autowired
+	public void setUserMapper(UserMapper userMapper) {
+		this.userMapper = userMapper;
+	}
+
 	private BannerMapper bannerMapper;
+
 	@Autowired
+	public void setBannerMapper(BannerMapper bannerMapper) {
+		this.bannerMapper = bannerMapper;
+	}
 	private ProductMapper productMapper;
+
+	@Autowired
+	public void setProductMapper(ProductMapper productMapper) {
+		this.productMapper = productMapper;
+	}
 
 	/**
 	 * 递归获取指定目录及其子目录下的所有文件和子目录信息，并以DirectoryVo形式返回

@@ -33,11 +33,29 @@ import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
     private IUserService userService;
 
+    /**
+     * 设置用户服务实例
+     *
+     * @param userService 用户服务实例
+     */
     @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
+
     private ICodeService codeService;
+
+    /**
+     * 设置验证码服务实例
+     *
+     * @param codeService 验证码服务实例
+     */
+    @Autowired
+    public void setCodeService(ICodeService codeService) {
+        this.codeService = codeService;
+    }
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

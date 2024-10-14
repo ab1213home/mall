@@ -22,11 +22,29 @@ import java.util.List;
 @RequestMapping("/cart")
 public class CartController {
 
-    @Autowired
     private ICartService cartService;
 
+    /**
+     * 设置购物车服务实例
+     *
+     * @param cartService 购物车服务实例
+     */
     @Autowired
+    public void setCartService(ICartService cartService) {
+        this.cartService = cartService;
+    }
+
     private IUserService userService;
+
+    /**
+     * 设置用户服务实例
+     *
+     * @param userService 用户服务实例
+     */
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 根据用户ID获取购物车列表

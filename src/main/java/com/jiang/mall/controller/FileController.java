@@ -33,12 +33,19 @@ import static com.jiang.mall.domain.entity.Config.*;
 @RestController
 public class FileController {
 
-    @Autowired
     private IUserService userService;
 
     @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
+
     private IFileService fileService;
 
+    @Autowired
+    public void setFileService(IFileService fileService) {
+        this.fileService = fileService;
+    }
     /**
      * 获取上传的文件
      *

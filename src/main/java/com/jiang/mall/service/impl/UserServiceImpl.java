@@ -10,10 +10,10 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +36,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-	@Resource
 	private UserMapper userMapper;
+
+	@Autowired
+	public void setUserMapper(UserMapper userMapper) {
+	    this.userMapper = userMapper;
+	}
 
 	/**
 	 * 检查用户是否已登录

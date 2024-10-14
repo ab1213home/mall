@@ -8,7 +8,7 @@ import com.jiang.mall.domain.entity.*;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -30,16 +30,40 @@ import static com.jiang.mall.domain.entity.Config.paymentMethod;
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 
-	@Resource
 	private OrderMapper orderMapper;
-	@Resource
+
+	@Autowired
+	public void setOrderMapper(OrderMapper orderMapper) {
+		this.orderMapper = orderMapper;
+	}
+
 	private OrderListMapper orderListMapper;
-	@Resource
+
+	@Autowired
+	public void setOrderListMapper(OrderListMapper orderListMapper) {
+		this.orderListMapper = orderListMapper;
+	}
+
 	private UserMapper userMapper;
-	@Resource
+
+	@Autowired
+	public void setUserMapper(UserMapper userMapper) {
+		this.userMapper = userMapper;
+	}
+
 	private AddressMapper addressMapper;
-	@Resource
+
+	@Autowired
+	public void setAddressMapper(AddressMapper addressMapper) {
+		this.addressMapper = addressMapper;
+	}
+
 	private ProductMapper productMapper;
+
+	@Autowired
+	public void setProductMapper(ProductMapper productMapper) {
+		this.productMapper=productMapper;
+	}
 
 	@Override
 	public Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<CheckoutVo> listCheckoutVo) {

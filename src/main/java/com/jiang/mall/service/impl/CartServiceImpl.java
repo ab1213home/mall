@@ -29,11 +29,19 @@ import java.util.List;
 @Service
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements ICartService {
 
-    @Autowired
     private CartMapper cartMapper;
 
     @Autowired
+    public void setCartMapper(CartMapper cartMapper) {
+        this.cartMapper = cartMapper;
+    }
+
     private ProductMapper productMapper;
+
+    @Autowired
+    public void setProductMapper(ProductMapper productMapper) {
+        this.productMapper = productMapper;
+    }
 
     @Override
     public List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize) {

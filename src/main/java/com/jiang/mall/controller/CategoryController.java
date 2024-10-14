@@ -22,11 +22,29 @@ import java.util.List;
 @RequestMapping("/category")
 public class CategoryController {
 
-    @Autowired
     private ICategoryService categoryService;
+
+    /**
+     * 注入分类服务实例
+     *
+     * @param categoryService 分类服务实例
+     */
     @Autowired
+    public void setCategoryService(ICategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
     private IUserService userService;
 
+    /**
+     * 注入用户服务实例
+     *
+     * @param userService 用户服务实例
+     */
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
     /**
      * 获取分类列表
      *

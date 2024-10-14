@@ -27,11 +27,29 @@ import static com.jiang.mall.domain.entity.Config.*;
 @RequestMapping("/email")
 public class EmailController {
 
-    @Autowired
     private ICodeService codeService;
 
+    /**
+     * 注入CodeService
+     *
+     * @param codeService CodeService
+     */
     @Autowired
+    public void setCodeService(ICodeService codeService) {
+        this.codeService = codeService;
+    }
+
     private IUserService userService;
+
+    /**
+     * 注入UserService
+     *
+     * @param userService UserService
+     */
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/sendRegister")
     public ResponseResult sendRegister(@RequestParam("username") String username,

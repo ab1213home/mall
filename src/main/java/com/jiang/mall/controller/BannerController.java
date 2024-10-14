@@ -2,14 +2,13 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
-import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta. servlet. http. HttpSession;
 import java.util.List;
 
 
@@ -23,11 +22,29 @@ import java.util.List;
 @RequestMapping("/banner")
 public class BannerController {
 
-    @Autowired
-    IBannerService bannerService;
+    private IBannerService bannerService;
 
+    /**
+     * 轮播图服务接口的依赖注入
+     *
+     * @param bannerService 轮播图服务接口
+     */
     @Autowired
+    public void setBannerService(IBannerService bannerService) {
+        this.bannerService = bannerService;
+    }
+
     private IUserService userService;
+
+    /**
+     * 用户服务接口的依赖注入
+     *
+     * @param userService 用户服务接口
+     */
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 获取轮播图列表

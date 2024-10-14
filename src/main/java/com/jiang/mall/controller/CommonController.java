@@ -42,8 +42,17 @@ import static com.jiang.mall.domain.entity.Config.*;
 @RequestMapping("/common")
 public class CommonController {
 
-    @Autowired
     private IUserService userService;
+
+    /**
+     * 注入用户服务对象
+     *
+     * @param userService 用户服务对象
+     */
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 生成验证码并作为响应返回

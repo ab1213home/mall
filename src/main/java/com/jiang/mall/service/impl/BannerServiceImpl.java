@@ -24,8 +24,12 @@ import java.util.List;
 @Service
 public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> implements IBannerService {
 
-    @Autowired
     private BannerMapper bannerMapper;
+
+    @Autowired
+    public void setBannerMapper(BannerMapper bannerMapper) {
+        this.bannerMapper = bannerMapper;
+    }
 
     @Override
     public List<BannerVo> getBannerList(Integer pageNum, Integer pageSize) {

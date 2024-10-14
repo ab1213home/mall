@@ -3,7 +3,6 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CategoryMapper;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
@@ -24,8 +23,12 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements ICategoryService {
 
-    @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    public void setCategoryMapper(CategoryMapper categoryMapper) {
+        this.categoryMapper = categoryMapper;
+    }
 
     @Override
     public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize) {

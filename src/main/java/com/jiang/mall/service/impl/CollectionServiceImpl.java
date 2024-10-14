@@ -14,21 +14,26 @@ import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
 public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collection> implements ICollectionService {
 
-	@Autowired
 	private CollectionMapper collectionMapper;
 
 	@Autowired
+	public void setCollectionMapper(CollectionMapper collectionMapper) {
+		this.collectionMapper = collectionMapper;
+	}
+
 	private ProductMapper productMapper;
+
+	@Autowired
+	public void setProductMapper(ProductMapper productMapper) {
+		this.productMapper = productMapper;
+	}
 
 	@Override
 	public boolean addCollection(Integer productId, Integer userId) {

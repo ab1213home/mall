@@ -2,6 +2,7 @@ package com.jiang.mall.domain;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -30,6 +31,11 @@ public class ResponseResult<T> implements Serializable {
      * 数据，用于返回操作的结果数据
      */
     private T data;
+
+    /**
+     * 是否成功，true表示成功，false表示失败
+     */
+    private boolean success;
 
     /**
      * 默认成功消息
@@ -109,7 +115,7 @@ public class ResponseResult<T> implements Serializable {
      *
      * @return 返回包含默认成功消息的响应结果对象
      */
-    public static ResponseResult okResult() {
+    public static @NotNull ResponseResult okResult() {
         // 创建一个新的响应结果对象
         ResponseResult responseResult = new ResponseResult();
         // 设置响应结果的状态码为默认的成功码
@@ -127,7 +133,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 自定义的消息字符串，用于更详细的描述成功情况
      * @return ResponseResult 返回一个初始化为默认成功状态码和自定义消息的响应结果对象
      */
-    public static ResponseResult okResult(String message) {
+    public static @NotNull ResponseResult okResult(String message) {
         // 创建一个新的响应结果对象
         ResponseResult responseResult = new ResponseResult();
         // 设置响应结果的状态码为默认的成功码
@@ -146,7 +152,7 @@ public class ResponseResult<T> implements Serializable {
      * @param data 成功响应中要封装的数据对象，可以是任何类型的对象
      * @return 返回一个填充了默认成功状态和给定数据的ResponseResult对象
      */
-    public static ResponseResult okResult(Object data) {
+    public static @NotNull ResponseResult okResult(Object data) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
         responseResult.setMessage("默认成功消息提示");
@@ -161,7 +167,7 @@ public class ResponseResult<T> implements Serializable {
      *
      * @return 返回一个表示失败结果的ResponseResult对象
      */
-    public static ResponseResult failResult(){
+    public static @NotNull ResponseResult failResult(){
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_FAIL_CODE);
         responseResult.setMessage(DEFAULT_FAIL_MESSAGE);
@@ -174,7 +180,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 失败的详细信息信息
      * @return 包含失败信息的响应对象
      */
-    public static ResponseResult failResult(String message) {
+    public static @NotNull ResponseResult failResult(String message) {
         // 创建一个新的响应对象
         ResponseResult responseResult = new ResponseResult();
         // 设置响应代码为默认的失败代码
@@ -192,7 +198,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于描述错误的详细信息
      * @return 返回包含指定错误码和错误消息的响应结果对象
      */
-    public static ResponseResult failResult(int code, String message) {
+    public static @NotNull ResponseResult failResult(int code, String message) {
         // 创建一个新的响应结果对象
         ResponseResult responseResult = new ResponseResult();
         // 设置响应结果的错误码
@@ -204,6 +210,7 @@ public class ResponseResult<T> implements Serializable {
     }
 
     public ResponseResult() {
+        this.success=true;
     }
 
     /**
@@ -213,7 +220,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明未授权的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的未授权状态码和给定的错误消息
      */
-    public static ResponseResult notLoggedResult(String message) {
+    public static @NotNull ResponseResult notLoggedResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_UNAUTHORIZED_CODE);
         responseResult.setMessage(message);
@@ -227,7 +234,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明未找到资源的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的未找到资源状态码和给定的错误消息
      */
-    public static ResponseResult notFoundResourceResult(String message) {
+    public static @NotNull ResponseResult notFoundResourceResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_NOT_FOUND_RESOURCE_CODE);
         responseResult.setMessage(message);
@@ -241,7 +248,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明服务器错误的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的服务器错误状态码和给定的错误消息
      */
-    public static ResponseResult serverErrorResult(String message) {
+    public static @NotNull ResponseResult serverErrorResult(String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_NOT_IMPLEMENTED_CODE);
         responseResult.setMessage(message);
@@ -257,7 +264,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 响应结果的消息，用于提供额外的信息
      * @return 返回一个填充了默认成功状态、数据对象和消息的ResponseResult对象
      */
-    public static ResponseResult okResult(Object data, String message) {
+    public static @NotNull ResponseResult okResult(Object data, String message) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
         responseResult.setData(data);
