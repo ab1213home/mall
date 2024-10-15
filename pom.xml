@@ -5,20 +5,20 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.3</version>
+        <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.jiang</groupId>
     <artifactId>mall</artifactId>
-    <version>v1.6_reconfiguration</version>
+    <version>1.6_reconfiguration</version>
     <name>mall</name>
     <description>mall</description>
     <url/>
     <licenses>
         <license>
-                <name>Mulan PSL v2</name>
-                <url>http://license.coscl.org.cn/MulanPSL2</url>
-                <distribution>repo</distribution>
+            <name>Mulan PSL v2</name>
+            <url>http://license.coscl.org.cn/MulanPSL2</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
     <developers>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.7</version>
+            <version>3.5.8</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>

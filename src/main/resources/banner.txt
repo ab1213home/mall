@@ -1,11 +1,10 @@
-SpringBoot版本:${spring-boot.version}
 ${AnsiColor.BRIGHT_BLUE}
-               _ _                   __  __       _ _
-              | (_)                 |  \/  |     | | |
-              | |_  __ _ _ __   __ _| \  / | __ _| | |
-          _   | | |/ _` | '_ \ / _` | |\/| |/ _` | | |
-         | |__| | | (_| | | | | (_| | |  | | (_| | | |
-          \____/|_|\__,_|_| |_|\__, |_|  |_|\__,_|_|_|
+               _ _                     __  __       _ _
+              | (_)                   |  \/  |     | | |
+              | |_  __ _ _ __   __ _  | \  / | __ _| | |
+          _   | | |/ _` | '_ \ / _` | | |\/| |/ _` | | |
+         | |__| | | (_| | | | | (_| | | |  | | (_| | | |
+          \____/|_|\__,_|_| |_|\__, | |_|  |_|\__,_|_|_|
                                 __/ |
                                |___/
 
@@ -29,5 +28,9 @@ ${AnsiColor.BRIGHT_BLUE}
 //                           `=---='                              //
 //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^        //
 //            佛祖保佑       永不宕机     永无BUG                     //
+${AnsiColor.BRIGHT_GREEN}
+         :: Spring Boot ::               ${spring-boot.formatted-version}
+
+         :: Jiang Mall  ::               ${application.formatted-version}
 ${AnsiColor.BLACK}
 github:https://github.com/ab1213home/mall
