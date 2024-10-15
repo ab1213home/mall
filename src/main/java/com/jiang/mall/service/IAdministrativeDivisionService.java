@@ -9,4 +9,6 @@ public interface IAdministrativeDivisionService extends IService<AdministrativeD
 	List<AdministrativeDivision> getList(Integer level, Long parentCode);
 
 	Integer getPostalCode(Long areaCode);
+
+	boolean isTure(Long areaCode);
 }

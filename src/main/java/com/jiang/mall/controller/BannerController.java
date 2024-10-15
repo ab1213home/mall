@@ -7,6 +7,7 @@ import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -95,6 +96,18 @@ public class BannerController {
         if (!result.isSuccess()) {
             return result;
         }
+        if (img==null||url==null||description==null){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(img)){
+            return ResponseResult.failResult("请输入图片链接");
+        }
+        if (!StringUtils.hasText(url)){
+            return ResponseResult.failResult("请输入轮播图链接");
+        }
+        if (!StringUtils.hasText(description)){
+            return ResponseResult.failResult("请输入描述");
+        }
         // 创建Banner对象并调用服务层方法尝试添加轮播图
         Banner banner = new Banner(img, url, description);
         if (bannerService.insertBanner(banner)) {
@@ -121,6 +134,21 @@ public class BannerController {
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,
                                        HttpSession session) {
+        if (img==null||url==null||description==null||id==null||id<=0){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(img)){
+            return ResponseResult.failResult("请输入图片链接");
+        }
+        if (!StringUtils.hasText(url)){
+            return ResponseResult.failResult("请输入轮播图链接");
+        }
+        if (!StringUtils.hasText(description)){
+            return ResponseResult.failResult("请输入描述");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入轮播图ID");
+        }
         // 根据ID获取轮播图信息
         Banner banner = bannerService.getById(id);
         // 如果找不到对应的轮播图信息，则返回未找到资源的错误信息
@@ -154,6 +182,12 @@ public class BannerController {
     @GetMapping("/delete")
     public ResponseResult deleteBanner(@RequestParam("id") Integer id,
                                        HttpSession session) {
+        if (id==null||id<=0){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入轮播图ID");
+        }
         // 根据ID获取轮播图信息
         Banner banner = bannerService.getById(id);
         // 如果找不到对应的轮播图信息，则返回未找到资源的错误信息

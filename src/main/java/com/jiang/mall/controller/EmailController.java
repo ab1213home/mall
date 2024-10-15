@@ -68,13 +68,25 @@ public class EmailController {
         if (!AllowSendEmail){
 			return ResponseResult.failResult("管理员不允许发送邮件");
 		}
+        if (username==null||email==null||password==null||confirmPassword==null||captcha==null){
+            return ResponseResult.failResult("非法请求");
+        }
+        if (!StringUtils.hasText(username)) {
+            return ResponseResult.failResult("用户名不能为空");
+        }
+        if (!StringUtils.hasText(password)) {
+            return ResponseResult.failResult("密码不能为空");
+        }
+        if (!StringUtils.hasText(confirmPassword)) {
+            return ResponseResult.failResult("确认密码不能为空");
+        }
         // 检查验证码是否为空
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
         }
 
         // 验证邮箱格式
-        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+        if (!StringUtils.hasText(email) || !email.matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 
@@ -86,11 +98,6 @@ public class EmailController {
         String captchaCode = captchaObj.toString();
         if (!captchaCode.toLowerCase().equals(captcha)) {
             return ResponseResult.failResult("验证码错误");
-        }
-
-        // 检查注册信息是否完整
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
-            return ResponseResult.failResult("请输入完整的注册信息");
         }
 
         // 验证密码一致性
@@ -168,6 +175,9 @@ public class EmailController {
         if (!AllowSendEmail) {
             return ResponseResult.failResult("管理员不允许发送邮件");
         }
+        if (username==null||captcha==null){
+            return ResponseResult.failResult("非法请求");
+        }
         // 检查验证码是否为空
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
@@ -238,13 +248,20 @@ public class EmailController {
         }
         Integer userId = (Integer) result.getData();
 
+        if (password==null||captcha==null||email==null){
+            return ResponseResult.failResult("非法请求");
+        }
         // 检查验证码是否为空
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
         }
 
+        if (!StringUtils.hasText(password)){
+            return ResponseResult.failResult("密码不能为空");
+        }
+
         // 验证邮箱格式
-        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+        if (!StringUtils.hasText(email) || !email.matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 
@@ -315,13 +332,21 @@ public class EmailController {
             // 如果未登录，则直接返回
             return result;
         }
+        if (username==null||captcha==null||email==null){
+            return ResponseResult.failResult("非法请求");
+        }
+
         // 检查验证码是否为空
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
         }
 
+        if (!StringUtils.hasText(username)){
+            return ResponseResult.failResult("用户名不能为空");
+        }
+
         // 验证邮箱格式
-        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+        if (!StringUtils.hasText(email) || !email.matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 

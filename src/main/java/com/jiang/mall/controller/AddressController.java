@@ -4,6 +4,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
+import com.jiang.mall.service.IAdministrativeDivisionService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,13 @@ public class AddressController {
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
+	}
+
+	private IAdministrativeDivisionService divisionService;
+
+	@Autowired
+	public void setDivisionService(IAdministrativeDivisionService divisionService) {
+		this.divisionService = divisionService;
 	}
 
     /**
@@ -127,12 +135,33 @@ public class AddressController {
 		    return result; // 如果未登录，则直接返回
 		}
 	    Integer userId = (Integer) result.getData();
+		if (firstName==null||lastName==null||addressDetail==null||postalCode==null||phone==null){
+			return ResponseResult.failResult("请输入完整信息");
+		}
 	    // 验证手机号格式
-	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
+	    if (!StringUtils.hasText(phone) && !phone.matches(regex_phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
+		if (!StringUtils.hasText(firstName)){
+			return ResponseResult.failResult("请输入收货人姓名");
+		}
+		if (!StringUtils.hasText(lastName)){
+			return ResponseResult.failResult("请输入收货人姓氏");
+		}
+		if (!StringUtils.hasText(addressDetail)){
+			return ResponseResult.failResult("请输入详细地址");
+		}
+		if (!StringUtils.hasText(postalCode)){
+			return ResponseResult.failResult("请输入邮政编码");
+		}
+//		if (!StringUtils.hasText(postalCode) || !postalCode.matches(regex_postal)){
+//			return ResponseResult.failResult("邮政编码格式不正确");
+//		}
 		if ((Integer)getNum(session).getData()>max_address_num){
 			return ResponseResult.failResult("最多只能添加"+max_address_num+"个收货地址");
+		}
+		if (!divisionService.isTure(areaCode)){
+			return ResponseResult.failResult("地区代码不正确");
 		}
 	    // 创建新的地址对象
 	    Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
@@ -178,11 +207,28 @@ public class AddressController {
 		    return result;
 		}
 	    Integer userId = (Integer) result.getData();
+		if (id==null||id<=0||firstName==null||lastName==null||phone==null||areaCode==null||addressDetail==null||postalCode==null){
+			return ResponseResult.failResult("请输入完整信息");
+		}
 	    // 验证电话号码格式
-	    if (StringUtils.hasText(phone) && !phone.matches(regex_phone)) {
+		if (!StringUtils.hasText(phone) && !phone.matches(regex_phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
-
+		if (!StringUtils.hasText(firstName)){
+			return ResponseResult.failResult("请输入收货人姓名");
+		}
+		if (!StringUtils.hasText(lastName)){
+			return ResponseResult.failResult("请输入收货人姓氏");
+		}
+		if (!StringUtils.hasText(addressDetail)){
+			return ResponseResult.failResult("请输入详细地址");
+		}
+		if (!StringUtils.hasText(postalCode)){
+			return ResponseResult.failResult("请输入邮政编码");
+		}
+		if (!divisionService.isTure(areaCode)){
+			return ResponseResult.failResult("地区代码不正确");
+		}
 		// 创建新的地址对象
 //	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
 		Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
@@ -216,6 +262,12 @@ public class AddressController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
+		if (id==null||id<=0){
+			return ResponseResult.failResult("地址ID不能为空");
+		}
+		if (!StringUtils.hasText(id.toString())){
+			return ResponseResult.failResult("地址ID不能为空");
+		}
 	    Integer userId = (Integer) result.getData();
 	    // 通过ID获取地址信息
 	    Address address = addressService.getById(id);
@@ -229,28 +281,5 @@ public class AddressController {
 	    }
 	    // 删除成功，返回成功结果
 	    return ResponseResult.okResult("删除成功");
-	}
-
-	/**
-	 * 根据ID获取地址信息
-	 *
-	 * @param id 地址ID
-	 * @param session 会话对象，用于判断用户登录状态及获取用户ID
-	 * @return ResponseResult封装的地址信息或错误信息
-	 */
-	@GetMapping("/getAddressById/{id}")
-	public ResponseResult getAddressById(@PathVariable("id") Integer id,
-	                                     HttpSession session){
-	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
-	    Integer userId = (Integer) result.getData();
-	    // 调用服务根据地址ID和用户ID获取地址信息
-	    AddressVo address = addressService.getAddressById(id, userId);
-	    // 返回获取到的地址信息
-	    return ResponseResult.okResult(address);
 	}
 }

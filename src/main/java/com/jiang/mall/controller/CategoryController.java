@@ -7,6 +7,7 @@ import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -99,6 +100,15 @@ public class CategoryController {
         if (!result.isSuccess()) {
             return result;
         }
+        if (code == null || name == null) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(code)){
+            return ResponseResult.failResult("请输入分类代码");
+        }
+        if (!StringUtils.hasText(name)){
+            return ResponseResult.failResult("请输入分类名称");
+        }
         // 创建Category对象，使用传入的代码和名称进行初始化
         Category category = new Category(code, name);
         // 调用服务层方法尝试插入分类信息，根据插入结果返回相应响应
@@ -123,6 +133,18 @@ public class CategoryController {
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
                                          HttpSession session) {
+        if (id == null || code == null || name == null||id <= 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(code)){
+            return ResponseResult.failResult("请输入分类代码");
+        }
+        if (!StringUtils.hasText(name)){
+            return ResponseResult.failResult("请输入分类名称");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入分类ID");
+        }
         // 根据ID获取分类信息
         Category category = categoryService.getById(id);
         if (category == null) {
@@ -155,6 +177,12 @@ public class CategoryController {
     @GetMapping("/delete")
     public ResponseResult deleteCategory(@RequestParam("id") Integer id,
                                          HttpSession session) {
+        if (id == null || id <= 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入分类ID");
+        }
         // 根据ID获取分类信息
         Category category = categoryService.getById(id);
         // 如果没有找到对应的分类，返回未找到资源的错误

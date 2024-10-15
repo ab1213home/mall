@@ -9,6 +9,7 @@ import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -95,6 +96,9 @@ public class OrderController {
 	@PostMapping("/checkout")
 	public ResponseResult checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
+		if (list_checkoutVo == null) {
+	        return ResponseResult.failResult("参数错误");
+	    }
 	    if (list_checkoutVo.isEmpty()) {
 	        return ResponseResult.failResult("请选择商品");
 	    }
@@ -237,12 +241,27 @@ public class OrderController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
+		if (addressId == null|| paymentMethod == null || status == null || list_checkoutVo == null||addressId<=0){
+			return ResponseResult.failResult("参数错误");
+		}
+		if (!StringUtils.hasText(addressId.toString())){
+			return ResponseResult.failResult("请输入地址ID");
+		}
+		if (!StringUtils.hasText(paymentMethod.toString())){
+			return ResponseResult.failResult("请输入支付方式");
+		}
+		if (!StringUtils.hasText(status.toString())){
+			return ResponseResult.failResult("请输入订单状态");
+		}
 	    Integer userId = (Integer) result.getData();
 	    // 根据地址ID获取地址信息，以验证地址是否属于当前用户
 	    Address address = addressService.getById(addressId);
 	    if (!address.getUserId().equals(userId)) {
 	        return ResponseResult.failResult("您没有权限提交此订单");
 	    }
+		if (list_checkoutVo.isEmpty()){
+			return ResponseResult.failResult("请先选择商品");
+		}
 	    // 调用服务层方法插入新订单
 	    Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车

@@ -7,6 +7,7 @@ import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -84,6 +85,12 @@ public class ProductController {
      */
     @GetMapping("/getInfo")
     public ResponseResult getProductInfo(@RequestParam("productId") Integer productId) {
+        if (productId == null|| productId < 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(productId.toString())){
+            return ResponseResult.failResult("请输入商品ID");
+        }
         // 根据产品ID获取产品信息
         ProductVo product = productService.getProduct(productId);
 
@@ -123,12 +130,29 @@ public class ProductController {
         if (!result.isSuccess()) {
             return result;
         }
-
-        // 创建产品对象
-        Product product = new Product(code, title, categoryId, img, price, stocks, description);
-        if (product.getCode()== null){
+        if (code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||price<=0||stocks<=0||categoryId<=0){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(title)){
+            return ResponseResult.failResult("产品标题不能为空");
+        }
+        if (!StringUtils.hasText(code)){
             return ResponseResult.failResult("产品编码不能为空");
         }
+        if (!StringUtils.hasText(img)){
+            return ResponseResult.failResult("产品图片不能为空");
+        }
+        if (!StringUtils.hasText(description)){
+            return ResponseResult.failResult("产品描述不能为空");
+        }
+        if (!StringUtils.hasText(price.toString())){
+            return ResponseResult.failResult("价格不能为空");
+        }
+        if (!StringUtils.hasText(stocks.toString())){
+            return ResponseResult.failResult("库存不能为空");
+        }
+        // 创建产品对象
+        Product product = new Product(code, title, categoryId, img, price, stocks, description);
         if (productService.queryCode(product.getCode())) {
             return ResponseResult.failResult("产品编码已存在");
         }
@@ -165,7 +189,27 @@ public class ProductController {
                                         @RequestParam("stocks") Integer stocks,
                                         @RequestParam("description") String description,
                                         HttpSession session) {
-
+        if (id==null||code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||price<=0||stocks<=0||categoryId<=0||id<=0){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(title)){
+            return ResponseResult.failResult("产品标题不能为空");
+        }
+        if (!StringUtils.hasText(code)){
+            return ResponseResult.failResult("产品编码不能为空");
+        }
+        if (!StringUtils.hasText(img)){
+            return ResponseResult.failResult("产品图片不能为空");
+        }
+        if (!StringUtils.hasText(description)){
+            return ResponseResult.failResult("产品描述不能为空");
+        }
+        if (!StringUtils.hasText(price.toString())){
+            return ResponseResult.failResult("价格不能为空");
+        }
+        if (!StringUtils.hasText(stocks.toString())){
+            return ResponseResult.failResult("库存不能为空");
+        }
         // 通过ID获取产品信息
         Product product = productService.getById(id);
 
@@ -180,7 +224,9 @@ public class ProductController {
         if (!result.isSuccess()) {
             return result;
         }
-
+        if (productService.queryCode(product.getCode())&&!product.getCode().equals(code)) {
+            return ResponseResult.failResult("产品编码已存在");
+        }
         // 使用传入的参数更新产品信息
         product = new Product(id,code, title, categoryId, img, price, stocks, description);
 
@@ -202,7 +248,12 @@ public class ProductController {
     @GetMapping("/delete")
     public ResponseResult deleteProduct(@RequestParam("id") Integer id,
                                        HttpSession session) {
-
+        if (id==null||id<=0){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入商品ID");
+        }
         // 通过ID获取产品信息
         Product product = productService.getById(id);
 

@@ -83,6 +83,9 @@ public class UserController {
                 return ResponseResult.failResult("您已登录，请退出");
             }
         }
+        if (email==null||code==null||password==null||confirmPassword==null){
+            return ResponseResult.failResult("参数错误");
+        }
         if (!StringUtils.hasText(password)){
             return ResponseResult.failResult("请输入新密码");
         }
@@ -91,6 +94,9 @@ public class UserController {
         }
         if (!password.equals(confirmPassword)){
             return ResponseResult.failResult("两次密码输入不一致");
+        }
+        if (!StringUtils.hasText(email)||!userService.queryByEmail(email)||!email.matches(regex_email)){
+            return ResponseResult.failResult("邮箱不存在");
         }
         // 验证码正确性及有效期检查
         Code userCode = codeService.queryCodeByEmail(email);
@@ -139,7 +145,7 @@ public class UserController {
         }
 
         // 验证邮箱格式
-        if (StringUtils.hasText(email) && !email.matches(regex_email)){
+        if (StringUtils.hasText(email) || !email.matches(regex_email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 
@@ -276,6 +282,9 @@ public class UserController {
                 return ResponseResult.failResult("您已登录，请勿重复登录");
             }
         }
+        if (username==null|| password==null|| captcha==null){
+            return ResponseResult.failResult("非法请求");
+        }
         // 验证验证码是否为空
         if (!StringUtils.hasText(captcha)) {
             return ResponseResult.failResult("验证码不能为空");
@@ -318,6 +327,15 @@ public class UserController {
     public ResponseResult modifyEmail(@RequestParam("email") String email,
                                       @RequestParam("code") String code,
                                        HttpSession session) {
+        if (email==null||code==null){
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(email)||!email.matches(regex_email)){
+            return ResponseResult.failResult("邮箱格式不正确");
+        }
+        if (!StringUtils.hasText(code)){
+            return ResponseResult.failResult("验证码不能为空");
+        }
         ResponseResult result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             return result;
@@ -358,9 +376,15 @@ public class UserController {
                                          @RequestParam("newPassword") String newPassword,
                                          @RequestParam("confirmPassword")String confirmPassword,
                                          HttpSession session) {
+        if (oldPassword==null||newPassword==null||confirmPassword==null){
+            return ResponseResult.failResult("参数错误");
+        }
         // 检查新密码是否为空
-        if (newPassword.isEmpty()){
+        if (!StringUtils.hasText(newPassword)){
             return ResponseResult.failResult("新密码不能为空！");
+        }
+        if (!StringUtils.hasText(confirmPassword)){
+            return ResponseResult.failResult("确认密码不能为空！");
         }
         // 检查两次输入的密码是否一致
         if (!newPassword.equals(confirmPassword)){
@@ -453,7 +477,7 @@ public class UserController {
                 return ResponseResult.failResult("不能通过管理后台修改自己的信息");
             }
             // 验证邮箱格式是否正确
-            if (StringUtils.hasText(email) && !email.matches(regex_email)) {
+            if (StringUtils.hasText(email) || !email.matches(regex_email)) {
                 return ResponseResult.failResult("邮箱格式不正确");
             }
             result = userService.hasPermission(id,session);
@@ -547,6 +571,12 @@ public class UserController {
     @PostMapping("/modify/lock")
     public ResponseResult selfLock(@RequestParam("userId") Integer userId,
                                    HttpSession session) {
+        if (userId == null|| userId <= 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(userId.toString())){
+            return ResponseResult.failResult("请输入用户ID");
+        }
         // 根据userId获取用户信息
         User user = userService.getUserInfo(userId);
         // 如果用户不存在，则返回未找到资源的错误信息
@@ -586,6 +616,12 @@ public class UserController {
     @PostMapping("/modify/unlock")
     public ResponseResult unlockUser(@RequestParam("userId") Integer userId,
                                      HttpSession session) {
+        if (userId == null|| userId <= 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(userId.toString())){
+            return ResponseResult.failResult("请输入用户ID");
+        }
         // 根据userId获取用户信息
         User user = userService.getUserInfo(userId);
         // 如果用户不存在，则返回未找到资源的错误信息

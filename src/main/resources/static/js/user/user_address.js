@@ -438,6 +438,7 @@ function updateAddress(id) {
 			if (response.code == 200) {
 				queryAddress(currentPageNum_address,10);
 				$('#addressModal').modal('hide');
+				openModal('提示','地址修改成功');
 			} else {
 				$('#addressModal').modal('hide');
 				openModal('错误','地址修改失败');

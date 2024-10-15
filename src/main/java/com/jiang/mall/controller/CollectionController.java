@@ -7,6 +7,7 @@ import com.jiang.mall.service.ICollectionService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,9 +60,12 @@ public class CollectionController {
         Integer userId = (Integer) result.getData();
 
         // 校验商品ID是否为空
-        if (productId == null) {
-            return ResponseResult.failResult("商品ID为空");
+        if (productId == null|| productId <= 0) {
+            return ResponseResult.failResult("非法请求");
         }
+		if (!StringUtils.hasText(productId.toString())){
+			return ResponseResult.failResult("商品ID为空");
+		}
         // 调用购物车服务添加商品
         if (collectionService.addCollection(productId, userId)){
             return ResponseResult.okResult("添加成功");
@@ -79,6 +83,12 @@ public class CollectionController {
             // 如果未登录，则直接返回
             return result;
         }
+		if (productId == null|| productId <= 0) {
+            return ResponseResult.failResult("非法请求");
+        }
+		if (!StringUtils.hasText(productId.toString())){
+			return ResponseResult.failResult("商品ID为空");
+		}
         Integer userId = (Integer) result.getData();
 		Collection collection =collectionService.queryByProductIdByUserId(productId, userId);
 		if (collection == null) {
@@ -94,6 +104,12 @@ public class CollectionController {
 	@GetMapping("/deleteById")
 	public ResponseResult deleteByIdCollection(@RequestParam("id") Integer id,
                                            HttpSession session) {
+		if (id == null|| id <= 0) {
+            return ResponseResult.failResult("非法请求");
+        }
+		if (!StringUtils.hasText(id.toString())){
+			return ResponseResult.failResult("收藏ID为空");
+		}
 		Collection collection =collectionService.getById(id);
         if (collection == null) {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
@@ -155,6 +171,12 @@ public class CollectionController {
             // 如果未登录，则直接返回
             return result;
         }
+		if (productId == null|| productId <= 0) {
+            return ResponseResult.failResult("非法请求");
+        }
+		if (!StringUtils.hasText(productId.toString())){
+			return ResponseResult.failResult("商品ID为空");
+		}
         Integer userId = (Integer) result.getData();
 		return ResponseResult.okResult(collectionService.isCollect(productId, userId));
 	}

@@ -4,15 +4,16 @@
 网站开发与设计课程设计
 
 #### 软件架构
-基于JDK17开发，使用spring boot3.3.3+mybatis3.5.3+mysql8.0.36 构建
+基于JDK17开发，使用spring boot3.3.4+mybatisplus3.5.8+mysql8.0.36 构建
 
 yml配置文件在resources目录下
 
 验证码部分使用easy-captcha，github地址：https://github.com/ele-admin/EasyCaptcha
 
-项目前端使用bootstrap5.3.3+jquery3.7.1构建
+中国地址行政区划数据库数据来源：https://github.com/kakuilan/china_area_mysql
+（经过裁剪）
 
-项目前端用户中心和管理中心使用adminlte4.0.0构建
+项目前端主要使用bootstrap5.3.3+jquery3.7.1构建，用户中心和管理中心主要使用adminlte4.0.0构建，详情见项目前端目录下README.md
 
 #### 安装教程
 
@@ -23,7 +24,7 @@ yml配置文件在resources目录下
 
 1. git源码
 2. 修改数据库配置文件
-3. maven项目
+3. maven编译项目
 4. docker部署或者tomcat部署
 
 #### 参与贡献

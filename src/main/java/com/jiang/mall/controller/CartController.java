@@ -7,6 +7,7 @@ import com.jiang.mall.service.ICartService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -112,17 +113,17 @@ public class CartController {
         }
         Integer userId = (Integer) result.getData();
 
-        // 校验商品ID是否为空
-        if (productId == null) {
-            return ResponseResult.failResult("商品ID为空");
+        if (productId == null|| num == null||productId <= 0){
+            return ResponseResult.failResult("参数错误");
         }
-        // 校验商品数量是否为空
-        if (num == null) {
-            return ResponseResult.failResult("商品数量为空");
+        if (num <= 0){
+            return ResponseResult.failResult("数量必须大于0");
         }
-        // 校验商品数量是否大于0
-        if (num <= 0) {
-            return ResponseResult.failResult("商品数量必须大于0");
+        if (!StringUtils.hasText(productId.toString())){
+            return ResponseResult.failResult("请输入商品Id");
+        }
+        if (!StringUtils.hasText(num.toString())){
+            return ResponseResult.failResult("请输入数量");
         }
 
         // 调用购物车服务添加商品
@@ -154,19 +155,20 @@ public class CartController {
         // 获取已登录用户的ID
         Integer userId = (Integer) result.getData();
 
-        // 检查购物车ID是否为null
-        if (id == null) {
-            return ResponseResult.failResult("购物车ID为空");
-        }
-
-		// 检查购物车数量是否为null
-        if (num == null) {
-            return ResponseResult.failResult("购物车数量为空");
+        if (id == null|| num == null||id <= 0){
+            return ResponseResult.failResult("参数错误");
         }
 		// 检查购物车数量是否小于等于0
         if (num <= 0) {
             return ResponseResult.failResult("购物车数量必须大于0");
         }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入购物车项Id");
+        }
+        if (!StringUtils.hasText(num.toString())){
+            return ResponseResult.failResult("请输入购物车数量");
+        }
+
         // 创建一个Cart对象，仅包含ID、用户ID和数量，用于更新操作
         Cart cart = new Cart(id, null, num, userId);
 
@@ -200,9 +202,12 @@ public class CartController {
         // 获取已登录用户的ID
         Integer userId = (Integer) result.getData();
 
-        // 检查购物车ID是否为null
-        if (id == null) {
-            return ResponseResult.failResult("购物车ID为空");
+        if (id == null||id <= 0){
+            return ResponseResult.failResult("参数错误");
+        }
+
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入购物车项Id");
         }
 
         // 尝试删除指定的购物车项

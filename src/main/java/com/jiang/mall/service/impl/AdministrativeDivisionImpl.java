@@ -36,4 +36,15 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 		AdministrativeDivision administrativeDivision = administrativeDivisionMapper.selectOne(queryWrapper);
 		return administrativeDivision.getZipCode();
 	}
+
+	@Override
+	public boolean isTure(Long areaCode) {
+		QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("area_code", areaCode);
+		AdministrativeDivision administrativeDivision = administrativeDivisionMapper.selectOne(queryWrapper);
+		if (administrativeDivision == null) {
+			return false;
+		}
+		return administrativeDivision.getLevel() >= 3;
+	}
 }
