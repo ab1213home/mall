@@ -143,26 +143,31 @@ document.addEventListener('DOMContentLoaded', function() {
         var type = button.getAttribute('data-bs-type');
         var modalTitle = document.getElementById('productModalLabel');
         var submitBtn = document.getElementById('productSubmit');
-
+        $('form').on('submit', function(event) {
+			event.preventDefault(); // 阻止默认提交行为
+			if (type === 'add') {
+				insertProduct(); // 自定义提交处理
+			}else if (type === 'edit'){
+				let id = button.getAttribute('data-bs-prod-id');
+				updateProduct(id); // 自定义提交处理
+			}
+		});
         if (type === 'add') {
             modalTitle.textContent = '添加商品信息';
             submitBtn.textContent = '添加';
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault(); // 阻止默认行为
-                insertProduct();
-            });
             clearModal();
         } else if (type === 'edit') {
             modalTitle.textContent = '编辑商品信息';
             submitBtn.textContent = '保存';
-            var id = button.getAttribute('data-bs-prod-id');
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-                updateProduct(id);
-            });
-           clearModal();
-           getProduct(id);
+            let id = button.getAttribute('data-bs-prod-id');
+            clearModal();
+            getProduct(id);
         }
+    });
+    // 绑定模态框关闭事件
+    itemModal.addEventListener("hidden.bs.modal", function(event) {
+        // 清除表单提交事件
+        $('form').off('submit');
     });
 });
 function listCategory(){

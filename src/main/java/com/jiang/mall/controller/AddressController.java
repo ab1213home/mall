@@ -138,33 +138,9 @@ public class AddressController {
 	    Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setUserId(userId);
 	    // 尝试插入地址信息
-	    if (addressService.getBaseMapper().insert(address)>0){
-	        // 获取新插入地址的ID
-	        Integer addressId = address.getId();
-	        // 如果设置为默认地址，则更新用户的默认地址信息
-	        if (isDefault){
-	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
-	            if (defaultAddressId!=null){
-	                if (!defaultAddressId.equals(addressId)){
-	                    if (userService.updateDefaultAddress(addressId,userId)){
-	                        return ResponseResult.okResult("添加成功");
-	                    }else{
-	                        return ResponseResult.failResult("修改默认地址失败");
-	                    }
-	                }else{
-	                    return ResponseResult.okResult("添加成功");
-	                }
-	            }else {
-	                if (userService.updateDefaultAddress(addressId,userId)){
-	                    return ResponseResult.okResult();
-	                }else{
-	                    return ResponseResult.failResult("修改默认地址失败");
-	                }
-	            }
-	        }else {
-	            // 如果未设置为默认地址，则直接返回成功
-	            return ResponseResult.okResult("添加成功");
-	        }
+	    if (addressService.insertAddress(address,isDefault)){
+			// 插入地址成功
+			return ResponseResult.okResult("添加成功");
 	    }else{
 	        // 插入地址失败
 	        return ResponseResult.serverErrorResult("添加失败");
@@ -217,30 +193,8 @@ public class AddressController {
 	        return ResponseResult.failResult("您没有权限修改此地址");
 	    }
 	    // 尝试更新地址
-	    if (addressService.updateAddress(address)) {
-	        // 处理设为默认地址的逻辑
-	        if (isDefault) {
-	            Integer defaultAddressId = userService.queryDefaultAddressById(userId);
-	            if (defaultAddressId != null) {
-	                if (!defaultAddressId.equals(oldaddress.getId())) {
-	                    if (userService.updateDefaultAddress(id, userId)) {
-	                        return ResponseResult.okResult("修改成功");
-	                    } else {
-	                        return ResponseResult.failResult("修改默认地址失败");
-	                    }
-	                } else {
-	                    return ResponseResult.okResult("修改成功");
-	                }
-	            } else {
-	                if (userService.updateDefaultAddress(id, userId)) {
-	                    return ResponseResult.okResult("修改成功");
-	                } else {
-	                    return ResponseResult.failResult("修改默认地址失败");
-	                }
-	            }
-	        } else {
-	            return ResponseResult.okResult("修改成功");
-	        }
+	    if (addressService.updateAddress(address,isDefault)) {
+		    return ResponseResult.okResult("修改成功");
 	    } else {
 	        return ResponseResult.serverErrorResult("修改失败");
 	    }

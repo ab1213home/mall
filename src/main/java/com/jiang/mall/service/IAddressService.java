@@ -40,10 +40,11 @@ public interface IAddressService extends IService<Address> {
 	 * <p>
 	 * 该方法用于在系统中更新一个地址对象 它提供了一种机制，来确保地址数据的最新和准确性
 	 *
-	 * @param address 要更新的地址对象 不能为空，包含所有必要的地址信息
+	 * @param address   要更新的地址对象 不能为空，包含所有必要的地址信息
+	 * @param isDefault
 	 * @return true 如果更新操作成功；否则返回 false
 	 */
-	boolean updateAddress(Address address);
+	boolean updateAddress(Address address, boolean isDefault);
 
 	/**
 	 * 删除地址
@@ -62,4 +63,6 @@ public interface IAddressService extends IService<Address> {
 	 * @return 返回一个AddressVo对象，包含地址的相关信息
 	 */
 	AddressVo getAddressById(Integer id, Integer userId);
+
+	boolean insertAddress(Address address, boolean isDefault);
 }

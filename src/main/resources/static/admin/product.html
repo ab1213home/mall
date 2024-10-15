@@ -300,37 +300,37 @@
                     <h1 class="modal-title fs-5" id="productModalLabel"></h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
+                <form>
+                    <div class="modal-body col-10 mx-auto my-auto">
                         <div class="form-group has-feedback">
                             <span class="fa fa-pencil form-control-feedback"></span>
                             <label for="title"></label>
-                            <input type="text" id="title" name="title" class="form-control" placeholder="请输入商品名称" required="required">
+                            <input type="text" id="title" name="title" class="form-control" placeholder="请输入商品名称" required maxlength="50">
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-barcode form-control-feedback"></span>
                             <label for="code"></label>
-                            <input type="text" id="code" name="code" class="form-control" placeholder="请输入商品编码" required="required">
+                            <input type="text" id="code" name="code" class="form-control" placeholder="请输入商品编码" required maxlength="50">
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-money form-control-feedback"></span>
                             <label for="price"></label>
-                            <input type="number" id="price" name="price" class="form-control" placeholder="请输入商品价格" required="required" step="0.01">
+                            <input type="number" id="price" name="price" class="form-control" placeholder="请输入商品价格" required step="0.01" min="0">
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-cubes form-control-feedback"></span>
                             <label for="stocks"></label>
-                            <input type="number" id="stocks" name="stocks" class="form-control" placeholder="请输入商品库存" required="required">
+                            <input type="number" id="stocks" name="stocks" class="form-control" placeholder="请输入商品库存" required min="0">
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-comment form-control-feedback"></span>
                             <label for="description"></label>
-                            <textarea id="description" name="description" class="form-control" placeholder="请输入商品描述" required="required"></textarea>
+                            <textarea id="description" name="description" class="form-control" placeholder="请输入商品描述" required maxlength="255"></textarea>
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-list form-control-feedback"></span>
                             <label for="categoryId"></label>
-                            <select class="form-select" id="categoryId" required="required">
+                            <select class="form-select" id="categoryId" required>
                                 <option value="" disabled selected>请选择商品类型</option>
                             </select>
                         </div>
@@ -338,18 +338,18 @@
                             <div class="row">
                                 <span class="fa fa-picture-o form-control-feedback"></span>
                                 <label for="img" class="form-label"></label>
-                                <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()" placeholder="请上传商品图片(10M以内)" accept="image/*">
+                                <input class="form-control" type="file" id="imgUpload" onchange="uploadFile()" placeholder="请上传商品图片(10M以内)" accept="image/*" required>
                             </div>
                             <div id="img" class="input-group row"  style="text-align: center; height: 30vh;">
                                 <img src="/images/no-image.png" id="imgPreview" alt="商品预览" class="img-thumbnail" style="height: 30vh; width: 30vh;">
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                    <button type="submit" class="btn btn-primary" id="productSubmit">保存</button>
-                </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-flat" id="productSubmit">保存</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

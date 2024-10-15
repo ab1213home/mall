@@ -134,20 +134,53 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	/**
 	 * 更新地址信息
 	 *
-	 * @param address 要更新的地址对象
+	 * @param address   要更新的地址对象
+	 * @param isDefault 是否将地址设为默认地址
 	 * @return 更新操作是否成功
-	 *
+	 * <p>
 	 * 使用UpdateWrapper创建更新条件，确保仅更新指定ID的地址信息
 	 * 返回更新结果，若更新的记录数大于0，则返回true，表示更新成功
 	 */
 	@Override
-	public boolean updateAddress(Address address) {
+	public boolean updateAddress(Address address, boolean isDefault) {
 	    // 创建更新条件对象
 	    UpdateWrapper<Address> updateWrapper = new UpdateWrapper<>();
 	    // 设置更新条件，根据ID进行更新
 	    updateWrapper.eq("id", address.getId());
 	    // 执行更新操作并判断结果
-	    return addressMapper.update(address, updateWrapper) > 0;
+	    boolean result = addressMapper.update(address, updateWrapper) > 0;
+
+		QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
+	    queryWrapper_use.eq("id", address.getUserId());
+	    queryWrapper_use.eq("is_active", true);
+	    // 根据查询条件尝试获取用户信息。
+	    User user = userMapper.selectOne(queryWrapper_use);
+	    Integer defaultAddressId = user.getDefaultAddressId();
+
+		if (result && !isDefault) {
+			if (defaultAddressId == null||defaultAddressId.equals(address.getId())) {
+				QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
+				queryWrapper_address.eq("user_id", address.getUserId());
+				List<Address> addressList = addressMapper.selectList(queryWrapper_address);
+
+				if (addressList.size() > 1) {
+					for (Address addresses : addressList) {
+						if (!addresses.getId().equals(address.getId())) {
+							user.setDefaultAddressId(addresses.getId());
+							userMapper.update(user, queryWrapper_use);
+							break;
+						}
+					}
+				} else {
+					user.setDefaultAddressId(-1);
+					userMapper.update(user, queryWrapper_use);
+				}
+			}
+		}else if (result) {
+			user.setDefaultAddressId(address.getId());
+			userMapper.update(user, queryWrapper_use);
+		}
+		return result;
 	}
 
 	/**
@@ -171,7 +204,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    User user = userMapper.selectOne(queryWrapper_use);
 	    Integer defaultAddressId = user.getDefaultAddressId();
 
-	    if (defaultAddressId.equals(id)) {
+		if (defaultAddressId == null||defaultAddressId.equals(id)){
 	        QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
 	        queryWrapper_address.eq("user_id", userId);
 	        List<Address> addresses = addressMapper.selectList(queryWrapper_address);
@@ -232,5 +265,18 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
 	    // 返回包含默认地址标记的地址信息对象。
 	    return addressVo;
+	}
+
+	@Override
+	public boolean insertAddress(Address address, boolean isDefault) {
+		boolean result = addressMapper.insert(address) > 0;
+		if (result && isDefault) {
+			QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
+			queryWrapper_use.eq("id", address.getUserId());
+			User user = userMapper.selectOne(queryWrapper_use);
+			user.setDefaultAddressId(address.getId());
+			userMapper.update(user, queryWrapper_use);
+		}
+		return result;
 	}
 }

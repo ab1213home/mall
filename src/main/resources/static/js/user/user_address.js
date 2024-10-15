@@ -15,26 +15,34 @@ document.addEventListener('DOMContentLoaded', function() {
         var modalTitle = document.getElementById('addressModalLabel');
         var submitBtn = document.getElementById('addressSubmit');
 
+		// 绑定新的表单提交事件
+		$('form').on('submit', function(event) {
+			event.preventDefault(); // 阻止默认提交行为
+			if (type === 'add') {
+				insertAddress(); // 自定义提交处理
+			}else if (type === 'edit'){
+				let id = button.getAttribute('data-bs-prod-id');
+				updateAddress(id); // 自定义提交处理
+			}
+		});
         if (type === 'add') {
             modalTitle.textContent = '添加收件信息';
             submitBtn.textContent = '添加';
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault(); // 阻止默认行为
-                insertAddress();
-            });
             clearModal();
 			listProvince();
         } else if (type === 'edit') {
             modalTitle.textContent = '编辑收件信息';
             submitBtn.textContent = '保存';
-            var id = button.getAttribute('data-bs-prod-id');
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-                updateAddress(id);
-            });
-           clearModal();
-           getAddress(id);
+			let id = button.getAttribute('data-bs-prod-id');
+            clearModal();
+            getAddress(id);
         }
+    });
+
+	// 绑定模态框关闭事件
+    itemModal.addEventListener("hidden.bs.modal", function(event) {
+        // 清除表单提交事件
+        $('form').off('submit');
     });
 });
 
@@ -206,8 +214,7 @@ function delAddress(id) {
 		dataType:"json",
 		success:function(response){
 			if(response.code == 200){
-				delete addressArr[id];
-				$("#address" + id).remove();
+				queryAddress(currentPageNum_address,10)
 				openModal('提示','删除成功');
 			}else{
 				openModal('错误','删除失败');

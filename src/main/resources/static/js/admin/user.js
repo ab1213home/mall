@@ -275,26 +275,31 @@ document.addEventListener('DOMContentLoaded', function() {
         var type = button.getAttribute('data-bs-type');
         var modalTitle = document.getElementById('userModalLabel');
         var submitBtn = document.getElementById('userSubmit');
-
+        $('form').on('submit', function(event) {
+			event.preventDefault(); // 阻止默认提交行为
+			if (type === 'add') {
+				insertUser(); // 自定义提交处理
+			}else if (type === 'edit'){
+				let id = button.getAttribute('data-bs-prod-id');
+				updateUser(id); // 自定义提交处理
+			}
+		});
         if (type === 'add') {
             modalTitle.textContent = '添加用户信息';
             submitBtn.textContent = '添加';
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault(); // 阻止默认行为
-                insertUser();
-            });
             clearModal();
         } else if (type === 'edit') {
             modalTitle.textContent = '编辑用户信息';
             submitBtn.textContent = '保存';
-            var id = button.getAttribute('data-bs-prod-id');
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-                updateUser(id);
-            });
-           clearModal();
-           getUser(id);
+            let id = button.getAttribute('data-bs-prod-id');
+            clearModal();
+            getUser(id);
         }
+    });
+	// 绑定模态框关闭事件
+    itemModal.addEventListener("hidden.bs.modal", function(event) {
+        // 清除表单提交事件
+        $('form').off('submit');
     });
 });
 

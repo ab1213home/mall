@@ -38,10 +38,6 @@ public interface IUserService extends IService<User> {
 
     boolean updateUser(User user);
 
-	Integer queryDefaultAddressById(Integer userId);
-
-    boolean updateDefaultAddress(Integer id, Integer userId);
-
 	boolean unlockUser(Integer userId);
 
     ResponseResult hasPermission(Integer oldUserId, HttpSession session);

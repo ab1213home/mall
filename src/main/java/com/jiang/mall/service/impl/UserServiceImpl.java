@@ -533,60 +533,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 	/**
-	 * 根据用户ID查询其默认地址ID
-	 * 本方法通过用户ID查询数据库中活跃的用户信息，并返回用户的默认地址ID
-	 * 如果数据库中没有匹配的用户或用户不活跃，则返回null
-	 *
-	 * @param userId 用户ID
-	 * @return 用户的默认地址ID，如果不存在则返回null
-	 */
-	@Override
-	public Integer queryDefaultAddressById(Integer userId) {
-	    // 创建查询条件包装器
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    // 添加查询条件：用户ID和用户活跃状态
-	    queryWrapper.eq("id", userId);
-	    queryWrapper.eq("is_active", true);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-	    // 返回用户的默认地址ID，如果用户不存在或没有默认地址，则返回null
-	    return user.getDefaultAddressId();
-	}
-
-	/**
-	 * 更新用户的默认地址
-	 *
-	 * @param id 新的默认地址的ID
-	 * @param userId 用户的ID
-	 * @return 如果更新成功返回true，否则返回false
-	 */
-	@Override
-	public boolean updateDefaultAddress(Integer id, Integer userId) {
-	    // 创建查询条件包装器
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    // 添加查询条件：用户ID等于userId且用户处于激活状态
-	    queryWrapper.eq("id", userId);
-	    queryWrapper.eq("is_active", true);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-	    // 检查获取的用户信息是否非空
-	    if (user != null) {
-	        // 创建一个新的User对象用于更新默认地址
-	        User newUser = new User();
-	        // 设置新的默认地址ID
-	        newUser.setDefaultAddressId(id);
-	        // 设置用户ID
-	        newUser.setId(userId);
-	        // 尝试更新用户信息，并判断是否成功
-	        return userMapper.updateById(newUser) > 0;
-	    }
-	    // 如果用户信息为空，返回false
-	    return false;
-	}
-
-	/**
 	 * 解锁用户方法。
 	 * 通过设置用户的活跃状态为true来解锁用户账号。
 	 *
