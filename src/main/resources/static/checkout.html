@@ -166,7 +166,7 @@
 		<script src="js/checkout.js"></script>
 	</body>
 
-	<!-- 收货地址模态框 -->
+    <!-- 收货地址模态框 -->
 	<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -180,52 +180,56 @@
                             <div class="form-group has-feedback col-6">
                                 <span class="fa fa-user form-control-feedback"></span>
                                 <label for="lastName"></label>
-                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入收件人的姓氏" required="required">
+                                <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入收件人的姓氏" required  maxlength="20">
                             </div>
                             <div class="form-group has-feedback col-6">
-                                <span class="fa fa-user form-control-feedback"></span>
                                 <label for="firstName"></label>
-                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入收件人的名字" required="required">
+                                <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入收件人的名字" required maxlength="20">
                             </div>
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-phone form-control-feedback"></span>
                             <label for="phone"></label>
-                            <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入联系电话" required="required">
+                            <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入联系电话" required maxlength="20">
                         </div>
 						<div class="row">
                             <div class="form-group has-feedback col-6">
                                 <span class="fa fa-globe form-control-feedback"></span>
-                                <label for="country"></label>
-                                <input type="text" id="country" name="country" class="form-control" placeholder="请输入国家" required="required">
+                                <label for="province"></label>
+                                <select class="form-select" id="province" required>
+                                    <option value="" disabled selected>请选择省份或地区</option>
+                                </select>
                             </div>
                             <div class="form-group has-feedback col-6">
-                                <span class="fa fa-map-marker form-control-feedback"></span>
-                                <label for="province"></label>
-                                <input type="text" id="province" name="province" class="form-control" placeholder="请输入省或州" required="required">
+                                <label for="city"></label>
+                                <select class="form-select" id="city" required>
+                                    <option value="" disabled selected>请选择</option>
+                                </select>
                             </div>
                         </div>
 						<div class="row">
 							<div class="form-group has-feedback col-6">
-                                <span class="fa fa-map-marker form-control-feedback"></span>
-                                <label for="city"></label>
-                                <input type="text" id="city" name="city" class="form-control" placeholder="请输入城市" required="required">
+                                <label for="county"></label>
+                                <select class="form-select" id="county" required>
+                                    <option value="" disabled selected>请选择</option>
+                                </select>
                             </div>
 							<div class="form-group has-feedback col-6">
-								<span class="fa fa-map-marker form-control-feedback"></span>
-								<label for="district"></label>
-								<input type="text" id="district" name="district" class="form-control" placeholder="请输入区或县" required="required">
+								<label for="township"></label>
+								<select class="form-select" id="township" required>
+                                    <option value="" disabled selected>请选择</option>
+                                </select>
 							</div>
 						</div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-map-marker form-control-feedback"></span>
                             <label for="addressDetail"></label>
-                            <textarea id="addressDetail" name="addressDetail" class="form-control" placeholder="请输入具体的街道、小区、门牌号等信息" required="required"></textarea>
+                            <textarea id="addressDetail" name="addressDetail" class="form-control" placeholder="请输入具体的街道、小区、门牌号等信息" required  maxlength="100"></textarea>
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-envelope form-control-feedback"></span>
                             <label for="postalCode"></label>
-                            <input type="text" id="postalCode" name="postalCode" class="form-control" placeholder="请输入邮政编码" required="required">
+                            <input type="text" id="postalCode" name="postalCode" class="form-control" placeholder="请输入邮政编码" required  maxlength="20">
                         </div>
                         <div class="form-group has-feedback mt-3">
                             <label for="isDefault">是否为默认地址:</label>
@@ -233,7 +237,7 @@
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                            <button type="submit" id="addressSubmit" class="btn btn-primary">提交</button>
+                            <button type="submit" id="addressSubmit" class="btn btn-primary btn-block btn-flat">提交</button>
                         </div>
                     </form>
                 </div>

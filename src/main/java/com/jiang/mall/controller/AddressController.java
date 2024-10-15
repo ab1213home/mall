@@ -105,10 +105,7 @@ public class AddressController {
 	 * @param firstName 名称，用于标识地址的所有者
 	 * @param lastName 姓氏，用于进一步标识地址的所有者
 	 * @param phone 联系电话，用于物流配送时的联系
-	 * @param country 国家，地址的国家部分
-	 * @param province 省份，地址的省份部分
-	 * @param city 城市，地址的城市部分
-	 * @param district 区域，地址的区域部分
+	 * @param areaCode 省市区代码，用于标识地址所在的省市区
 	 * @param addressDetail 详细地址，精确到门牌号的地址信息
 	 * @param postalCode 邮政编码，用于邮件配送的邮政编码
 	 * @param isDefault 是否设为默认地址，标识该地址是否是用户的默认配送地址
@@ -119,10 +116,7 @@ public class AddressController {
 	public ResponseResult insertAddress(@RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
 	                                    @RequestParam("phone") String phone,
-										@RequestParam("country") String country,
-	                                    @RequestParam("province") String province,
-	                                    @RequestParam("city") String city,
-	                                    @RequestParam("district") String district,
+										@RequestParam("areaCode") Long areaCode,
 	                                    @RequestParam("addressDetail") String addressDetail,
 										@RequestParam("postalCode") String postalCode,
 	                                    @RequestParam("isDefault") boolean isDefault,
@@ -141,7 +135,7 @@ public class AddressController {
 			return ResponseResult.failResult("最多只能添加"+max_address_num+"个收货地址");
 		}
 	    // 创建新的地址对象
-	    Address address = new Address(userId,firstName, lastName, phone, country, province, city, district, addressDetail, postalCode);
+	    Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setUserId(userId);
 	    // 尝试插入地址信息
 	    if (addressService.getBaseMapper().insert(address)>0){
@@ -184,10 +178,7 @@ public class AddressController {
 	 * @param firstName     收件人名
 	 * @param lastName      收件姓氏
 	 * @param phone         电话号码
-	 * @param country       国家
-	 * @param province      省份
-	 * @param city          城市
-	 * @param district      区县
+	 * @param areaCode      地区代码
 	 * @param addressDetail 详细地址
 	 * @param postalCode    邮政编码
 	 * @param isDefault     是否设为默认地址
@@ -199,10 +190,7 @@ public class AddressController {
 	                                    @RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
 	                                    @RequestParam("phone") String phone,
-	                                    @RequestParam("country") String country,
-	                                    @RequestParam("province") String province,
-	                                    @RequestParam("city") String city,
-	                                    @RequestParam("district") String district,
+	                                    @RequestParam("areaCode") Long areaCode,
 	                                    @RequestParam("addressDetail") String addressDetail,
 	                                    @RequestParam("postalCode") String postalCode,
 	                                    @RequestParam("isDefault") boolean isDefault,
@@ -221,7 +209,7 @@ public class AddressController {
 
 		// 创建新的地址对象
 //	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
-		Address address = new Address(userId,firstName, lastName, phone, country, province, city, district, addressDetail, postalCode);
+		Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setId(id);
 	    // 验证用户是否有权修改该地址
 	    Address oldaddress = addressService.getById(id);

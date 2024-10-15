@@ -60,19 +60,9 @@ public class Address implements Serializable {
     private String country;
 
     /**
-     * 省份
+     * 行政代码
      */
-    private String province;
-
-    /**
-     * 城市
-     */
-    private String city;
-
-    /**
-     * 区县
-     */
-    private String district;
+    private Long areaCode;
 
     /**
      * 详细地址
@@ -119,21 +109,17 @@ public class Address implements Serializable {
      * @param lastName 收件人的姓
      * @param phone 联系电话，用于配送过程中与收件人联系
      * @param country 国家地区，地址的最高级别划分
-     * @param province 省份，地址的次级别划分
-     * @param city 城市，地址的再下一级别划分
-     * @param district 区县，地址的进一步具体划分
+     * @param areaCode 行政代码，用于标识地址
      * @param addressDetail 详细地址，包括街道、门牌号等具体信息
      * @param postalCode 邮政编码，与地址相关联的邮政编码信息
      */
-    public Address(Integer userId, String firstName, String lastName, String phone, String country, String province, String city, String district, String addressDetail, String postalCode) {
+    public Address(Integer userId, String firstName, String lastName, String phone, String country,Long areaCode, String addressDetail, String postalCode) {
         this.userId=userId;
         this.firstName=firstName;
         this.lastName = lastName;
         this.phone = phone;
+        this.areaCode=areaCode;
         this.country = country;
-        this.province = province;
-        this.city = city;
-        this.district = district;
         this.addressDetail = addressDetail;
         this.postalCode = postalCode;
     }

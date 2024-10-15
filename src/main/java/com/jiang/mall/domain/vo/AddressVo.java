@@ -51,7 +51,12 @@ public class AddressVo {
     /**
      * 区县
      */
-    private String district;
+    private String county;
+
+    /**
+     * 乡镇
+     */
+    private String township;
 
     /**
      * 详细地址
@@ -78,7 +83,7 @@ public class AddressVo {
                 ", country='" + country + '\'' +
                 ", province='" + province + '\'' +
                 ", city='" + city + '\'' +
-                ", district='" + district + '\'' +
+                ", district='" + county + '\'' +
                 ", addressDetail='" + addressDetail + '\'' +
                 ", postalCode='" + postalCode + '\'' +
                 ", isDefault=" + isDefault +

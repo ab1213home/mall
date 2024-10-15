@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IAdministrativeDivisionService extends IService<AdministrativeDivision> {
 	List<AdministrativeDivision> getList(Integer level, Long parentCode);
+
+	Integer getPostalCode(Long areaCode);
 }

@@ -22,10 +22,10 @@ import java.math.BigDecimal;
 public class AdministrativeDivision {
 
 	/**
-     * 主键
+     * 地区编码,主键
      */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+	@TableId(value = "area_code", type = IdType.AUTO)
+    private Long areaCode;
 
 	/**
      * 层级
@@ -36,11 +36,6 @@ public class AdministrativeDivision {
      * 父级编码
      */
     private Long parentCode;
-
-	/**
-     * 地区编码
-     */
-    private Long areaCode;
 
 	/**
      * 邮编

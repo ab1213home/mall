@@ -61,28 +61,28 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-envelope form-control-feedback"></span>
                                     <label for="email"></label>
-                                    <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required="required"  maxlength="100" autocomplete="email">
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="请输入邮箱（邮箱需唯一）" required  maxlength="100" autocomplete="email">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-user form-control-feedback"></span>
                                     <label for="username"></label><input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名（用户名需唯一，不可更改）"
-                                                                         required="required"  maxlength="100" autocomplete="username">
+                                                                         required  maxlength="100" autocomplete="username">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
                                     <label for="password"></label><input type="password" id="password" name="password" class="form-control" placeholder="请输入密码"
-                                                                         required="required" maxlength="255" autocomplete="new-password">
+                                                                         required maxlength="255" autocomplete="new-password">
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-lock form-control-feedback"></span>
                                     <label for="confirmPassword"></label><input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="请再次输入密码"
-                                                                                required="required" maxlength="255" autocomplete="new-password">
+                                                                                required maxlength="255" autocomplete="new-password">
                                 </div>
                                 <div class="form-group row">
                                     <span class="fa fa-shield form-control-feedback"></span>
                                     <div class="col-6">
                                         <label>
-                                            <input type="text" class="form-control" name="captcha" id="captcha" placeholder="请输入验证码" required="required"  maxlength="20">
+                                            <input type="text" class="form-control" name="captcha" id="captcha" placeholder="请输入验证码" required  maxlength="20">
                                         </label>
                                     </div>
                                     <div class="col-6">
@@ -114,7 +114,7 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-shield form-control-feedback"></span>
                                     <label for="code"></label>
-                                    <input type="text" id="code" name="code" class="form-control" placeholder="请输入邮箱验证码" required="required"  maxlength="20">
+                                    <input type="text" id="code" name="code" class="form-control" placeholder="请输入邮箱验证码" required  maxlength="20">
                                 </div>
                                 <div class="row d-flex justify-content-between">
                                     <div class="col-6">
@@ -139,25 +139,25 @@
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-phone form-control-feedback"></span>
                                     <label for="phone"></label>
-                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required="required"  maxlength="20" >
+                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="请输入手机号" required  maxlength="20" >
                                 </div>
                                 <div class="row">
                                     <div class="form-group has-feedback col-6">
                                         <span class="fa fa-user form-control-feedback"></span>
                                         <label for="firstName"></label>
-                                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required="required"  maxlength="20">
+                                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="请输入名字" required  maxlength="20">
                                     </div>
                                     <div class="form-group has-feedback col-6">
                                         <span class="fa fa-user form-control-feedback"></span>
                                         <label for="lastName"></label>
-                                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required="required"  maxlength="20">
+                                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="请输入姓氏" required  maxlength="20">
                                     </div>
                                 </div>
                                 <div class="form-group has-feedback">
                                     <span class="fa fa-calendar form-control-feedback"></span>
                                     <label for="birthday"></label>
                                     <input type="date" id="birthday" name="birthday" class="form-control" placeholder="请选择生日"
-                                                                         required="required" max="{{ max_date }}">
+                                                                         required max="{{ max_date }}">
                                 </div>
 <!--                                <div class="form-group has-feedback">-->
 <!--                                    <div class="row" id="imageContainer"></div>-->
@@ -190,7 +190,7 @@
                                     <div class="row" id="imageContainer"></div>
                                     <div class="row">
                                         <label for="img" class="form-label"></label>
-                                        <input class="form-control" type="file" id="imgUpload" onchange="uploadFaces()" placeholder="请上传头像图片(10M以内)" accept="image/*">
+                                        <input class="form-control" type="file" id="imgUpload" onchange="uploadFaces()" placeholder="请上传头像图片(10M以内)" accept="image/*" required>
                                     </div>
                                     <div id="img" class="input-group row"  style="text-align: center; height: 80%;width: auto;">
                                         <img src="/images/no-image.png" id="imgPreview" alt="头像预览" class="img-thumbnail">

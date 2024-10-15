@@ -28,4 +28,12 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 		queryWrapper.eq("parent_code", parentCode);
 		return administrativeDivisionMapper.selectList(queryWrapper);
 	}
+
+	@Override
+	public Integer getPostalCode(Long areaCode) {
+		QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("area_code", areaCode);
+		AdministrativeDivision administrativeDivision = administrativeDivisionMapper.selectOne(queryWrapper);
+		return administrativeDivision.getZipCode();
+	}
 }

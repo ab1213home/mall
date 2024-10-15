@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.AddressMapper;
+import com.jiang.mall.dao.AdministrativeDivisionMapper;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.entity.Address;
+import com.jiang.mall.domain.entity.AdministrativeDivision;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
@@ -14,6 +16,7 @@ import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +44,14 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	public void setUserMapper(UserMapper userMapper) {
 	    this.userMapper = userMapper;
 	}
+
+	private AdministrativeDivisionMapper divisionMapper;
+
+	@Autowired
+	public void setDivisionMapper(AdministrativeDivisionMapper divisionMapper) {
+	    this.divisionMapper = divisionMapper;
+	}
+
 	/**
 	 * 根据用户ID、页码和页面大小获取地址列表
 	 *
@@ -60,7 +71,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 执行分页查询，获取地址列表
 	    List<Address> addresses = addressMapper.selectPage(addressPage, queryWrapper_address).getRecords();
 	    // 将地址实体列表转换为地址VO列表
-	    List<AddressVo> addressVos = BeanCopyUtils.copyBeanList(addresses, AddressVo.class);
+	    List<AddressVo> addressVos = new ArrayList<>();
 
 	    // 创建用户查询构造器
 	    QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
@@ -72,12 +83,29 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 获取用户的默认地址ID
 	    Integer defaultAddressId = user.getDefaultAddressId();
 
-	    // 遍历地址VO列表，设置默认地址标记
-	    for (AddressVo addressVo : addressVos) {
-	        // 如果地址VO的ID与用户的默认地址ID相等，则设置该地址为默认地址
+		for (Address address : addresses) {
+			// 将地址实体转换为地址VO，并添加到地址VO列表中
+			AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
+			QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
+			queryWrapper_township.eq("area_code", address.getAreaCode());
+			AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
+			addressVo.setTownship(township.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
+			queryWrapper_county.eq("area_code", township.getParentCode());
+			AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+			addressVo.setCounty(county.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+			queryWrapper_city.eq("area_code", county.getParentCode());
+			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+			addressVo.setCity(city.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+			queryWrapper_province.eq("area_code", city.getParentCode());
+			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			addressVo.setProvince(province.getName());
+			// 如果地址VO的ID与用户的默认地址ID相等，则设置该地址为默认地址
 	        addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
-	    }
-
+			addressVos.add(addressVo);
+		}
 	    // 返回地址VO列表
 	    return addressVos;
 	}

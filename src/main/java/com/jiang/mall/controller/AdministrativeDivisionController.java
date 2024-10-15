@@ -6,6 +6,7 @@ import com.jiang.mall.service.IAdministrativeDivisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -35,9 +36,16 @@ public class AdministrativeDivisionController {
 	 * @return 返回行政区划列表的响应结果
 	 */
 	@GetMapping("/getList")
-	public ResponseResult getList(Integer level, Long parentCode) {
+	public ResponseResult getList(@RequestParam("level")Integer level,
+	                              @RequestParam("parentCode")Long parentCode) {
 	    List<AdministrativeDivision> administrativeDivisionList = administrativeDivisionService.getList(level, parentCode);
 	    return ResponseResult.okResult(administrativeDivisionList);
+	}
+
+	@GetMapping("/getPostalCode")
+	public ResponseResult getPostalCode(@RequestParam("areaCode")Long areaCode) {
+	    Integer postalCode = administrativeDivisionService.getPostalCode(areaCode);
+	    return ResponseResult.okResult(postalCode);
 	}
 //administrativeDivision/getList
 }
