@@ -42,7 +42,7 @@ public class AdministrativeDivisionController {
 		if (level == null || parentCode == null){
 			return ResponseResult.failResult("参数错误");
 		}
-		if (!administrativeDivisionService.isTure(parentCode)){
+		if (administrativeDivisionService.isTure(parentCode)){
 			return ResponseResult.failResult("地区代码不正确");
 		}
 		if (!StringUtils.hasText(parentCode.toString())){
@@ -55,6 +55,9 @@ public class AdministrativeDivisionController {
 			return ResponseResult.failResult("参数错误");
 		}
 	    List<AdministrativeDivision> administrativeDivisionList = administrativeDivisionService.getList(level, parentCode);
+		if (administrativeDivisionList.isEmpty()){
+			return ResponseResult.notFoundResourceResult("未查询到数据");
+		}
 	    return ResponseResult.okResult(administrativeDivisionList);
 	}
 
@@ -75,5 +78,4 @@ public class AdministrativeDivisionController {
 	    Integer postalCode = administrativeDivisionService.getPostalCode(areaCode);
 	    return ResponseResult.okResult(postalCode);
 	}
-//administrativeDivision/getList
 }

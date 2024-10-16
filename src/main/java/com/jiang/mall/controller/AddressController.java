@@ -160,7 +160,7 @@ public class AddressController {
 		if ((Integer)getNum(session).getData()>max_address_num){
 			return ResponseResult.failResult("最多只能添加"+max_address_num+"个收货地址");
 		}
-		if (!divisionService.isTure(areaCode)){
+		if (divisionService.isTure(areaCode)){
 			return ResponseResult.failResult("地区代码不正确");
 		}
 	    // 创建新的地址对象
@@ -226,7 +226,7 @@ public class AddressController {
 		if (!StringUtils.hasText(postalCode)){
 			return ResponseResult.failResult("请输入邮政编码");
 		}
-		if (!divisionService.isTure(areaCode)){
+		if (divisionService.isTure(areaCode)){
 			return ResponseResult.failResult("地区代码不正确");
 		}
 		// 创建新的地址对象

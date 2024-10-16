@@ -89,19 +89,45 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 			QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
 			queryWrapper_township.eq("area_code", address.getAreaCode());
 			AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
-			addressVo.setTownship(township.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
-			queryWrapper_county.eq("area_code", township.getParentCode());
-			AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
-			addressVo.setCounty(county.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
-			queryWrapper_city.eq("area_code", county.getParentCode());
-			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
-			addressVo.setCity(city.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-			queryWrapper_province.eq("area_code", city.getParentCode());
-			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
-			addressVo.setProvince(province.getName());
+			if (township.getLevel() == 4){
+				addressVo.setTownship(township.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
+				queryWrapper_county.eq("area_code", township.getParentCode());
+				AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+				addressVo.setCounty(county.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", county.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 3){
+				addressVo.setTownship("");
+				addressVo.setCounty(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", township.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 2){
+				addressVo.setCounty("");
+				addressVo.setTownship("");
+				addressVo.setCity(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", township.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 1){
+				addressVo.setCity("");
+				addressVo.setTownship("");
+				addressVo.setCounty("");
+				addressVo.setProvince(township.getShortName());
+			}
 			// 如果地址VO的ID与用户的默认地址ID相等，则设置该地址为默认地址
 	        addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
 			addressVos.add(addressVo);

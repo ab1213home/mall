@@ -57,13 +57,31 @@ function listProvince(){
         dataType: 'json',
 		data:data,
         success: function (res) {
-			$('#province').empty().append('<option value="" disabled selected>请选择省份或地区</option>');
-            res.data.forEach(province => {
-                const option = `
-                   <option value="${province.areaCode}">${province.name}</option>
-                `;
-                $('#province').append(option);
-            })
+			if (res.code == 200){
+				$('#province').empty().append('<option value="" disabled selected>请选择省份或地区</option>');
+				res.data.forEach(province => {
+					const option = `
+					   <option value="${province.areaCode}">${province.name}</option>
+					`;
+					$('#province').append(option);
+				})
+				$('#province').attr("required");
+				$('#county').attr("required");
+				$('#county').empty().append('<option value="" disabled selected>请选择</option>')
+				$('#city').attr("required");
+				$('#city').empty().append('<option value="" disabled selected>请选择</option>')
+				$('#township').attr("required");
+				$('#township').empty().append('<option value="" disabled selected>请选择</option>')
+			}else if (res.code == 404){
+				$('#province').empty().append('<option value="" disabled selected>暂无省份或地区</option>');
+				$('#province').remove("required");
+				$('#county').remove("required");
+				$('#county').empty().append('<option value="" disabled selected>暂无县</option>')
+				$('#city').empty().append('<option value="" disabled selected>暂无城市</option>')
+				$('#city').remove("required");
+				$('#township').remove("required");
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>')
+			}
         }
     });
 }
@@ -83,14 +101,27 @@ $('#province').on('change', function () {
         dataType: 'json',
         data: data,
         success: function (res) {
-            $('#city').empty().append('<option value="" disabled selected>请选择</option>');
-            res.data.forEach(city => {
-                const option = `                    
-                    <option value="${city.areaCode}">${city.name}</option>
-                `;
-                $('#city').append(option);
-            });
-			$('#township').empty().append('<option value="" disabled selected>请选择</option>');
+			if (res.code == 200){
+				$('#city').empty().append('<option value="" disabled selected>请选择</option>');
+				res.data.forEach(city => {
+					const option = `                    
+						<option value="${city.areaCode}">${city.name}</option>
+					`;
+					$('#city').append(option);
+				});
+				$('#city').attr("required");
+				$('#township').attr("required");
+				$('#township').empty().append('<option value="" disabled selected>请选择</option>')
+				$('#county').empty().append('<option value="" disabled selected>请选择</option>');
+				$('#county').remove("required");
+			}else if (res.code == 404){
+				$('#city').empty().append('<option value="" disabled selected>暂无城市</option>');
+				$('#city').remove("required");
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+				$('#county').empty().append('<option value="" disabled selected>暂无县</option>');
+				$('#county').remove("required");
+			}
         }
     });
 	$.ajax({
@@ -123,14 +154,23 @@ $('#city').on('change', function () {
         dataType: 'json',
         data: data,
         success: function (res) {
-            $('#county').empty().append('<option value="" disabled selected>请选择</option>');
-            res.data.forEach(county => {
-                const option = `                    
-                    <option value="${county.areaCode}">${county.name}</option>
-                `;
-                $('#county').append(option);
-            });
-			$('#township').empty().append('<option value="" disabled selected>请选择</option>');
+			if (res.code == 200){
+				$('#county').empty().append('<option value="" disabled selected>请选择</option>');
+				res.data.forEach(county => {
+					const option = `                    
+						<option value="${county.areaCode}">${county.name}</option>
+					`;
+					$('#county').append(option);
+				});
+				$('#county').attr("required");
+				$('#township').empty().append('<option value="" disabled selected>请选择</option>');
+				$('#township').attr("required");
+			}else if (res.code == 404){
+				$('#county').empty().append('<option value="" disabled selected>暂无县</option>');
+				$('#county').remove("required");
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+			}
         }
     });
 	$.ajax({
@@ -163,13 +203,19 @@ $('#county').on('change', function () {
         dataType: 'json',
         data: data,
         success: function (res) {
-            $('#township').empty().append('<option value="" disabled selected>请选择</option>');
-            res.data.forEach(township => {
-                const option = `                    
-                    <option value="${township.areaCode}">${township.name}</option>
-                `;
-                $('#township').append(option);
-            });
+			if (res.code == 200){
+				$('#township').empty().append('<option value="" disabled selected>请选择</option>');
+				res.data.forEach(township => {
+					const option = `                    
+						<option value="${township.areaCode}">${township.name}</option>
+					`;
+					$('#township').append(option);
+				});
+				$('#township').attr("required");
+			}else if (res.code == 404){
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+			}
         }
     });
 	$.ajax({
@@ -291,14 +337,20 @@ function listTownshipById(id) {
         dataType: 'json',
 		data:data,
         success: function (res) {
-            const address = addressArr[id];
-			$('#township').empty().append('<option value="" disabled>请选择</option>');
-            res.data.forEach(township => {
-                const option = `
-                  <option ${township.name == address.township ? 'selected' : ''} value="${township.areaCode}">${township.name}</option>
-                  `;
-                $('#township').append(option);
-            })
+			if (res.code == 200){
+				const address = addressArr[id];
+				$('#township').empty().append('<option value="" disabled>请选择</option>');
+				res.data.forEach(township => {
+					const option = `
+					  <option ${township.name == address.township ? 'selected' : ''} value="${township.areaCode}">${township.name}</option>
+					  `;
+					$('#township').append(option);
+				})
+				$('#township').attr("required");
+			}else if (res.code == 404){
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+			}
         }
     })
 }
@@ -315,15 +367,23 @@ function listCountyById(id) {
         dataType: 'json',
 		data:data,
         success: function (res) {
-            const address = addressArr[id];
-			$('#county').empty().append('<option value="" disabled>请选择</option>');
-            res.data.forEach(county => {
-                const option = `
-                   <option ${county.name == address.county ? 'selected' : ''} value="${county.areaCode}">${county.name}</option>
-                `;
-                $('#county').append(option);
-            })
-			listTownshipById(id);
+			if (res.code == 200){
+				const address = addressArr[id];
+				$('#county').empty().append('<option value="" disabled>请选择</option>');
+				res.data.forEach(county => {
+					const option = `
+					   <option ${county.name == address.county ? 'selected' : ''} value="${county.areaCode}">${county.name}</option>
+					`;
+					$('#county').append(option);
+				})
+				$('#county').attr("required");
+				listTownshipById(id);
+			}else if (res.code == 404){
+				$('#county').empty().append('<option value="" disabled selected>暂无县</option>');
+				$('#county').remove("required");
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+			}
         }
     });
 }
@@ -340,15 +400,25 @@ function listCityById(id) {
         dataType: 'json',
 		data:data,
         success: function (res) {
-			const address = addressArr[id];
-			$('#city').empty().append('<option value="" disabled>请选择</option>');
-            res.data.forEach(city => {
-                const option = `
-                   <option ${ city.name == address.city ? 'selected' : ''} value="${city.areaCode}">${city.name}</option>
-                `;
-                $('#city').append(option);
-            })
-			listCountyById(id);
+			if (res.code == 200){
+				const address = addressArr[id];
+				$('#city').empty().append('<option value="" disabled>请选择</option>');
+				res.data.forEach(city => {
+					const option = `
+					   <option ${ city.name == address.city ? 'selected' : ''} value="${city.areaCode}">${city.name}</option>
+					`;
+					$('#city').append(option);
+				})
+				$('#city').attr("required");
+				listCountyById(id);
+			}else if (res.code == 404){
+				$('#city').empty().append('<option value="" disabled selected>暂无城市</option>');
+				$('#city').remove("required");
+				$('#county').empty().append('<option value="" disabled selected>暂无县</option>');
+				$('#county').remove("required");
+				$('#township').empty().append('<option value="" disabled selected>暂无乡镇</option>');
+				$('#township').remove("required");
+			}
         }
     });
 }
@@ -364,15 +434,21 @@ function listProvinceById(id) {
         dataType: 'json',
 		data:data,
         success: function (res) {
-			const address = addressArr[id];
-			$('#province').empty().append('<option value="" disabled>请选择省份或地区</option>');
-            res.data.forEach(province => {
-                const option = `
-                   <option  ${province.name == address.province ? 'selected' : ''} value="${province.areaCode}">${province.name}</option>
-                `;
-                $('#province').append(option);
-            })
-			listCityById(id);
+			if (res.code == 200){
+				const address = addressArr[id];
+				$('#province').empty().append('<option value="" disabled>请选择省份或地区</option>');
+				res.data.forEach(province => {
+					const option = `
+					   <option  ${province.name == address.province ? 'selected' : ''} value="${province.areaCode}">${province.name}</option>
+					`;
+					$('#province').append(option);
+				})
+				$('#province').attr("required");
+				listCityById(id);
+			}else if (res.code == 404){
+				$('#province').empty().append('<option value="" disabled selected>暂无省份或地区</option>');
+				$('#province').remove("required");
+			}
         }
     });
 }
