@@ -31,4 +31,6 @@ public interface IProductService extends IService<Product> {
     boolean queryCode(String code);
 
 	Integer getProductNum();
+
+	List<Product> queryAll();
 }
