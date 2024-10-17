@@ -106,8 +106,14 @@ public class SeoController {
         // 初始化WebSitemapGenerator对象，开始构造网站地图
         WebSitemapGenerator wsg = new WebSitemapGenerator(domain);
         // 首页 url
-        WebSitemapUrl url = new WebSitemapUrl.Options(domain).lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
-        wsg.addUrl(url);
+        WebSitemapUrl indexUrl = new WebSitemapUrl.Options(domain).lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
+        wsg.addUrl(indexUrl);
+        // 关于页 url
+        WebSitemapUrl aboutUrl = new WebSitemapUrl.Options(domain + "/about.html").lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(0.5).changeFreq(ChangeFreq.WEEKLY).build();
+        wsg.addUrl(aboutUrl);
+        // 服务协议页 url
+        WebSitemapUrl protocolUrl = new WebSitemapUrl.Options(domain + "/protocol.html").lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.YEARLY).build();
+        wsg.addUrl(protocolUrl);
 
         // 商品列表页的url
         List<Product> productList = productService.queryAll();

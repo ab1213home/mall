@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.jiang</groupId>
     <artifactId>mall</artifactId>
-    <version>1.6_reconfiguration</version>
+    <version>1.6.4_reconfiguration</version>
     <name>mall</name>
     <description>mall</description>
     <url/>
@@ -49,11 +49,11 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-test</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
         <!--mysql驱动-->
         <dependency>
@@ -142,7 +142,7 @@
          <dependency>
              <groupId>com.github.dfabulich</groupId>
              <artifactId>sitemapgen4j</artifactId>
-             <version>1.0.6</version>
+             <version>1.1.1</version>
          </dependency>
 
 <!--        <dependency>-->
