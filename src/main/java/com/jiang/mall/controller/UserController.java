@@ -5,6 +5,7 @@ import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICodeService;
+import com.jiang.mall.service.ILoginRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
@@ -55,6 +56,13 @@ public class UserController {
     @Autowired
     public void setCodeService(ICodeService codeService) {
         this.codeService = codeService;
+    }
+
+    private ILoginRecordService loginRecordService;
+
+    @Autowired
+    public void setLoginRecordService(ILoginRecordService loginRecordService) {
+        this.loginRecordService = loginRecordService;
     }
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -306,10 +314,18 @@ public class UserController {
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
             return ResponseResult.failResult("用户名(邮箱)或密码不能为空");
         }
-
+        //TODO: 2024/10/17 考虑是否需要限制尝试登录次数
+        int text_number = loginRecordService.countByUsername(username);
+        if (text_number>=5){
+            return ResponseResult.failResult("用户已尝试登录多次失败，请稍后再试");
+        }
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {
+//            if (session.getAttribute(username)!=null){
+//                int number = (int) session.getAttribute(username);
+//                return ResponseResult.failResult("用户已尝试登录失败，请稍后再试");
+//            }
             UserVo userVo= BeanCopyUtils.copyBean(user, UserVo.class);
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
             // 登录成功，存储用户信息到session
@@ -319,6 +335,10 @@ public class UserController {
             return ResponseResult.okResult();
         } else {
             // 登录失败，返回相应错误信息
+            session.removeAttribute("captcha");
+//            if (session.getAttribute(username)!=null){
+//                session.setAttribute(username,(int) session.getAttribute(username)+1);
+//            }
             return ResponseResult.failResult("用户不存在或用户名(邮箱)或密码错误");
         }
     }

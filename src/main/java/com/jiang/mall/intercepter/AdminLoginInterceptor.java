@@ -1,9 +1,9 @@
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 public class AdminLoginInterceptor implements HandlerInterceptor {
 
 	@Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         String requestURI = request.getRequestURI();
         if (request.getSession().getAttribute("User")!=null){
             UserVo user = (UserVo) request.getSession().getAttribute("User");
@@ -44,7 +44,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
      * @param requestURI 当前请求的URI，尝试访问但需要登录权限的资源地址
      * @throws IOException 重定向过程中可能抛出的IO异常
      */
-    private void redirectToLogin(HttpServletRequest request, HttpServletResponse response, String requestURI) throws IOException {
+    private void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String requestURI) throws IOException {
         // 构造登录页面的URL，使用上下文路径确保正确获取登录页面的位置
         String loginUrl = request.getContextPath() + "/user/login.html";
         // 编码请求的URI，以确保URL中的特殊字符能够正确传递

@@ -1,8 +1,8 @@
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.domain.ResponseResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -24,7 +24,7 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	 * @throws Exception 如果操作中出现异常，将会被抛出
 	 */
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+	public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
 	    // 从 session 中获取购物车中的商品 ID 列表
 	    Object listObj = request.getSession().getAttribute("List_prodId");
 

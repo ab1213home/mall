@@ -231,8 +231,8 @@ public class OrderController {
 	 */
 	@PostMapping("/insert")
 	public ResponseResult insertOrder(@RequestParam("addressId") Integer addressId,
-									  @RequestParam("paymentMethod") Integer paymentMethod,
-									  @RequestParam("status") Integer status,
+									  @RequestParam("paymentMethod") byte paymentMethod,
+									  @RequestParam("status") byte status,
 									  @RequestBody List<CheckoutVo> list_checkoutVo,
 									  HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
@@ -241,17 +241,11 @@ public class OrderController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-		if (addressId == null|| paymentMethod == null || status == null || list_checkoutVo == null||addressId<=0){
+		if (addressId == null|| paymentMethod<0||status<0||list_checkoutVo == null||addressId<=0){
 			return ResponseResult.failResult("参数错误");
 		}
 		if (!StringUtils.hasText(addressId.toString())){
 			return ResponseResult.failResult("请输入地址ID");
-		}
-		if (!StringUtils.hasText(paymentMethod.toString())){
-			return ResponseResult.failResult("请输入支付方式");
-		}
-		if (!StringUtils.hasText(status.toString())){
-			return ResponseResult.failResult("请输入订单状态");
 		}
 	    Integer userId = (Integer) result.getData();
 	    // 根据地址ID获取地址信息，以验证地址是否属于当前用户

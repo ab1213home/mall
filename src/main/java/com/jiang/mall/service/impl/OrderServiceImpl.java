@@ -66,7 +66,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<CheckoutVo> listCheckoutVo) {
+	public Integer insertOrder(Integer userId, Integer addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo) {
 		Order order = new Order();
 		order.setUserId(userId);
 		order.setAddressId(addressId);

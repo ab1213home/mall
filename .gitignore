@@ -34,3 +34,4 @@ build/
 
 src/main/resources/upload/
 /config.properties
+/application.properties

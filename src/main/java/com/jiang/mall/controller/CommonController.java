@@ -9,12 +9,12 @@ import com.wf.captcha.base.Captcha;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -279,5 +279,37 @@ public class CommonController {
         map.put("phone", Config.phone);
         map.put("email", Config.email);
         return ResponseResult.okResult(map);
+    }
+
+    @GetMapping("/get-user-info")
+    @ResponseBody
+    public ResponseEntity<Object> getUserInfo(@RequestHeader(value = "X-Forwarded-For", required = false) String xForwardedFor,
+                                              @RequestHeader(value = "X-Real-IP",required = false) String xRealIp) {
+        String userIp = determineUserIp(xForwardedFor, xRealIp);
+        return getGeoInfo(userIp);
+    }
+
+    private @NotNull String determineUserIp(String xForwardedFor, String xRealIp) {
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            // 如果是多级反向代理，则取第一个IP地址
+            String[] addresses = xForwardedFor.split(",");
+            for (String address : addresses) {
+                if (!address.isEmpty()) {
+                    return address.trim();
+                }
+            }
+        } else if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        } else {
+            return "127.0.0.1"; // 默认本地IP
+        }
+        return "127.0.0.1";
+    }
+
+    private @NotNull ResponseEntity<Object> getGeoInfo(String userIp) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://ip-api.com/json/" +
+                userIp;
+        return restTemplate.getForEntity(url, Object.class);
     }
 }

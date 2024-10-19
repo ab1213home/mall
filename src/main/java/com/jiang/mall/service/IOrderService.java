@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface IOrderService extends IService<Order> {
 
-	Integer insertOrder(Integer userId, Integer addressId, Integer paymentMethod, Integer status, List<CheckoutVo> listCheckoutVo);
+	Integer insertOrder(Integer userId, Integer addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
 
 	List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize);
 

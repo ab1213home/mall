@@ -1,9 +1,10 @@
 package com.jiang.mall.config;
 
+import com.jiang.mall.intercepter.AboutInterceptor;
 import com.jiang.mall.intercepter.AdminLoginInterceptor;
 import com.jiang.mall.intercepter.CheckoutInterceptor;
-import com.jiang.mall.intercepter.RegistrationInterceptor;
 import com.jiang.mall.intercepter.UserLoginInterceptor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,30 +13,46 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MyMvcConfig implements WebMvcConfigurer {
 
-    @Autowired
     private AdminLoginInterceptor adminLoginInterceptor;
+
     @Autowired
-    private RegistrationInterceptor registrationInterceptor;
+    public void setAdminLoginInterceptor(AdminLoginInterceptor adminLoginInterceptor) {
+        this.adminLoginInterceptor = adminLoginInterceptor;
+    }
+
+    private AboutInterceptor aboutInterceptor;
+
     @Autowired
+    public void setAboutInterceptor(AboutInterceptor aboutInterceptor) {
+        this.aboutInterceptor = aboutInterceptor;
+    }
+
     private UserLoginInterceptor userLoginIntercepter;
     @Autowired
+    public void setUserLoginIntercepter(UserLoginInterceptor userLoginIntercepter) {
+        this.userLoginIntercepter = userLoginIntercepter;
+    }
+
     private CheckoutInterceptor checkoutInterceptor;
+
+    @Autowired
+    public void setCheckoutInterceptor(CheckoutInterceptor checkoutInterceptor) {
+        this.checkoutInterceptor = checkoutInterceptor;
+    }
+
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
      * @param registry InterceptorRegistry对象，用于注册拦截器
      */
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(@NotNull InterceptorRegistry registry) {
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin.html")
                 .addPathPatterns("/admin/**");
-        registry.addInterceptor(registrationInterceptor)
-                .addPathPatterns("/user/register_step1")
-                .addPathPatterns("/user/register_step1.html")
-                .addPathPatterns("/user/register_step2")
-                .addPathPatterns("/user/register_step2.html")
-                .addPathPatterns("/user/register");
+        registry.addInterceptor(aboutInterceptor)
+                .addPathPatterns("/about.html")
+                .addPathPatterns("/about");
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/index")
                 .addPathPatterns("/user/index.html")
