@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MallApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <option name="ACTIVE_PROFILES" value="application.properties" />
+    <output_file path="\logs" is_save="true" />
     <module name="mall" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.jiang.mall.MallApplication" />
     <extension name="coverage">

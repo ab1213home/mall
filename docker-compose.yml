@@ -10,3 +10,4 @@ services:
       - ./home:/home
       - ./logs:/logs
       - ./config.properties:/config.properties
+      - ./application.properties:/application.properties

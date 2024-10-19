@@ -55,8 +55,17 @@ yml配置文件在resources目录下
 ## 安装教程
 
 1.  使用Docker部署项目
-2.  使用tomcat部署项目
-
+    ```shell
+    ./run.sh
+    ```
+    或者
+    ```shell
+    docker-compose up
+    ```
+2. 使用tomcat部署项目
+    ```shell
+   java -jar target/mall-1.6.4_reconfiguration.jar --spring.config.location=classpath:application.properties
+   ```
 ## 使用说明
 
 1. git源码
