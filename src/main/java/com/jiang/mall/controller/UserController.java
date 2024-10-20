@@ -1,12 +1,12 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.ICodeService;
 import com.jiang.mall.service.ILoginRecordService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,16 +46,16 @@ public class UserController {
         this.userService = userService;
     }
 
-    private ICodeService codeService;
+    private IVerificationCodeService verificationCodeService;
 
     /**
      * 设置验证码服务实例
      *
-     * @param codeService 验证码服务实例
+     * @param verificationCodeService 验证码服务实例
      */
     @Autowired
-    public void setCodeService(ICodeService codeService) {
-        this.codeService = codeService;
+    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
+        this.verificationCodeService = verificationCodeService;
     }
 
     private ILoginRecordService loginRecordService;
@@ -107,19 +107,19 @@ public class UserController {
             return ResponseResult.failResult("邮箱不存在");
         }
         // 验证码正确性及有效期检查
-        Code userCode = codeService.queryCodeByEmail(email);
-        if (userCode==null){
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
+        if (userVerificationCode ==null){
             // 如果验证码不存在或已过期，则提示错误或过期信息
             return ResponseResult.failResult("验证码错误或已过期");
         }
         // 检查用户输入的验证码与发送的验证码是否一致
-        if (!Objects.equals(userCode.getCode(),code)){
+        if (!Objects.equals(userVerificationCode.getCode(),code)){
             // 如果验证码不正确，则提示错误
             return ResponseResult.failResult("验证码错误");
         }
-        if (userService.modifyPassword(userCode.getUserId(),password)){
-            userCode.setPassword(password);
-            codeService.useCode(userCode.getUserId(),userCode);
+        if (userService.modifyPassword(userVerificationCode.getUserId(),password)){
+            userVerificationCode.setPassword(password);
+            verificationCodeService.useCode(userVerificationCode.getUserId(), userVerificationCode);
             return ResponseResult.okResult("密码修改成功");
         }else{
             return ResponseResult.serverErrorResult("密码修改失败");
@@ -174,17 +174,17 @@ public class UserController {
         if (!password.equals(confirmPassword)) {
             return ResponseResult.failResult("两次密码输入不一致");
         }
-        Code userCode = codeService.queryCodeByEmail(email);
-        if (userCode==null){
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
+        if (userVerificationCode ==null){
             return ResponseResult.failResult("验证码错误或已过期");
         }
-        if (!Objects.equals(userCode.getCode(),code)){
+        if (!Objects.equals(userVerificationCode.getCode(),code)){
             return ResponseResult.failResult("验证码错误");
         }
-        if (!Objects.equals(userCode.getUsername(), username)){
+        if (!Objects.equals(userVerificationCode.getUsername(), username)){
             return ResponseResult.failResult("非法请求");
         }
-        if (!Objects.equals(userCode.getPassword(), password)){
+        if (!Objects.equals(userVerificationCode.getPassword(), password)){
             return ResponseResult.failResult("非法请求");
         }
 
@@ -193,7 +193,7 @@ public class UserController {
         int userId = userService.registerStep(user);
         if (userId>0) {
             session.setAttribute("UserId",userId);
-            codeService.useCode(userId,userCode);
+            verificationCodeService.useCode(userId, userVerificationCode);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因注册失败");
@@ -361,11 +361,11 @@ public class UserController {
             return result;
         }
         Integer userId = (Integer) result.getData();
-        Code userCode = codeService.queryCodeByEmail(email);
-        if (userCode==null){
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
+        if (userVerificationCode ==null){
             return ResponseResult.failResult("验证码错误或已过期");
         }
-        if (!Objects.equals(userCode.getCode(),code)){
+        if (!Objects.equals(userVerificationCode.getCode(),code)){
             return ResponseResult.failResult("验证码错误");
         }
 //        User user = userService.getUserInfo(userId);
@@ -373,7 +373,7 @@ public class UserController {
         user.setId(userId);
         user.setEmail(email);
         if (userService.updateById(user)) {
-            codeService.useCode(userId,userCode);
+            verificationCodeService.useCode(userId, userVerificationCode);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因修改邮箱失败");

@@ -3,13 +3,14 @@ package com.jiang.mall.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 邮箱验证码实体类，对应数据库表 tb_codes
+ * 邮箱验证码实体类，对应数据库表 tb_verification_codes
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
@@ -19,8 +20,8 @@ import java.time.LocalDateTime;
  * @since 2024年9月20日
  */
 @Data
-@TableName("tb_codes")
-public class Code implements Serializable {
+@TableName("tb_verification_codes")
+public class VerificationCode implements Serializable {
 	/**
      * 序列化版本UID
      */
@@ -75,10 +76,10 @@ public class Code implements Serializable {
      */
 	private Integer status;
 
-	public Code() {
+	public VerificationCode() {
 	}
 
-	public Code(String username, String email, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus, Integer userId) {
+	public VerificationCode(String username, String email, String code, Config.@NotNull EmailPurpose emailPurpose, Config.@NotNull EmailStatus emailStatus, Integer userId) {
 		this.username = username;
 		this.email = email;
 		this.code = code;
@@ -87,7 +88,7 @@ public class Code implements Serializable {
 		this.userId = userId;
 	}
 
-	public Code(String username, String email, String password, String code, Config.EmailPurpose emailPurpose, Config.EmailStatus emailStatus) {
+	public VerificationCode(String username, String email, String password, String code, Config.@NotNull EmailPurpose emailPurpose, Config.@NotNull EmailStatus emailStatus) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

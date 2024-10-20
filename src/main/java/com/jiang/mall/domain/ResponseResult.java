@@ -4,6 +4,7 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * 响应结果类
@@ -34,6 +35,8 @@ public class ResponseResult<T> implements Serializable {
      * 响应时间戳，用于记录响应的时间，以毫秒为单位
      */
     private long timestamp;
+
+    private String reqid;
 
 
     /**
@@ -210,6 +213,7 @@ public class ResponseResult<T> implements Serializable {
 
     public ResponseResult() {
         this.timestamp = System.currentTimeMillis();
+        this.reqid= UUID.randomUUID().toString();
     }
 
     /**

@@ -1,12 +1,13 @@
 package com.jiang.mall.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.jiang.mall.domain.vo.UserVo;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -25,7 +26,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // 获取当前的HTTP请求
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 从会话中获取当前用户的ID
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        UserVo userVo = (UserVo) request.getSession().getAttribute("User");
+        Integer userId = userVo.getId();
         // 设置创建者ID为当前用户的ID
         this.setFieldValByName("creator", userId, metaObject);
         // 设置更新者ID为当前用户的ID
@@ -50,7 +52,8 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // 获取当前的HTTP请求
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 从会话中获取当前用户的ID
-        Integer userId = (Integer) request.getSession().getAttribute("UserId");
+        UserVo userVo = (UserVo) request.getSession().getAttribute("User");
+        Integer userId = userVo.getId();
         // 设置更新者ID为当前用户的ID
         this.setFieldValByName("updater", userId, metaObject);
     }

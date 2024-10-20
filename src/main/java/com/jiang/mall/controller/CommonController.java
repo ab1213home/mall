@@ -6,6 +6,7 @@ import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -312,4 +315,54 @@ public class CommonController {
                 userIp;
         return restTemplate.getForEntity(url, Object.class);
     }
+
+    @GetMapping("/getIp")
+    @ResponseBody
+    public String getIp(HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        return "Client IP address: " + ipAddress;
+    }
+
+    @GetMapping("/getIp2")
+    @ResponseBody
+    public String getIp2(ServletRequest request) {
+        String ipAddress = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getRemoteAddr();
+        return "Client IP address: " + ipAddress;
+    }
+
+
+    @GetMapping("/getIp3")
+    @ResponseBody
+    public String getIp3(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+
+        // 如果 X-Forwarded-For 包含多个 IP 地址，取第一个非未知的 IP 地址
+        if (ipAddress != null && ipAddress.contains(",")) {
+            String[] ipAddresses = ipAddress.split(",");
+            for (String ip : ipAddresses) {
+                if (!"unknown".equalsIgnoreCase(ip.trim())) {
+                    ipAddress = ip.trim();
+                    break;
+                }
+            }
+        }
+
+        return "Client IP address: " + ipAddress;
+    }
+
 }

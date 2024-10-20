@@ -1,11 +1,11 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.Code;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.ICodeService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
@@ -28,16 +28,16 @@ import static com.jiang.mall.domain.entity.Config.*;
 @RequestMapping("/email")
 public class EmailController {
 
-    private ICodeService codeService;
+    private IVerificationCodeService verificationCodeService;
 
     /**
      * 注入CodeService
      *
-     * @param codeService CodeService
+     * @param verificationCodeService 验证码服务实例
      */
     @Autowired
-    public void setCodeService(ICodeService codeService) {
-        this.codeService = codeService;
+    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
+        this.verificationCodeService = verificationCodeService;
     }
 
     private IUserService userService;
@@ -122,7 +122,7 @@ public class EmailController {
             return ResponseResult.failResult("两次密码输入不一致");
         }
         // 检查是否在特定时间内请求过多验证码
-        if (codeService.inspectByEmail(email)){
+        if (verificationCodeService.inspectByEmail(email)){
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 检查邮箱是否已注册
@@ -147,15 +147,15 @@ public class EmailController {
                 "</body></html>";
         // 发送邮件
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
-            if (codeService.save(userCode)){
+            VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
+            if (verificationCodeService.save(userVerificationCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
-            Code userCode = new Code(username,email,password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
-            codeService.save(userCode);
+            VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
+            verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }
@@ -168,7 +168,7 @@ public class EmailController {
             // 如果未登录，则直接返回
             return result;
         }
-        if (codeService.checkingByUserId((Integer)result.getData())){
+        if (verificationCodeService.checkingByUserId((Integer)result.getData())){
             return ResponseResult.okResult("在"+expiration_time+"分钟内已经验证通过");
         }
         return ResponseResult.failResult("验证码已过期，请重新获取");
@@ -225,7 +225,7 @@ public class EmailController {
             return ResponseResult.failResult("用户不存在");
         }
         // 检查邮箱是否请求过多验证码
-        if (codeService.inspectByEmail(user.getEmail())) {
+        if (verificationCodeService.inspectByEmail(user.getEmail())) {
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 生成验证码和邮件内容
@@ -241,15 +241,15 @@ public class EmailController {
                 "</body></html>";
         // 发送邮件并处理结果
         if (EmailUtils.sendEmail(user.getEmail(), "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
-            if (codeService.save(userCode)){
+            VerificationCode userVerificationCode = new VerificationCode(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
+            if (verificationCodeService.save(userVerificationCode)){
                 return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
             }
         }else {
-            Code userCode = new Code(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
-            codeService.save(userCode);
+            VerificationCode userVerificationCode = new VerificationCode(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, user.getId());
+            verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }
@@ -308,7 +308,7 @@ public class EmailController {
             return ResponseResult.failResult("新邮箱不能与旧邮箱相同");
         }
 
-        if (codeService.inspectByEmail(email)){
+        if (verificationCodeService.inspectByEmail(email)){
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 检查邮箱是否已注册
@@ -327,15 +327,15 @@ public class EmailController {
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            Code userCode = new Code(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
-            if (codeService.save(userCode)){
+            VerificationCode userVerificationCode = new VerificationCode(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
+            if (verificationCodeService.save(userVerificationCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因"+EmailPurpose.CHANGE_EMAIL.getName()+"失败");
             }
         }else {
-            Code userCode = new Code(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
-            codeService.save(userCode);
+            VerificationCode userVerificationCode = new VerificationCode(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
+            verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }
@@ -398,7 +398,7 @@ public class EmailController {
         }
 
         // 检查是否在特定时间内请求过多验证码
-        if (codeService.inspectByEmail(email)){
+        if (verificationCodeService.inspectByEmail(email)){
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
 
@@ -424,16 +424,16 @@ public class EmailController {
         // 发送验证码邮件
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             // 邮件发送成功，保存验证码信息
-            Code userCode = new Code(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
-            if (codeService.save(userCode)){
+            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
+            if (verificationCodeService.save(userVerificationCode)){
                 return ResponseResult.okResult();
             }else {
                 return ResponseResult.serverErrorResult("未知原因注册失败");
             }
         }else {
             // 邮件发送失败，记录失败信息
-            Code userCode = new Code(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
-            codeService.save(userCode);
+            VerificationCode userVerificationCode = new VerificationCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
+            verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }
     }

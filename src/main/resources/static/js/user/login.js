@@ -57,3 +57,10 @@ $(document).ready(function() {
     submitLoginForm(); // 自定义提交处理
   });
 });
+
+async function getFingerprint() {
+    const result = await FingerprintJS.load();
+    const visitorId = await result.get();
+    console.log(visitorId.visitorId); // 打印生成的指纹
+}
+getFingerprint();
