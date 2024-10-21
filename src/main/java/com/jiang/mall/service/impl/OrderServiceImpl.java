@@ -16,8 +16,8 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
-import static com.jiang.mall.domain.entity.Config.order_status;
-import static com.jiang.mall.domain.entity.Config.paymentMethod;
+import static com.jiang.mall.domain.config.Order.order_status;
+import static com.jiang.mall.domain.config.Order.paymentMethod;
 
 /**
  * <p>
@@ -63,6 +63,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Autowired
 	public void setProductMapper(ProductMapper productMapper) {
 		this.productMapper=productMapper;
+	}
+
+	private AdministrativeDivisionMapper divisionMapper;
+
+	@Autowired
+	public void setDivisionMapper(AdministrativeDivisionMapper divisionMapper) {
+		this.divisionMapper = divisionMapper;
 	}
 
 	@Override
@@ -112,6 +119,48 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			Address address = addressMapper.selectById(order_item.getAddressId());
 			AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
+			QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
+			queryWrapper_township.eq("area_code", address.getAreaCode());
+			AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
+			if (township.getLevel() == 4){
+				addressVo.setTownship(township.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
+				queryWrapper_county.eq("area_code", township.getParentCode());
+				AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+				addressVo.setCounty(county.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", county.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 3){
+				addressVo.setTownship("");
+				addressVo.setCounty(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", township.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 2){
+				addressVo.setCounty("");
+				addressVo.setTownship("");
+				addressVo.setCity(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", township.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 1){
+				addressVo.setCity("");
+				addressVo.setTownship("");
+				addressVo.setCounty("");
+				addressVo.setProvince(township.getShortName());
+			}
 			orderVo.setAddress(addressVo);
 			orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
 			orderVo.setStatus(order_status[order_item.getStatus()]);
@@ -175,7 +224,48 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	        // 根据订单中的地址ID查询地址信息，并转换为地址VO对象
 	        Address address = addressMapper.selectById(order_item.getAddressId());
 	        AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
-
+			QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
+			queryWrapper_township.eq("area_code", address.getAreaCode());
+			AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
+			if (township.getLevel() == 4){
+				addressVo.setTownship(township.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
+				queryWrapper_county.eq("area_code", township.getParentCode());
+				AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+				addressVo.setCounty(county.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", county.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 3){
+				addressVo.setTownship("");
+				addressVo.setCounty(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+				queryWrapper_city.eq("area_code", township.getParentCode());
+				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+				addressVo.setCity(city.getName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", city.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 2){
+				addressVo.setCounty("");
+				addressVo.setTownship("");
+				addressVo.setCity(township.getShortName());
+				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+				queryWrapper_province.eq("area_code", township.getParentCode());
+				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+				addressVo.setProvince(province.getName());
+			}else if (township.getLevel() == 1){
+				addressVo.setCity("");
+				addressVo.setTownship("");
+				addressVo.setCounty("");
+				addressVo.setProvince(township.getShortName());
+			}
 	        // 设置订单VO对象的地址信息
 	        orderVo.setAddress(addressVo);
 

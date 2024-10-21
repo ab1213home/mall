@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.entity.Config.AdminRoleId;
-import static com.jiang.mall.domain.entity.Config.regex_email;
+import static com.jiang.mall.domain.config.User.AdminRoleId;
+import static com.jiang.mall.domain.config.User.regex_email;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**

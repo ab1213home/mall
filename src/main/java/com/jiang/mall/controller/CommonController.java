@@ -1,6 +1,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.config.User;
 import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
@@ -32,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.File.*;
 
 
 /**
@@ -272,7 +273,7 @@ public class CommonController {
     @GetMapping("/getSalt")
     @ResponseBody
     public ResponseResult getSalt(HttpSession session) {
-        return ResponseResult.okResult(Config.AES_SALT,"获取随机盐值");
+        return ResponseResult.okResult(User.AES_SALT,"获取随机盐值");
     }
 
     @GetMapping("/getFooter")

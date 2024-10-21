@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.Email.*;
 
 @Service
 public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMapper, VerificationCode> implements IVerificationCodeService {

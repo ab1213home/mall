@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 import java.util.Random;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.Email.*;
+import static com.jiang.mall.domain.config.User.regex_email;
 
 /**
  * 邮箱验证码控制器

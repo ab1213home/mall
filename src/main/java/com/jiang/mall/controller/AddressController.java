@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.domain.entity.Config.max_address_num;
-import static com.jiang.mall.domain.entity.Config.regex_phone;
+import static com.jiang.mall.domain.config.User.max_address_num;
+import static com.jiang.mall.domain.config.User.regex_phone;
 
 /**
  * 收货地址管理

@@ -2,6 +2,8 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jiang.mall.domain.config.Email.EmailPurpose;
+import com.jiang.mall.domain.config.Email.EmailStatus;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +81,7 @@ public class VerificationCode implements Serializable {
 	public VerificationCode() {
 	}
 
-	public VerificationCode(String username, String email, String code, Config.@NotNull EmailPurpose emailPurpose, Config.@NotNull EmailStatus emailStatus, Integer userId) {
+	public VerificationCode(String username, String email, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus, Integer userId) {
 		this.username = username;
 		this.email = email;
 		this.code = code;
@@ -88,7 +90,7 @@ public class VerificationCode implements Serializable {
 		this.userId = userId;
 	}
 
-	public VerificationCode(String username, String email, String password, String code, Config.@NotNull EmailPurpose emailPurpose, Config.@NotNull EmailStatus emailStatus) {
+	public VerificationCode(String username, String email, String password, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

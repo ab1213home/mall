@@ -1,4 +1,4 @@
-package com.jiang.mall.domain.entity;
+package com.jiang.mall.domain.config;
 
 import lombok.Data;
 import org.slf4j.Logger;
@@ -7,28 +7,16 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-/**
- * 属性配置类，包含系统常量和正则表达式
- *
- * @author jiang
- * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
- * @apiNote 属性配置类
- * @version 1.0
- * @since 2024年9月8日
- */
 @Data
-public class Config {
-
-    /**
+public class User {
+	/**
      * 配置文件路径
      */
     private static final String CONFIG_FILE_PATH = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(Config.class);
+    private static final Logger logger = LoggerFactory.getLogger(User.class);
 
     public static Properties properties = new Properties();
 
@@ -66,38 +54,35 @@ public class Config {
         }
     }
 
+    /**
+     * 管理员角色ID
+     */
+    public static int AdminRoleId = Integer.parseInt(properties.getProperty("admin.role.id", "10"));
 
     /**
-     * 日期时间格式
+     * 邮箱格式正则表达式
      */
-    public static String PATTERN = properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+    public static String regex_email = properties.getProperty("regex.email", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
 
     /**
-     * 时区
+     * 手机号格式正则表达式
      */
-    public static String timeZone = properties.getProperty("time.zone", "GMT+8");
+    public static String regex_phone = properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
 
     /**
-     * 日期时间格式化器
+     * 收货地址最大数量
      */
-    public static SimpleDateFormat ft = new SimpleDateFormat(PATTERN);
-
-
+    public static int max_address_num = Integer.parseInt(properties.getProperty("max.address.num", "50"));
 
     /**
-     * 是否允许修改
+     * 是否允许注册
      */
-    public static boolean AllowModify = Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
+    public static boolean AllowRegistration = Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
 
 
     /**
-     * 网页页底联系电话
+     * AES254的salt
      */
-    public static String phone = properties.getProperty("phone", "400-888-8888");
+    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
 
-    /**
-     * 网页页底邮箱
-     */
-    public static String email = properties.getProperty("email", "jiangrongjun2004@163.com");
 }
-

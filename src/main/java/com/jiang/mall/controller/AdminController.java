@@ -1,6 +1,9 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.config.Email;
+import com.jiang.mall.domain.config.File;
+import com.jiang.mall.domain.config.User;
 import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -70,17 +73,17 @@ public class AdminController {
 		}
 		String s = "";
 		if (AllowRegistration){
-			Config.AllowRegistration = true;
+			User.AllowRegistration = true;
 			s += "已允许用户注册";
 		}else {
-			Config.AllowRegistration = false;
+			User.AllowRegistration = false;
 			s += "已禁止用户注册";
 		}
 		if (AllowUploadFile){
-			Config.AllowUploadFile = true;
+			File.AllowUploadFile = true;
 			s += "，已允许用户上传文件";
 		}else {
-			Config.AllowUploadFile = false;
+			File.AllowUploadFile = false;
 			s += "，已禁止用户上传文件";
 		}
 		if (AllowModify){
@@ -91,17 +94,17 @@ public class AdminController {
 			s += "，已禁止用户修改";
 		}
 		if (AllowSendEmail){
-			Config.AllowSendEmail = true;
+			Email.AllowSendEmail = true;
 			s += "，已允许发送邮件";
 		}else {
-			Config.AllowSendEmail = false;
+			Email.AllowSendEmail = false;
 			s += "，已禁止发送邮件";
 		}
 		if (HOST!=null&& !HOST.isEmpty() &&!HOST.equals("smtp.example.com")){
-			Config.HOST = HOST;
+			Email.HOST = HOST;
 		}
-		Map<String, Boolean> map = Map.of("AllowRegistration", Config.AllowRegistration,
-				"AllowUploadFile", Config.AllowUploadFile,
+		Map<String, Boolean> map = Map.of("AllowRegistration", User.AllowRegistration,
+				"AllowUploadFile", File.AllowUploadFile,
 				"AllowModify", Config.AllowModify);
         return ResponseResult.okResult(map,s);
     }
@@ -114,6 +117,6 @@ public class AdminController {
 
 	@GetMapping("/get")
 	public ResponseResult get() {
-		return ResponseResult.okResult(Config.FILE_UPLOAD_PATH);
+		return ResponseResult.okResult(File.FILE_UPLOAD_PATH);
 	}
 }

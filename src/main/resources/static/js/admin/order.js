@@ -40,7 +40,7 @@ function queryOrders(pn, pz) {
                             </th>
                             <td id="address`+ order.id +`">
                             	<p>收件人信息：${order.address.lastName + " " + order.address.firstName + "," +order.address.phone}</p>
-                            	<p>地址：${order.address.country+" "+order.address.province+" "+order.address.city+" "+order.address.district}</p>
+                            	<p>地址：${order.address.country+" "+order.address.province+" "+order.address.city+" "+order.address.county+" "+order.address.township}</p>
                             	<p>${order.address.addressDetail}</p>
                             	<p>邮政编码：${order.address.postalCode}</p>
 							</td>

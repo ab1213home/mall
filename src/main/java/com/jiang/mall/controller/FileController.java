@@ -1,7 +1,6 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.File.*;
 
 /**
  * 文件控制器
@@ -241,9 +240,9 @@ public class FileController {
                     return ResponseResult.failResult("非法的图片后缀");
                 }
                 if ((boolean)suffix.getValue()){
-                    Config.imageSuffix.add(suffix.getKey());
+                    com.jiang.mall.domain.config.File.imageSuffix.add(suffix.getKey());
                 } else {
-                    Config.imageSuffix.remove(suffix.getKey());
+                    com.jiang.mall.domain.config.File.imageSuffix.remove(suffix.getKey());
                 }
     //            if (Objects.equals(suffix.getValue(), "ture")) {
     //                Config.imageSuffix.add(suffix.getKey());
@@ -258,16 +257,16 @@ public class FileController {
             System.out.println("imageSuffix 为空，请检查数据源！");
         }
         // 更新是否允许上传文件的配置
-        Config.AllowUploadFile = AllowUploadFile;
+        com.jiang.mall.domain.config.File.AllowUploadFile = AllowUploadFile;
         // 如果上传路径不为空，则更新上传路径
         if (FileUploadPath != null) {
-	        Config.FILE_UPLOAD_PATH = UriUtils.decode(FileUploadPath, StandardCharsets.UTF_8);
+	        com.jiang.mall.domain.config.File.FILE_UPLOAD_PATH = UriUtils.decode(FileUploadPath, StandardCharsets.UTF_8);
         }
         // 更新允许上传的图片后缀字符串，以逗号分隔
-        Config.imageSuffixStr = String.join(",", Config.imageSuffix);
+        com.jiang.mall.domain.config.File.imageSuffixStr = String.join(",", com.jiang.mall.domain.config.File.imageSuffix);
         // 保存更新后的配置
-        saveProperties();
-        loadProperties();
+        com.jiang.mall.domain.config.File.saveProperties();
+        com.jiang.mall.domain.config.File.loadProperties();
         // 返回成功结果
         return ResponseResult.okResult();
     }

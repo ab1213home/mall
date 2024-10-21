@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.User.*;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -315,10 +315,10 @@ public class UserController {
             return ResponseResult.failResult("用户名(邮箱)或密码不能为空");
         }
         //TODO: 2024/10/17 考虑是否需要限制尝试登录次数
-        int text_number = loginRecordService.countByUsername(username);
-        if (text_number>=5){
-            return ResponseResult.failResult("用户已尝试登录多次失败，请稍后再试");
-        }
+//        int text_number = loginRecordService.countByUsername(username);
+//        if (text_number>=5){
+//            return ResponseResult.failResult("用户已尝试登录多次失败，请稍后再试");
+//        }
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {

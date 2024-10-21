@@ -1,34 +1,23 @@
-package com.jiang.mall.domain.entity;
+package com.jiang.mall.domain.config;
 
 import lombok.Data;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-/**
- * 属性配置类，包含系统常量和正则表达式
- *
- * @author jiang
- * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
- * @apiNote 属性配置类
- * @version 1.0
- * @since 2024年9月8日
- */
 @Data
-public class Config {
-
-    /**
+public class Order {
+	 /**
      * 配置文件路径
      */
     private static final String CONFIG_FILE_PATH = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(Config.class);
+    private static final Logger logger = LoggerFactory.getLogger(Order.class);
 
     public static Properties properties = new Properties();
 
@@ -66,38 +55,53 @@ public class Config {
         }
     }
 
+    /**
+     * 支付方式数组
+     */
+    public static String[] paymentMethod = properties.getProperty("payment.method", "货到付款,在线支付")
+            .split(",");
+    /**
+     * 支付方式枚举类
+     */
+    @Getter
+    public enum PaymentMethod {
+        OFFLINE(0,paymentMethod[0]),
+        ONLINE(1,paymentMethod[1]);
+
+        private final int value;
+        private final String name;
+
+        PaymentMethod(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+    }
 
     /**
-     * 日期时间格式
+     * 订单状态数组
      */
-    public static String PATTERN = properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+    public static String[] order_status = properties.getProperty("order.status", "待付款,待发货,待收货,待评价,已完成")
+            .split(",");
 
     /**
-     * 时区
+     * 订单状态枚举类
      */
-    public static String timeZone = properties.getProperty("time.zone", "GMT+8");
+    @Getter
+    public enum OrderStatus {
+        WAIT_PAYMENT(0,order_status[0]),
+        WAIT_DELIVERY(1,order_status[1]),
+        WAIT_RECEIVE(2,order_status[3]),
+        WAIT_EVALUATE(3,order_status[2]),
+        FINISHED(4,order_status[4]);
 
-    /**
-     * 日期时间格式化器
-     */
-    public static SimpleDateFormat ft = new SimpleDateFormat(PATTERN);
+        private final int value;
+        private final String name;
 
+        OrderStatus(int value,String name) {
+            this.value = value;
+            this.name = name;
+        }
 
-
-    /**
-     * 是否允许修改
-     */
-    public static boolean AllowModify = Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
-
-
-    /**
-     * 网页页底联系电话
-     */
-    public static String phone = properties.getProperty("phone", "400-888-8888");
-
-    /**
-     * 网页页底邮箱
-     */
-    public static String email = properties.getProperty("email", "jiangrongjun2004@163.com");
+    }
 }
-

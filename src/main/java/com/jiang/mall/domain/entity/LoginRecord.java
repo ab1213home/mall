@@ -35,6 +35,11 @@ public class LoginRecord implements Serializable {
 	private String ip;
 
 	/**
+	 * 浏览器指纹
+	 */
+	private String fingerprint;
+
+	/**
 	 * 状态
 	 */
 	private byte state;

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-import static com.jiang.mall.domain.entity.Config.*;
+import static com.jiang.mall.domain.config.Email.*;
 
 /**
  * 邮件工具类

@@ -20,8 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.entity.Config.fileTypeMap;
-import static com.jiang.mall.domain.entity.Config.imageSuffix;
+import static com.jiang.mall.domain.config.File.fileTypeMap;
+import static com.jiang.mall.domain.config.File.imageSuffix;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 
 @Service
