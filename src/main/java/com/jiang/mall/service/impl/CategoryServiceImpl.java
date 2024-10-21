@@ -48,15 +48,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public Integer getCategoryNum() {
-        List<Category> categorys = categoryMapper.selectList(null);
-        return categorys.size();
+    public Long getCategoryNum() {
+	    return categoryMapper.selectCount(null);
     }
 
     @Override
     public boolean deleteCategory(Category category) {
 	    return categoryMapper.deleteById(category) == 1;
     }
-
 
 }

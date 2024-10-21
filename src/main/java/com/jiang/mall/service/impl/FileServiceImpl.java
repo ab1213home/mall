@@ -170,7 +170,7 @@ public class FileServiceImpl implements IFileService {
 	@Override
     public long getFolderSize(@NotNull File folder) {
         // 初始化文件夹大小为0
-        long size = 0;
+        long size = 0L;
         // 遍历文件夹中的所有文件和子文件夹
         for (File file : Objects.requireNonNull(folder.listFiles())) {
             if (file.isFile()) {

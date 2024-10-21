@@ -86,11 +86,10 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Integer getCollectionNum(Integer userId) {
+	public Long getCollectionNum(Integer userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_id", userId);
-		List<Collection> collectionList = collectionMapper.selectList(queryWrapper);
-		return collectionList.size();
+		return collectionMapper.selectCount(queryWrapper);
 	}
 
 	@Override

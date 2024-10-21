@@ -46,7 +46,7 @@ public interface IUserService extends IService<User> {
 
     ResponseResult checkUserLogin(HttpSession session);
 
-    Integer getUserNum();
+    Long getUserNum();
 
 	User getUserByUserNameOrEmail(String username);
 

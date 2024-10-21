@@ -32,7 +32,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param userId 用户ID，用于标识用户的唯一性
 	 * @return 用户的地址数量
 	 */
-	Integer getAddressNum(Integer userId);
+	Long getAddressNum(Integer userId);
 
 
 	/**
@@ -41,7 +41,7 @@ public interface IAddressService extends IService<Address> {
 	 * 该方法用于在系统中更新一个地址对象 它提供了一种机制，来确保地址数据的最新和准确性
 	 *
 	 * @param address   要更新的地址对象 不能为空，包含所有必要的地址信息
-	 * @param isDefault
+	 * @param isDefault 是否将此地址设置为默认地址
 	 * @return true 如果更新操作成功；否则返回 false
 	 */
 	boolean updateAddress(Address address, boolean isDefault);
@@ -55,14 +55,7 @@ public interface IAddressService extends IService<Address> {
 	 */
 	boolean deleteAddress(Integer id, Integer userId);
 
-	/**
-	 * 根据ID获取地址信息
-	 *
-	 * @param id 地址ID
-	 * @param userId 用户ID，用于区分不同用户的地址信息
-	 * @return 返回一个AddressVo对象，包含地址的相关信息
-	 */
-	AddressVo getAddressById(Integer id, Integer userId);
-
 	boolean insertAddress(Address address, boolean isDefault);
+
+	AddressVo getAddress(Address address);
 }

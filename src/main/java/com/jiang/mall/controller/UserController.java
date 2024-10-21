@@ -573,7 +573,7 @@ public class UserController {
         // 获取已登录用户的ID
         Integer userId = (Integer) result.getData();
         // 尝试锁定用户，如果失败则返回错误信息
-        if (!userService.lockUser(userId))
+        if (userService.lockUser(userId))
             return ResponseResult.serverErrorResult("修改失败！");
         // 用户锁定成功，返回成功信息
         logout(session);
@@ -612,7 +612,7 @@ public class UserController {
         }
 
         // 尝试锁定用户
-        if (!userService.lockUser(userId)){
+        if (userService.lockUser(userId)){
             // 锁定失败，返回错误信息
             return ResponseResult.serverErrorResult("用户锁定失败！");
         }else {

@@ -182,9 +182,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public Integer getProductNum() {
-         List<Product> products = productMapper.selectList(null);
-         return products.size();
+    public Long getProductNum() {
+	    return productMapper.selectCount(null);
     }
 
     @Override

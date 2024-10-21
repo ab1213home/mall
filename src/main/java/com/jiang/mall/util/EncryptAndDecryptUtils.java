@@ -30,7 +30,7 @@ public class EncryptAndDecryptUtils {
      * @param salt 密码的盐值，用于混淆密码
      * @return 哈希值的十六进制表示
      */
-    public static String encryptToSHA256(String input, String salt) {
+    public static @NotNull String encryptToSHA256(String input, String salt) {
         try {
             // 获取SHA-256消息摘要对象
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -58,7 +58,7 @@ public class EncryptAndDecryptUtils {
      * @param input 需要加密的字符串
      * @return MD5加密后的16进制字符串
      */
-    public static String encryptToMD5(String input) {
+    public static @NotNull String encryptToMD5(String input) {
         try {
             // 获取MessageDigest实例，指定使用MD5算法
             MessageDigest md = MessageDigest.getInstance("MD5");

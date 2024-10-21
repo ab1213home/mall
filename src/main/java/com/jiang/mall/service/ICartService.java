@@ -20,13 +20,9 @@ public interface ICartService extends IService<Cart> {
 
     List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize);
 
-    ResponseResult getCart(Integer id);
-
-    ResponseResult insertOrUpdate(Cart cart);
+	ResponseResult insertOrUpdate(Cart cart);
 
     boolean updateCart(Cart cart);
-
-    ResponseResult deleteCart(List<Integer> ids);
 
 	/**
 	 * 将指定商品添加到指定用户的购物车中
@@ -44,7 +40,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param userId 用户ID，用于标识特定用户
 	 * @return 返回用户的购物车数量如果用户不存在或发生错误，可能返回null
 	 */
-	Integer getCartNum(Integer userId);
+	Long getCartNum(Integer userId);
 
 	/**
 	 * 根据用户ID、页码、页面大小和购物车项ID列表获取购物车项列表

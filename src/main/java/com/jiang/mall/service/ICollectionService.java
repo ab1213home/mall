@@ -16,7 +16,7 @@ public interface ICollectionService extends IService<Collection> {
 
 	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId);
 
-	Integer getCollectionNum(Integer userId);
+	Long getCollectionNum(Integer userId);
 
 	boolean isCollect(Integer productId, Integer userId);
 

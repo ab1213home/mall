@@ -58,18 +58,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return cartVos;
     }
 
-    @Override
-    public ResponseResult getCart(Integer id) {
-        Cart cart = cartMapper.selectById(id);
-        if (cart != null) {
-            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
-            cartVo.setProdName(productMapper.selectById(cartVo.getProdId()).getTitle());
-            return ResponseResult.okResult(cartVo);
-        }
-        return ResponseResult.failResult();
-    }
-
-    @Override
+	@Override
     public ResponseResult insertOrUpdate(Cart cart) {
         if (cart.getUserId() == null || cart.getProdId() == null) {
             return ResponseResult.failResult("商品id和用户id不能为空");
@@ -94,15 +83,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     public boolean updateCart(Cart cart) {
         int res = cartMapper.updateById(cart);
 	    return res == 1;
-    }
-
-    @Override
-    public ResponseResult deleteCart(List<Integer> ids) {
-        int res = cartMapper.deleteByIds(ids);
-        if (res > 0) {
-            return ResponseResult.okResult();
-        }
-        return ResponseResult.failResult();
     }
 
     /**
@@ -143,18 +123,15 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 购物车中的商品数量
      */
     @Override
-    public Integer getCartNum(Integer userId) {
+    public Long getCartNum(Integer userId) {
         // 创建查询包装器，用于查询条件的设置
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
 
         // 设置查询条件，查找特定用户ID的购物车记录
         queryWrapper.eq("user_id", userId);
 
-        // 执行查询并返回购物车列表
-        List<Cart> cart = cartMapper.selectList(queryWrapper);
-
-        // 返回购物车列表的大小，即商品数量
-        return cart.size();
+	    // 返回购物车列表的大小，即商品数量
+        return cartMapper.selectCount(queryWrapper);
     }
 
     /**

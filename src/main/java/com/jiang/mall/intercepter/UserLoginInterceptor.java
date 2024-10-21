@@ -26,7 +26,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
      * @throws Exception 如果发生异常，将会中断当前请求处理流程并进行异常处理
      */
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         // 获取请求的URI
         String requestURI = request.getRequestURI();
 

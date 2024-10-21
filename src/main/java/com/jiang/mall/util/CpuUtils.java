@@ -1,11 +1,15 @@
 package com.jiang.mall.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Scanner;
 
 public class CpuUtils {
+
 	/**
      * 获取CPU的唯一标识符。
      * 此方法首先通过检查操作系统类型来决定使用哪种方式获取CPU ID。
@@ -15,25 +19,17 @@ public class CpuUtils {
      *
      * @return 返回CPU的唯一标识符，如果无法获取，则返回当前主机名。
      */
-    public static String getCpuId()  {
+    public static String getCpuId() throws Exception {
         String cpuId;
         // 获取当前操作系统名称，并转换为大写，以便比较
-        String os = System.getProperty("os.name");
-        os = os.toUpperCase();
-
-		try {
-			if ("LINUX".equals(os)) {
-				// 在Linux系统中，通过执行dmidecode命令获取CPU ID
-				cpuId = getLinuxCpuId("dmidecode -t processor | grep 'ID'", "ID", ":");
-			}else {
-				// 在非Linux系统中，调用另一方法获取CPU ID
-                cpuId = getWindowsCpuId();
-            }
-        }catch (Exception e) {
-			// 如果获取过程中出现异常，则抛出运行时异常
-			throw new RuntimeException(e);
-		}
-
+        String os = System.getProperty("os.name").toUpperCase();
+        if ("LINUX".equals(os)) {
+            // 在Linux系统中，通过执行dmidecode命令获取CPU ID
+            cpuId = getLinuxCpuId("dmidecode -t processor | grep 'ID'", "ID", ":");
+        }else {
+            // 在非Linux系统中，调用另一方法获取CPU ID
+            cpuId = getWindowsCpuId();
+        }
         // 如果获取到CPU ID，则返回处理后的CPU ID，否则返回当前主机名
         return cpuId != null ? cpuId.toUpperCase().replace(" ", "") : NetworkUtils.getHostName();
     }
@@ -46,7 +42,7 @@ public class CpuUtils {
      * @return 返回定位到的CPU标识符的一部分；如果没有找到指定的记录，则返回null。
      * @throws Exception 如果执行Linux命令失败，则抛出异常。
      */
-    public static String getLinuxCpuId(String cmd, String record, String symbol) throws Exception {
+    public static @Nullable String getLinuxCpuId(String cmd, String record, String symbol) throws Exception {
         // 执行Linux命令并获取结果
         String execResult = executeLinuxCmd(cmd);
         // 按行分割命令执行结果
@@ -74,7 +70,7 @@ public class CpuUtils {
      * @return 执行命令后的输出结果，以字符串形式返回。
      * @throws Exception 如果执行命令过程中出现错误，则抛出异常。
      */
-    public static String executeLinuxCmd(String cmd) throws Exception {
+    public static @NotNull String executeLinuxCmd(String cmd) throws Exception {
         // 获取运行时对象，用于执行系统命令
         Runtime run = Runtime.getRuntime();
         Process process;

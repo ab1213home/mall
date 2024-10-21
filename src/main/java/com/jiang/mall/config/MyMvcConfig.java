@@ -1,9 +1,6 @@
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.AboutInterceptor;
-import com.jiang.mall.intercepter.AdminLoginInterceptor;
-import com.jiang.mall.intercepter.CheckoutInterceptor;
-import com.jiang.mall.intercepter.UserLoginInterceptor;
+import com.jiang.mall.intercepter.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +35,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Autowired
     public void setCheckoutInterceptor(CheckoutInterceptor checkoutInterceptor) {
         this.checkoutInterceptor = checkoutInterceptor;
+    }
+
+    private ApiLoginInterceptor apiLoginInterceptor;
+
+    @Autowired
+    public void setApiLoginInterceptor(ApiLoginInterceptor apiLoginInterceptor) {
+        this.apiLoginInterceptor = apiLoginInterceptor;
     }
 
     /**
@@ -77,5 +81,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/index.html");
         registry.addInterceptor(checkoutInterceptor)
                 .addPathPatterns("/checkout.html");
+        registry.addInterceptor(apiLoginInterceptor)
+                .addPathPatterns("/api/**");
     }
 }

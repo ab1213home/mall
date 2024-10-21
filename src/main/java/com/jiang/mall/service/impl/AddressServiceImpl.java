@@ -85,49 +85,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
 		for (Address address : addresses) {
 			// 将地址实体转换为地址VO，并添加到地址VO列表中
-			AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
-			QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
-			queryWrapper_township.eq("area_code", address.getAreaCode());
-			AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
-			if (township.getLevel() == 4){
-				addressVo.setTownship(township.getName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
-				queryWrapper_county.eq("area_code", township.getParentCode());
-				AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
-				addressVo.setCounty(county.getName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
-				queryWrapper_city.eq("area_code", county.getParentCode());
-				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
-				addressVo.setCity(city.getName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-				queryWrapper_province.eq("area_code", city.getParentCode());
-				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
-				addressVo.setProvince(province.getName());
-			}else if (township.getLevel() == 3){
-				addressVo.setTownship("");
-				addressVo.setCounty(township.getShortName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
-				queryWrapper_city.eq("area_code", township.getParentCode());
-				AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
-				addressVo.setCity(city.getName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-				queryWrapper_province.eq("area_code", city.getParentCode());
-				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
-				addressVo.setProvince(province.getName());
-			}else if (township.getLevel() == 2){
-				addressVo.setCounty("");
-				addressVo.setTownship("");
-				addressVo.setCity(township.getShortName());
-				QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-				queryWrapper_province.eq("area_code", township.getParentCode());
-				AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
-				addressVo.setProvince(province.getName());
-			}else if (township.getLevel() == 1){
-				addressVo.setCity("");
-				addressVo.setTownship("");
-				addressVo.setCounty("");
-				addressVo.setProvince(township.getShortName());
-			}
+			AddressVo addressVo=getAddress(address);
 			// 如果地址VO的ID与用户的默认地址ID相等，则设置该地址为默认地址
 	        addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
 			addressVos.add(addressVo);
@@ -137,24 +95,74 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	}
 
 	/**
+	 * 将Address实体转换为AddressVo对象，并设置省市县信息
+	 *
+	 * @param address Address实体对象，包含地址信息
+	 * @return AddressVo对象，包含地址信息和省市县信息
+	 */
+	public AddressVo getAddress(Address address) {
+		AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
+		QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
+		queryWrapper_township.eq("area_code", address.getAreaCode());
+		AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
+		if (township.getLevel() == 4){
+			addressVo.setTownship(township.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
+			queryWrapper_county.eq("area_code", township.getParentCode());
+			AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+			addressVo.setCounty(county.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+			queryWrapper_city.eq("area_code", county.getParentCode());
+			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+			addressVo.setCity(city.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+			queryWrapper_province.eq("area_code", city.getParentCode());
+			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			addressVo.setProvince(province.getName());
+		}else if (township.getLevel() == 3){
+			addressVo.setTownship("");
+			addressVo.setCounty(township.getShortName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
+			queryWrapper_city.eq("area_code", township.getParentCode());
+			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+			addressVo.setCity(city.getName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+			queryWrapper_province.eq("area_code", city.getParentCode());
+			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			addressVo.setProvince(province.getName());
+		}else if (township.getLevel() == 2){
+			addressVo.setCounty("");
+			addressVo.setTownship("");
+			addressVo.setCity(township.getShortName());
+			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
+			queryWrapper_province.eq("area_code", township.getParentCode());
+			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			addressVo.setProvince(province.getName());
+		}else if (township.getLevel() == 1){
+			addressVo.setCity("");
+			addressVo.setTownship("");
+			addressVo.setCounty("");
+			addressVo.setProvince(township.getShortName());
+		}
+		return addressVo;
+	}
+
+	/**
 	 * 根据用户ID获取地址数量
 	 *
 	 * @param userId 用户ID，用于查询该用户下的地址数量
 	 * @return 返回该用户地址的数量
 	 */
 	@Override
-	public Integer getAddressNum(Integer userId) {
+	public Long getAddressNum(Integer userId) {
 	    // 创建查询构造器，用于后续的查询条件组装
 	    QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
 
 	    // 设置查询条件，查找用户ID与参数中用户ID匹配的地址
 	    queryWrapper_address.eq("user_id", userId);
 
-	    // 执行查询，获取符合条件的所有地址
-	    List<Address> addresses = addressMapper.selectList(queryWrapper_address);
-
-	    // 返回地址的数量
-	    return addresses.size();
+        //执行查询，获取符合条件的地址数量
+        return addressMapper.selectCount(queryWrapper_address);
 	}
 
 	/**
@@ -254,43 +262,6 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	        // 返回删除状态
 	        return addressMapper.deleteById(id) > 0;
 	    }
-	}
-
-	/**
-	 * 根据用户ID和地址ID获取地址信息，并判断该地址是否为用户的默认地址。
-	 *
-	 * @param id 地址ID
-	 * @param userId 用户ID
-	 * @return 包含默认地址标记的地址信息对象(AddressVo)
-	 */
-	@Override
-	public AddressVo getAddressById(Integer id, Integer userId) {
-	    // 根据地址ID获取地址信息。
-	    Address address = addressMapper.selectById(id);
-
-	    // 检查获取的地址是否属于当前用户，如果不是，则返回null。
-	    if (!address.getUserId().equals(userId)) {
-	        return null;
-	    }
-
-	    // 将地址信息(Address)转换为AddressVo对象。
-	    AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
-
-	    // 创建查询条件，用于查找用户信息。
-	    QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
-	    queryWrapper_use.eq("id", userId);
-
-	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper_use);
-
-	    // 获取用户的默认地址ID。
-	    Integer defaultAddressId = user.getDefaultAddressId();
-
-	    // 判断当前地址是否为用户的默认地址，并设置AddressVo对象的默认标志。
-	    addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
-
-	    // 返回包含默认地址标记的地址信息对象。
-	    return addressVo;
 	}
 
 	@Override

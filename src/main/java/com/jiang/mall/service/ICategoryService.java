@@ -1,7 +1,6 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 
@@ -23,7 +22,7 @@ public interface ICategoryService extends IService<Category> {
 
     boolean updateCategory(Category category);
 
-    Integer getCategoryNum();
+    Long getCategoryNum();
 
     boolean deleteCategory(Category category);
 }

@@ -158,8 +158,7 @@ public class CollectionController {
             return result;
         }
         Integer userId = (Integer) result.getData();
-		Integer num = collectionService.getCollectionNum(userId);
-		return ResponseResult.okResult(num);
+		return ResponseResult.okResult(collectionService.getCollectionNum(userId));
 	}
 
 	@GetMapping("/isCollected")

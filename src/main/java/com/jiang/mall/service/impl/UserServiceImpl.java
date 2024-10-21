@@ -72,11 +72,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 用户数量
 	 */
 	@Override
-	public Integer getUserNum() {
+	public Long getUserNum() {
 	    // 通过userMapper查询所有用户，null参数表示不使用任何条件
-	    List<User> userList = userMapper.selectList(null);
-	    // 返回用户列表的大小，即用户数量
-	    return userList.size();
+	    return userMapper.selectCount(null);
 	}
 
 
@@ -391,11 +389,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 更新数据库中的用户信息
 	        int result = userMapper.updateById(user);
 	        // 检查更新是否成功，并返回结果
-	        return result > 0;
+	        return result <= 0;
 	    } else {
 	        // 记录日志，提示尝试锁定不存在的用
 	        logger.info("尝试锁定不存在的用户，ID: {}", userId);
-	        return false;
+	        return true;
 	    }
 	}
 

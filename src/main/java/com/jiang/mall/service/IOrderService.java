@@ -22,11 +22,11 @@ public interface IOrderService extends IService<Order> {
 
 	List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize);
 
-	Integer getOrderNum(Integer userId);
+	Long getOrderNum(Integer userId);
 
 	List<OrderAllVo> getOrderList(Integer pageNum, Integer pageSize);
 
-	Integer getAllOrderNum();
+	Long getAllOrderNum();
 
 	String getAmount();
 }
