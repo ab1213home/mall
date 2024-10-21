@@ -15,17 +15,17 @@ public class OrderListVo {
     /**
      * 订单项ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 订单ID
      */
-    private Integer orderId;
+    private Long orderId;
 
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
     /**
      * 商品数量

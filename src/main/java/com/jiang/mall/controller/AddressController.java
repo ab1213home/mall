@@ -76,7 +76,7 @@ public class AddressController {
 		    return result;
 		}
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
-        List<AddressVo> address_List = addressService.getAddressList((Integer) result.getData(), pageNum, pageSize);
+        List<AddressVo> address_List = addressService.getAddressList((Long) result.getData(), pageNum, pageSize);
         // 如果获取的地址列表为空，则返回失败结果
         if (address_List==null) {
 	        return ResponseResult.failResult("获取失败");
@@ -104,7 +104,7 @@ public class AddressController {
 		    return result;
 		}
 	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
-	    return ResponseResult.okResult(addressService.getAddressNum((Integer) result.getData()));
+	    return ResponseResult.okResult(addressService.getAddressNum((Long) result.getData()));
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class AddressController {
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 		if (firstName==null||lastName==null||addressDetail==null||postalCode==null||phone==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -191,7 +191,7 @@ public class AddressController {
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
-	public ResponseResult updateAddress(@RequestParam("id") Integer id,
+	public ResponseResult updateAddress(@RequestParam("id") Long id,
 	                                    @RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
 	                                    @RequestParam("phone") String phone,
@@ -206,7 +206,7 @@ public class AddressController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 		if (id==null||id<=0||firstName==null||lastName==null||phone==null||areaCode==null||addressDetail==null||postalCode==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -254,7 +254,7 @@ public class AddressController {
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
-	public ResponseResult deleteAddress(@RequestParam("id") Integer id,
+	public ResponseResult deleteAddress(@RequestParam("id") Long id,
 	                                    HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkUserLogin(session);
@@ -268,7 +268,7 @@ public class AddressController {
 		if (!StringUtils.hasText(id.toString())){
 			return ResponseResult.failResult("地址ID不能为空");
 		}
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 	    // 通过ID获取地址信息
 	    Address address = addressService.getById(id);
 	    // 检查当前用户是否有权删除该地址

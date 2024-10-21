@@ -61,7 +61,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 用户地址列表
 	 */
 	@Override
-	public List<AddressVo> getAddressList(Integer userId, Integer pageNum, Integer pageSize) {
+	public List<AddressVo> getAddressList(Long userId, Integer pageNum, Integer pageSize) {
 	    // 创建分页对象，指定当前页码和页面大小
 	    Page<Address> addressPage = new Page<>(pageNum, pageSize);
 	    // 创建查询构造器
@@ -81,7 +81,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 根据查询条件尝试获取用户信息
 	    User user = userMapper.selectOne(queryWrapper_use);
 	    // 获取用户的默认地址ID
-	    Integer defaultAddressId = user.getDefaultAddressId();
+	    Long defaultAddressId = user.getDefaultAddressId();
 
 		for (Address address : addresses) {
 			// 将地址实体转换为地址VO，并添加到地址VO列表中
@@ -154,7 +154,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 返回该用户地址的数量
 	 */
 	@Override
-	public Long getAddressNum(Integer userId) {
+	public Long getAddressNum(Long userId) {
 	    // 创建查询构造器，用于后续的查询条件组装
 	    QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
 
@@ -189,7 +189,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    queryWrapper_use.eq("is_active", true);
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectOne(queryWrapper_use);
-	    Integer defaultAddressId = user.getDefaultAddressId();
+	    Long defaultAddressId = user.getDefaultAddressId();
 
 		if (result && !isDefault) {
 			if (defaultAddressId == null||defaultAddressId.equals(address.getId())) {
@@ -206,7 +206,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 						}
 					}
 				} else {
-					user.setDefaultAddressId(-1);
+					user.setDefaultAddressId(0L);
 					userMapper.update(user, queryWrapper_use);
 				}
 			}
@@ -230,13 +230,13 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 如果地址删除成功，则返回true；否则返回false。
 	 */
 	@Override
-	public boolean deleteAddress(Integer id, Integer userId) {
+	public boolean deleteAddress(Long id, Long userId) {
 	    QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
 	    queryWrapper_use.eq("id", userId);
 	    queryWrapper_use.eq("is_active", true);
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectOne(queryWrapper_use);
-	    Integer defaultAddressId = user.getDefaultAddressId();
+	    Long defaultAddressId = user.getDefaultAddressId();
 
 		if (defaultAddressId == null||defaultAddressId.equals(id)){
 	        QueryWrapper<Address> queryWrapper_address = new QueryWrapper<>();
@@ -252,7 +252,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	                }
 	            }
 	        } else {
-	            user.setDefaultAddressId(-1);
+	            user.setDefaultAddressId(0L);
 	            userMapper.update(user, queryWrapper_use);
 	        }
 

@@ -8,9 +8,9 @@ public interface IVerificationCodeService extends IService<VerificationCode> {
 
 	boolean queryByEmail(String email);
 
-	boolean checkingByUserId(Integer id);
+	boolean checkingByUserId(Long id);
 
 	VerificationCode queryCodeByEmail(String email);
 
-	boolean useCode(int userId, VerificationCode verificationCode);
+	boolean useCode(Long userId, VerificationCode verificationCode);
 }

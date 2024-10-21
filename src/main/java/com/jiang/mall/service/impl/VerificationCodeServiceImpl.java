@@ -110,7 +110,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果存在有效的用户代码，则返回true；否则返回false
 	 */
 	@Override
-	public boolean checkingByUserId(Integer id) {
+	public boolean checkingByUserId(Long id) {
 	    // 当前时间
 	    Date now = new Date();
 	    // 计算expiration_time前的时间
@@ -184,7 +184,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果更新成功则返回true，否则返回false
 	 */
 	@Override
-	public boolean useCode(int userId, VerificationCode verificationCode) {
+	public boolean useCode(Long userId, VerificationCode verificationCode) {
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
 	    verificationCode.setUserId(userId);
 	    // 将验证码状态更改为“已使用”

@@ -18,7 +18,7 @@ public class OrderVo {
     /**
      * 订单ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 收货地址信息

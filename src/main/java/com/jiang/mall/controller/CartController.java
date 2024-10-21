@@ -68,7 +68,7 @@ public class CartController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 		List<CartVo> cartList = cartService.getCartList(userId, pageNum, pageSize);
         return ResponseResult.okResult(cartList);
     }
@@ -88,7 +88,7 @@ public class CartController {
             return result;
         }
         // 获取已登录用户的ID
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
         // 调用服务方法获取购物车商品数量，并返回结果
         return ResponseResult.okResult(cartService.getCartNum(userId));
     }
@@ -102,7 +102,7 @@ public class CartController {
      * @return 添加结果
      */
     @PostMapping("/add")
-    public ResponseResult addCart(@RequestParam("productId") Integer productId,
+    public ResponseResult addCart(@RequestParam("productId") Long productId,
                                   @RequestParam("num") Integer num,
                                   HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
@@ -111,7 +111,7 @@ public class CartController {
             // 如果未登录，则直接返回
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         if (productId == null|| num == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
@@ -143,7 +143,7 @@ public class CartController {
      * @return 更新操作的结果，包括是否成功、失败或用户未登录的情况
      */
     @PostMapping("/update")
-    public ResponseResult updateCart(@RequestParam("id") Integer id,
+    public ResponseResult updateCart(@RequestParam("id") Long id,
                                      @RequestParam("num") Integer num,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
@@ -153,7 +153,7 @@ public class CartController {
             return result;
         }
         // 获取已登录用户的ID
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         if (id == null|| num == null||id <= 0){
             return ResponseResult.failResult("参数错误");
@@ -191,7 +191,7 @@ public class CartController {
      * @return 删除操作的结果响应
      */
     @GetMapping("/delete")
-    public ResponseResult deleteCart(@RequestParam("id") Integer id,
+    public ResponseResult deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkUserLogin(session);
@@ -200,7 +200,7 @@ public class CartController {
             return result;
         }
         // 获取已登录用户的ID
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         if (id == null||id <= 0){
             return ResponseResult.failResult("参数错误");

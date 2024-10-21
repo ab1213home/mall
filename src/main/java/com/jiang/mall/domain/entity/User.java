@@ -33,7 +33,7 @@ public class User implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 用户名
@@ -78,7 +78,7 @@ public class User implements Serializable {
     /**
      * 默认地址ID
      */
-    private Integer defaultAddressId;
+    private Long defaultAddressId;
 
     /**
      * 创建时间，自动填充
@@ -91,7 +91,7 @@ public class User implements Serializable {
      * 更新人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Integer updater;
+    private Long updater;
 
     /**
      * 更新时间，自动填充
@@ -116,7 +116,7 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public User(int userId, String firstName, String lastName, String phone) {
+    public User(Long userId, String firstName, String lastName, String phone) {
         this.id = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -127,7 +127,7 @@ public class User implements Serializable {
 
     }
 
-    public User(Integer userId, String firstName, String lastName, String phone, String img) {
+    public User(Long userId, String firstName, String lastName, String phone, String img) {
         this.id = userId;
         this.firstName = firstName;
         this.lastName = lastName;

@@ -80,7 +80,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public Integer insertOrder(Integer userId, Integer addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo) {
+	public Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo) {
 		Order order = new Order();
 		order.setUserId(userId);
 		order.setAddressId(addressId);
@@ -109,7 +109,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize) {
+	public List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize) {
 		Page<Order> orderPage = new Page<>(pageNum, pageSize);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
 		queryWrapper_order.eq("user_id", userId);
@@ -120,7 +120,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    queryWrapper_use.eq("is_active", true);
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectOne(queryWrapper_use);
-		Integer defaultAddressId = user.getDefaultAddressId();
+		Long defaultAddressId = user.getDefaultAddressId();
 		for (Order order_item : orderList) {
 			OrderVo orderVo = BeanCopyUtils.copyBean(order_item, OrderVo.class);
 			Address address = addressMapper.selectById(order_item.getAddressId());
@@ -153,7 +153,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 * @return 用户的订单数量
 	 */
 	@Override
-	public Long getOrderNum(Integer userId) {
+	public Long getOrderNum(Long userId) {
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
 	    queryWrapper_order.eq("user_id", userId);
 	    // 通过用户ID查询该用户的所有订单

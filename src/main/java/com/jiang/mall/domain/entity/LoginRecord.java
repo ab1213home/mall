@@ -17,7 +17,7 @@ public class LoginRecord implements Serializable {
 	 * 主键
 	 */
 	@TableId(value = "id", type = IdType.AUTO)
-	private Integer id;
+	private Long id;
 
 	/**
 	 * 用户名
@@ -27,7 +27,7 @@ public class LoginRecord implements Serializable {
 	/**
 	 * 用户id
 	 */
-	private Integer userId;
+	private Long userId;
 
 	/**
 	 * ip地址
@@ -50,7 +50,7 @@ public class LoginRecord implements Serializable {
 	public LoginRecord() {
 	}
 
-	public LoginRecord(Integer userId,String username, String ip, byte state) {
+	public LoginRecord(Long userId,String username, String ip, byte state) {
 		this.userId = userId;
 		this.ip = ip;
 		this.state = state;

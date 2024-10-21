@@ -129,7 +129,7 @@ public class BannerController {
      * @return 更新结果或错误信息
      */
     @PostMapping("/update")
-    public ResponseResult updateBanner(@RequestParam("id") Integer id,
+    public ResponseResult updateBanner(@RequestParam("id") Long id,
                                        @RequestParam("img") String img,
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,

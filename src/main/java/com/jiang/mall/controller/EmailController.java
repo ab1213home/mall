@@ -169,7 +169,7 @@ public class EmailController {
             // 如果未登录，则直接返回
             return result;
         }
-        if (verificationCodeService.checkingByUserId((Integer)result.getData())){
+        if (verificationCodeService.checkingByUserId((Long)result.getData())){
             return ResponseResult.okResult("在"+expiration_time+"分钟内已经验证通过");
         }
         return ResponseResult.failResult("验证码已过期，请重新获取");
@@ -268,7 +268,7 @@ public class EmailController {
             // 如果未登录，则直接返回
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         if (password==null||captcha==null||email==null){
             return ResponseResult.failResult("非法请求");
@@ -425,7 +425,7 @@ public class EmailController {
         // 发送验证码邮件
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             // 邮件发送成功，保存验证码信息
-            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Integer)result.getData());
+            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Long)result.getData());
             if (verificationCodeService.save(userVerificationCode)){
                 return ResponseResult.okResult();
             }else {
@@ -433,7 +433,7 @@ public class EmailController {
             }
         }else {
             // 邮件发送失败，记录失败信息
-            VerificationCode userVerificationCode = new VerificationCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Integer)result.getData());
+            VerificationCode userVerificationCode = new VerificationCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Long)result.getData());
             verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

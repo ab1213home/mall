@@ -44,7 +44,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
-    public List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize) {
+    public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize) {
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId);
         List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
@@ -95,7 +95,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 操作是否成功
      */
     @Override
-    public boolean addCart(Integer productId, Integer num, Integer userId) {
+    public boolean addCart(Long productId, Integer num, Long userId) {
         // 根据商品ID和用户ID查询购物车记录
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("prod_id", productId);
@@ -123,7 +123,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 购物车中的商品数量
      */
     @Override
-    public Long getCartNum(Integer userId) {
+    public Long getCartNum(Long userId) {
         // 创建查询包装器，用于查询条件的设置
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
 
@@ -144,7 +144,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 返回购物车项的视图列表，如果列表为空或不属于该用户，则返回null
      */
     @Override
-    public List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize, List<Integer> listCartId) {
+    public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize, List<Long> listCartId) {
         // 创建分页对象，指定页码和页面大小
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         // 创建查询构造器，条件是购物车项ID
@@ -186,7 +186,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 如果成功更新购物车则返回true，否则返回false
      */
     @Override
-    public boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<CheckoutVo> listCheckoutVo) {
+    public boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo) {
         // 根据购物车商品ID列表查询购物车商品信息
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
@@ -232,7 +232,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 删除操作是否成功
      */
     @Override
-    public boolean deleteCart(Integer id, Integer userId) {
+    public boolean deleteCart(Long id, Long userId) {
         // 创建查询包装器，用于查询条件的设置
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
 

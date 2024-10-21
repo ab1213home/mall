@@ -15,7 +15,7 @@ public class CheckoutVo {
     /**
      * 结算项ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 商品图片地址
@@ -40,7 +40,7 @@ public class CheckoutVo {
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
     /**
      * 商品名称
@@ -50,6 +50,6 @@ public class CheckoutVo {
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 }
 

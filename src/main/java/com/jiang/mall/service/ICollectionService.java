@@ -8,17 +8,17 @@ import java.util.List;
 
 public interface ICollectionService extends IService<Collection> {
 
-	boolean addCollection(Integer productId, Integer userId);
+	boolean addCollection(Long productId, Long userId);
 
-	Collection queryByProductIdByUserId(Integer productId, Integer userId);
+	Collection queryByProductIdByUserId(Long productId, Long userId);
 
-	boolean deleteCollection(Integer productId, Integer userId);
+	boolean deleteCollection(Long productId, Long userId);
 
-	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId);
+	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Long userId);
 
-	Long getCollectionNum(Integer userId);
+	Long getCollectionNum(Long userId);
 
-	boolean isCollect(Integer productId, Integer userId);
+	boolean isCollect(Long productId, Long userId);
 
-	boolean deleteById(Integer id);
+	boolean deleteById(Long id);
 }

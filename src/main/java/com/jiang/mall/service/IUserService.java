@@ -22,25 +22,25 @@ public interface IUserService extends IService<User> {
 
     boolean modifyPassword(Integer userId, String oldPassword, String newPassword);
 
-    User getUserInfo(Integer userId);
+    User getUserInfo(Long userId);
 
     boolean modifyUserInfo(User newUser);
 
-    boolean lockUser(Integer userId);
+    boolean lockUser(Long userId);
 
     boolean queryByUserName(String userName);
 
     boolean queryByEmail(String email);
 
-    int registerStep(User user);
+    Long registerStep(User user);
 
     List<UserVo> getUserList(Integer pageNum, Integer pageSize, Integer userId);
 
     boolean updateUser(User user);
 
-	boolean unlockUser(Integer userId);
+	boolean unlockUser(Long userId);
 
-    ResponseResult hasPermission(Integer oldUserId, HttpSession session);
+    ResponseResult hasPermission(Long oldUserId, HttpSession session);
 
     ResponseResult checkAdminUser(HttpSession session);
 
@@ -50,5 +50,5 @@ public interface IUserService extends IService<User> {
 
 	User getUserByUserNameOrEmail(String username);
 
-    boolean modifyPassword(Integer userId, String newPassword);
+    boolean modifyPassword(Long userId, String newPassword);
 }

@@ -34,12 +34,12 @@ public class VerificationCode implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
 	/**
      * 用户ID
      */
-	private Integer userId;
+	private Long userId;
 
     /**
      * 用户名
@@ -81,7 +81,7 @@ public class VerificationCode implements Serializable {
 	public VerificationCode() {
 	}
 
-	public VerificationCode(String username, String email, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus, Integer userId) {
+	public VerificationCode(String username, String email, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus, Long userId) {
 		this.username = username;
 		this.email = email;
 		this.code = code;

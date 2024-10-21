@@ -32,7 +32,7 @@ public class Category implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 编码，需唯一
@@ -48,13 +48,13 @@ public class Category implements Serializable {
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private Integer creator;
+    private Long creator;
 
     /**
      * 更新人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Integer updater;
+    private Long updater;
 
     /**
      * 创建时间
@@ -81,7 +81,7 @@ public class Category implements Serializable {
         this.name = name;
     }
 
-    public Category(Integer id, String code, String name) {
+    public Category(Long id, String code, String name) {
         this.id = id;
         this.code = code;
         this.name = name;

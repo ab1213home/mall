@@ -33,17 +33,17 @@ public class Order implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 地址ID
      */
-    private Integer addressId;
+    private Long addressId;
 
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 下单日期

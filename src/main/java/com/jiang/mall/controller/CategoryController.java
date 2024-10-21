@@ -76,8 +76,7 @@ public class CategoryController {
      */
     @GetMapping("/getNum")
     public ResponseResult getCategoryNum() {
-        Integer num = categoryService.getCategoryNum();
-        return ResponseResult.okResult(num);
+        return ResponseResult.okResult(categoryService.getCategoryNum());
     }
 
     /**
@@ -129,7 +128,7 @@ public class CategoryController {
      * @return 返回操作结果
      */
     @PostMapping("/update")
-    public ResponseResult updateCategory(@RequestParam("id") Integer id,
+    public ResponseResult updateCategory(@RequestParam("id") Long id,
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
                                          HttpSession session) {

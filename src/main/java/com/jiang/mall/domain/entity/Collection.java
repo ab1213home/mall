@@ -31,18 +31,18 @@ public class Collection {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
 
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
 	/**
      * 创建时间，自动填充
@@ -57,7 +57,7 @@ public class Collection {
 	public Collection() {
 	}
 
-	public Collection(Integer productId, Integer userId) {
+	public Collection(Long productId, Long userId) {
 		this.prodId = productId;
 		this.userId = userId;
 	}

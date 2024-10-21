@@ -109,7 +109,7 @@ public class OrderController {
 	        return result;
 	    }
 	    // 用于存储已选商品的购物车ID
-	    List<Integer> list_cartId = new ArrayList<>();
+	    List<Long> list_cartId = new ArrayList<>();
 	    for (CheckoutVo checkoutVo : list_checkoutVo) {
 	        // 检查商品是否被选中
 	        if (checkoutVo.isIschecked()){
@@ -154,9 +154,9 @@ public class OrderController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 	    // 检查 session.getAttribute("list_cartId") 是否为 null
-	    List<Integer> list_cartId;
+	    List<Long> list_cartId;
 	    Object listObj = session.getAttribute("List_cartId");
 
 	    if (listObj == null) {
@@ -164,8 +164,8 @@ public class OrderController {
 	    } else if (listObj instanceof List<?> tempList) {
 	        list_cartId = new ArrayList<>();
 	        for (Object obj : tempList) {
-	            if (obj instanceof Integer) {
-	                list_cartId.add((Integer) obj);
+	            if (obj instanceof Long) {
+	                list_cartId.add((Long) obj);
 	            }
 	        }
 	    } else {
@@ -230,7 +230,7 @@ public class OrderController {
 	 * @return ResponseResult 包含操作结果和订单ID的响应对象
 	 */
 	@PostMapping("/insert")
-	public ResponseResult insertOrder(@RequestParam("addressId") Integer addressId,
+	public ResponseResult insertOrder(@RequestParam("addressId") Long addressId,
 									  @RequestParam("paymentMethod") byte paymentMethod,
 									  @RequestParam("status") byte status,
 									  @RequestBody List<CheckoutVo> list_checkoutVo,
@@ -247,7 +247,7 @@ public class OrderController {
 		if (!StringUtils.hasText(addressId.toString())){
 			return ResponseResult.failResult("请输入地址ID");
 		}
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 	    // 根据地址ID获取地址信息，以验证地址是否属于当前用户
 	    Address address = addressService.getById(addressId);
 	    if (!address.getUserId().equals(userId)) {
@@ -257,9 +257,9 @@ public class OrderController {
 			return ResponseResult.failResult("请先选择商品");
 		}
 	    // 调用服务层方法插入新订单
-	    Integer orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, list_checkoutVo);
+	    Long orderId = orderService.insertOrder(userId, addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
-	    List<Integer> list_cartId;
+	    List<Long> list_cartId;
 	    Object listObj = session.getAttribute("List_cartId");
 
 	    if (listObj == null) {
@@ -267,8 +267,8 @@ public class OrderController {
 	    } else if (listObj instanceof List<?> tempList) {
 	        list_cartId = new ArrayList<>();
 	        for (Object obj : tempList) {
-	            if (obj instanceof Integer) {
-	                list_cartId.add((Integer) obj);
+	            if (obj instanceof Long) {
+	                list_cartId.add((Long) obj);
 	            }
 	        }
 	    } else {
@@ -305,7 +305,7 @@ public class OrderController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 	    // 调用服务方法，根据用户ID获取订单列表
 	    List<OrderVo> orderList = orderService.getOrderList(userId, pageNum, pageSize);
 	    if (orderList == null) {
@@ -328,7 +328,7 @@ public class OrderController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Integer userId = (Integer) result.getData();
+	    Long userId = (Long) result.getData();
 		return ResponseResult.okResult(orderService.getOrderNum(userId));
 	}
 

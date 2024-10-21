@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface ICartService extends IService<Cart> {
 
-    List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize);
+    List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize);
 
 	ResponseResult insertOrUpdate(Cart cart);
 
@@ -32,7 +32,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param userId 用户ID，标识商品将被添加到哪个用户的购物车中
 	 * @return 如果添加成功，返回true；否则返回false
 	 */
-	boolean addCart(Integer productId, Integer num, Integer userId);
+	boolean addCart(Long productId, Integer num, Long userId);
 
 	/**
 	 * 根据用户ID获取购物车数量
@@ -40,7 +40,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param userId 用户ID，用于标识特定用户
 	 * @return 返回用户的购物车数量如果用户不存在或发生错误，可能返回null
 	 */
-	Long getCartNum(Integer userId);
+	Long getCartNum(Long userId);
 
 	/**
 	 * 根据用户ID、页码、页面大小和购物车项ID列表获取购物车项列表
@@ -54,7 +54,7 @@ public interface ICartService extends IService<Cart> {
 	 * 该方法的主要作用是根据用户的请求，从数据库中查询特定的购物车项，并返回给前端展示
 	 * 通过分页和特定ID筛选，可以有效提高查询效率和减少数据库压力
 	 */
-	List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize, List<Integer> listCartId);
+	List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize, List<Long> listCartId);
 
 	/**
 	 * 根据订单删除购物车记录
@@ -67,7 +67,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
 	 * @return 返回一个布尔值，表示删除操作是否成功
 	 */
-	boolean deleteCartByOrder(List<Integer> listCartId, Integer userId, List<CheckoutVo> listCheckoutVo);
+	boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo);
 
-	boolean deleteCart(Integer id, Integer userId);
+	boolean deleteCart(Long id, Long userId);
 }

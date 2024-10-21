@@ -18,7 +18,7 @@ public class UserVo {
     /**
      * 用户ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 用户名
@@ -59,7 +59,7 @@ public class UserVo {
     /**
      * 默认地址ID
      */
-    private Integer defaultAddressId;
+    private Long defaultAddressId;
 
     /**
      * 是否激活
@@ -88,7 +88,7 @@ public class UserVo {
      * @param userId   用户ID
      * @param username 用户名
      */
-    public UserVo(Integer userId, String username) {
+    public UserVo(Long userId, String username) {
         this.id = userId;
         this.username = username;
     }
@@ -99,7 +99,7 @@ public class UserVo {
     public UserVo() {
     }
 
-    public UserVo(Integer userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Integer defaultAddressId, Integer roleId, boolean isAdmin, Integer daysUntilNextBirthday) {
+    public UserVo(Long userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Long defaultAddressId, Integer roleId, boolean isAdmin, Integer daysUntilNextBirthday) {
         this.id = userId;
         this.username = username;
         this.email = email;
@@ -113,7 +113,7 @@ public class UserVo {
         this.nextBirthday = daysUntilNextBirthday;
     }
 
-    public UserVo(Integer userId, String username, String email, boolean isAdmin,Integer roleId) {
+    public UserVo(Long userId, String username, String email, boolean isAdmin,Integer roleId) {
         this.id = userId;
         this.username = username;
         this.email = email;

@@ -15,12 +15,12 @@ public class CartVo {
     /**
      * 购物车项ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
     /**
      * 商品名称
@@ -35,7 +35,7 @@ public class CartVo {
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 商品单价

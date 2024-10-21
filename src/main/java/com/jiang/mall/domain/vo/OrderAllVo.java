@@ -18,7 +18,7 @@ public class OrderAllVo {
 	/**
      * 订单ID
      */
-    private Integer id;
+    private Long id;
 
 	private UserVo user;
 

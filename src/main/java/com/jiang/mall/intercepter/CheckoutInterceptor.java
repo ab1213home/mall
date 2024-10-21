@@ -29,15 +29,15 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	    Object listObj = request.getSession().getAttribute("List_cartId");
 
 	    // 定义用于存储商品 ID 的列表
-	    List<Integer> prodIds;
+	    List<Long> prodIds;
 
 	    if (listObj == null) {
 	        prodIds = new ArrayList<>();
 	    } else if (listObj instanceof List<?> tempList) {
 	        prodIds = new ArrayList<>();
 	        for (Object obj : tempList) {
-	            if (obj instanceof Integer) {
-	                prodIds.add((Integer) obj);
+	            if (obj instanceof Long) {
+	                prodIds.add((Long) obj);
 	            }
 	        }
 	    } else {

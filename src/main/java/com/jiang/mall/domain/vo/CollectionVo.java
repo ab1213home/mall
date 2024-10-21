@@ -2,14 +2,12 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 public class CollectionVo {
 
 
-	private Integer id;
+	private Long id;
 
     /**
      * 商品
@@ -20,7 +18,7 @@ public class CollectionVo {
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
 	/**
 	 * 创建时间

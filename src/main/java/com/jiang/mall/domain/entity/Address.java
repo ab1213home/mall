@@ -32,12 +32,12 @@ public class Address implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 收件人名 - 名字
@@ -113,7 +113,7 @@ public class Address implements Serializable {
      * @param addressDetail 详细地址，包括街道、门牌号等具体信息
      * @param postalCode 邮政编码，与地址相关联的邮政编码信息
      */
-    public Address(Integer userId, String firstName, String lastName, String phone, String country,Long areaCode, String addressDetail, String postalCode) {
+    public Address(Long userId, String firstName, String lastName, String phone, String country,Long areaCode, String addressDetail, String postalCode) {
         this.userId=userId;
         this.firstName=firstName;
         this.lastName = lastName;

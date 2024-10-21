@@ -18,11 +18,11 @@ import java.util.List;
  */
 public interface IOrderService extends IService<Order> {
 
-	Integer insertOrder(Integer userId, Integer addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
+	Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
 
-	List<OrderVo> getOrderList(Integer userId, Integer pageNum, Integer pageSize);
+	List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize);
 
-	Long getOrderNum(Integer userId);
+	Long getOrderNum(Long userId);
 
 	List<OrderAllVo> getOrderList(Integer pageNum, Integer pageSize);
 

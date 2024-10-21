@@ -16,17 +16,17 @@ import java.util.List;
  */
 public interface IProductService extends IService<Product> {
 
-    List<ProductVo> getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize);
+    List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize);
 
-    ProductVo getProduct(Integer id);
+    ProductVo getProduct(Long id);
 
     boolean insertProduct(Product banner);
 
     boolean updateProduct(Product banner);
 
-    boolean deleteProduct(Integer id);
+    boolean deleteProduct(Long id);
 
-    Integer queryStoksById(Integer productId);
+    Integer queryStoksById(Long productId);
 
     boolean queryCode(String code);
 

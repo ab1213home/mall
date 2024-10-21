@@ -15,7 +15,7 @@ public class BannerVo {
     /**
      * 轮播图ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 轮播图图片地址

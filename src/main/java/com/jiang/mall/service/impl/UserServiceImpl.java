@@ -112,7 +112,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session  当前用户的会话
 	 * @return  包含权限检查结果的响应对象，如果用户无权修改，则返回相应的错误信息
 	 */
-	public ResponseResult hasPermission(Integer oldUserId, HttpSession session){
+	public ResponseResult hasPermission(Long oldUserId, HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
 	    ResponseResult result = checkAdminUser(session);
 	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
@@ -261,7 +261,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public boolean modifyPassword(Integer userId, String newPassword) {
+	public boolean modifyPassword(Long userId, String newPassword) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);
@@ -321,7 +321,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 返回查询到的用户信息对象，如果未找到则返回null
 	 */
 	@Override
-	public User getUserInfo(Integer userId) {
+	public User getUserInfo(Long userId) {
 	    return userMapper.selectById(userId);
 	}
 
@@ -373,7 +373,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户成功被锁定，返回true；如果用户不存在或锁定失败，返回false。
 	 */
     @Override
-    public boolean lockUser(Integer userId) {
+    public boolean lockUser(Long userId) {
 	    // 创建查询条件，指定用户ID和当前为激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id", userId);
@@ -448,7 +448,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 注册/更新成功返回用户ID，否则返回0
 	 */
 	@Override
-	public int registerStep(User user) {
+	public Long registerStep(User user) {
 	    // 检查用户信息是否完整
 	    if(user.getUsername()!=null && user.getPassword()!=null && user.getEmail()!=null){
 	        // 设置用户账户为激活状态
@@ -538,7 +538,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户成功被解锁，返回true；如果用户不存在或解锁失败，返回false。
 	 */
 	@Override
-	public boolean unlockUser(Integer userId) {
+	public boolean unlockUser(Long userId) {
 	    // 创建查询条件对象
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件：用户ID等于userId且用户当前是锁定状态（is_active为false）

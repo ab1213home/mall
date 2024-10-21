@@ -15,7 +15,7 @@ public class AddressVo {
     /**
      * 地址ID
      */
-    private Integer id;
+    private Long id;
 
 
     /**

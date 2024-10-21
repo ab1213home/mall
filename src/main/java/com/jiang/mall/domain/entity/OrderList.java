@@ -32,17 +32,17 @@ public class OrderList implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 订单ID
      */
-    private Integer orderId;
+    private Long orderId;
 
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
     /**
      * 商品数量

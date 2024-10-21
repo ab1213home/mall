@@ -15,7 +15,7 @@ public class CategoryVo {
     /**
      * 分类ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 分类编码

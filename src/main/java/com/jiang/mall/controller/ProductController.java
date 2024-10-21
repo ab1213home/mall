@@ -67,7 +67,7 @@ public class ProductController {
      */
     @GetMapping("/getList")
     public ResponseResult getProductList(@RequestParam(required = false) String name,
-                                         @RequestParam(required = false) Integer categoryId,
+                                         @RequestParam(required = false) Long categoryId,
                                          @RequestParam(defaultValue = "1") Integer pageNum,
                                          @RequestParam(defaultValue = "5") Integer pageSize) {
         List<ProductVo> list = productService.getProductList(name, categoryId, pageNum, pageSize);
@@ -84,7 +84,7 @@ public class ProductController {
      * @return 返回产品信息或者错误信息
      */
     @GetMapping("/getInfo")
-    public ResponseResult getProductInfo(@RequestParam("productId") Integer productId) {
+    public ResponseResult getProductInfo(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -180,7 +180,7 @@ public class ProductController {
      * @return              返回操作结果的响应对象
      */
     @PostMapping("/update")
-    public ResponseResult updateProduct(@RequestParam("id") Integer id,
+    public ResponseResult updateProduct(@RequestParam("id") Long id,
                                         @RequestParam("code") String code,
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Integer categoryId,
@@ -246,7 +246,7 @@ public class ProductController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    public ResponseResult deleteProduct(@RequestParam("id") Integer id,
+    public ResponseResult deleteProduct(@RequestParam("id") Long id,
                                        HttpSession session) {
         if (id==null||id<=0){
             return ResponseResult.failResult("参数错误");

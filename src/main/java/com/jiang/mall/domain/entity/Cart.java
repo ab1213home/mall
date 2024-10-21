@@ -32,12 +32,12 @@ public class Cart implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 商品ID
      */
-    private Integer prodId;
+    private Long prodId;
 
     /**
      * 商品数量
@@ -47,7 +47,7 @@ public class Cart implements Serializable {
     /**
      * 用户ID
      */
-    private Integer userId;
+    private Long userId;
 
     /**
      * 构造方法：创建一个购物车对象
@@ -58,7 +58,7 @@ public class Cart implements Serializable {
      * @param num 产品数量，表示用户希望购买的产品数量
      * @param userId 用户ID，标识拥有该购物车的用户
      */
-    public Cart(Integer id, Integer prodId, Integer num, Integer userId) {
+    public Cart(Long id, Long prodId, Integer num, Long userId) {
         this.id = id;
         this.prodId = prodId;
         this.num = num;
@@ -68,7 +68,7 @@ public class Cart implements Serializable {
     public Cart() {
     }
 
-    public Cart(Integer productId, Integer num, Integer userId) {
+    public Cart(Long productId, Integer num, Long userId) {
         prodId = productId;
         this.num = num;
         this.userId = userId;

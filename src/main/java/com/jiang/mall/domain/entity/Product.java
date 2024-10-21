@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -34,7 +33,7 @@ public class Product implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 商品编码，不可重复
@@ -75,13 +74,13 @@ public class Product implements Serializable {
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private Integer creator;
+    private Long creator;
 
     /**
      * 更新人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Integer updater;
+    private Long updater;
 
     /**
      * 创建时间
@@ -136,7 +135,7 @@ public class Product implements Serializable {
      * @param stocks 商品的库存量
      * @param description 商品的描述信息
      */
-    public Product(Integer id, String code, String title, Integer categoryId, String img, Double price, Integer stocks, String description) {
+    public Product(Long id, String code, String title, Integer categoryId, String img, Double price, Integer stocks, String description) {
         this.id = id;
         this.code = code;
         this.title = title;

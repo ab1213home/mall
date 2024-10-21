@@ -190,7 +190,7 @@ public class UserController {
 
         // 创建并注册用户
         User user = new User(username,password,email);
-        int userId = userService.registerStep(user);
+        Long userId = userService.registerStep(user);
         if (userId>0) {
             session.setAttribute("UserId",userId);
             verificationCodeService.useCode(userId, userVerificationCode);
@@ -232,7 +232,7 @@ public class UserController {
                 return ResponseResult.failResult("您已登录，请勿重复注册");
             }
         }
-        int UserId = (int) session.getAttribute("UserId");
+        Long UserId = (Long) session.getAttribute("UserId");
 
         // 验证手机号格式
         if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
@@ -360,7 +360,7 @@ public class UserController {
         if (!result.isSuccess()) {
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
         VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
         if (userVerificationCode ==null){
             return ResponseResult.failResult("验证码错误或已过期");
@@ -453,7 +453,7 @@ public class UserController {
      * @return 修改用户信息的结果
      */
     @PostMapping("/modify/info")
-    public ResponseResult modifyUserInfo(@RequestParam(required = false) Integer id,
+    public ResponseResult modifyUserInfo(@RequestParam(required = false) Long id,
                                          @RequestParam(required = false) String phone,
                                          @RequestParam(required = false) String firstName,
                                          @RequestParam(required = false) String lastName,
@@ -468,7 +468,7 @@ public class UserController {
         if (!result.isSuccess()) {
             return result; // 如果未登录，则直接返回
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         // 验证手机号格式是否正确
         if (StringUtils.hasText(phone)&&!phone.matches(regex_phone)) {
@@ -571,7 +571,7 @@ public class UserController {
             return result;
         }
         // 获取已登录用户的ID
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
         // 尝试锁定用户，如果失败则返回错误信息
         if (userService.lockUser(userId))
             return ResponseResult.serverErrorResult("修改失败！");
@@ -589,7 +589,7 @@ public class UserController {
      * @return ResponseResult表示操作结果，包含成功、失败、未找到资源、服务器错误等状态
      */
     @PostMapping("/modify/lock")
-    public ResponseResult selfLock(@RequestParam("userId") Integer userId,
+    public ResponseResult selfLock(@RequestParam("userId") Long userId,
                                    HttpSession session) {
         if (userId == null|| userId <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -634,7 +634,7 @@ public class UserController {
      * 如果解锁失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/modify/unlock")
-    public ResponseResult unlockUser(@RequestParam("userId") Integer userId,
+    public ResponseResult unlockUser(@RequestParam("userId") Long userId,
                                      HttpSession session) {
         if (userId == null|| userId <= 0) {
             return ResponseResult.failResult("参数错误");

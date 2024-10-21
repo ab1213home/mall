@@ -36,7 +36,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean addCollection(Integer productId, Integer userId) {
+	public boolean addCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -49,7 +49,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Collection queryByProductIdByUserId(Integer productId, Integer userId) {
+	public Collection queryByProductIdByUserId(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -57,7 +57,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean deleteCollection(Integer productId, Integer userId) {
+	public boolean deleteCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -65,7 +65,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Integer userId) {
+	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_id", userId);
 		Page<Collection> page = new Page<>(pageNum, pageSize);
@@ -86,14 +86,14 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Long getCollectionNum(Integer userId) {
+	public Long getCollectionNum(Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_id", userId);
 		return collectionMapper.selectCount(queryWrapper);
 	}
 
 	@Override
-	public boolean isCollect(Integer productId, Integer userId) {
+	public boolean isCollect(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -101,7 +101,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean deleteById(Integer id) {
+	public boolean deleteById(Long id) {
 		return collectionMapper.deleteById(id)>0;
 	}
 }

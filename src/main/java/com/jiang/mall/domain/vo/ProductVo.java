@@ -2,8 +2,6 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 /**
  * 商品视图对象
  *
@@ -17,7 +15,7 @@ public class ProductVo {
     /**
      * 商品ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * 商品编码
@@ -32,7 +30,7 @@ public class ProductVo {
     /**
      * 分类ID
      */
-    private Integer categoryId;
+    private Long categoryId;
 
     /**
      * 分类名称

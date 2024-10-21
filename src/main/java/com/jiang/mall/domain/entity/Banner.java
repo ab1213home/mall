@@ -32,7 +32,7 @@ public class Banner implements Serializable {
      * 主键ID，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
     /**
      * 轮播图图片地址
@@ -53,13 +53,13 @@ public class Banner implements Serializable {
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
-    private Integer creator;
+    private Long creator;
 
     /**
      * 更新人
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Integer updater;
+    private Long updater;
 
     /**
      * 创建时间
@@ -87,7 +87,7 @@ public class Banner implements Serializable {
         this.description = description;
     }
 
-    public Banner(Integer id, String img, String url, String description) {
+    public Banner(Long id, String img, String url, String description) {
         this.id = id;
         this.img = img;
         this.url = url;

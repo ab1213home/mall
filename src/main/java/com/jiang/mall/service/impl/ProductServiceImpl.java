@@ -50,7 +50,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 返回产品列表（ProductVo类型）
      */
     @Override
-    public List<ProductVo> getProductList(String name, Integer categoryId, Integer pageNum, Integer pageSize) {
+    public List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
         // 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
 
@@ -85,7 +85,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return ProductVo对象，包含产品的详细信息和类别名称；如果产品不存在，则返回null
      */
     @Override
-    public ProductVo getProduct(Integer id) {
+    public ProductVo getProduct(Long id) {
         // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);
         // 如果数据库中存在该产品
@@ -143,7 +143,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      *
      */
     @Override
-    public boolean deleteProduct(Integer id) {
+    public boolean deleteProduct(Long id) {
         return productMapper.deleteById(id) == 1;
     }
 
@@ -154,7 +154,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 产品的库存数量
      */
     @Override
-    public Integer queryStoksById(Integer productId) {
+    public Integer queryStoksById(Long productId) {
         // 创建查询包装器并设置条件：产品ID必须匹配
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", productId);

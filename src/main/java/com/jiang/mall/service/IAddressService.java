@@ -24,7 +24,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param pageSize 每页大小，用于控制返回结果的数量
 	 * @return 返回一个分页的地址列表，包括该用户的所有地址
 	 */
-	List<AddressVo> getAddressList(Integer userId, Integer pageNum, Integer pageSize);
+	List<AddressVo> getAddressList(Long userId, Integer pageNum, Integer pageSize);
 
 	/**
 	 * 根据用户ID获取地址数量
@@ -32,7 +32,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param userId 用户ID，用于标识用户的唯一性
 	 * @return 用户的地址数量
 	 */
-	Long getAddressNum(Integer userId);
+	Long getAddressNum(Long userId);
 
 
 	/**
@@ -53,7 +53,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param userId 用户ID，用于确认有权删除该地址的用户
 	 * @return 删除成功返回true，否则返回false
 	 */
-	boolean deleteAddress(Integer id, Integer userId);
+	boolean deleteAddress(Long id, Long userId);
 
 	boolean insertAddress(Address address, boolean isDefault);
 

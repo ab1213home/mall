@@ -49,7 +49,7 @@ public class CollectionController {
 	}
 
 	@PostMapping("/add")
-	public ResponseResult insertCollection(@RequestParam("productId") Integer productId,
+	public ResponseResult insertCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkUserLogin(session);
@@ -57,7 +57,7 @@ public class CollectionController {
             // 如果未登录，则直接返回
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 
         // 校验商品ID是否为空
         if (productId == null|| productId <= 0) {
@@ -75,7 +75,7 @@ public class CollectionController {
 	}
 
 	@GetMapping("/delete")
-	public ResponseResult deleteCollection(@RequestParam("productId") Integer productId,
+	public ResponseResult deleteCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkUserLogin(session);
@@ -89,7 +89,7 @@ public class CollectionController {
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 		Collection collection =collectionService.queryByProductIdByUserId(productId, userId);
 		if (collection == null) {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
@@ -141,7 +141,7 @@ public class CollectionController {
             // 如果未登录，则直接返回
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize,userId);
 		if (collections.isEmpty()) {
 			return ResponseResult.okResult(collections,"没有收藏记录");
@@ -157,12 +157,12 @@ public class CollectionController {
             // 如果未登录，则直接返回
             return result;
         }
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 		return ResponseResult.okResult(collectionService.getCollectionNum(userId));
 	}
 
 	@GetMapping("/isCollected")
-	public ResponseResult isCollected(@RequestParam("productId") Integer productId,
+	public ResponseResult isCollected(@RequestParam("productId") Long productId,
 	                                  HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkUserLogin(session);
@@ -176,7 +176,7 @@ public class CollectionController {
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-        Integer userId = (Integer) result.getData();
+        Long userId = (Long) result.getData();
 		return ResponseResult.okResult(collectionService.isCollect(productId, userId));
 	}
 }
