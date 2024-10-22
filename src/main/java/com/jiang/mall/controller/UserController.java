@@ -282,6 +282,8 @@ public class UserController {
     public ResponseResult login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 @RequestParam("captcha") String captcha,
+                                @RequestHeader("CLIENT_IP") String clientIp,
+                                @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
                                 HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
         if (session.getAttribute("User")!=null){
