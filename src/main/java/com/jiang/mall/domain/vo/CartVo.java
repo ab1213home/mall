@@ -18,6 +18,11 @@ public class CartVo {
     private Long id;
 
     /**
+     * 商品信息
+     */
+    private ProductVo product;
+
+    /**
      * 商品ID
      */
     private Long prodId;
@@ -31,11 +36,6 @@ public class CartVo {
      * 商品数量
      */
     private Integer num;
-
-    /**
-     * 用户ID
-     */
-    private Long userId;
 
     /**
      * 商品单价

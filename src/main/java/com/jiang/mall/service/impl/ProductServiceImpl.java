@@ -6,13 +6,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
+import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,13 +64,17 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 执行分页查询，获取产品列表
         List<Product> products = productMapper.selectPage(productPage, queryWrapper).getRecords();
 
-        // 将产品实体列表转换为产品VO列表
-        List<ProductVo> productVos = BeanCopyUtils.copyBeanList(products, ProductVo.class);
+        List<ProductVo> productVos = new ArrayList<>();
 
-        // 遍历产品VO列表，设置每个产品的类别名称
-        for (ProductVo productVo : productVos) {
+        // 将产品实体列表转换为产品VO列表
+        for (Product product : products) {
+            // 遍历产品VO列表，设置每个产品的类别名称
+            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             // 根据类别ID查询类别名称，并设置到产品VO中
-            productVo.setCategoryName(categoryMapper.selectById(productVo.getCategoryId()).getName());
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            productVo.setCategory(categoryVo);
+            productVos.add(productVo);
         }
 
         // 返回产品VO列表
@@ -93,7 +100,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             // 将查询到的Product对象转换为ProductVo对象
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             // 通过ID查询产品类别，并设置产品类别的名称
-            productVo.setCategoryName(categoryMapper.selectById(productVo.getCategoryId()).getName());
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            productVo.setCategory(categoryVo);
             // 返回转换后的ProductVo对象
             return productVo;
         }

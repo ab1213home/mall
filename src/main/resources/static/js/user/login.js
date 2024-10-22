@@ -27,9 +27,12 @@ function submitLoginForm() {
     url: '/user/login',
     type: 'POST',
     data: data,
+    headers: {
+        'CLIENT_FINGERPRINT':getFingerprint(),
+        'CLIENT_IP':getClientIp(),
+    },
     beforeSend: function() {
        // 在发送请求之前，显示加载
-       getFingerprint();
     },
     success: function (data) {
         // 处理成功响应

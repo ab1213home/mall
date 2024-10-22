@@ -42,7 +42,7 @@ public class LoginRecord implements Serializable {
 	/**
 	 * 状态
 	 */
-	private byte state;
+	private Byte state;
 
 	@TableField(fill = FieldFill.INSERT)
 	private LocalDateTime loginTime;

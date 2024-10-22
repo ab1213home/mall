@@ -60,12 +60,7 @@ public class FileServiceImpl implements IFileService {
 	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
 	    }
 	    // 初始化DirectoryVo列表
-	    DirectoryVo directoryVo = new DirectoryVo();
-	    directoryVo.setName(folder.getName());
-	    directoryVo.setPath(folder.getAbsolutePath());
-	    directoryVo.setLastModified(new Date(folder.lastModified()));
-	    directoryVo.setFiles(new ArrayList<>());
-	    directoryVo.setSubDirectories(new ArrayList<>());
+	    DirectoryVo directoryVo = new DirectoryVo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
 
 	    // 获取目录下的所有文件和子目录
 	    File[] files = folder.listFiles();
@@ -77,11 +72,7 @@ public class FileServiceImpl implements IFileService {
 	                directoryVo.getSubDirectories().add(directory);
 	            } else {
 	                // 如果是文件，则将其转换为FileVo
-	                FileVo fileVo = new FileVo();
-	                fileVo.setName(file.getName());
-	                fileVo.setSize(file.length());
-	                fileVo.setMd5(calculateToMD5(file));
-	                fileVo.setType(getTypeFromName(file.getName()));
+	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
 	                String path = "/" + folder.getName() + "/" + file.getName();
 	                List<String> purpose = new ArrayList<>();
 
@@ -135,7 +126,6 @@ public class FileServiceImpl implements IFileService {
 	                    fileVo.setPurpose(String.join(",", purpose));
 	                }
 
-	                fileVo.setLastModified(new Date(file.lastModified()));
 	                // 将文件Vo添加到当前目录的文件列表中
 	                directoryVo.getFiles().add(fileVo);
 	            }

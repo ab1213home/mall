@@ -28,14 +28,9 @@ public class ProductVo {
     private String title;
 
     /**
-     * 分类ID
+     * 商品分类
      */
-    private Long categoryId;
-
-    /**
-     * 分类名称
-     */
-    private String categoryName;
+    private CategoryVo category;
 
     /**
      * 商品图片地址

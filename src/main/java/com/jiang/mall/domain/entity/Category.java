@@ -40,6 +40,16 @@ public class Category implements Serializable {
     private String code;
 
     /**
+     * 父级分类ID，默认为 0
+     */
+    private Long parentId;
+
+    /**
+     * 分类级别，默认为 1
+     */
+    private Byte level;
+
+    /**
      * 分类名称
      */
     private String name;

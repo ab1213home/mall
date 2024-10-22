@@ -18,6 +18,11 @@ public class OrderListVo {
     private Long id;
 
     /**
+     * 商品信息
+     */
+    private ProductVo product;
+
+    /**
      * 订单ID
      */
     private Long orderId;

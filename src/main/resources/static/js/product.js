@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productTitle').textContent = product.title;
                 document.getElementById('productImg').src = product.img;
                 document.getElementById('productCode').textContent = product.code;
-                document.getElementById('productCategory').textContent = product.categoryName;
+                document.getElementById('productCategory').textContent = product.category.name;
                 document.getElementById('productPrice').textContent = product.price;
                 document.getElementById('productStocks').textContent = product.stocks;
                 document.getElementById('productDescription').textContent = product.description;

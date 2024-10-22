@@ -42,12 +42,21 @@ public class DirectoryVo {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date lastModified;
 
+	/**
+	 * 构造函数用于创建DirectoryVo对象，封装目录信息及其相关内容
+	 *
+	 * @param name          目录名称
+	 * @param absolutePath  目录的绝对路径
+	 * @param subDirectories 子目录列表，用于表示该目录下包含的子目录
+	 * @param files         文件列表，用于表示该目录下包含的文件
+	 * @param lastModified  最后修改时间，表示该目录最后一次修改的时间
+	 */
 	public DirectoryVo(String name, String absolutePath, List<DirectoryVo> subDirectories, List<FileVo> files, Date lastModified) {
-		this.name = name;
-		this.path = absolutePath;
-		this.subDirectories = subDirectories;
-		this.files = files;
-		this.lastModified = lastModified;
+	    this.name = name;
+	    this.path = absolutePath;
+	    this.subDirectories = subDirectories;
+	    this.files = files;
+	    this.lastModified = lastModified;
 	}
 
 	public DirectoryVo() {

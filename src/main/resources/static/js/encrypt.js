@@ -41,8 +41,6 @@ function getSalt() {
 function sha256(message) {
     // 获取盐值
     const salt = getSalt();
-    // 输出盐值，用于调试或日志记录
-    console.log(salt);
     // 拼接盐值和消息
     const saltedMessage = message + salt;
 

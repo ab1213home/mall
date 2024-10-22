@@ -2,6 +2,7 @@ package com.jiang.mall.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -50,12 +51,20 @@ public class FileVo {
 	public FileVo() {
 	}
 
-	public FileVo(String name, long size, String md5, String type, String purpose, Date lastModified) {
+	/**
+	 * 构造方法
+	 *
+	 * @param name    文件名
+	 * @param length  文件大小
+	 * @param md5     文件md5
+	 * @param type    文件类型
+	 * @param date    最后修改时间
+	 */
+	public FileVo(String name, long length, @NotNull String md5, @NotNull String type, Date date) {
 		this.name = name;
-		this.size = size;
+		this.size = length;
 		this.md5 = md5;
 		this.type = type;
-		this.purpose = purpose;
-		this.lastModified = lastModified;
+		this.lastModified = date;
 	}
 }

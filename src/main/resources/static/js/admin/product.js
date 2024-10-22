@@ -220,7 +220,7 @@ function queryProduct(pn, pz) {
                             <th scope="row">${product.id}</th>
                             <td id="name`+ product.id +`">${product.title}</td>
                             <td id="code`+ product.id +`">${product.code}</td>
-                            <td id="categoryName`+ product.id +`">${product.categoryName}</td>
+                            <td id="categoryName`+ product.id +`">${product.category.name}</td>
                             <td id="img`+ product.id +`">
                                 <div class="row mt-2" style="display: flex; justify-content: center;">
                                     <!-- 图片列 -->
