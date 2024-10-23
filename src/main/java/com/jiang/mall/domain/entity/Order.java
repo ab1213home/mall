@@ -53,6 +53,7 @@ public class Order implements Serializable {
     /**
      * 订单总金额
      */
+//    @Column(name = "price", precision = 10, scale = 2, nullable = false)
     private Double totalAmount;
 
     /**

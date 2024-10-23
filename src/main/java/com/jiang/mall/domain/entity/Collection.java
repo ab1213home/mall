@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("tb_collections")
-public class Collection {
+public class Collection implements Serializable {
 
 	/**
      * 序列化版本UID

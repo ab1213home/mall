@@ -104,7 +104,7 @@ function updateCart(id, num){
 			if(res.code == 200){
 				$("#num_text" + id).val(num);	//界面更新
 				cartArr[id].num = num;	//更新内存中对应商品的数量
-				$("#sum_price"+id).html(num * cartArr[id].price);	//更新改行的价格
+				$("#sum_price"+id).html(num * cartArr[id].product.price);	//更新改行的价格
 				totalMoney();
 			}else{
 				openModal('错误',"更新购物车失败:"+res.message);
@@ -174,14 +174,14 @@ function queryCart(pn, pz){
                             	<div class="row mt-2" style="display: flex; justify-content: center;">
 									<!-- 图片列 -->
 									<div class="col-md-2">
-										<img src="` + cart.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
+										<img src="` + cart.product.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
 									</div>
 									<!-- 文字信息列 -->
   									<div class="col-md-4">
-										<div class="fl">`+ cart.prodName +`</div>
+										<div class="fl">`+ cart.product.title +`</div>
 									</div>
                             </td>
-                            <td id="price`+ cart.id +`" class="price-tag" style="color: #ff0000;">${cart.price}</td>
+                            <td id="price`+ cart.id +`" class="price-tag" style="color: #ff0000;">${cart.product.price}</td>
                             <td id="num`+ cart.id +`">
                             	<div class="row num-row" style="display: flex; justify-content: center;">
 										<button class="text-center custom-button" onclick="sub(`+ cart.id +`)">-</button>
@@ -189,7 +189,7 @@ function queryCart(pn, pz){
 										<button class="text-center custom-button" class="ml" onclick="add(`+ cart.id +`)">+</button>
 								</div>
                             </td>
-                            <td id="sum_price`+ cart.id +`" class="cartli5">${(cart.price * cart.num)}</td>
+                            <td id="sum_price`+ cart.id +`" class="cartli5">${(cart.product.price * cart.num)}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-danger" onclick="deleteCartGood(${cart.id})">删除</button>
                             </td>

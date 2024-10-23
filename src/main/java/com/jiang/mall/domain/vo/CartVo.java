@@ -23,28 +23,9 @@ public class CartVo {
     private ProductVo product;
 
     /**
-     * 商品ID
-     */
-    private Long prodId;
-
-    /**
-     * 商品名称
-     */
-    private String prodName;
-
-    /**
      * 商品数量
      */
     private Integer num;
 
-    /**
-     * 商品单价
-     */
-    private Double price;
-
-    /**
-     * 商品图片地址
-     */
-    private String img;
 }
 

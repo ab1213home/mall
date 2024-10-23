@@ -9,6 +9,7 @@ import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -80,14 +81,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo) {
+	public Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
 		Order order = new Order();
 		order.setUserId(userId);
 		order.setAddressId(addressId);
 		order.setDate(new Date());
 		order.setTotalAmount(0.0);
 		for (CheckoutVo checkoutVo : listCheckoutVo) {
-			order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getPrice()* checkoutVo.getNum()));
+			order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getProduct().getPrice()* checkoutVo.getNum()));
 		}
 		order.setPaymentMethod(paymentMethod);
 		order.setStatus(status);
@@ -95,8 +96,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			for (CheckoutVo checkoutVo : listCheckoutVo) {
 				OrderList orderList = new OrderList();
 				orderList.setNum(checkoutVo.getNum());
-				orderList.setPrice(checkoutVo.getPrice());
-				orderList.setProdId(checkoutVo.getProdId());
+				orderList.setPrice(checkoutVo.getProduct().getPrice());
+				orderList.setProdId(checkoutVo.getProduct().getId());
 				orderList.setOrderId(order.getId());
 				if (orderListMapper.insert(orderList)>0){
 					continue;

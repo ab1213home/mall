@@ -112,14 +112,14 @@ public class OrderController {
 	    List<Long> list_cartId = new ArrayList<>();
 	    for (CheckoutVo checkoutVo : list_checkoutVo) {
 	        // 检查商品是否被选中
-	        if (checkoutVo.isIschecked()){
+	        if (checkoutVo.getIschecked()){
 	            // 检查商品数量是否合法
 	            if (checkoutVo.getNum() <= 0) {
 	                return ResponseResult.failResult("请选择正确的商品数量");
 	            }
 	            // 检查商品库存是否充足
-	            if (productService.queryStoksById(checkoutVo.getProdId()) < checkoutVo.getNum()) {
-	                return ResponseResult.failResult("商品"+ checkoutVo.getProdName()+"库存不足，提交失败！");
+	            if (productService.queryStoksById(checkoutVo.getProduct().getId()) < checkoutVo.getNum()) {
+	                return ResponseResult.failResult("商品"+ checkoutVo.getProduct().getTitle()+"库存不足，提交失败！");
 	            }
 	            // 将购物车商品ID添加到确认购买的商品ID列表中
 	            list_cartId.add(checkoutVo.getId());

@@ -5,17 +5,23 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CartMapper;
+import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
+import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,23 +49,35 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         this.productMapper = productMapper;
     }
 
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    public void setCategoryMapper(CategoryMapper categoryMapper) {
+        this.categoryMapper = categoryMapper;
+    }
+
     @Override
     public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize) {
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId);
         List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
-        List<CartVo> cartVos = BeanCopyUtils.copyBeanList(carts, CartVo.class);
-        for (CartVo cartVo : cartVos) {
-            Product product = productMapper.selectById(cartVo.getProdId());
-            cartVo.setProdName(product.getTitle());
-            cartVo.setPrice(product.getPrice());
-            cartVo.setImg(product.getImg());
+        List<CartVo> cartVos = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
+            // 根据购物车项中的产品ID，查询产品信息
+            Product product = productMapper.selectById(cart.getProdId());
+            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            productVo.setCategory(categoryVo);
+            cartVo.setProduct(productVo);
+            cartVos.add(cartVo);
         }
         return cartVos;
     }
 
 	@Override
-    public ResponseResult insertOrUpdate(Cart cart) {
+    public ResponseResult insertOrUpdate(@NotNull Cart cart) {
         if (cart.getUserId() == null || cart.getProdId() == null) {
             return ResponseResult.failResult("商品id和用户id不能为空");
         }
@@ -162,15 +180,17 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             }
         }
         // 将购物车项列表转换为购物车项视图对象列表
-        List<CartVo> cartVos = BeanCopyUtils.copyBeanList(carts, CartVo.class);
-        // 遍历购物车项视图对象列表，补充产品信息
-        for (CartVo cartVo : cartVos) {
+        List<CartVo> cartVos = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
             // 根据购物车项中的产品ID，查询产品信息
-            Product product = productMapper.selectById(cartVo.getProdId());
-            // 补充购物车项视图对象的产品名称、价格和图片信息
-            cartVo.setProdName(product.getTitle());
-            cartVo.setPrice(product.getPrice());
-            cartVo.setImg(product.getImg());
+            Product product = productMapper.selectById(cart.getProdId());
+            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            productVo.setCategory(categoryVo);
+            cartVo.setProduct(productVo);
+            cartVos.add(cartVo);
         }
         // 返回购物车项视图对象列表
         return cartVos;
@@ -206,7 +226,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             // 遍历订单详情，对比购物车中的商品
             for (CheckoutVo checkoutVo : listCheckoutVo) {
                 // 如果购物车商品ID与订单中的商品ID匹配
-                if (cart.getProdId().equals(checkoutVo.getProdId())) {
+                if (cart.getProdId().equals(checkoutVo.getProduct().getId())) {
                     // 计算购物车中商品的新数量
                     int num = cart.getNum() - checkoutVo.getNum();
 

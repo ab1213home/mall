@@ -18,38 +18,19 @@ public class CheckoutVo {
     private Long id;
 
     /**
-     * 商品图片地址
+     * 商品信息
      */
-    private String img;
+    private ProductVo product;
 
     /**
      * 是否选中
      */
-    private boolean ischecked;
+    private Boolean ischecked;
 
     /**
      * 商品数量
      */
     private Integer num;
 
-    /**
-     * 商品单价
-     */
-    private Double price;
-
-    /**
-     * 商品ID
-     */
-    private Long prodId;
-
-    /**
-     * 商品名称
-     */
-    private String prodName;
-
-    /**
-     * 用户ID
-     */
-    private Long userId;
 }
 
