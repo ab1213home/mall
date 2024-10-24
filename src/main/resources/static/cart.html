@@ -54,7 +54,7 @@
 				<!-- 父相子绝 -->
 				<div class="hb2">
 					<div class="searchBody">
-						<input type="text" class="search_m" id="search" placeholder="搜你所想...">
+						<label for="search"></label><input type="text" class="search_m" id="search" placeholder="搜你所想...">
 						<button id="search_btn" type="button" onclick="search_item()"><i class="bi bi-search search-icon"></i></button>
 						<div class="search_t">
 							<ul>
@@ -78,7 +78,7 @@
 				<thead>
 				<tr class="table-warning">
 					<th scope="col" class="text-center">
-						<input type="checkbox" onclick="checkAll()" id="sela">全选</input>
+						<input type="checkbox" onclick="checkAll()" id="sela"><label for="sela">全选</label>全选
 					</th>
 					<th scope="col" class="text-center">商品</th>
 					<th scope="col" class="text-center">单价</th>
@@ -131,26 +131,38 @@
 				</div>
 			</div>
 		</div>
-	</body>
-	
-	
-	<!-- 固定提示框 -->
-	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header">
-				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
-				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body" id="modal-body">
-				  这里是提示框的内容。
-				</div>
-				<div class="modal-footer">
-				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+		<!-- 固定提示框 -->
+		<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+					  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+					  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body" id="modal-body">
+					  这里是提示框的内容。
+					</div>
+					<div class="modal-footer">
+					  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+					  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	
+		<!-- 模态框 -->
+		<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">加载中...</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body text-center">
+					<div id="spinnerContainer" class="spinner-container"></div>
+				</div>
+			</div>
+			</div>
+		</div>
+		<script src="/spin-2.3.2-dist/spin.min.js"></script>
+	</body>
 </html>

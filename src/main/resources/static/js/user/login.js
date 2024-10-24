@@ -1,8 +1,8 @@
 const urlParams = new URLSearchParams(window.location.search);
 const url = urlParams.get('url');
-const message = urlParams.get('message');
 
 document.addEventListener('DOMContentLoaded', function() {
+    const message = urlParams.get('message');
     if (message != null) {
         openModal('提示', message);
     }
