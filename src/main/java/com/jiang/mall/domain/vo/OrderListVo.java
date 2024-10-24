@@ -18,14 +18,14 @@ public class OrderListVo {
     private Long id;
 
     /**
-     * 商品信息
-     */
-    private ProductVo product;
-
-    /**
      * 订单ID
      */
     private Long orderId;
+
+    /**
+     * 商品信息
+     */
+    private ProductSnapshotVo product;
 
     /**
      * 商品ID
@@ -37,18 +37,4 @@ public class OrderListVo {
      */
     private Integer num;
 
-    /**
-     * 商品单价
-     */
-    private Double price;
-
-    /**
-     * 商品名称
-     */
-    private String prodName;
-
-    /**
-     * 商品图片地址
-     */
-    private String img;
 }

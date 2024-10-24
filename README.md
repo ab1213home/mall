@@ -8,26 +8,30 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 Navicat Premium Lite 版本17.1.5(简体中文)
 
-## 软件架构
+## 技术栈
 
-基于JDK17开发，使用spring boot3.3.4+mybatisplus3.5.8+mysql8.0.36构建
+- **前端**：JavaScript
+- **后端**：Spring Boot 3.3.4(openjdk17)
+- **数据库**：MySQL 8.0.36
+- **版本控制**：Git
+- **持续集成/持续部署**：Jenkins / GitHub Actions
 
 #### 后端
 
-1. 使用easy-captcha实现验证码部分，github地址：https://github.com/ele-admin/EasyCaptcha
+1. 使用[easy-captcha](https://github.com/ele-admin/EasyCaptcha "github地址")实现验证码部分
 
 2. 中国地址行政区划数据库数据来源：https://github.com/kakuilan/china_area_mysql
 （经过裁剪）
 
-3. 使用mybatis-plus(v3.5.8)实现数据库操作，github地址：https://github.com/baomidou/mybatis-plus
+3. 使用[mybatis-plus](https://github.com/baomidou/mybatis-plus "github地址")(v3.5.8)实现数据库操作
 
-4. 使用sitemapgen4j(v1.1.1)生成sitemap,github地址：https://github.com/dfabulich/sitemapgen4j
+4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "github地址")(v1.1.1)生成sitemap
 
-5. 使用mysql-connector-j(v8.3.0)实现数据库连接，github地址：https://github.com/mysql/mysql-connector-j
+5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "github地址")(v8.3.0)实现数据库连接
 
-6. 使用jakarta-mail(v2.0.1)实现邮件发送，github地址：https://github.com/jakartaee/mail-api
+6. 使用[jakarta-mail](https://github.com/jakartaee/mail-api "github地址")(v2.0.1)实现邮件发送
 
-7. 使用annotations(v26.0.0)实现注解，github地址：https://github.com/JetBrains/java-annotations
+7. 使用[annotations](https://github.com/JetBrains/java-annotations "github地址")(v26.0.0)实现注解
 
 #### 前端
 

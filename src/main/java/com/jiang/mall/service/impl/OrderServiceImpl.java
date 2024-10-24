@@ -10,6 +10,8 @@ import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,8 @@ import static com.jiang.mall.domain.config.Order.paymentMethod;
  */
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
+
+	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
 	private OrderMapper orderMapper;
 
@@ -67,17 +71,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.productMapper=productMapper;
 	}
 
-	private AdministrativeDivisionMapper divisionMapper;
-
-	@Autowired
-	public void setDivisionMapper(AdministrativeDivisionMapper divisionMapper) {
-		this.divisionMapper = divisionMapper;
-	}
-
 	private IAddressService addressService;
 	@Autowired
 	public void setAddressService(IAddressService addressService) {
 		this.addressService = addressService;
+	}
+
+	private ProductSnapshotMapper productSnapshotMapper;
+
+	@Autowired
+	public void setProductSnapshotMapper(ProductSnapshotMapper productSnapshotMapper) {
+		this.productSnapshotMapper = productSnapshotMapper;
+	}
+
+	private CategorySnapshotMapper categorySnapshotMapper;
+
+	@Autowired
+	public void setCategorySnapshotMapper(CategorySnapshotMapper categorySnapshotMapper) {
+		this.categorySnapshotMapper = categorySnapshotMapper;
+	}
+
+	private CategoryMapper categoryMapper;
+
+	@Autowired
+	public void setCategoryMapper(CategoryMapper categoryMapper) {
+		this.categoryMapper = categoryMapper;
 	}
 
 	@Override
@@ -94,14 +112,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		order.setStatus(status);
 		if (orderMapper.insert(order) > 0) {
 			for (CheckoutVo checkoutVo : listCheckoutVo) {
-				OrderList orderList = new OrderList();
-				orderList.setNum(checkoutVo.getNum());
-				orderList.setPrice(checkoutVo.getProduct().getPrice());
-				orderList.setProdId(checkoutVo.getProduct().getId());
-				orderList.setOrderId(order.getId());
+				//TODO：待修复，商品快照+分类快照
+				OrderList orderList = new OrderList(order.getId(),checkoutVo.getNum());
+				Product product = productMapper.selectById(checkoutVo.getProduct().getId());
+				Category category = categoryMapper.selectById(product.getCategoryId());
+				CategorySnapshot categorySnapshot = new CategorySnapshot(category);
+				ProductSnapshot productSnapshot = new ProductSnapshot(product);
+				if (categorySnapshotMapper.insert(categorySnapshot)>0){
+					productSnapshot.setCategoryId(categorySnapshot.getId());
+				}
+				if (productSnapshotMapper.insert(productSnapshot)>0){
+					orderList.setProdId(productSnapshot.getId());
+				}
 				if (orderListMapper.insert(orderList)>0){
-					continue;
+					logger.info("订单列表插入成功");
+				}else{
+					logger.error("订单列表插入失败，无法创建订单");
 					//TODO：待完善
+					return null;
 				}
 			}
 			return order.getId();
@@ -135,10 +163,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
 			List<OrderListVo> orderList_VoList = new ArrayList<>();
 			for (OrderList orderList_item : orderList_List) {
-				Product product = productMapper.selectById(orderList_item.getProdId());
+				//TODO：待修复，商品快照+分类快照
 				OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
-				orderListVo.setProdName(product.getTitle());
-				orderListVo.setImg(product.getImg());
+				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
+				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+				CategorySnapshot categorySnapshot = categorySnapshotMapper.selectById(productSnapshot.getCategoryId());
+				CategorySnapshotVo categoryVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
+				productVo.setCategory(categoryVo);
+				orderListVo.setProduct(productVo);
 				orderList_VoList.add(orderListVo);
 			}
 			orderVo.setOrderList(orderList_VoList);
@@ -215,13 +247,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 	        // 遍历订单详情列表，将每个订单详情的信息转换为VO对象
 	        for (OrderList orderList_item : orderList_List) {
-	            // 根据订单详情中的产品ID查询产品信息
-	            Product product = productMapper.selectById(orderList_item.getProdId());
-
 	            // 将订单详情对象转换为订单详情VO对象，并设置产品名称和图片信息
 	            OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
-	            orderListVo.setProdName(product.getTitle());
-	            orderListVo.setImg(product.getImg());
+				// 根据订单详情中的产品ID查询产品信息
+				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
+				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+				CategorySnapshot categorySnapshot = categorySnapshotMapper.selectById(productSnapshot.getCategoryId());
+				CategorySnapshotVo categoryVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
+				productVo.setCategory(categoryVo);
+				orderListVo.setProduct(productVo);
+				orderList_VoList.add(orderListVo);
 
 	            // 将订单详情VO对象添加到列表中
 	            orderList_VoList.add(orderListVo);

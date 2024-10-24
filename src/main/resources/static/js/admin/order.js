@@ -55,12 +55,12 @@ function queryOrders(pn, pz) {
 										<div class="row mt-2" style="display: flex; justify-content: center;">
 											<!-- 图片列 -->
 											<div class="col-md-2">
-												<img src="` + order.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
+												<img src="` + order.product.img + `" alt="商品图片" class="img-fluid mx-auto d-block">
 											</div>
 											<!-- 文字信息列 -->
         									<div class="col-md-6">
-												<div class="fl">`+ order.prodName +`</div>
-												<div class="price-tag" style="color: #ff0000;">`+ order.price +`</div>
+												<div class="fl">`+ order.product.title +`</div>
+												<div class="price-tag" style="color: #ff0000;">`+ order.product.price +`</div>
 												<div class="num-tag">`+ order.num +`</div>
 											</div>
 										</div>`;

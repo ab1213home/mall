@@ -56,7 +56,7 @@ function totalMoney(){
 		if(cartArr.hasOwnProperty(key)){
 			let good = cartArr[key];
 			if(good.ischecked){
-				total += good.price * good.num;
+				total += good.product.price * good.num;
 				num++;
 			}
 		}

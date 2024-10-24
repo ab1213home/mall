@@ -3,6 +3,7 @@ package com.jiang.mall.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -80,32 +81,34 @@ public class CategorySnapshot implements Serializable {
     @TableLogic
     private Boolean isDel;
 
-    public CategorySnapshot(String code, String name) {
-        this.code = code;
-        this.name = name;
-    }
-
-    public CategorySnapshot(Long id, String code, String name) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-    }
-
     public CategorySnapshot() {
     }
 
     /**
-     * 商品分类对象的字符串表示形式
+     * 构造函数，用于将 Category 对象转换为 CategorySnapshot 对象
+     *
+     * @param category Category 对象
      */
+    public CategorySnapshot(@NotNull Category category) {
+        this.parentId = category.getParentId();
+        this.level = category.getLevel();
+        this.categoryId = category.getId();
+        this.code = category.getCode();
+        this.name = category.getName();
+    }
+
     @Override
     public String toString() {
-        return "Category{" +
-            "id = " + id +
-            ", code = " + code +
-            ", name = " + name +
-            ", creator = " + creator +
-            ", createdAt = " + createdAt +
-            ", isDel = " + isDel +
-        "}";
+        return "CategorySnapshot{" +
+                "id=" + id +
+                ", categoryId=" + categoryId +
+                ", code='" + code + '\'' +
+                ", parentId=" + parentId +
+                ", level=" + level +
+                ", name='" + name + '\'' +
+                ", creator=" + creator +
+                ", createdAt=" + createdAt +
+                ", isDel=" + isDel +
+                '}';
     }
 }

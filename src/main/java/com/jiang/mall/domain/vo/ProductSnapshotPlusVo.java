@@ -3,17 +3,13 @@ package com.jiang.mall.domain.vo;
 import lombok.Data;
 
 @Data
-public class ProductSnapshotVo {
+public class ProductSnapshotPlusVo {
 
 	/**
      * 快照ID
      */
     private Long id;
 
-    /**
-     * 商品ID
-     */
-    private Long prodId;
 
     /**
      * 商品编码
@@ -49,4 +45,9 @@ public class ProductSnapshotVo {
      * 商品描述
      */
     private String description;
+
+    /**
+     * 关联商品
+     */
+    private ProductVo product;
 }

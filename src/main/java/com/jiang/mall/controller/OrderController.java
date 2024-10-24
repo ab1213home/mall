@@ -198,7 +198,7 @@ public class OrderController {
 	        return result;
 	    }
 	    // 检查 session.getAttribute("List_cartId") 是否为 null
-	    List<Integer> list_cartId;
+	    List<Long> list_cartId;
 	    Object listObj = session.getAttribute("List_cartId");
 
 	    if (listObj == null) {
@@ -206,8 +206,8 @@ public class OrderController {
 	    } else if (listObj instanceof List<?> tempList) {
 	        list_cartId = new ArrayList<>();
 	        for (Object obj : tempList) {
-	            if (obj instanceof Integer) {
-	                list_cartId.add((Integer) obj);
+	            if (obj instanceof Long) {
+	                list_cartId.add((Long) obj);
 	            }
 	        }
 	    } else {

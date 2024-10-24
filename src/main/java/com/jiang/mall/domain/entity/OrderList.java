@@ -40,19 +40,14 @@ public class OrderList implements Serializable {
     private Long orderId;
 
     /**
-     * 商品ID
+     * 商品快照ID
      */
     private Long prodId;
 
     /**
-     * 商品数量
+     * 购买数量
      */
     private Integer num;
-
-    /**
-     * 商品单价
-     */
-    private Double price;
 
     /**
      * 创建时间，自动填充
@@ -73,4 +68,18 @@ public class OrderList implements Serializable {
      */
     @TableLogic
     private Boolean isDel;
+
+    /**
+     * 构造函数，用于创建订单列表实体
+     *
+     * @param id 订单ID
+     * @param num 购买数量
+     */
+    public OrderList(Long id, Integer num) {
+        this.orderId = id;
+        this.num = num;
+    }
+
+    public OrderList() {
+    }
 }

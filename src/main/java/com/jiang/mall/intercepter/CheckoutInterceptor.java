@@ -29,15 +29,15 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	    Object listObj = request.getSession().getAttribute("List_cartId");
 
 	    // 定义用于存储商品 ID 的列表
-	    List<Long> prodIds;
+	    List<Long> list_cartId;
 
 	    if (listObj == null) {
-	        prodIds = new ArrayList<>();
+	        list_cartId = new ArrayList<>();
 	    } else if (listObj instanceof List<?> tempList) {
-	        prodIds = new ArrayList<>();
+	        list_cartId = new ArrayList<>();
 	        for (Object obj : tempList) {
 	            if (obj instanceof Long) {
-	                prodIds.add((Long) obj);
+	                list_cartId.add((Long) obj);
 	            }
 	        }
 	    } else {
@@ -47,7 +47,7 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	    }
 
 	    // 如果商品 ID 列表为空，则重定向到购物车页面，并返回 false 终止后续处理
-	    if (prodIds.isEmpty()) {
+	    if (list_cartId.isEmpty()) {
 	        response.sendRedirect(request.getContextPath() + "/cart.html");
 	        return false;
 	    }
