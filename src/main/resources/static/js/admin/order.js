@@ -52,6 +52,7 @@ function queryOrders(pn, pz) {
 							const orderList = order.orderList;
 							for(let order of orderList){
 								row=row+`
+									<a href="./tradeSnap.html?id=`+ order.product.id +`" target="_blank" class="glid1">
 										<div class="row mt-2" style="display: flex; justify-content: center;">
 											<!-- 图片列 -->
 											<div class="col-md-2">
@@ -63,7 +64,9 @@ function queryOrders(pn, pz) {
 												<div class="price-tag" style="color: #ff0000;">`+ order.product.price +`</div>
 												<div class="num-tag">`+ order.num +`</div>
 											</div>
-										</div>`;
+										</div>
+									</a>
+								`;
 							}
                             row=row+`</td>
                             <td>

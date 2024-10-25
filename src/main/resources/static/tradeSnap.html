@@ -14,16 +14,19 @@
 		<script src="./js/modal.js"></script>
 		<script src="./js/index_footer.js"></script>
 		<script src="./js/index_cart.js"></script>
-		<script src="js/protocol.js"></script>
-		<title>关于商城</title>
+		<script src="js/tradeSnap.js"></script>
+		<title>订单快照</title>
 		<style>
-            /*body {*/
-            /*    padding: 20px;*/
-            /*}*/
-            h1, h2 {
-                margin-bottom: 20px;
-            }
-            .protocol-details{
+			.product-card {
+				background-color: white;
+				border: 1px solid #ddd;
+				padding: 30px;
+				border-radius: 20px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+				max-width: 1000px; /* 最大宽度 */
+				margin: 20px auto; /* 水平居中 */
+       		}
+			.product-details{
 				background-color: white;
 				border: 1px solid #ddd;
 				padding: 30px;
@@ -32,6 +35,28 @@
 				max-width: 1000px; /* 最大宽度 */
 				margin: 5px auto; /* 水平居中 */
 			}
+			.product-img {
+				display: flex;
+				justify-content: center; /* 水平居中 */
+				align-items: center; /* 垂直居中 */
+				height: 100%; /* 确保高度 */
+			}
+			.img-fluid {
+				max-width: 100%;
+				height: auto;
+			}
+			.product-num input {
+				text-align: center; /* 居中文本 */
+			}
+			.product-price {
+				font-size: 1.8em; /* 增加字体大小 */
+				color: #ff0000; /* 设置颜色 */
+				font-weight: bold; /* 加粗字体 */
+			}
+			.price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+			}
+
     	</style>
 	</head>
 	<body class="index">
@@ -58,7 +83,7 @@
 				<!--父相子绝-->
 				<div class="hb2">
 					<div class="searchBody">
-						<input type="text" class="search_m" id="search" placeholder="搜你所想..."/>
+						<label for="search"></label><input type="text" class="search_m" id="search" placeholder="搜你所想..."/>
 						<button id="search_btn" type="button" onclick="search_item()"><i class="bi bi-search search-icon"></i></button>
 						<div class="search_t"><ul>
 							<li><a href="#">端午节</a></li>
@@ -76,33 +101,58 @@
 			</div>
 		</div>
 		<!-- 商品页 -->
-		<div class="main-content container justify-content-center mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">关于商城</h3>
-                </div>
-                <div class="card-body text-center">
-                    <img src="/images/logo.png" alt="logo" style="width: 30%;height: auto">
-                    <p>
-                        欢迎使用<a href="/github.html" target="_blank">mall</a>，这是一个基于spring&nbsp;boot构建的开源商城系统。
-                    </p>
-                    <p>
-                        版本号：v1.6.4
-                    </p>
-                    <p>
-                        使用Mulan PSL v2协议开源，欢迎大家参与开源。
-                    </p>
-                    <p>
-                        构建日期：2024-10-16
-                    </p>
-                    <p>
-                        基于Docker镜像部署，使用MySQL数据库。
-                    </p>
-                </div>
-            </div>
+		<div class="main-content container justify-content-center">
+			<div class="row">
+				<div class="col-md-12 mt-4">
+					<div class="alert alert-warning d-flex justify-content-between" role="alert">
+						<a>当前页面内容为订单快照，包含订单创建时的商品描述和下单信息，买卖双方和平台在发生交易争议时，该页面作为判定依据。</a>
+						<a id="view-product-details">点此查看最新商品详情</a>
+					</div>
+				</div>
+			</div>
+			<div class="row product-card">
+				<div class="col-md-6">
+					<div class="product-img">
+						<img src="" alt="商品图片" id="productImg" class="img-fluid">
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="product-title">
+						<h1 id="productTitle"></h1>
+					</div>
+					<div class="product-price">
+						<p id="productPrice" class="price-tag"></p>
+					</div>
+					<div class="product-category mb-2">
+						<strong>商品分类：</strong> <span id="productCategory"></span>
+					</div>
+					<div class="product-code mb-2">
+						<strong>商品编号：</strong> <span id="productCode"></span>
+					</div>
+					<div class="product-stocks mb-2">
+						<strong>商品库存：</strong> <span id="productStocks"></span>
+					</div>
+				</div>
+			</div>
+			<!-- 商品详情部分 -->
+			<div class="row product-details">
+				<div class="col-md-12">
+					<h2>商品详情</h2>
+					<p id="productDescription" style="text-align: center;font-size: 1.25rem;"></p>
+					<div class="product-specs" style="display:none;">
+						<h3>规格参数</h3>
+						<ul>
+							<li><strong>品牌：</strong> <span id="brand"></span></li>
+							<li><strong>型号：</strong> <span id="model"></span></li>
+							<li><strong>颜色：</strong> <span id="color"></span></li>
+							<li><strong>尺寸：</strong> <span id="size"></span></li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 		<!-- 底部 -->
-		<div class="footer">
+		<div class="footer mt-2">
 			<div class="container py-4">
 				<div class="row align-items-center">
 					<div class="col-md-4 d-flex align-items-center">
@@ -114,7 +164,7 @@
 					<div class="col-md-4 d-flex justify-content-center">
 						<a href="/index.html" class="me-3">首页</a>
 						<a href="/protocol.html" class="me-3">用户协议</a>
-                        <a href="/about.html" class="me-3">关于商城</a>
+						<a href="/about.html" class="me-3">关于商城</a>
 						<a href="/github.html" class="me-3">GitHub</a>
 					</div>
 					<div class="col-md-4 d-flex justify-content-end">
@@ -144,5 +194,20 @@
 			  </div>
 			</div>
 		</div>
+	    <!-- 模态框 -->
+		<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">加载中...</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body text-center">
+					<div id="spinnerContainer" class="spinner-container"></div>
+				</div>
+			</div>
+			</div>
+		</div>
+		<script src="/spin-2.3.2-dist/spin.min.js"></script>
 	</body>
 </html>

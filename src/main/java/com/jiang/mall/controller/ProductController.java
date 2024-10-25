@@ -2,8 +2,10 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
+import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,39 @@ public class ProductController {
         this.productService = productService;
         return productService;
     }
+
+    private IProductSnapshotService productSnapshotService;
+
+    @Autowired
+    public IProductSnapshotService productSnapshotService(IProductSnapshotService productSnapshotService) {
+        this.productSnapshotService = productSnapshotService;
+        return productSnapshotService;
+    }
+
+    @GetMapping("/getSnapshotInfo")
+    public ResponseResult getSnapshotInfo(@RequestParam("id") Long id,
+                                          HttpSession session) {
+        if (id == null|| id < 0) {
+            return ResponseResult.failResult("参数错误");
+        }
+        if (!StringUtils.hasText(id.toString())){
+            return ResponseResult.failResult("请输入商品ID");
+        }
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkUserLogin(session);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        Long userId = (Long) result.getData();
+        // 根据产品ID获取产品信息
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,userId);
+
+        if (snapshot == null) {
+            return ResponseResult.notFoundResourceResult("没有找到相关数据");
+        }
+        return ResponseResult.okResult(snapshot);
+    }
+
 
     /**
      * 获取产品列表

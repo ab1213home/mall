@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productStocks').textContent = product.stocks;
                 document.getElementById('productDescription').textContent = product.description;
 			}else{
-				openModal('错误','未找到对应的商品ID');
+				window.location.href = "./index.html";
 			}
 		}
 	});

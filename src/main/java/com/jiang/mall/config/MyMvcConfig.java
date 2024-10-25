@@ -1,6 +1,9 @@
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.*;
+import com.jiang.mall.intercepter.AdminLoginInterceptor;
+import com.jiang.mall.intercepter.ApiLoginInterceptor;
+import com.jiang.mall.intercepter.CheckoutInterceptor;
+import com.jiang.mall.intercepter.UserLoginInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -15,13 +18,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Autowired
     public void setAdminLoginInterceptor(AdminLoginInterceptor adminLoginInterceptor) {
         this.adminLoginInterceptor = adminLoginInterceptor;
-    }
-
-    private AboutInterceptor aboutInterceptor;
-
-    @Autowired
-    public void setAboutInterceptor(AboutInterceptor aboutInterceptor) {
-        this.aboutInterceptor = aboutInterceptor;
     }
 
     private UserLoginInterceptor userLoginIntercepter;
@@ -54,9 +50,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin.html")
                 .addPathPatterns("/admin/**");
-        registry.addInterceptor(aboutInterceptor)
-                .addPathPatterns("/about.html")
-                .addPathPatterns("/about");
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/index")
                 .addPathPatterns("/user/index.html")
@@ -65,7 +58,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/cart.html")
                 .addPathPatterns("/orders")
                 .addPathPatterns("/orders.html")
-                .addPathPatterns("/checkout.html")
+                .addPathPatterns("/tradeSnap.html")
                 .addPathPatterns("/checkout")
                 .addPathPatterns("/checkout.html")
                 .addPathPatterns("/user/modify/info")
@@ -76,8 +69,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/modify/address.html")
                 .addPathPatterns("/collections")
                 .addPathPatterns("/collections.html")
-                .addPathPatterns("/about")
-                .addPathPatterns("/about.html")
                 .addPathPatterns("/user/index.html");
         registry.addInterceptor(checkoutInterceptor)
                 .addPathPatterns("/checkout.html");
