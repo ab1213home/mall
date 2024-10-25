@@ -256,7 +256,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				CategorySnapshotVo categoryVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
 				productVo.setCategory(categoryVo);
 				orderListVo.setProduct(productVo);
-				orderList_VoList.add(orderListVo);
 
 	            // 将订单详情VO对象添加到列表中
 	            orderList_VoList.add(orderListVo);
