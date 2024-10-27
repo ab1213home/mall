@@ -41,11 +41,6 @@ public class ProductSnapshotVo {
     private Double price;
 
     /**
-     * 库存数量
-     */
-    private Integer stocks;
-
-    /**
      * 商品描述
      */
     private String description;

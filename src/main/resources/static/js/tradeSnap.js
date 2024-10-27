@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productCode').textContent = product.code;
                 document.getElementById('productCategory').textContent = product.category.name;
                 document.getElementById('productPrice').textContent = product.price;
-                document.getElementById('productStocks').textContent = product.stocks;
                 document.getElementById('productDescription').textContent = product.description;
 				document.getElementById('view-product-details').href = "./product.html?id=" + product.prodId;
 			}else{

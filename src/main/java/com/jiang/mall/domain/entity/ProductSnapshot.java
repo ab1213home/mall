@@ -66,10 +66,6 @@ public class ProductSnapshot implements Serializable {
      */
     private Double price;
 
-    /**
-     * 商品库存
-     */
-    private Integer stocks;
 
     /**
      * 商品描述
@@ -111,7 +107,6 @@ public class ProductSnapshot implements Serializable {
         this.title=product.getTitle();
         this.img=product.getImg();
         this.price=product.getPrice();
-        this.stocks=product.getStocks();
         this.description=product.getDescription();
     }
 
@@ -125,7 +120,6 @@ public class ProductSnapshot implements Serializable {
                 ", categoryId=" + categoryId +
                 ", img='" + img + '\'' +
                 ", price=" + price +
-                ", stocks=" + stocks +
                 ", description='" + description + '\'' +
                 ", creator=" + creator +
                 ", createdAt="+ createdAt +

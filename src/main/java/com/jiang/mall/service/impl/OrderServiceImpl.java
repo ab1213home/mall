@@ -98,43 +98,125 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.categoryMapper = categoryMapper;
 	}
 
+	/**
+	 * 插入订单信息
+	 *
+	 * @param userId 用户ID
+	 * @param addressId 地址ID
+	 * @param paymentMethod 支付方式
+	 * @param status 订单状态
+	 * @param listCheckoutVo 结算信息列表，用于创建订单详情
+	 * @return 插入成功返回订单ID，否则返回null
+	 */
 	@Override
 	public Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
-		Order order = new Order();
-		order.setUserId(userId);
-		order.setAddressId(addressId);
-		order.setDate(new Date());
-		order.setTotalAmount(0.0);
-		for (CheckoutVo checkoutVo : listCheckoutVo) {
-			order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getProduct().getPrice()* checkoutVo.getNum()));
-		}
-		order.setPaymentMethod(paymentMethod);
-		order.setStatus(status);
-		if (orderMapper.insert(order) > 0) {
-			for (CheckoutVo checkoutVo : listCheckoutVo) {
-				//TODO：待修复，商品快照+分类快照
-				OrderList orderList = new OrderList(order.getId(),checkoutVo.getNum());
-				Product product = productMapper.selectById(checkoutVo.getProduct().getId());
-				Category category = categoryMapper.selectById(product.getCategoryId());
-				CategorySnapshot categorySnapshot = new CategorySnapshot(category);
-				ProductSnapshot productSnapshot = new ProductSnapshot(product);
-				if (categorySnapshotMapper.insert(categorySnapshot)>0){
-					productSnapshot.setCategoryId(categorySnapshot.getId());
-				}
-				if (productSnapshotMapper.insert(productSnapshot)>0){
-					orderList.setProdId(productSnapshot.getId());
-				}
-				if (orderListMapper.insert(orderList)>0){
-					logger.info("订单列表插入成功");
-				}else{
-					logger.error("订单列表插入失败，无法创建订单");
-					//TODO：待完善
+	    // 创建订单对象并设置基本信息
+	    Order order = new Order();
+	    order.setUserId(userId);
+	    order.setAddressId(addressId);
+	    order.setDate(new Date());
+	    order.setTotalAmount(0.0);
+	    // 计算订单总金额
+	    for (CheckoutVo checkoutVo : listCheckoutVo) {
+	        order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getProduct().getPrice()* checkoutVo.getNum()));
+	    }
+	    order.setPaymentMethod(paymentMethod);
+	    order.setStatus(status);
+	    // 插入订单信息
+	    if (orderMapper.insert(order) > 0) {
+			//TODO：待修复，完善商品快照，减少重复快照产生
+	        for (CheckoutVo checkoutVo : listCheckoutVo) {
+	            // 创建订单详情对象并设置基本信息
+	            OrderList orderList = new OrderList(order.getId(),checkoutVo.getNum());
+	            // 获取产品和类别信息
+		        Product product = productMapper.selectById(checkoutVo.getProduct().getId());
+				if (product == null) {
+					logger.error("产品信息不存在，无法创建订单");
 					return null;
 				}
-			}
-			return order.getId();
-		}
-		return null;
+				Category category = categoryMapper.selectById(product.getCategoryId());
+				if (category == null) {
+					logger.error("类别信息不存在，无法创建订单");
+					return null;
+				}
+	            // 查询是否存在相同的产品快照
+	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
+	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
+	            queryWrapper_productSnapshot.eq("title", product.getTitle());
+	            queryWrapper_productSnapshot.eq("price", product.getPrice());
+	            queryWrapper_productSnapshot.eq("img", product.getImg());
+	            queryWrapper_productSnapshot.eq("description", product.getDescription());
+	            queryWrapper_productSnapshot.eq("is_del", true);
+	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
+	            if (productSnapshot==null){
+	                // 如果不存在，则创建新的产品快照
+	                productSnapshot = new ProductSnapshot(product);
+	                // 查询是否存在相同的类别快照
+	                QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot = new QueryWrapper<>();
+	                queryWrapper_categorySnapshot.eq("category_id", category.getId());
+	                queryWrapper_categorySnapshot.eq("code", category.getCode());
+	                queryWrapper_categorySnapshot.eq("name", category.getName());
+	                queryWrapper_categorySnapshot.eq("level", category.getLevel());
+	                queryWrapper_categorySnapshot.eq("is_del", true);
+	                CategorySnapshot categorySnapshot = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot);
+	                if (categorySnapshot==null){
+	                    // 如果不存在，则创建新的类别快照
+	                    categorySnapshot = new CategorySnapshot(category);
+	                    if (categorySnapshotMapper.insert(categorySnapshot)>0){
+	                        productSnapshot.setCategoryId(categorySnapshot.getId());
+	                    }
+	                }else{
+	                    productSnapshot.setCategoryId(categorySnapshot.getId());
+	                }
+	                // 插入新的产品快照
+	                if (productSnapshotMapper.insert(productSnapshot)>0){
+	                    orderList.setProdId(productSnapshot.getId());
+	                }
+	            }else {
+	                // 如果存在相同的产品快照，检查类别信息是否一致
+	                QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot_temp= new QueryWrapper<>();
+	                queryWrapper_categorySnapshot_temp.eq("id", productSnapshot.getCategoryId());
+	                CategorySnapshot categorySnapshot_temp = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot_temp);
+	                QueryWrapper<Category> queryWrapper_category = new QueryWrapper<>();
+	                queryWrapper_category.eq("id", categorySnapshot_temp.getCategoryId());
+	                Category category_temp = categoryMapper.selectOne(queryWrapper_category);
+	                if (!Objects.equals(category_temp.getCode(), categorySnapshot_temp.getCode()) || !Objects.equals(category_temp.getName(), categorySnapshot_temp.getName()) || !Objects.equals(category_temp.getLevel(), categorySnapshot_temp.getLevel())){
+	                    // 如果类别信息不一致，创建新的产品和类别快照
+	                    productSnapshot = new ProductSnapshot(product);
+	                    QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot = new QueryWrapper<>();
+	                    queryWrapper_categorySnapshot.eq("category_id", category.getId());
+	                    queryWrapper_categorySnapshot.eq("code", category.getCode());
+	                    queryWrapper_categorySnapshot.eq("name", category.getName());
+	                    queryWrapper_categorySnapshot.eq("level", category.getLevel());
+	                    queryWrapper_categorySnapshot.eq("is_del", true);
+	                    CategorySnapshot categorySnapshot = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot);
+	                    if (categorySnapshot==null){
+	                        categorySnapshot = new CategorySnapshot(category);
+	                        if (categorySnapshotMapper.insert(categorySnapshot)>0){
+	                            productSnapshot.setCategoryId(categorySnapshot.getId());
+	                        }
+	                    }else{
+	                        productSnapshot.setCategoryId(categorySnapshot.getId());
+	                    }
+	                    if (productSnapshotMapper.insert(productSnapshot)>0){
+	                        orderList.setProdId(productSnapshot.getId());
+	                    }
+	                }else {
+	                    orderList.setProdId(productSnapshot.getId());
+	                }
+	            }
+	            // 插入订单详情信息
+	            if (orderListMapper.insert(orderList)>0){
+	                logger.info("订单列表插入成功");
+	            }else{
+	                logger.error("订单列表插入失败，无法创建订单");
+	                //TODO：待完善
+	                return null;
+	            }
+	        }
+	        return order.getId();
+	    }
+	    return null;
 	}
 
 	@Override
