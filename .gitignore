@@ -34,3 +34,5 @@ build/
 
 /config.properties
 /application.properties
+/mall.burp
+/mall.burp.backup
