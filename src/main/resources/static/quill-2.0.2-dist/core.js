@@ -18,21 +18,21 @@ import UINode from './modules/uiNode.js';
 export { default as Module } from './core/module.js';
 export { Delta, Op, OpIterator, AttributeMap, Parchment, Range };
 Quill.register({
-    'blots/block': Block,
-    'blots/block/embed': BlockEmbed,
-    'blots/break': Break,
-    'blots/container': Container,
-    'blots/cursor': Cursor,
-    'blots/embed': Embed,
-    'blots/inline': Inline,
-    'blots/scroll': Scroll,
-    'blots/text': TextBlot,
-    'modules/clipboard': Clipboard,
-    'modules/history': History,
-    'modules/keyboard': Keyboard,
-    'modules/uploader': Uploader,
-    'modules/input': Input,
-    'modules/uiNode': UINode,
+  'blots/block': Block,
+  'blots/block/embed': BlockEmbed,
+  'blots/break': Break,
+  'blots/container': Container,
+  'blots/cursor': Cursor,
+  'blots/embed': Embed,
+  'blots/inline': Inline,
+  'blots/scroll': Scroll,
+  'blots/text': TextBlot,
+  'modules/clipboard': Clipboard,
+  'modules/history': History,
+  'modules/keyboard': Keyboard,
+  'modules/uploader': Uploader,
+  'modules/input': Input,
+  'modules/uiNode': UINode
 });
 export default Quill;
 //# sourceMappingURL=core.js.map

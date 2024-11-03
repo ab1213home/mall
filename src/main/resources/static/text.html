@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Quill Editor Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+    <link href="/quill-2.0.2-dist/dist/quill.snow.css" rel="stylesheet">
+<!--    <link href="//cdn.staticfile.org/quill/2.0.2/quill.bubble.css" rel="stylesheet">-->
+<!--    <link href="//cdn.staticfile.org/quill/2.0.2/quill.core.css" rel="stylesheet">-->
+</head>
+<body>
+
+<!-- Create the editor container -->
+<div id="editor">
+  <p>Hello World!</p>
+  <p>Some initial <strong>bold</strong> text</p>
+  <p><br /></p>
+</div>
+
+<script src="/quill-2.0.2-dist/dist/quill.js"></script>
+<script type="module">
+    const quill = new Quill("#editor", {
+        theme: "snow",
+    });
+</script>
+<!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.min.js"></script>-->
+<!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.core.js"></script>-->
+
+</body>
+</html>

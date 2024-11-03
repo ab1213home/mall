@@ -165,6 +165,44 @@
 
     </dependencies>
 
+    <repositories>
+        <!-- 中央仓库 -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <!-- 阿里云中央仓库镜像 -->
+        <repository>
+            <id>aliyun-central</id>
+            <url>https://maven.aliyun.com/repository/central</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <!-- 阿里云公共仓库镜像 -->
+        <repository>
+            <id>aliyun-public</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- 阿里云 Gradle 插件仓库镜像 -->
+        <repository>
+            <id>aliyun-gradle-plugin</id>
+            <url>https://maven.aliyun.com/repository/gradle-plugin</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- 阿里云 Apache 快照仓库镜像 -->
+        <repository>
+            <id>aliyun-apache-snapshots</id>
+            <url>https://maven.aliyun.com/repository/apache-snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
