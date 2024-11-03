@@ -5,6 +5,7 @@
     <title>Quill Editor Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
     <link href="/quill-2.0.2-dist/dist/quill.snow.css" rel="stylesheet">
+    <link href="/quill-image-uploader-dist/quill.imageUploader.min.css" rel="stylesheet">
 <!--    <link href="//cdn.staticfile.org/quill/2.0.2/quill.bubble.css" rel="stylesheet">-->
 <!--    <link href="//cdn.staticfile.org/quill/2.0.2/quill.core.css" rel="stylesheet">-->
 </head>
@@ -18,9 +19,55 @@
 </div>
 
 <script src="/quill-2.0.2-dist/dist/quill.js"></script>
+<script src="/quill-image-uploader-dist/quill.imageUploader.min.js"></script>
+<script src="/quill-image-uploader-dist/demo.min.js"></script>
 <script type="module">
-    const quill = new Quill("#editor", {
-        theme: "snow",
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
+        ['blockquote', 'code-block'], // 引用  代码块
+        [{ header: 1 }, { header: 2 }], // 1、2 级标题
+        [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表
+        [{ script: 'sub' }, { script: 'super' }], // 上标/下标
+        [{ indent: '-1' }, { indent: '+1' }], // 缩进
+        [{ direction: 'rtl' }], // 文本方向
+        [{ 'size': ['small', false, 'large', 'huge'] }],  // 字体大小
+        [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
+        [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色
+        [{ font: [] }], // 字体种类
+        [{ align: [] }], // 对齐方式
+        ['clean'], // 清除文本格式
+        ['link', 'image'], // 链接、图片
+    ];
+
+    async function uploadFileAPI(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        $.ajax({
+            url: '/common/uploadFile',
+            type: 'post',
+            data:formData,
+            contentType: false,
+            processData: false,
+            success: function (res){
+                if (res.code == 200){
+                    return res.data
+                }else {
+                    return false
+                }
+            }
+        });
+    }
+
+    const quill = new Quill('#editor', {
+        modules: {
+            imageUploader: {
+                upload: async (file) => {
+                    return await uploadFileAPI({file}) // 此处替换为接口返回的文件路径
+                }
+            },
+            toolbar: toolbarOptions
+        },
+        theme: 'snow'
     });
 </script>
 <!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.min.js"></script>-->
