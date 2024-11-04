@@ -10,7 +10,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # 安装 dmidecode
 
 # 将本地文件复制（或添加）到容器中
-COPY target/mall-1.6.4_reconfiguration.jar  mall.jar
+COPY target/mall-1.6.5_reconfiguration.jar  mall.jar
 
 # 声明运行时容器提供服务时使用的端口
 EXPOSE 8080
