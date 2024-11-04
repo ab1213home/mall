@@ -1,4 +1,4 @@
-# mall
+# Jiang Mall
 
 ## 介绍
 网站开发与设计课程设计
@@ -11,7 +11,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 ## 技术栈
 
 - **前端**：JavaScript
-- **后端**：Spring Boot 3.3.4(OpenJDK17)
+- **后端**：Spring Boot 3.3.4(Oracle OpenJDK 17.0.11)
 - **数据库**：MySQL 8.0.36
 - **版本控制**：Git
 - **持续集成/持续部署**：Jenkins / GitHub Actions
@@ -81,9 +81,9 @@ Navicat Premium Lite 版本17.1.5(简体中文)
     ```
    输入数据库root账户密码
 
-   -h127.0.0.1表示连接到本地的 MySQL 服务器，如果需要连接到其他服务器，则修改为对应服务器的 IP 地址。
+   -h127.0.0.1:表示连接到本地的MySQL服务器，如果需要连接到其他服务器，则修改为对应服务器的IP地址。
    
-    your_db 是你要导入数据的数据库名称。
+    your_db:是你要导入数据的数据库名称。
 5. 部署项目
    1. 使用Docker部署项目
       ```shell
@@ -95,7 +95,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
       ```
    2. 使用tomcat部署项目
       ```shell
-      mvn clean && mvn compile && mvn package 
+      mvn clean && mvn compile && mvn package
       java -jar target/mall-1.6.4_reconfiguration.jar --spring.config.location=classpath:application.properties
       ```
 ## 测试环境
