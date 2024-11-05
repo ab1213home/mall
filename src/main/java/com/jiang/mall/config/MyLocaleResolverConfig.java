@@ -134,48 +134,93 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.HtmlInterceptor;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 @Configuration
-public class MyWebConfig implements WebMvcConfigurer {
+public class MyLocaleResolverConfig implements LocaleResolver {
 
-    /**
-     * 添加拦截器配置
-     * <p>
-     * 该方法用于向应用程序中添加拦截器，以在请求处理之前或之后执行特定逻辑
-     * 它重写了父类中的方法，以便能够自定义拦截器配置
-     *
-     * @param registry InterceptorRegistry的实例，用于注册拦截器
-     */
-    @Override
-    public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        // 注册一个HtmlInterceptor拦截器，应用于所有请求路径
-        // 这个拦截器可能会用于处理与HTML相关的请求头或响应头
-        registry.addInterceptor(new HtmlInterceptor()).addPathPatterns("/**");
+	@Getter
+    public enum Language{
+		Chinese("zh", new Locale("zh_CN")),
+		English("en",new Locale("en_US")),
+		Japanese("jp",new Locale("ja_JP"));
+
+		private final Locale locale;
+		private final String name;
+		Language(String name,Locale locale) {
+			this.locale = locale;
+			this.name = name;
+		}
     }
 
-    /**
-     * 添加跨域请求的映射
-     * 此方法用于配置允许跨域请求的规则，对所有请求开放跨域支持
-     *
-     * @param registry CorsRegistry对象，用于注册跨域请求的映射
-     */
-    @Override
-    public void addCorsMappings(@NotNull CorsRegistry registry) {
-        //所有请求都允许跨域
-        registry.addMapping("/api/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
-                .allowedHeaders("*");
+	static Set<String> languages = Set.of("zh","en","jp");
+
+	private HttpServletRequest request;
+
+	@Autowired
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
+	public Locale getLocal() {
+        return resolveLocale(request);
     }
+
+	/**
+	 * 解析请求以确定当前用户的语言环境
+	 * 此方法优先检查请求参数中的'lang'设置，如果未提供，则使用请求头中的'Accept-Language'
+	 * 如果两者都不可用，则回退到系统的默认语言环境
+	 *
+	 * @param request HTTP请求对象，用于获取语言信息
+	 * @return 当前用户的语言环境
+	 */
+	@Override
+	public @NotNull Locale resolveLocale(@NotNull HttpServletRequest request) {
+	    Locale locale = null;
+	    // 如果参数中提供了语言信息，将其解析为Locale对象
+	    if (request.getParameter("lang") != null && ! request.getParameter("lang").isEmpty()) {
+	        String[] split = request.getParameter("lang").split("_");
+			for (Language language : Language.values()){
+				if (language.getName().equals(split[0].toLowerCase())){
+					locale = language.getLocale();
+					break;
+				}
+			}
+
+	    }
+		//尝试从请求头中获取
+		if (locale == null && request.getHeader("Accept-Language")!=null && ! request.getHeader("Accept-Language").isEmpty()){
+			String[] split = request.getHeader("Accept-Language").split(",");
+			String[] s1 = split[0].split("-");
+			for (Language language : Language.values()){
+				if (language.getName().equals(s1[0].toLowerCase())){
+					locale = language.getLocale();
+					break;
+				}
+			}
+	    }
+		// 如果以上两种方式都无法确定语言环境，则使用系统默认设置
+		if (locale == null) {
+			locale = Locale.getDefault();
+		}
+		return locale;
+	}
+
+	@Override
+	public void setLocale(@NotNull HttpServletRequest request, HttpServletResponse response, Locale locale) {
+
+	}
 
 }
-
-
