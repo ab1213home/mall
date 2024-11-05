@@ -3,8 +3,8 @@ import getDocumentElement from "../dom-utils/getDocumentElement.js";
 import getBoundingClientRect from "../dom-utils/getBoundingClientRect.js";
 import computeOffsets from "./computeOffsets.js";
 import rectToClientRect from "./rectToClientRect.js";
-import { clippingParents, reference, popper, bottom, top, right, basePlacements, viewport } from "../enums.js";
-import { isElement } from "../dom-utils/instanceOf.js";
+import {basePlacements, bottom, clippingParents, popper, reference, right, top, viewport} from "../enums.js";
+import {isElement} from "../dom-utils/instanceOf.js";
 import mergePaddingObject from "./mergePaddingObject.js";
 import expandToHashMap from "./expandToHashMap.js"; // eslint-disable-next-line import/no-unused-modules
 export default function detectOverflow(state, options) {

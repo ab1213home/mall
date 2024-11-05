@@ -1,5 +1,5 @@
 import getNodeName from "../dom-utils/getNodeName.js";
-import { isHTMLElement } from "../dom-utils/instanceOf.js"; // This modifier takes the styles prepared by the `computeStyles` modifier
+import {isHTMLElement} from "../dom-utils/instanceOf.js"; // This modifier takes the styles prepared by the `computeStyles` modifier
 // and applies them to the HTMLElements such as popper and arrow
 function applyStyles(_ref) {
   var state = _ref.state;

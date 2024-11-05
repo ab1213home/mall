@@ -1,7 +1,8 @@
 import getVariation from "./getVariation.js";
-import { variationPlacements, basePlacements, placements as allPlacements } from "../enums.js";
+import {basePlacements, placements as allPlacements, variationPlacements} from "../enums.js";
 import detectOverflow from "./detectOverflow.js";
 import getBasePlacement from "./getBasePlacement.js";
+
 export default function computeAutoPlacement(state, options) {
   if (options === void 0) {
     options = {};

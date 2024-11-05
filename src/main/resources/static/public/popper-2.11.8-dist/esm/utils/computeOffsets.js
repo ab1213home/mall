@@ -1,7 +1,8 @@
 import getBasePlacement from "./getBasePlacement.js";
 import getVariation from "./getVariation.js";
 import getMainAxisFromPlacement from "./getMainAxisFromPlacement.js";
-import { top, right, bottom, left, start, end } from "../enums.js";
+import {bottom, end, left, right, start, top} from "../enums.js";
+
 export default function computeOffsets(_ref) {
   var reference = _ref.reference,
     element = _ref.element,

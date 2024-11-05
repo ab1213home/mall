@@ -6,7 +6,8 @@ import orderModifiers from "./utils/orderModifiers.js";
 import debounce from "./utils/debounce.js";
 import mergeByName from "./utils/mergeByName.js";
 import detectOverflow from "./utils/detectOverflow.js";
-import { isElement } from "./dom-utils/instanceOf.js";
+import {isElement} from "./dom-utils/instanceOf.js";
+
 var DEFAULT_OPTIONS = {
   placement: 'bottom',
   modifiers: [],

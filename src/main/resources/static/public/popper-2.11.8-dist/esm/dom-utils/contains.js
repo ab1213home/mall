@@ -1,4 +1,5 @@
-import { isShadowRoot } from "./instanceOf.js";
+import {isShadowRoot} from "./instanceOf.js";
+
 export default function contains(parent, child) {
   var rootNode = child.getRootNode && child.getRootNode();
 
