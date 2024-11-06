@@ -165,8 +165,6 @@ public class MyLocaleResolverConfig implements LocaleResolver {
 		}
     }
 
-	static Set<String> languages = Set.of("zh","en","jp");
-
 	private HttpServletRequest request;
 
 	@Autowired
