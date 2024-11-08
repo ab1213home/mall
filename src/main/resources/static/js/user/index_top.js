@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2024 Jiang RongJun
+ * Jiang Mall is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan
+ * PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
 const signList = ["我感到难过，不是因为你欺骗了我，而是因为我再也不能相信你了",
 	"一个人知道自己为什么而活，就可以忍受任何一种生活", "哈库拉玛塔塔",
 	"人是苦虫，不打不行", "比比，爱姆sheep", "我于杀戮之中盛放，一如黎明中的花朵",
