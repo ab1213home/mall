@@ -182,7 +182,7 @@
                 <div class="card">
                     <div class="card-body login-card-body">
                         <div class="login-logo" style="color: #1baeae;">
-                            <img src="/images/logo.png" style="height: 58px;float: left;margin-left: 10px;" alt="">
+                            <img src="/images/logo.png" style="height: 58px;float: left;margin-left: 10px;" alt="logo">
                             <h1 class="h3 mb-3 font-weight-normal">统一用户管理系统</h1>
                         </div>
                         <!-- /.login-logo -->
@@ -198,6 +198,7 @@
                                                                      required maxlength="100" autocomplete="current-password">
                             </div>
                             <div class="form-group has-feedback row">
+                                <span class="fa fa-shield form-control-feedback"></span>
                                 <div class="col-6">
                                     <label>
                                         <input type="text" class="form-control" id="captcha" name="captcha" placeholder="请输入验证码" required maxlength="20">
@@ -267,6 +268,12 @@
     <script src="/public/crypto-4.2.0-dist/crypto-js.min.js"></script>
     <script src="/js/encrypt.js"></script>
     <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
+    <script src="https://api.ipify.org?format=jsonp&callback=getip"></script>
+    <script>
+        function getip(response) {
+            return response.ip;
+        }
+    </script>
     <script src="/js/getIP.js"></script>
     <script src="/js/user/login.js"></script>
 </body>
