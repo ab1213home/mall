@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 邮箱验证码实体类，对应数据库表 tb_verification_codes
@@ -84,7 +85,7 @@ public class VerificationCode implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createdAt;
+    private LocalDateTime triggerTime;
 
 	/**
      * 状态
@@ -101,6 +102,7 @@ public class VerificationCode implements Serializable {
 		this.purpose = emailPurpose.getValue();
 		this.status = emailStatus.getValue();
 		this.userId = userId;
+		this.triggerTime = LocalDateTime.now();
 	}
 
 	public VerificationCode(String username, String email, String password, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus) {
@@ -110,5 +112,6 @@ public class VerificationCode implements Serializable {
 		this.code = code;
 		this.purpose = emailPurpose.getValue();
 		this.status = emailStatus.getValue();
+		this.triggerTime = LocalDateTime.now();
 	}
 }

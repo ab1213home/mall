@@ -14,24 +14,19 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.util.I18nUtils;
+import com.jiang.mall.service.II18nService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Locale;
 
 @RestController
 public class LocaleController {
 
 	@Autowired
-	private I18nUtils i18nUtils;
+	private II18nService i18nService;
 
-	@GetMapping("/setLocale")
+	@GetMapping("/text/Locale")
 	public ResponseResult setLocale() {
-		return ResponseResult.okResult(i18nUtils.getMessage("text"));
+		return ResponseResult.okResult(i18nService.getMessage("text"));
 	}
 }

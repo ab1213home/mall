@@ -16,6 +16,18 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 - **版本控制**：Git
 - **持续集成/持续部署**：Jenkins / GitHub Actions
 
+#### 第三方API
+1. 使用[ipify](https://www.ipify.org/)实现公网ip获取
+    ```javascript
+    <script type="application/javascript">
+        let ip = "";
+        function getIP(json) {
+            ip = json.ip;
+        }
+    </script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
+   ```
+
 #### 后端
 
 1. 使用[easy-captcha](https://github.com/ele-admin/EasyCaptcha "v1.6.2")实现验证码部分

@@ -14,33 +14,33 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8">
-  <title>mall统一用户管理系统 | Log in</title>
-  <meta name="description" content="mall统一用户管理系统 | Log in">
-  <meta name="author" content="jiang" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- Tell the browser to be responsive to screen width -->
-  <link rel="shortcut icon" href="/images/favicon.png"/>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="/css/ionicons.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="/css/adminlte.min.css">
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/css/user/style.css">
-  <style>
-    canvas {
-      display: block;
-      vertical-align: bottom;
-    }
-    .login-box {
-      background-color: rgba(255, 255, 255, 0);
-      z-index: 1;
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>mall统一用户管理系统 | Log in</title>
+    <meta name="description" content="mall统一用户管理系统 | Log in">
+    <meta name="author" content="jiang" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <link rel="shortcut icon" href="/images/favicon.png"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/css/adminlte.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/user/style.css">
+    <style>
+        canvas {
+            display: block;
+            vertical-align: bottom;
+        }
+        .login-box {
+            background-color: rgba(255, 255, 255, 0);
+            z-index: 1;
+        }
+    </style>
 </head>
 <body class="hold-transition register-page">
 
@@ -147,13 +147,25 @@
     <script src="/public/crypto-4.2.0-dist/crypto-js.min.js"></script>
     <script src="/js/encrypt.js"></script>
     <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
-    <script src="https://api.ipify.org?format=jsonp&callback=getip"></script>
-    <script>
-        function getip(response) {
-            return response.ip;
+    <script type="application/javascript">
+        let fingerprint = "";
+        let ip = "";
+        function getIP(json) {
+            ip = json.ip;
         }
+        async function getFingerprint() {
+            // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+            const fpPromise = await FingerprintJS.load();
+            // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+            const result = await fpPromise.get();
+            // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+            return result.visitorId
+        }
+        (async () => {
+            fingerprint=await getFingerprint();
+        })();
     </script>
-    <script src="/js/getIP.js"></script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
     <script src="/js/user/login.js"></script>
 </body>
 </html>

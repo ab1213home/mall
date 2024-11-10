@@ -14,36 +14,36 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="utf-8">
-  <title>mall统一用户管理系统 | Forgot</title>
-  <meta name="description" content="mall统一用户管理系统 | Forgot">
-  <meta name="author" content="jiang" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- Tell the browser to be responsive to screen width -->
-  <link rel="shortcut icon" href="/images/favicon.png"/>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="/css/font-awesome.min.css">
-  <!-- Ionicons -->
-  <link rel="stylesheet" href="/css/ionicons.min.css">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="/css/adminlte.min.css">
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/css/user/style.css">
-  <style>
-    canvas {
-      display: block;
-      vertical-align: bottom;
-    }
-    .register-box {
-      background-color: rgba(255, 255, 255, 0);
-      z-index: 1;
-    }
-    .selected {
-        border: 5px solid orange; /* 可以根据需要调整边框颜色和宽度 */
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>mall统一用户管理系统 | Forgot</title>
+    <meta name="description" content="mall统一用户管理系统 | Forgot">
+    <meta name="author" content="jiang" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <link rel="shortcut icon" href="/images/favicon.png"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/css/adminlte.min.css">
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/user/style.css">
+    <style>
+        canvas {
+            display: block;
+            vertical-align: bottom;
+        }
+        .register-box {
+            background-color: rgba(255, 255, 255, 0);
+            z-index: 1;
+        }
+        .selected {
+            border: 5px solid orange; /* 可以根据需要调整边框颜色和宽度 */
+        }
+    </style>
 </head>
 <body class="hold-transition register-page">
 
@@ -140,7 +140,7 @@
             </div>
         </div>
     </section>
-  <!-- Register form -->
+    <!-- Register form -->
 	<!-- 固定提示框 -->
 	<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
@@ -159,15 +159,35 @@
 			</div>
 		</div>
 	</div>
-  <!-- /.register-box -->
+    <!-- /.register-box -->
 
-  <!-- jQuery -->
-  <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
-  <!-- Bootstrap 5 -->
-  <script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/modal.js"></script>
-  <script src="/crypto-4.2.0-dist/crypto-js.min.js"></script>
-  <script src="/js/encrypt.js"></script>
-  <script src="/js/user/forgot.js"></script>
+    <!-- jQuery -->
+    <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap 5 -->
+    <script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/public/crypto-4.2.0-dist/crypto-js.min.js"></script>
+    <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
+    <script type="application/javascript">
+        let fingerprint = "";
+        let ip = "";
+        function getIP(json) {
+            ip = json.ip;
+        }
+        async function getFingerprint() {
+            // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+            const fpPromise = await FingerprintJS.load();
+            // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+            const result = await fpPromise.get();
+            // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+            return result.visitorId
+        }
+        (async () => {
+            fingerprint=await getFingerprint();
+        })();
+    </script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
+    <script src="/js/encrypt.js"></script>
+    <script src="/js/user/forgot.js"></script>
 </body>
 </html>

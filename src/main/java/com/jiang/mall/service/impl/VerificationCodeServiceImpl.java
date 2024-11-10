@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.VerificationCodeMapper;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.service.IVerificationCodeService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,40 +50,30 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	public boolean inspectByEmail(String email) {
 	    // 当前时间
 	    Date now = new Date();
-	    // 一天前的时间
+	    // 一天前的时间selectCount
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
 	    // 构建查询条件
-	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email", email);
-	    queryWrapper.ge("created_at", yesterday);
-	    queryWrapper.le("created_at", now);
+		QueryWrapper<VerificationCode> queryWrapper_list = new QueryWrapper<>();
+		queryWrapper_list.eq("email", email);
+		queryWrapper_list.between("trigger_time", yesterday, now);
+		long listCount = verificationCodeMapper.selectCount(queryWrapper_list);
+		QueryWrapper<VerificationCode> queryWrapper_fail = new QueryWrapper<>();
+		queryWrapper_fail.eq("email", email);
+		queryWrapper_fail.eq("status", EmailStatus.FAILED.getValue());
+		queryWrapper_fail.between("trigger_time", yesterday, now);
+		long failCount = verificationCodeMapper.selectCount(queryWrapper_fail);
 
-	    int count = 0;
-	    int success = 0;
-	    int fail = 0;
-	    // 查询并返回结果数量
-	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
-	    for (VerificationCode verificationCode : list) {
-	        count++;
-	        if (verificationCode.getStatus() == EmailStatus.SUCCESS.getValue()) {
-	            success++;
-	        } else if (verificationCode.getStatus() == EmailStatus.FAILED.getValue()) {
-	            continue;
-	        } else {
-	            fail++;
-	        }
-	    }
 	    // 检查请求数量是否小于等于最小请求数量
-	    if (count <= min_request_num) {
+	    if (listCount <= min_request_num) {
 	        return false;
 	    }
 	    // 检查请求数量是否大于最大请求数量
-	    if (count > max_request_num) {
+	    if (listCount > max_request_num) {
 	        return true;
 	    }
 	    // 计算失败率并判断是否超过最大失败率阈值
-	    return fail / (double) count > max_fail_rate;
+	    return failCount / (double) listCount > max_fail_rate;
 	}
 
 	/**
@@ -106,13 +97,11 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 构建查询条件
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email);
-	    queryWrapper.ge("created_at", yesterday);
-	    queryWrapper.le("created_at", now);
+	    queryWrapper.between("trigger_time", yesterday, now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
-	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
-	    return !list.isEmpty();
+	    return verificationCodeMapper.selectCount(queryWrapper)>0;
 	}
 
 
@@ -132,14 +121,11 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 构建查询条件
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("user_id", id);
-	    queryWrapper.ge("created_at", yesterday);
-	    queryWrapper.le("created_at", now);
+	    queryWrapper.between("trigger_time", yesterday, now);
 	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
-	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
-	    // 如果列表不为空，则返回true，表示存在有效的用户代码
-	    return !list.isEmpty();
+	    return verificationCodeMapper.selectCount(queryWrapper)>0;
 	}
 
 	/**
@@ -162,8 +148,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
-	    queryWrapper.ge("created_at", yesterday); // 创建时间大于等于yesterday，即expiration_time分钟内创建的
-	    queryWrapper.le("created_at", now); // 创建时间小于等于当前时间，即还未过期的
+	    queryWrapper.between("trigger_time", yesterday, now);
 	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
 
 	    // 执行查询
@@ -173,7 +158,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	        return null;
 	    }
 		// 按照创建时间降序排序
-	    list.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+	    list.sort((a, b) -> b.getTriggerTime().compareTo(a.getTriggerTime()));
 	    // 只保留最后一条记录为有效状态，其余设置为失效状态
 	    for (int i = 1; i < list.size(); i++) {
 	        VerificationCode verificationCode = list.get(i);
@@ -197,7 +182,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果更新成功则返回true，否则返回false
 	 */
 	@Override
-	public boolean useCode(Long userId, VerificationCode verificationCode) {
+	public boolean useCode(Long userId, @NotNull VerificationCode verificationCode) {
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
 	    verificationCode.setUserId(userId);
 	    // 将验证码状态更改为“已使用”

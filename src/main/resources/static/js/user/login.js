@@ -41,8 +41,8 @@ function submitLoginForm() {
     type: 'POST',
     data: data,
     headers: {
-        'CLIENT_FINGERPRINT':getFingerprint(),
-        'CLIENT_IP':getip(),
+        'CLIENT_FINGERPRINT':fingerprint,
+        'CLIENT_IP':ip,
     },
     beforeSend: function() {
        // 在发送请求之前，显示加载
@@ -77,23 +77,3 @@ $(document).ready(function() {
     submitLoginForm(); // 自定义提交处理
   });
 });
-
-/**
- * 异步获取访客唯一标识符
- *
- * 本函数通过调用FingerprintJS库来生成或获取访客的唯一标识符
- * 使用await关键字确保在继续执行之前加载完成并获取到标识符
- *
- * @returns {Promise<string>} 返回一个Promise，解析为访客的唯一标识符字符串
- */
-async function getFingerprint() {
-    // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
-    const result = await FingerprintJS.load();
-
-    // 调用get方法获取访客的唯一标识符，这也是一个异步操作
-    // get方法返回一个对象，其中包含visitorId属性，即访客的唯一标识符
-    const visitorId = await result.get();
-
-    // 返回访客的唯一标识符
-    return visitorId.visitorId;
-}

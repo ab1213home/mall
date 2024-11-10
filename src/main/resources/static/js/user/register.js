@@ -184,6 +184,10 @@ function submitRegisterStepTowForm() {
     url: '/user/registerStep1',
     type: 'POST',
     data: data,
+    headers: {
+        'CLIENT_FINGERPRINT':fingerprint,
+        'CLIENT_IP':ip,
+    },
     success: function (data) {
         // 处理成功响应
         if (data.code === 200) {

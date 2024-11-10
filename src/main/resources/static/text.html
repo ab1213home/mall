@@ -34,6 +34,7 @@
 <script src="/public/quill-2.0.2-dist/dist/quill.js"></script>
 <script src="/public/quill-image-uploader-dist/quill.imageUploader.min.js"></script>
 <script src="/public/quill-image-uploader-dist/demo.min.js"></script>
+<script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
 <script type="module">
     const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
@@ -82,6 +83,19 @@
         },
         theme: 'snow'
     });
+    async function getFingerprint() {
+        // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+        const fpPromise = await FingerprintJS.load();
+        // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+        const result = await fpPromise.get();
+        // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+        return result.visitorId
+    }
+    (async () => {
+        const fingerprint = await getFingerprint();
+        console.log(fingerprint); // 打印指纹信息
+    })();
+
 </script>
 <!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.min.js"></script>-->
 <!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.core.js"></script>-->

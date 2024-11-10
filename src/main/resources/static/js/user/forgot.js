@@ -108,6 +108,10 @@ function submitForgotStepTwoForm() {
     url: '/user/forgot',
     type: 'POST',
     data: data,
+    headers: {
+        'CLIENT_FINGERPRINT':fingerprint,
+        'CLIENT_IP':ip,
+    },
     success: function (res) {
         // 处理成功响应
         if (res.code === 200) {

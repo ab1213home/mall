@@ -17,7 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.ILoginRecordService;
+import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -48,6 +48,8 @@ import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 @RequestMapping("/user")
 public class UserController {
 
+    private final int max_try_number = 5;
+
     private IUserService userService;
 
     /**
@@ -72,11 +74,11 @@ public class UserController {
         this.verificationCodeService = verificationCodeService;
     }
 
-    private ILoginRecordService loginRecordService;
+    private IUserRecordService userRecordService;
 
     @Autowired
-    public void setLoginRecordService(ILoginRecordService loginRecordService) {
-        this.loginRecordService = loginRecordService;
+    public void setLoginRecordService(IUserRecordService userRecordService) {
+        this.userRecordService = userRecordService;
     }
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -97,6 +99,8 @@ public class UserController {
                                       @RequestParam("code") String code,
                                       @RequestParam("password") String password,
                                       @RequestParam("confirmPassword") String confirmPassword,
+                                      @RequestHeader("CLIENT_IP") String clientIp,
+                                      @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
                                       HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("User")!=null){
@@ -157,6 +161,8 @@ public class UserController {
                                         @RequestParam("confirmPassword") String confirmPassword,
                                         @RequestParam("email") String email,
                                         @RequestParam("code")String code,
+                                        @RequestHeader("CLIENT_IP") String clientIp,
+                                        @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
                                         HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("User")!=null){
@@ -208,6 +214,7 @@ public class UserController {
         if (userId>0) {
             session.setAttribute("UserId",userId);
             verificationCodeService.useCode(userId, userVerificationCode);
+            userRecordService.successRegisterRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因注册失败");
@@ -330,31 +337,25 @@ public class UserController {
         if (!StringUtils.hasText(username) || !isSha256Hash(password)) {
             return ResponseResult.failResult("用户名(邮箱)或密码不能为空");
         }
-        //TODO: 2024/10/17 考虑是否需要限制尝试登录次数
-//        int text_number = loginRecordService.countByUsername(username);
-//        if (text_number>=5){
-//            return ResponseResult.failResult("用户已尝试登录多次失败，请稍后再试");
-//        }
+        // 检查用户尝试登录失败次数
+        if (userRecordService.countTryNumber(username, clientIp, fingerprint,max_try_number)>=max_try_number){
+            return ResponseResult.failResult("用户尝试登录失败次数过多，请稍后再试");
+        }
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {
-//            if (session.getAttribute(username)!=null){
-//                int number = (int) session.getAttribute(username);
-//                return ResponseResult.failResult("用户已尝试登录失败，请稍后再试");
-//            }
             UserVo userVo= BeanCopyUtils.copyBean(user, UserVo.class);
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
             // 登录成功，存储用户信息到session
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 2);
+            userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult();
         } else {
             // 登录失败，返回相应错误信息
             session.removeAttribute("captcha");
-//            if (session.getAttribute(username)!=null){
-//                session.setAttribute(username,(int) session.getAttribute(username)+1);
-//            }
+            userRecordService.failedLoginRecord(username, clientIp, fingerprint);
             return ResponseResult.failResult("用户不存在或用户名(邮箱)或密码错误");
         }
     }
@@ -362,7 +363,7 @@ public class UserController {
     @PostMapping("/modify/email")
     public ResponseResult modifyEmail(@RequestParam("email") String email,
                                       @RequestParam("code") String code,
-                                       HttpSession session) {
+                                      HttpSession session) {
         if (email==null||code==null){
             return ResponseResult.failResult("参数错误");
         }
@@ -390,6 +391,7 @@ public class UserController {
         user.setEmail(email);
         if (userService.updateById(user)) {
             verificationCodeService.useCode(userId, userVerificationCode);
+            userRecordService.successModifyEmailRecord(user, email);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.serverErrorResult("未知原因修改邮箱失败");

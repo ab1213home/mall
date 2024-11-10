@@ -14,8 +14,18 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.entity.LoginRecord;
+import com.jiang.mall.domain.entity.UserRecord;
+import com.jiang.mall.domain.entity.User;
 
-public interface ILoginRecordService extends IService<LoginRecord> {
-	int countByUsername(String username);
+public interface IUserRecordService extends IService<UserRecord> {
+
+	int countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
+
+	Boolean successLoginRecord(User user,String clientIp, String fingerprint);
+
+	Boolean failedLoginRecord(String username, String clientIp, String fingerprint);
+
+	Boolean successRegisterRecord(User user, String clientIp, String fingerprint);
+
+	void successModifyEmailRecord(User user, String email);
 }
