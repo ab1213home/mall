@@ -64,12 +64,23 @@ public class I18nServiceImpl implements II18nService {
 		if (string.isEmpty()){
 			return false;
 		}
-		if (string.length()>255){
-			return false;
-		}
 		if (string.equals(" ")){
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 */
+	@Override
+	public Boolean checkString(String string, int l) {
+		if (!checkString(string)){
+			return false;
+		}
+		if (string.length()>l){
+			return false;
+		}
+		//isBlank
 		return true;
 	}
 }

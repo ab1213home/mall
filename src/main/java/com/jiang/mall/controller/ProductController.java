@@ -167,7 +167,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseResult insertProduct(@RequestParam("code") String code,
                                         @RequestParam("title") String title,
-                                        @RequestParam("categoryId") Integer categoryId,
+                                        @RequestParam("categoryId") Long categoryId,
                                         @RequestParam("img") String img,
                                         @RequestParam("price") Double price,
                                         @RequestParam("stocks") Integer stocks,
@@ -231,7 +231,7 @@ public class ProductController {
     public ResponseResult updateProduct(@RequestParam("id") Long id,
                                         @RequestParam("code") String code,
                                         @RequestParam("title") String title,
-                                        @RequestParam("categoryId") Integer categoryId,
+                                        @RequestParam("categoryId") Long categoryId,
                                         @RequestParam("img") String img,
                                         @RequestParam("price") Double price,
                                         @RequestParam("stocks") Integer stocks,

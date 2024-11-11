@@ -41,7 +41,7 @@ public class ProductSnapshotVo {
     /**
      * 商品分类
      */
-    private CategorySnapshotVo category;
+    private String category;
 
     /**
      * 商品图片地址

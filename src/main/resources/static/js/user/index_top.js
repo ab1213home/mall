@@ -79,7 +79,7 @@ function queryMyUserInfo(){
 					document.getElementById('randomText').textContent = signList[randomIndex];
 				}
 				if (document.getElementById("welcome")!= null){
-					document.getElementById("welcome").textContent="欢迎回来，"+res.data.firstName+" "+res.data.lastName+"！";
+					document.getElementById("welcome").textContent="欢迎回来，"+res.data.lastName+" "+res.data.firstName+"！";
 				}
 				if (document.getElementById("username_show")!= null){
 					document.getElementById("username_show").textContent = res.data.username;

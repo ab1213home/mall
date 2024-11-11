@@ -23,7 +23,6 @@ public class ProductSnapshotPlusVo {
      */
     private Long id;
 
-
     /**
      * 商品编码
      */
@@ -37,7 +36,7 @@ public class ProductSnapshotPlusVo {
     /**
      * 商品分类
      */
-    private CategorySnapshotVo category;
+    private String category;
 
     /**
      * 商品图片地址

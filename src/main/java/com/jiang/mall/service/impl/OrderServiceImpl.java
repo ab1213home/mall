@@ -23,6 +23,7 @@ import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,13 +98,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
-	private CategorySnapshotMapper categorySnapshotMapper;
-
-	@Autowired
-	public void setCategorySnapshotMapper(CategorySnapshotMapper categorySnapshotMapper) {
-		this.categorySnapshotMapper = categorySnapshotMapper;
-	}
-
 	private CategoryMapper categoryMapper;
 
 	@Autowired
@@ -152,72 +146,29 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 					logger.error("类别信息不存在，无法创建订单");
 					return null;
 				}
+				String category_str =queryCategoryToString(product.getCategoryId());
 	            // 查询是否存在相同的产品快照
 	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
 	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
 	            queryWrapper_productSnapshot.eq("title", product.getTitle());
 	            queryWrapper_productSnapshot.eq("price", product.getPrice());
 	            queryWrapper_productSnapshot.eq("img", product.getImg());
+				queryWrapper_productSnapshot.eq("category",category_str);
 	            queryWrapper_productSnapshot.eq("description", product.getDescription());
 	            queryWrapper_productSnapshot.eq("is_del", true);
 	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
 	            if (productSnapshot==null){
 	                // 如果不存在，则创建新的产品快照
 	                productSnapshot = new ProductSnapshot(product);
-	                // 查询是否存在相同的类别快照
-	                QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot = new QueryWrapper<>();
-	                queryWrapper_categorySnapshot.eq("category_id", category.getId());
-	                queryWrapper_categorySnapshot.eq("code", category.getCode());
-	                queryWrapper_categorySnapshot.eq("name", category.getName());
-	                queryWrapper_categorySnapshot.eq("level", category.getLevel());
-	                queryWrapper_categorySnapshot.eq("is_del", true);
-	                CategorySnapshot categorySnapshot = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot);
-	                if (categorySnapshot==null){
-	                    // 如果不存在，则创建新的类别快照
-	                    categorySnapshot = new CategorySnapshot(category);
-	                    if (categorySnapshotMapper.insert(categorySnapshot)>0){
-	                        productSnapshot.setCategoryId(categorySnapshot.getId());
-	                    }
-	                }else{
-	                    productSnapshot.setCategoryId(categorySnapshot.getId());
-	                }
+	                productSnapshot.setCategory(category_str);
 	                // 插入新的产品快照
 	                if (productSnapshotMapper.insert(productSnapshot)>0){
 	                    orderList.setProdId(productSnapshot.getId());
 	                }
 	            }else {
-	                // 如果存在相同的产品快照，检查类别信息是否一致
-	                QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot_temp= new QueryWrapper<>();
-	                queryWrapper_categorySnapshot_temp.eq("id", productSnapshot.getCategoryId());
-	                CategorySnapshot categorySnapshot_temp = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot_temp);
-	                QueryWrapper<Category> queryWrapper_category = new QueryWrapper<>();
-	                queryWrapper_category.eq("id", categorySnapshot_temp.getCategoryId());
-	                Category category_temp = categoryMapper.selectOne(queryWrapper_category);
-	                if (!Objects.equals(category_temp.getCode(), categorySnapshot_temp.getCode()) || !Objects.equals(category_temp.getName(), categorySnapshot_temp.getName()) || !Objects.equals(category_temp.getLevel(), categorySnapshot_temp.getLevel())){
-	                    // 如果类别信息不一致，创建新的产品和类别快照
-	                    productSnapshot = new ProductSnapshot(product);
-	                    QueryWrapper<CategorySnapshot> queryWrapper_categorySnapshot = new QueryWrapper<>();
-	                    queryWrapper_categorySnapshot.eq("category_id", category.getId());
-	                    queryWrapper_categorySnapshot.eq("code", category.getCode());
-	                    queryWrapper_categorySnapshot.eq("name", category.getName());
-	                    queryWrapper_categorySnapshot.eq("level", category.getLevel());
-	                    queryWrapper_categorySnapshot.eq("is_del", true);
-	                    CategorySnapshot categorySnapshot = categorySnapshotMapper.selectOne(queryWrapper_categorySnapshot);
-	                    if (categorySnapshot==null){
-	                        categorySnapshot = new CategorySnapshot(category);
-	                        if (categorySnapshotMapper.insert(categorySnapshot)>0){
-	                            productSnapshot.setCategoryId(categorySnapshot.getId());
-	                        }
-	                    }else{
-	                        productSnapshot.setCategoryId(categorySnapshot.getId());
-	                    }
-	                    if (productSnapshotMapper.insert(productSnapshot)>0){
-	                        orderList.setProdId(productSnapshot.getId());
-	                    }
-	                }else {
-	                    orderList.setProdId(productSnapshot.getId());
-	                }
+					orderList.setProdId(productSnapshot.getId());
 	            }
+
 	            // 插入订单详情信息
 	            if (orderListMapper.insert(orderList)>0){
 	                logger.info("订单列表插入成功");
@@ -230,6 +181,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	        return order.getId();
 	    }
 	    return null;
+	}
+
+	private @Nullable String queryCategoryToString(Long categoryId) {
+		Category category = categoryMapper.selectById(categoryId);
+		if (category==null){
+			return "";
+		}
+		String str = category.getName();
+		if (category.getLevel()!=1){
+			str=str+"-"+queryCategoryToString(category.getParentId());
+		}
+		return str;
 	}
 
 	@Override
@@ -262,9 +225,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
 				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-				CategorySnapshot categorySnapshot = categorySnapshotMapper.selectById(productSnapshot.getCategoryId());
-				CategorySnapshotVo categoryVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
-				productVo.setCategory(categoryVo);
 				orderListVo.setProduct(productVo);
 				orderList_VoList.add(orderListVo);
 			}
@@ -347,9 +307,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				// 根据订单详情中的产品ID查询产品信息
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
 				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-				CategorySnapshot categorySnapshot = categorySnapshotMapper.selectById(productSnapshot.getCategoryId());
-				CategorySnapshotVo categoryVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
-				productVo.setCategory(categoryVo);
 				orderListVo.setProduct(productVo);
 
 	            // 将订单详情VO对象添加到列表中

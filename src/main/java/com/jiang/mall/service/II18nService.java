@@ -36,4 +36,6 @@ public interface II18nService {
 	 * @return true or false
 	 */
 	Boolean checkString(String string);
+
+	Boolean checkString(String string,int l);
 }

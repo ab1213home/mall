@@ -344,8 +344,11 @@ public class UserController {
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {
-            UserVo userVo= BeanCopyUtils.copyBean(user, UserVo.class);
+            UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
+            if (user.getBirthDate()!=null){
+                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+            }
             // 登录成功，存储用户信息到session
             session.setAttribute("User", userVo);
             // 设置session过期时间
@@ -761,9 +764,7 @@ public class UserController {
 		    // 如果未登录，则直接返回
 		    return result;
 		}
-        if (session.getAttribute("User") == null){
-            return ResponseResult.failResult("用户信息获取失败！");
-        }
+
         UserVo user = (UserVo) session.getAttribute("User");
 
         // 检查session中是否设置了用户生日
@@ -771,7 +772,7 @@ public class UserController {
             return ResponseResult.failResult("未设置生日！");
         }
         // 计算并返回距离下一次生日的天数
-        return ResponseResult.okResult(getDaysUntilNextBirthday(user.getBirthDate()));
+        return ResponseResult.okResult(user.getNextBirthday());
     }
 
     @GetMapping("/getList")

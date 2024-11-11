@@ -210,8 +210,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public List<Product> queryAll() {
-        List<Product> products = productMapper.selectList(null);
-        return products;
+	    return productMapper.selectList(null);
     }
 
 

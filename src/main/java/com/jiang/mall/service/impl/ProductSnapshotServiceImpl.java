@@ -15,15 +15,12 @@ package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.CategorySnapshotMapper;
 import com.jiang.mall.dao.OrderListMapper;
 import com.jiang.mall.dao.OrderMapper;
 import com.jiang.mall.dao.ProductSnapshotMapper;
-import com.jiang.mall.domain.entity.CategorySnapshot;
 import com.jiang.mall.domain.entity.Order;
 import com.jiang.mall.domain.entity.OrderList;
 import com.jiang.mall.domain.entity.ProductSnapshot;
-import com.jiang.mall.domain.vo.CategorySnapshotVo;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -54,13 +51,6 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	@Autowired
 	public void setOrderListMapper(OrderListMapper orderListMapper) {
 		this.orderListMapper = orderListMapper;
-	}
-
-	private CategorySnapshotMapper categorySnapshotMapper;
-
-	@Autowired
-	public void setCategorySnapshotMapper(CategorySnapshotMapper categorySnapshotMapper) {
-		this.categorySnapshotMapper = categorySnapshotMapper;
 	}
 
 	/**
@@ -98,14 +88,7 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	            if (productSnapshot == null) {
 	                return null;
 	            }
-				ProductSnapshotVo productSnapshotVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-	            // 将产品快照对象转换为产品快照视图对象并返回
-		        QueryWrapper<CategorySnapshot> queryWrapper_category = new QueryWrapper<>();
-				queryWrapper_category.eq("id", productSnapshot.getCategoryId());
-				CategorySnapshot categorySnapshot = categorySnapshotMapper.selectOne(queryWrapper_category);
-		        CategorySnapshotVo categorySnapshotVo = BeanCopyUtils.copyBean(categorySnapshot, CategorySnapshotVo.class);
-				productSnapshotVo.setCategory(categorySnapshotVo);
-	            return productSnapshotVo;
+		        return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
 	        }
 	    }else{
 	        return null;

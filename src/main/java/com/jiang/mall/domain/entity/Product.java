@@ -61,7 +61,7 @@ public class Product implements Serializable {
     /**
      * 商品分类ID
      */
-    private Integer categoryId;
+    private Long categoryId;
 
     /**
      * 商品图片
@@ -126,7 +126,7 @@ public class Product implements Serializable {
      * @param stocks 库存数量，整数类型，表示当前可售产品数量
      * @param description 产品描述，字符串类型，提供产品的详细信息
      */
-    public Product(String code, String title, Integer categoryId, String img, Double price, Integer stocks, String description) {
+    public Product(String code, String title, Long categoryId, String img, Double price, Integer stocks, String description) {
         this.code = code;
         this.title = title;
         this.categoryId = categoryId;
@@ -148,7 +148,7 @@ public class Product implements Serializable {
      * @param stocks 商品的库存量
      * @param description 商品的描述信息
      */
-    public Product(Long id, String code, String title, Integer categoryId, String img, Double price, Integer stocks, String description) {
+    public Product(Long id, String code, String title, Long categoryId, String img, Double price, Integer stocks, String description) {
         this.id = id;
         this.code = code;
         this.title = title;

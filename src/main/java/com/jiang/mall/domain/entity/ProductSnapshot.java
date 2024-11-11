@@ -65,9 +65,9 @@ public class ProductSnapshot implements Serializable {
     private String title;
 
     /**
-     * 商品分类ID
+     * 商品分类
      */
-    private Long categoryId;
+    private String category;
 
     /**
      * 商品图片
@@ -130,7 +130,7 @@ public class ProductSnapshot implements Serializable {
                 ", prodId=" + prodId +
                 ", code='" + code + '\'' +
                 ", title='" + title + '\'' +
-                ", categoryId=" + categoryId +
+                ", category=" + category +
                 ", img='" + img + '\'' +
                 ", price=" + price +
                 ", description='" + description + '\'' +
