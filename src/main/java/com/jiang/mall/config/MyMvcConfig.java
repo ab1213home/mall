@@ -13,10 +13,7 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.AdminLoginInterceptor;
-import com.jiang.mall.intercepter.ApiLoginInterceptor;
-import com.jiang.mall.intercepter.CheckoutInterceptor;
-import com.jiang.mall.intercepter.UserLoginInterceptor;
+import com.jiang.mall.intercepter.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +50,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
         this.apiLoginInterceptor = apiLoginInterceptor;
     }
 
+    private RepeatUserLoginInterceptor repeatUserLoginInterceptor;
+
+    @Autowired
+    public void setRepeatUserLoginInterceptor(RepeatUserLoginInterceptor repeatUserLoginInterceptor) {
+        this.repeatUserLoginInterceptor = repeatUserLoginInterceptor;
+    }
+
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -60,12 +64,17 @@ public class MyMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
+        registry.addInterceptor(repeatUserLoginInterceptor)
+                .addPathPatterns("/user/login.html")
+                .addPathPatterns("/user/register.html")
+                .addPathPatterns("/user/forgot.html")
+                .addPathPatterns("/user/login.html?*")
+                .addPathPatterns("/user/register.html?*")
+                .addPathPatterns("/user/forgot.html?*");
         registry.addInterceptor(adminLoginInterceptor)
-                .addPathPatterns("/admin.html")
-                .addPathPatterns("/admin/**");
+                .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/admin/**.html?*");
         registry.addInterceptor(userLoginIntercepter)
-                .addPathPatterns("/user/index")
-                .addPathPatterns("/user/index.html")
                 .addPathPatterns("/user/")
                 .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
@@ -74,17 +83,19 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/tradeSnap.html")
                 .addPathPatterns("/checkout")
                 .addPathPatterns("/checkout.html")
-                .addPathPatterns("/user/modify/info")
-                .addPathPatterns("/user/modify/info.html")
-                .addPathPatterns("/user/modify/password")
-                .addPathPatterns("/user/modify/password.html")
-                .addPathPatterns("/user/modify/address")
-                .addPathPatterns("/user/modify/address.html")
                 .addPathPatterns("/collections")
                 .addPathPatterns("/collections.html")
-                .addPathPatterns("/user/index.html");
+                .addPathPatterns("/user/**.html")
+                .addPathPatterns("/user/**.html?*")
+                .excludePathPatterns("/user/login.html")
+                .excludePathPatterns("/user/register.html")
+                .excludePathPatterns("/user/forgot.html")
+                .excludePathPatterns("/user/login.html?*")
+                .excludePathPatterns("/user/register.html?*")
+                .excludePathPatterns("/user/forgot.html?*");
         registry.addInterceptor(checkoutInterceptor)
-                .addPathPatterns("/checkout.html");
+                .addPathPatterns("/checkout.html")
+                .addPathPatterns("/checkout.html?*");
         registry.addInterceptor(apiLoginInterceptor)
                 .addPathPatterns("/api/**");
     }
