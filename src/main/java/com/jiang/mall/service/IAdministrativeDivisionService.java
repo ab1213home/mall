@@ -43,5 +43,5 @@ public interface IAdministrativeDivisionService extends IService<AdministrativeD
 	 * @param areaCode 区号，用于识别不同的地区
 	 * @return 如果区号是真实的，则返回true；否则返回false
 	 */
-	boolean isTure(Long areaCode);
+	Boolean isTure(Long areaCode);
 }

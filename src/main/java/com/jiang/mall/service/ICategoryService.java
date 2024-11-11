@@ -31,11 +31,11 @@ public interface ICategoryService extends IService<Category> {
 
     List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize);
 
-    boolean insertCategory(Category category);
+    Boolean insertCategory(Category category);
 
-    boolean updateCategory(Category category);
+    Boolean updateCategory(Category category);
 
     Long getCategoryNum();
 
-    boolean deleteCategory(Category category);
+    Boolean deleteCategory(Category category);
 }

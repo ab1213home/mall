@@ -15,6 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.MapVo;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -30,10 +31,7 @@ import org.springframework.web.util.UriUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.jiang.mall.domain.config.File.*;
 
@@ -205,13 +203,13 @@ public class FileController {
         Map<String,Object> setting = new HashMap<>();
         setting.put("AllowUploadFile",AllowUploadFile);
         setting.put("FileUploadPath",FILE_UPLOAD_PATH);
-        Map<String,Boolean> imageSuffix_with_parameters = new HashMap<>();
+        List<MapVo> imageSuffix_with_parameters = new ArrayList<>();
         Set<String> standard_imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
         for (String suffix : standard_imageSuffix) {
             if (imageSuffix.contains(suffix)){
-                imageSuffix_with_parameters.put(suffix,true);
+                imageSuffix_with_parameters.add(new MapVo(suffix,true));
             }else {
-                imageSuffix_with_parameters.put(suffix, false);
+                imageSuffix_with_parameters.add(new MapVo(suffix,false));
             }
         }
         setting.put("imageSuffix",imageSuffix_with_parameters);
@@ -234,7 +232,7 @@ public class FileController {
     @PostMapping("/file/saveSetting")
     public ResponseResult setSetting(@RequestParam(required = false) boolean AllowUploadFile,
                                      @RequestParam(required = false) String FileUploadPath,
-                                     @RequestBody(required = false) Map<String, Object> imageSuffix,
+                                     @RequestBody(required = false) List<MapVo> imageSuffix,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkAdminUser(session);
@@ -248,7 +246,7 @@ public class FileController {
         if (imageSuffix != null) {
             // 将 imageSuffix 转换为 Map 类型
 //            Map<String, Object> mapImageSuffix = (Map<String, Object>) imageSuffix.get("imageSuffix");
-            for (Map.Entry<String, Object> suffix : imageSuffix.entrySet()) {
+            for (MapVo suffix : imageSuffix){
                 if (!standard_imageSuffix.contains(suffix.getKey())) {
                     return ResponseResult.failResult("非法的图片后缀");
                 }

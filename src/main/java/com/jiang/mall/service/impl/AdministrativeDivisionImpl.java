@@ -77,7 +77,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 * @return 如果地区代码存在，则返回true；否则返回false
 	 */
 	@Override
-	public boolean isTure(Long areaCode) {
+	public Boolean isTure(Long areaCode) {
 	    // 创建查询条件封装类
 	    QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件：地区代码等于给定的areaCode

@@ -29,13 +29,13 @@ import java.util.List;
  */
 public interface IBannerService extends IService<Banner> {
 
-    boolean insertBanner(Banner banner);
+    Boolean insertBanner(Banner banner);
 
-    boolean updateBanner(Banner banner);
+    Boolean updateBanner(Banner banner);
 
     List<BannerVo> getBannerList(Integer categoryId, Integer pageNum);
 
     Long getBannerNum();
 
-    boolean deleteBanner(Integer id);
+    Boolean deleteBanner(Integer id);
 }

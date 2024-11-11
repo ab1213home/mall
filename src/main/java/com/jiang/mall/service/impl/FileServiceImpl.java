@@ -171,7 +171,7 @@ public class FileServiceImpl implements IFileService {
      * @return 文件夹的大小，以字节为单位
      */
 	@Override
-    public long getFolderSize(@NotNull File folder) {
+    public Long getFolderSize(@NotNull File folder) {
         // 初始化文件夹大小为0
         long size = 0L;
         // 遍历文件夹中的所有文件和子文件夹
@@ -196,7 +196,7 @@ public class FileServiceImpl implements IFileService {
      * @return 文件夹中的文件数量
      */
 	@Override
-    public int getFileCount(@NotNull File folder) {
+    public Integer getFileCount(@NotNull File folder) {
         // 初始化文件计数器
         int count = 0;
 

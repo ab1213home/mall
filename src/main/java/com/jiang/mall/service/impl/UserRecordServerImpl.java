@@ -58,14 +58,14 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 	 * 计算用户尝试登录的次数
 	 * 该方法用于计算给定用户在过去24小时内失败的登录尝试次数，以确定用户是否被锁定
 	 *
-	 * @param username 用户名，用于识别用户
-	 * @param clientIp 客户端IP地址，用于识别登录尝试的来源
-	 * @param fingerprint 设备指纹，用于进一步验证登录尝试的唯一性
+	 * @param username     用户名，用于识别用户
+	 * @param clientIp     客户端IP地址，用于识别登录尝试的来源
+	 * @param fingerprint  设备指纹，用于进一步验证登录尝试的唯一性
 	 * @param maxTryNumber 最大尝试次数，超过这个次数用户将被锁定
 	 * @return 返回用户的登录尝试次数如果超过最大尝试次数，返回最大尝试次数+1
 	 */
 	@Override
-	public int countTryNumber(String username, String clientIp, String fingerprint, int maxTryNumber) {
+	public Integer countTryNumber(String username, String clientIp, String fingerprint, int maxTryNumber) {
 	    // 当前时间
 	    Date now = new Date();
 	    // 一天前的时间
@@ -184,10 +184,11 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 	/**
 	 * @param user
 	 * @param email
+	 * @return
 	 */
 	@Override
-	public void successModifyEmailRecord(User user, String email) {
-
+	public Boolean successModifyEmailRecord(User user, String email) {
+		return false;
 	}
 
 }

@@ -24,6 +24,7 @@ import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,7 +275,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public boolean modifyPassword(Long userId, String newPassword) {
+	public Boolean modifyPassword(Long userId, String newPassword) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);
@@ -304,7 +305,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果密码修改成功，返回true；否则返回false。
 	 */
     @Override
-    public boolean modifyPassword(Integer userId, String oldPassword, String newPassword) {
+    public Boolean modifyPassword(Integer userId, String oldPassword, String newPassword) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);
@@ -350,7 +351,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户信息成功更新，则返回true；否则返回false。
 	 */
     @Override
-    public boolean modifyUserInfo(User newUser) {
+    public Boolean modifyUserInfo(@NotNull User newUser) {
 	    // 创建查询条件，特定于用户的ID和非激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id", newUser.getId());
@@ -386,7 +387,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户成功被锁定，返回true；如果用户不存在或锁定失败，返回false。
 	 */
     @Override
-    public boolean lockUser(Long userId) {
+    public Boolean lockUser(Long userId) {
 	    // 创建查询条件，指定用户ID和当前为激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id", userId);
@@ -419,7 +420,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户存在则返回true，否则返回false
 	 */
 	@Override
-	public boolean queryByUserName(String userName) {
+	public Boolean queryByUserName(String userName) {
 	    // 创建一个查询包装器，用于构建查询条件
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件
@@ -441,7 +442,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户存在则返回true，否则返回false
 	 */
 	@Override
-	public boolean queryByEmail(String email) {
+	public Boolean queryByEmail(String email) {
 		// 创建查询条件，匹配传入的邮箱
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("email", email);
@@ -522,7 +523,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     @Override
-    public boolean updateUser(User newUser) {
+    public Boolean updateUser(@NotNull User newUser) {
 
 	    User user = userMapper.selectById(newUser.getId());
 
@@ -551,7 +552,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户成功被解锁，返回true；如果用户不存在或解锁失败，返回false。
 	 */
 	@Override
-	public boolean unlockUser(Long userId) {
+	public Boolean unlockUser(Long userId) {
 	    // 创建查询条件对象
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件：用户ID等于userId且用户当前是锁定状态（is_active为false）

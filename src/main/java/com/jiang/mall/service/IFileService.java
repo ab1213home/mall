@@ -21,9 +21,9 @@ import java.util.List;
 public interface IFileService {
 	DirectoryVo getFileList(File folder);
 
-	long getFolderSize(File folder);
+	Long getFolderSize(File folder);
 
-	int getFileCount(File folder);
+	Integer getFileCount(File folder);
 
 	List<String> getFaceTemplateList(File folder);
 }

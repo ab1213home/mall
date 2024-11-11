@@ -133,7 +133,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 操作是否成功执行的布尔值，成功返回true，失败返回false
      */
     @Override
-    public boolean insertProduct(Product product) {
+    public Boolean insertProduct(Product product) {
         return productMapper.insert(product)==1;
     }
 
@@ -148,7 +148,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return boolean 表示产品信息更新是否成功
      */
     @Override
-    public boolean updateProduct(Product product) {
+    public Boolean updateProduct(Product product) {
         return productMapper.updateById(product)==1;
     }
 
@@ -162,10 +162,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      *
      * @param id 产品的ID
      * @return 删除操作是否成功
-     *
      */
     @Override
-    public boolean deleteProduct(Long id) {
+    public Boolean deleteProduct(Long id) {
         return productMapper.deleteById(id) == 1;
     }
 
@@ -194,7 +193,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 如果找到商品返回true，否则返回false
      */
     @Override
-    public boolean queryCode(String code) {
+    public Boolean queryCode(String code) {
         // 创建查询包装器，用于指定查询条件
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         // 设置查询条件为商品编码

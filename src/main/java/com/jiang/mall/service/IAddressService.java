@@ -57,7 +57,7 @@ public interface IAddressService extends IService<Address> {
 	 * @param isDefault 是否将此地址设置为默认地址
 	 * @return true 如果更新操作成功；否则返回 false
 	 */
-	boolean updateAddress(Address address, boolean isDefault);
+	Boolean updateAddress(Address address, boolean isDefault);
 
 	/**
 	 * 删除地址
@@ -66,9 +66,9 @@ public interface IAddressService extends IService<Address> {
 	 * @param userId 用户ID，用于确认有权删除该地址的用户
 	 * @return 删除成功返回true，否则返回false
 	 */
-	boolean deleteAddress(Long id, Long userId);
+	Boolean deleteAddress(Long id, Long userId);
 
-	boolean insertAddress(Address address, boolean isDefault);
+	Boolean insertAddress(Address address, boolean isDefault);
 
 	AddressVo getAddress(Address address);
 }

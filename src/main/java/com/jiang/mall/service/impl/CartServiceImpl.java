@@ -20,7 +20,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CartMapper;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
@@ -90,28 +89,28 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
 	@Override
-    public ResponseResult insertOrUpdate(@NotNull Cart cart) {
+    public Boolean insertOrUpdate(@NotNull Cart cart) {
         if (cart.getUserId() == null || cart.getProdId() == null) {
-            return ResponseResult.failResult("商品id和用户id不能为空");
+            return false;
         }
         Cart cart1 = cartMapper.selectOne(new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, cart.getUserId()).eq(Cart::getProdId, cart.getProdId()));
         if (cart1 == null) {
             int res = cartMapper.insert(cart);
             if (res == 1) {
-                return ResponseResult.okResult("新增一条购物车记录");
+                return true;
             }
         } else {
             cart1.setNum(cart.getNum() + cart.getNum());
             int res = cartMapper.updateById(cart1);
             if (res == 1) {
-                return ResponseResult.okResult("更新一条购物车记录");
+                return true;
             }
         }
-        return ResponseResult.failResult();
+        return false;
     }
 
     @Override
-    public boolean updateCart(Cart cart) {
+    public Boolean updateCart(Cart cart) {
         int res = cartMapper.updateById(cart);
 	    return res == 1;
     }
@@ -126,7 +125,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 操作是否成功
      */
     @Override
-    public boolean addCart(Long productId, Integer num, Long userId) {
+    public Boolean addCart(Long productId, Integer num, Long userId) {
         // 根据商品ID和用户ID查询购物车记录
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("prod_id", productId);
@@ -213,13 +212,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * 根据订单删除购物车中的商品
      * 该方法主要用于在用户下单后，更新购物车中相关商品的数量或删除已购买的商品
      *
-     * @param listCartId 购物车商品ID列表，用于定位需要更新的购物车商品
-     * @param userId 用户ID，用于验证购物车商品是否属于当前用户
+     * @param listCartId     购物车商品ID列表，用于定位需要更新的购物车商品
+     * @param userId         用户ID，用于验证购物车商品是否属于当前用户
      * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
      * @return 如果成功更新购物车则返回true，否则返回false
      */
     @Override
-    public boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo) {
+    public Boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo) {
         // 根据购物车商品ID列表查询购物车商品信息
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
@@ -260,12 +259,12 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     /**
      * 删除购物车记录
      *
-     * @param id 购物车记录的ID
+     * @param id     购物车记录的ID
      * @param userId 用户ID，用于验证购物车记录的所有者
      * @return 删除操作是否成功
      */
     @Override
-    public boolean deleteCart(Long id, Long userId) {
+    public Boolean deleteCart(Long id, Long userId) {
         // 创建查询包装器，用于查询条件的设置
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
 
@@ -283,19 +282,4 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return cartMapper.deleteById(id) == 1;
     }
 
-//    @Override
-//    public List<CartVo> getCartList(Integer userId, Integer pageNum, Integer pageSize, List<Integer> listCartId) {
-//        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-//        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId)
-//                                                .in(listProdId != null && !listProdId.isEmpty(), Cart::getProdId, listProdId);
-//        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
-//        List<CartVo> cartVos = BeanCopyUtils.copyBeanList(carts, CartVo.class);
-//        for (CartVo cartVo : cartVos) {
-//            Product product = productMapper.selectById(cartVo.getProdId());
-//            cartVo.setProdName(product.getTitle());
-//            cartVo.setPrice(product.getPrice());
-//            cartVo.setImg(product.getImg());
-//        }
-//        return cartVos;
-//    }
 }

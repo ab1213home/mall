@@ -33,15 +33,15 @@ public interface IProductService extends IService<Product> {
 
     ProductVo getProduct(Long id);
 
-    boolean insertProduct(Product banner);
+    Boolean insertProduct(Product banner);
 
-    boolean updateProduct(Product banner);
+    Boolean updateProduct(Product banner);
 
-    boolean deleteProduct(Long id);
+    Boolean deleteProduct(Long id);
 
     Integer queryStoksById(Long productId);
 
-    boolean queryCode(String code);
+    Boolean queryCode(String code);
 
 	Long getProductNum();
 

@@ -19,7 +19,7 @@ import com.jiang.mall.domain.entity.User;
 
 public interface IUserRecordService extends IService<UserRecord> {
 
-	int countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
+	Integer countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
 
 	Boolean successLoginRecord(User user,String clientIp, String fingerprint);
 
@@ -27,5 +27,5 @@ public interface IUserRecordService extends IService<UserRecord> {
 
 	Boolean successRegisterRecord(User user, String clientIp, String fingerprint);
 
-	void successModifyEmailRecord(User user, String email);
+	Boolean successModifyEmailRecord(User user, String email);
 }

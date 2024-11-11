@@ -28,4 +28,12 @@ public class MapVo {
 	 */
 	private Object value;
 
+	public MapVo() {
+	}
+
+	public MapVo(String key, Object value) {
+		this.key = key;
+		this.value = value;
+	}
+
 }

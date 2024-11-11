@@ -26,6 +26,7 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -189,7 +190,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * 返回更新结果，若更新的记录数大于0，则返回true，表示更新成功
 	 */
 	@Override
-	public boolean updateAddress(Address address, boolean isDefault) {
+	public Boolean updateAddress(@NotNull Address address, boolean isDefault) {
 	    // 创建更新条件对象
 	    UpdateWrapper<Address> updateWrapper = new UpdateWrapper<>();
 	    // 设置更新条件，根据ID进行更新
@@ -238,12 +239,12 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * 确保用户保留至少一个默认地址（如果有多个地址）。如果请求删除的地址不是默认地址，
 	 * 则直接进行删除操作。
 	 *
-	 * @param id 要删除的地址的ID。
+	 * @param id     要删除的地址的ID。
 	 * @param userId 请求删除地址的用户的ID。
 	 * @return 如果地址删除成功，则返回true；否则返回false。
 	 */
 	@Override
-	public boolean deleteAddress(Long id, Long userId) {
+	public Boolean deleteAddress(Long id, Long userId) {
 	    QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
 	    queryWrapper_use.eq("id", userId);
 	    queryWrapper_use.eq("is_active", true);
@@ -278,7 +279,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	}
 
 	@Override
-	public boolean insertAddress(Address address, boolean isDefault) {
+	public Boolean insertAddress(Address address, boolean isDefault) {
 		boolean result = addressMapper.insert(address) > 0;
 		if (result && isDefault) {
 			QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();

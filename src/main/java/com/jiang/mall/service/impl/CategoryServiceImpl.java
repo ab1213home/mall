@@ -51,12 +51,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public boolean insertCategory(Category category) {
+    public Boolean insertCategory(Category category) {
         return categoryMapper.insert(category)==1;
     }
 
     @Override
-    public boolean updateCategory(Category category) {
+    public Boolean updateCategory(Category category) {
         return categoryMapper.updateById(category)==1;
     }
 
@@ -66,7 +66,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public boolean deleteCategory(Category category) {
+    public Boolean deleteCategory(Category category) {
 	    return categoryMapper.deleteById(category) == 1;
     }
 

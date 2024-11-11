@@ -17,13 +17,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.VerificationCode;
 
 public interface IVerificationCodeService extends IService<VerificationCode> {
-	boolean inspectByEmail(String email);
+	Boolean inspectByEmail(String email);
 
-	boolean queryByEmail(String email);
+	Boolean queryByEmail(String email);
 
-	boolean checkingByUserId(Long id);
+	Boolean checkingByUserId(Long id);
 
 	VerificationCode queryCodeByEmail(String email);
 
-	boolean useCode(Long userId, VerificationCode verificationCode);
+	Boolean useCode(Long userId, VerificationCode verificationCode);
 }

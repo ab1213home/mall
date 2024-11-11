@@ -49,7 +49,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean addCollection(Long productId, Long userId) {
+	public Boolean addCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -70,7 +70,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean deleteCollection(Long productId, Long userId) {
+	public Boolean deleteCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -106,7 +106,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean isCollect(Long productId, Long userId) {
+	public Boolean isCollect(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
@@ -114,7 +114,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public boolean deleteById(Long id) {
+	public Boolean deleteById(Long id) {
 		return collectionMapper.deleteById(id)>0;
 	}
 }

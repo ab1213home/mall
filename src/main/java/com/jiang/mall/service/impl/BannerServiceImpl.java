@@ -56,18 +56,18 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     }
 
     @Override
-    public boolean deleteBanner(Integer id) {
+    public Boolean deleteBanner(Integer id) {
 	    return bannerMapper.deleteById(id) == 1;
     }
 
 
 	@Override
-    public boolean insertBanner(Banner banner) {
+    public Boolean insertBanner(Banner banner) {
 	    return bannerMapper.insert(banner) == 1;
     }
 
     @Override
-    public boolean updateBanner(Banner banner) {
+    public Boolean updateBanner(Banner banner) {
 	    return bannerMapper.updateById(banner) == 1;
     }
 

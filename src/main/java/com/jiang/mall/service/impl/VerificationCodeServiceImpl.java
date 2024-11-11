@@ -47,7 +47,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果失败率超过最大失败率阈值或请求数量超过最大请求数量，返回true；否则返回false
 	 */
 	@Override
-	public boolean inspectByEmail(String email) {
+	public Boolean inspectByEmail(String email) {
 	    // 当前时间
 	    Date now = new Date();
 	    // 一天前的时间selectCount
@@ -88,7 +88,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果存在未过期的验证码则返回true，否则返回false
 	 */
 	@Override
-	public boolean queryByEmail(String email) {
+	public Boolean queryByEmail(String email) {
 	    // 当前时间
 	    Date now = new Date();
 	    // expiration_time前的时间
@@ -112,7 +112,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * @return 如果存在有效的用户代码，则返回true；否则返回false
 	 */
 	@Override
-	public boolean checkingByUserId(Long id) {
+	public Boolean checkingByUserId(Long id) {
 	    // 当前时间
 	    Date now = new Date();
 	    // 计算expiration_time前的时间
@@ -177,12 +177,12 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 * 本方法主要用于将验证码的状态从未使用（0）更改为已使用（2），并更新数据库中的记录。
 	 * 它首先根据用户ID和验证码对象更新数据库中的记录，如果更新成功则返回true，否则返回false。
 	 *
-	 * @param userId   用户ID
+	 * @param userId           用户ID
 	 * @param verificationCode 验证码对象
 	 * @return 如果更新成功则返回true，否则返回false
 	 */
 	@Override
-	public boolean useCode(Long userId, @NotNull VerificationCode verificationCode) {
+	public Boolean useCode(Long userId, @NotNull VerificationCode verificationCode) {
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
 	    verificationCode.setUserId(userId);
 	    // 将验证码状态更改为“已使用”
