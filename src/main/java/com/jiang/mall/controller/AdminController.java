@@ -38,7 +38,7 @@ import static com.jiang.mall.domain.entity.Config.saveProperties;
  * @since 2024年9月20日
  */
 @RestController
-@RequestMapping
+@RequestMapping("/admin")
 public class AdminController {
 
 	private IUserService userService;
@@ -131,5 +131,15 @@ public class AdminController {
 	@GetMapping("/get")
 	public ResponseResult get() {
 		return ResponseResult.okResult(File.FILE_UPLOAD_PATH);
+	}
+
+	@GetMapping("/getRequestNum")
+	public ResponseResult getRequestNum(HttpSession session) {
+		ResponseResult result = userService.checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+		return ResponseResult.okResult(ResponseResult.RequestCount);
 	}
 }

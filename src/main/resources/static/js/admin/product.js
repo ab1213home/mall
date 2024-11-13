@@ -14,6 +14,7 @@
 let productArr = {};
 let currentPageNum_product = 1;
 let num_product = 0;
+let categoryArr = {};
 
 $(document).ready(function(){
 	isAdminUser();
@@ -114,7 +115,7 @@ function getProduct(id) {
     $("#price").val(product.price);
     $("#stocks").val(product.stocks);
     $("#description").val(product.description);
-    $('#categoryId').val(product.categoryId);
+    listCategorySelectById(product.categoryId);
     $('#img').val(product.img);
 }
 function delProduct(id) {
@@ -146,6 +147,7 @@ function clearModal() {
     $('#img').val('');
     $('#imgUpload').val('');
     $('#imgPreview').attr('src', '/images/no-image.png');
+    listCategoryShow();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -189,16 +191,29 @@ function listCategory(){
         type: 'get',
         dataType: 'json',
         success: function (res) {
-            console.log(res);
-            //res.data渲染为表格的行
-            res.data.forEach(cat => {
-                const option = `
-                   <option value="${cat.id}">${cat.name}</option>
-                `;
-                $('#categoryId').append(option);
-            })
+            categoryArr=res.data;
         }
     });
+}
+function listCategoryShow(){
+    $('#categoryId').empty();
+    $('#categoryId').append('<option value="" disabled selected>请选择商品类型</option>');
+    categoryArr.forEach(cat => {
+        const option = `
+            <option value="${cat.id}">${cat.name}</option>
+        `;
+        $('#categoryId').append(option);
+    })
+}
+function listCategorySelectById(id){
+    $('#categoryId').empty();
+    $('#categoryId').append('<option value="" disabled>请选择商品类型</option>');
+    categoryArr.forEach(cat => {
+        const option = `
+            <option value="${cat.id}" ${cat.id == id ? 'selected' : ''}>${cat.name}</option>
+        `;
+        $('#categoryId').append(option);
+    })
 }
 function queryProduct(pn, pz) {
     $.ajax({

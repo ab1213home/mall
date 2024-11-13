@@ -16,6 +16,7 @@ package com.jiang.mall.domain;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -28,6 +29,11 @@ import java.util.UUID;
  */
 @Data
 public class ResponseResult<T> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    public static Long RequestCount = 0L;
 
     /**
      * 状态码，用于标识操作的结果
@@ -225,6 +231,7 @@ public class ResponseResult<T> implements Serializable {
     }
 
     public ResponseResult() {
+        RequestCount++;
         this.timestamp = System.currentTimeMillis();
         this.reqid= UUID.randomUUID().toString();
     }

@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="/public/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link href="/public/quill-2.0.2-dist/dist/quill.snow.css" rel="stylesheet">
+    <link href="/public/quill-image-uploader-dist/quill.imageUploader.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="/images/favicon.png">
     <style>
         canvas {
@@ -354,12 +356,15 @@
                             <span class="fa fa-comment form-control-feedback"></span>
                             <label for="description"></label>
                             <textarea id="description" name="description" class="form-control" placeholder="请输入商品描述" required maxlength="255"></textarea>
+                            <!-- Create the editor container -->
+                            <div id="editor">
+                              <p>请输入商品描述</p>
+                            </div>
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-list form-control-feedback"></span>
                             <label for="categoryId"></label>
                             <select class="form-select" id="categoryId" required>
-                                <option value="" disabled selected>请选择商品类型</option>
                             </select>
                         </div>
                         <div class="form-group has-feedback">
@@ -389,7 +394,63 @@
     <script src="/js/user/index_top.js"></script>
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
+    <script src="/public/quill-2.0.2-dist/dist/quill.js"></script>
+    <script src="/public/quill-image-uploader-dist/quill.imageUploader.min.js"></script>
+    <script src="/public/quill-image-uploader-dist/demo.min.js"></script>
     <script src="/js/admin/product.js"></script>
+    <script type="module">
+        const toolbarOptions = [
+            ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
+            ['blockquote', 'code-block'], // 引用  代码块
+            [{ header: 1 }, { header: 2 }], // 1、2 级标题
+            [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表
+            [{ script: 'sub' }, { script: 'super' }], // 上标/下标
+            [{ indent: '-1' }, { indent: '+1' }], // 缩进
+            [{ direction: 'rtl' }], // 文本方向
+            [{ 'size': ['small', false, 'large', 'huge'] }],  // 字体大小
+            [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
+            [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色
+            [{ font: [] }], // 字体种类
+            [{ align: [] }], // 对齐方式
+            ['clean'], // 清除文本格式
+            ['link', 'image'], // 链接、图片
+        ];
+
+        const quill = new Quill('#editor', {
+            modules: {
+                imageUploader: {
+                    upload: function(file) {
+                        return new Promise((resolve, reject) => {
+                            const formData = new FormData();
+                            formData.append('file', file);
+
+                            // 使用 $.ajax 发送请求
+                            $.ajax({
+                                url: '/common/uploadFile',
+                                type: 'POST',
+                                data: formData,
+                                processData: false, // 不处理数据
+                                contentType: false, // 不设置内容类型
+                                success: function(res) {
+                                    if (res.code==200) {
+                                        resolve(res.date); // 返回图片URL给Quill
+                                    } else {
+                                        reject(res.message || '上传失败');
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    reject('网络错误');
+                                }
+                            });
+                        });
+                    },
+                },
+                toolbar: toolbarOptions,
+            },
+            theme: 'snow'
+        });
+
+    </script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

@@ -34,6 +34,7 @@ $(document).ready(function(){
 	getProductNum();
 	getOrdersAmount();
 	grtFileSize();
+	getRequestNum();
 })
 
 function  getUserNum(){
@@ -77,6 +78,17 @@ function getProductNum(){
 		dataType:"json",
 		success:function(res){
 			$("#product-count").text(res.data);
+		}
+	})
+}
+function getRequestNum(){
+	$.ajax({
+		url:"/admin/getRequestNum",
+		type:"get",
+		data:{},
+		dataType:"json",
+		success:function(res){
+			$("#request-count").text(res.data);
 		}
 	})
 }

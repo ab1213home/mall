@@ -28,14 +28,86 @@
 <div id="editor">
   <p>Hello World!</p>
   <p>Some initial <strong>bold</strong> text</p>
-  <p><br /></p>
+  <p><br/></p>
 </div>
 
 <script src="/public/quill-2.0.2-dist/dist/quill.js"></script>
 <script src="/public/quill-image-uploader-dist/quill.imageUploader.min.js"></script>
-<script src="/public/quill-image-uploader-dist/demo.min.js"></script>
-<script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
-<script type="module">
+<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+<!--<script src="/public/quill-image-uploader-dist/text.js"></script>-->
+<!--<script type="module">-->
+<!--    const toolbarOptions = [-->
+<!--        ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线-->
+<!--        ['blockquote', 'code-block'], // 引用  代码块-->
+<!--        [{ header: 1 }, { header: 2 }], // 1、2 级标题-->
+<!--        [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表-->
+<!--        [{ script: 'sub' }, { script: 'super' }], // 上标/下标-->
+<!--        [{ indent: '-1' }, { indent: '+1' }], // 缩进-->
+<!--        [{ direction: 'rtl' }], // 文本方向-->
+<!--        [{ 'size': ['small', false, 'large', 'huge'] }],  // 字体大小-->
+<!--        [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题-->
+<!--        [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色-->
+<!--        [{ font: [] }], // 字体种类-->
+<!--        [{ align: [] }], // 对齐方式-->
+<!--        ['clean'], // 清除文本格式-->
+<!--        ['link', 'image'], // 链接、图片-->
+<!--    ];-->
+
+<!--    async function uploadFileAPI(file) {-->
+<!--        const formData = new FormData();-->
+<!--        formData.append('file', file);-->
+<!--        $.ajax({-->
+<!--            url: '/common/uploadFile',-->
+<!--            type: 'post',-->
+<!--            data:formData,-->
+<!--            contentType: false,-->
+<!--            processData: false,-->
+<!--            success: function (res){-->
+<!--                if (res.code == 200){-->
+<!--                    return res.data-->
+<!--                }else {-->
+<!--                    return false-->
+<!--                }-->
+<!--            }-->
+<!--        });-->
+<!--    }-->
+
+<!--    const quill = new Quill('#editor', {-->
+<!--        modules: {-->
+<!--            imageUploader: {-->
+<!--                upload: function (file) {-->
+<!--                    return new Promise((resolve, reject) => {-->
+<!--                        const formData = new FormData();-->
+<!--                        formData.append('file', file);-->
+
+<!--                        // 使用 $.ajax 发送请求-->
+<!--                        $.ajax({-->
+<!--                            url: '/common/uploadFile',-->
+<!--                            type: 'POST',-->
+<!--                            data: formData,-->
+<!--                            processData: false, // 不处理数据-->
+<!--                            contentType: false, // 不设置内容类型-->
+<!--                            success: function (res) {-->
+<!--                                if (res.code == 200) {-->
+<!--                                    resolve(res.date); // 返回图片URL给Quill-->
+<!--                                } else {-->
+<!--                                    reject(res.message || '上传失败');-->
+<!--                                }-->
+<!--                            },-->
+<!--                            error: function (xhr, status, error) {-->
+<!--                                reject('网络错误');-->
+<!--                            }-->
+<!--                        });-->
+<!--                    });-->
+<!--                },-->
+<!--            },-->
+<!--            toolbar: toolbarOptions,-->
+<!--        },-->
+<!--        theme: 'snow',-->
+<!--    });-->
+
+<!--</script>-->
+<script>
     const toolbarOptions = [
         ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
         ['blockquote', 'code-block'], // 引用  代码块
@@ -52,65 +124,65 @@
         ['clean'], // 清除文本格式
         ['link', 'image'], // 链接、图片
     ];
+    // 注册 imageUploader 模块
+    Quill.register("modules/imageUploader", ImageUploader);
 
-    async function uploadFileAPI(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        $.ajax({
-            url: '/common/uploadFile',
-            type: 'post',
-            data:formData,
-            contentType: false,
-            processData: false,
-            success: function (res){
-                if (res.code == 200){
-                    return res.data
-                }else {
-                    return false
-                }
-            }
-        });
-    }
-
-    const quill = new Quill('#editor', {
+    // 初始化 Quill 编辑器
+    document.addEventListener('DOMContentLoaded', function() {
+      var quill = new Quill('#editor', {
+        theme: 'snow',
         modules: {
-            imageUploader: {
-                upload: async (file) => {
-                    return await uploadFileAPI({file}) // 此处替换为接口返回的文件路径
-                }
-            },
-            toolbar: toolbarOptions
-        },
-        theme: 'snow'
-    });
-    async function getFingerprint() {
-        // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
-        const fpPromise = await FingerprintJS.load();
-        // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
-        const result = await fpPromise.get();
-        // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
-        return result.visitorId
-    }
-    (async () => {
-        const fingerprint = await getFingerprint();
-        console.log(fingerprint); // 打印指纹信息
-    })();
+          imageUploader: {
+            upload: function(file) {
+              return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
 
+                // 使用 $.ajax 发送请求
+                $.ajax({
+                  url: '/common/uploadFile',
+                  type: 'POST',
+                  data: formData,
+                  processData: false, // 不处理数据
+                  contentType: false, // 不设置内容类型
+                  success: function(response) {
+                    if (response.code == 200) {
+                      resolve(response.data); // 返回图片URL给Quill
+                    } else {
+                      reject(response.message || '上传失败');
+                    }
+                  },
+                  error: function(xhr, status, error) {
+                    reject('网络错误');
+                  }
+                });
+              });
+            }
+          },
+          toolbar: toolbarOptions,
+        }
+
+      });
+      // 调试 placeholderDelta 对象
+      const imageUploaderModule = quill.getModule('imageUploader');
+      if (imageUploaderModule) {
+        console.log('placeholderDelta:', imageUploaderModule.placeholderDelta);
+      }
+      // 修改 calculatePlaceholderInsertLength 方法
+      if (imageUploaderModule && imageUploaderModule.calculatePlaceholderInsertLength) {
+        imageUploaderModule.calculatePlaceholderInsertLength = function() {
+          if (!this.placeholderDelta || !this.placeholderDelta.ops) {
+            return 0;
+          }
+          return this.placeholderDelta.ops.reduce((count, op) => {
+            return op.hasOwnProperty("insert") ? count + 1 : count;
+          }, 0);
+        };
+      }
+    });
 </script>
 <!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.min.js"></script>-->
 <!--<script src="//cdn.staticfile.org/quill/2.0.2/quill.core.js"></script>-->
 
 </body>
 </html>
-<svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75zM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 01-1.875-1.875V8.625zM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 013 19.875v-6.75z"></path>
-</svg>
-<svg class="bi bi-clipboard-data" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-  <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-  <path d="M9.5 1h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
-  <path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z"/>
-</svg>
-<svg t="1731251686718" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1495" width="200" height="200">
-    <path d="M507.733333 938.666667c-237.994667 0-430.933333-192.938667-430.933333-430.933334S269.738667 76.8 507.733333 76.8s430.933333 192.938667 430.933334 430.933333c0 88.337067-26.666667 172.753067-75.682134 243.9936a25.6 25.6 0 1 1-42.180266-29.021866C863.995733 659.933867 887.466667 585.621333 887.466667 507.733333c0-209.719467-170.013867-379.733333-379.733334-379.733333s-379.733333 170.013867-379.733333 379.733333 170.013867 379.733333 379.733333 379.733334a25.6 25.6 0 0 1 0 51.2zM404.113067 287.304533l105.821866 198.9632 105.518934-197.277866a28.7744 28.7744 0 0 1 36.910933-12.791467 25.762133 25.762133 0 0 1 12.928 34.683733L618.2656 409.6h35.669333a22.664533 22.664533 0 1 1 0 45.333333h-61.666133l-47.2704 72.6656h98.103467a22.498133 22.498133 0 1 1 0 45.000534h-106.103467v129.7664a27.234133 27.234133 0 1 1-54.464 0v-129.7664H379.767467a22.498133 22.498133 0 1 1 0-45.000534h94.762666l-46.933333-72.6656H364.270933a22.664533 22.664533 0 1 1 0-45.333333h37.333334L357.9264 309.469867a25.565867 25.565867 0 0 1 12.373333-33.271467 25.706667 25.706667 0 0 1 33.813334 11.106133z" p-id="1496">
-    </path>
-</svg>
