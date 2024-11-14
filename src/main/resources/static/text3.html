@@ -47,7 +47,7 @@
         [{ font: [] }], // 字体种类
         [{ align: [] }], // 对齐方式
         ['clean'], // 清除文本格式
-        ['link', 'image'], // 链接、图片
+        ['image'], // 图片
     ];
     // 注册 imageUploader 模块
     Quill.register("modules/imageUploader", ImageUploader);
@@ -85,24 +85,7 @@
           },
           toolbar: toolbarOptions,
         }
-
       });
-      // 调试 placeholderDelta 对象
-      const imageUploaderModule = quill.getModule('imageUploader');
-      if (imageUploaderModule) {
-        console.log('placeholderDelta:', imageUploaderModule.placeholderDelta);
-      }
-      // 修改 calculatePlaceholderInsertLength 方法
-      // if (imageUploaderModule && imageUploaderModule.calculatePlaceholderInsertLength) {
-      //   imageUploaderModule.calculatePlaceholderInsertLength = function() {
-      //     if (!this.placeholderDelta || !this.placeholderDelta.ops) {
-      //       return 0;
-      //     }
-      //     return this.placeholderDelta.ops.reduce((count, op) => {
-      //       return op.hasOwnProperty("insert") ? count + 1 : count;
-      //     }, 0);
-      //   };
-      // }
     });
 </script>
 </body>

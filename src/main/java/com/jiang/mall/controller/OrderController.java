@@ -327,7 +327,7 @@ public class OrderController {
 	    }
 	    if (orderList.isEmpty()) {
 	        // 如果订单列表为空
-	        return ResponseResult.okResult(orderList,"暂无订单");
+	        return ResponseResult.notFoundResourceResult("暂无订单");
 	    }
 	    // 获取订单列表成功
 	    return ResponseResult.okResult(orderList);

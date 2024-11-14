@@ -282,6 +282,7 @@
             <!--end::Copyright-->
         </footer> <!--end::Footer-->
     </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <!-- 提示模态框 -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -296,6 +297,19 @@
 				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
 				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
 				</div>
+            </div>
+        </div>
+    </div>
+    <!-- 加载中模态框 -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadingModalLabel">加载中...</h5>
+                </div>
+                <div class="modal-body text-center" style="min-height:150px;">
+                    <div id="spinnerContainer" class="spinner-container"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -379,20 +393,6 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-    <!-- 模态框 -->
-    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">加载中...</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                <div id="spinnerContainer" class="spinner-container"></div>
-            </div>
-        </div>
         </div>
     </div>
     <script src="/public/spin-2.3.2-dist/spin.min.js"></script>

@@ -4243,7 +4243,7 @@ var Scroll = function (_Parchment$Scroll) {
     //TODO:[Deprecation]Listener added for a 'DOMNodeInserted' mutation event. Support for this event type has been removed, and this event will no longer be fired. See https://chromestatus.com/feature/5083947249172480 for more information.
     //_this.domNode.addEventListener('DOMNodeInserted', function () {});
     //移除废弃的事件监听器
-    // 使用 MutationObserver 监听 DOM 变化
+    //使用 MutationObserver 监听 DOM 变化
     // _this.observer = new MutationObserver(function (mutations) {
     //   mutations.forEach(function (mutation) {
     //     if (mutation.addedNodes.length > 0) {
@@ -4251,7 +4251,7 @@ var Scroll = function (_Parchment$Scroll) {
     //     }
     //   });
     // });
-    //
+
     // _this.observer.observe(_this.domNode, { childList: true, subtree: true });
 
     _this.optimize();

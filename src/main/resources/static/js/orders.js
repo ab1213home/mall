@@ -24,40 +24,34 @@ function queryOrders(pn, pz) {
             pageSize: pz
         },
         dataType: "json",
+		beforeSend: function () {
+			openLoadingModal();
+		},
         success: function (response) {
+			// 清空 tbody 中原有的内容
+			$('#orderTable tbody').empty();
             if (response.code == 200) {
-				// 清空 tbody 中原有的内容
-				$('#orderTable tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#orderTable tbody').append(row);
-				}
 				orderArr = {};
 				for(let record of response.data){
 					orderArr[record.id] = record;
 				}
                 response.data.forEach((order,index) => {
-                    var row =
-                        `
-                        <tr id="order`+ order.id +`" class="order-row text-center">
+					let row =
+						`
+                        <tr id="order` + order.id + `" class="order-row text-center">
                             <th scope="row">${(pn - 1) * 10 + index + 1}</th>
-                            <td id="address`+ order.id +`">
-                            	<p>收件人信息：${order.address.lastName + " " + order.address.firstName + "," +order.address.phone}</p>
-                            	<p>地址：${order.address.country+" "+order.address.province+" "+order.address.city+" "+order.address.county+" "+order.address.township}</p>
+                            <td id="address` + order.id + `">
+                            	<p>收件人信息：${order.address.lastName + " " + order.address.firstName + "," + order.address.phone}</p>
+                            	<p>地址：${order.address.country + " " + order.address.province + " " + order.address.city + " " + order.address.county + " " + order.address.township}</p>
                             	<p>${order.address.addressDetail}</p>
                             	<p>邮政编码：${order.address.postalCode}</p>
 							</td>
-                            <td id="date`+ order.id +`">${new Date(order.date).toLocaleString()}</td>
-                            <td id="totalAmount`+ order.id +`" class="price-tag">${order.totalAmount}</td>
-                            <td id="status`+ order.id +`">${order.status}</td>
-                            <td id="paymentMethod`+ order.id +`">${order.paymentMethod}</td>
-                            <td id="orderList`+ order.id +`">`;
-							const orderList = order.orderList;
+                            <td id="date` + order.id + `">${new Date(order.date).toLocaleString()}</td>
+                            <td id="totalAmount` + order.id + `" class="price-tag">${order.totalAmount}</td>
+                            <td id="status` + order.id + `">${order.status}</td>
+                            <td id="paymentMethod` + order.id + `">${order.paymentMethod}</td>
+                            <td id="orderList` + order.id + `">`;
+					const orderList = order.orderList;
 							for(let order of orderList){
 								row=row+`
 									<a href="./tradeSnap.html?id=`+ order.product.id +`" target="_blank" class="glid1">
@@ -101,7 +95,18 @@ function queryOrders(pn, pz) {
 				if (num_order == 0){
 					 $("#nextPage").prop("disabled", true);
 				}
-            }
+            }else if (response.code == 404){
+				const row =
+					`
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+				$('#orderTable tbody').append(row);
+				$("#prePage").prop("disabled", false);
+				$("#nextPage").prop("disabled", false);
+			}
+			closeLoadingModal();
         }
     });
 }

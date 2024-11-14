@@ -75,7 +75,7 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 	    QueryWrapper<UserRecord> queryWrapper_username = new QueryWrapper<>();
 	    queryWrapper_username.eq("username",username);
 	    queryWrapper_username.between("trigger_time", yesterday, now);
-	    queryWrapper_username.eq("state", State.FAIL_LOGIN);
+	    queryWrapper_username.eq("state", State.FAIL_LOGIN.value);
 	    List<UserRecord> list_username = loginRecordMapper.selectList(queryWrapper_username);
 
 	    // 查询过去24小时内，IP地址匹配且登录失败的记录数量
