@@ -64,18 +64,18 @@ function saveFileSetting() {
     })
 }
 //绑定按键
-$("#save-setting").click(function(){
-    saveFileSetting();
-})
-function grtFileSize() {
+// $("#save-setting").click(function(){
+//     saveFileSetting();
+// })
+function getFileSize() {
 	$.ajax({
 		url:"/file/getFileSize",
 		type:"get",
 		data:{},
 		dataType:"json",
 		success:function(res){
-			var totalSizeMB = res.data.totalSize/(1024*1024);
-			totalSizeMB = totalSizeMB.toFixed(2);
+            let totalSizeMB = res.data.totalSize / (1024 * 1024);
+            totalSizeMB = totalSizeMB.toFixed(2);
 			$("#total-size").text(totalSizeMB);
 			$("#file-count").text(res.data.fileCount);
 		}
@@ -86,5 +86,5 @@ $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();
     getFileSetting();
-    grtFileSize();
+    getFileSize();
 })

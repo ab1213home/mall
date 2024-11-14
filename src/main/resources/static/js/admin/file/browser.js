@@ -11,254 +11,82 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let num_banner = 0;
-let currentPageNum_banner = 1;
-let bannerArr = {};
+let FileTree;
 
-function getBannerNum() {
-    $.ajax({
-        url: "/banner/getNum",
-        type: "get",
-        success: function (res) {
-            num_banner = res.data;
-        }
-    })
+/**
+ * 根据文件大小返回适当的大小单位和数值
+ * @param {number} size - 文件的大小，以字节为单位
+ * @returns {string} - 以适当单位（B, KB, MB, GB）表示的文件大小
+ */
+function changeFileSize(size) {
+    // 如果文件大小小于1024字节，则直接返回字节大小
+    if (size < 1024) {
+        return size + "B";
+    } else if (size < 1024 * 1024) {
+        // 如果文件大小小于1024KB，则返回KB大小，保留两位小数
+        return (size / 1024).toFixed(2) + "KB";
+    } else if (size < 1024 * 1024 * 1024) {
+        // 如果文件大小小于1024MB，则返回MB大小，保留两位小数
+        return (size / (1024 * 1024)).toFixed(2) + "MB";
+    } else {
+        // 如果文件大小大于或等于1024MB，则返回GB大小，保留两位小数
+        return (size / (1024 * 1024 * 1024)).toFixed(2) + "GB";
+    }
+}
+function downloadFile(path) {
+	window.open("/"+path);
+}
+function queryFile(path) {
+	$.ajax({
+		type: "GET",
+		url: "/file/getList",
+		data: {
+			path: path == "upload" ? "" : path,
+		},
+		dataType: "json",
+		success: function (res) {
+			if (res.code == 200) {
+				FileTree = res.data;
+				$('#directory-tree tbody').empty();
+				res.data.subDirectories.forEach((directory, index) => {
+					let row = `<tr>
+						<td><i class="bi bi-folder2"></i>${directory.name}</td>
+						<td>-</td>
+						<td>文件夹</td>
+						<td>${directory.lastModified}</td>
+						<td>-</td>
+						<td>
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile('${ path == "upload" ? "":(path +"/")+directory.name}')">
+								<i class="fa fa-folder-open"></i>
+							</button>
+						</td>
+					</tr>`;
+					$('#directory-tree tbody').append(row);
+				});
+				res.data.files.forEach((file, index) => {
+					let row = `<tr>
+						<td><i class="bi bi-card-image"></i>${file.name}</td>
+						<td>${changeFileSize(file.size)}</td>
+						<td>${file.type}</td>
+						<td>${file.lastModified}</td>
+						<td>${file.purpose}</td>
+						<td>
+							<button type="button" class="btn btn-primary btn-sm" onclick="downloadFile('${ path + "/" + file.name }')">
+								<i class="fa fa-download"></i>
+							</button>
+							
+						</td>
+					</tr>`;
+					$('#directory-tree tbody').append(row);
+				});
+			}
+
+		}
+	})
 }
 
 $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();
-    getBannerNum();
-    queryBanner(1,10);
-	bindPreNextPage();
+    queryFile("upload");
 })
-
-function queryBanner(pn,pz) {
-    $.ajax({
-        type: "GET",
-        url: "/banner/getList",
-        data: {
-            pageNum: pn,
-            pageSize: pz
-        },
-        dataType: "json",
-        success: function (response) {
-            if (response.code == 200) {
-				// 清空 tbody 中原有的内容
-				$('#bannerlist tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#bannerlist tbody').append(row);
-				}
-				bannerArr = {};
-				for(let record of response.data){
-					bannerArr[record.id] = record;
-				}
-                response.data.forEach((banner,index) => {
-                    const row =
-                        `
-                        <tr id="banner`+ banner.id +`" class="address-row text-center">
-                            <th scope="row">${banner.id}</th>
-                            <td id="img`+ banner.id +`">
-                                <div class="row mt-2" style="display: flex; justify-content: center;">
-                                    <!-- 图片列 -->
-                                    <div class="col-md-2">
-                                        <img src="` + banner.img + `" alt="轮播图" class="img-fluid mx-auto d-block">
-                                    </div>
-                                </div>
-                            </td>
-                            <td id="url`+ banner.id +`">${banner.url}</td>
-                            <td id="description`+ banner.id +`">${banner.description}</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-secondary" onclick="showBanner(${banner.id})">查看</button>
-                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#bannerModal" data-bs-type="edit" data-bs-prod-id="${banner.id}">编辑</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteBanner(${banner.id})">删除</button>
-                            </td>
-                        </tr>
-                        `;
-                    $('#bannerlist tbody').append(row);
-                });
-                currentPageNum_banner = pn;
-                if (currentPageNum_banner == 1) {
-                    $("#prePage").prop("disabled", true);
-                } else {
-                    $("#prePage").prop("disabled", false);
-                }
-                if (num_banner - currentPageNum_banner * pz < 0) {
-                    $("#nextPage").prop("disabled", true);
-                } else {
-                    $("#nextPage").prop("disabled", false);
-                }
-				if (num_banner == 0){
-					 $("#nextPage").prop("disabled", true);
-				}
-            }
-        }
-    });
-}
-
-function bindPreNextPage() {
-    $("#prePage").on("click", function(){
-		if(currentPageNum_banner <= 1){
-			openModal("警告","已经是第一页")
-			return;
-		}
-		let pageNum = currentPageNum_banner -1;
-		queryBanner(pageNum, 10);
-	})
-
-	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum_banner +1;
-		queryBanner(pageNum, 10);
-	})
-}
-
-function showBanner(id) {
-    let banner = bannerArr[id];
-    window.location.href =banner.url;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var itemModal = document.getElementById('bannerModal');
-
-    itemModal.addEventListener("show.bs.modal", function(event) {
-        var button = event.relatedTarget;
-        var type = button.getAttribute('data-bs-type');
-        var modalTitle = document.getElementById('bannerModalLabel');
-        var submitBtn = document.getElementById('bannerSubmit');
-
-        if (type === 'add') {
-            modalTitle.textContent = '添加轮播图信息';
-            submitBtn.textContent = '添加';
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault(); // 阻止默认行为
-                insertBanner();
-            });
-            clearModal();
-        } else if (type === 'edit') {
-            modalTitle.textContent = '编辑轮播图信息';
-            submitBtn.textContent = '保存';
-            var id = button.getAttribute('data-bs-prod-id');
-            submitBtn.addEventListener('click', function(e) {
-				e.preventDefault();
-                updateBanner(id);
-            });
-           clearModal();
-           getBanner(id);
-        }
-    });
-});
-
-function clearModal() {
-    $('#url').val('');
-    $('#description').val('');
-    $('#img').val('');
-    $('#imgUpload').val('');
-    $('#imgPreview').attr('src', '/images/no-image.png');
-}
-
-function getBanner(id) {
-    let banner = bannerArr[id];
-    $('#url').val(banner.url);
-    $('#description').val(banner.description);
-    $('#imgPreview').attr('src', banner.img);
-    $('#img').val(banner.img);
-}
-
-function insertBanner() {
-    let url = $('#url').val();
-    let description = $('#description').val();
-    let img = $('#img').val();
-    const data = {
-        url: url,
-        description: description,
-        img: img
-    };
-    $.ajax({
-        url: '/banner/add',
-        type: 'post',
-        data: data,
-        dataType: 'json',
-        success: function (res) {
-            if (res.code == 200) {
-                queryBanner(currentPageNum_banner,10);
-                $('#bannerModal').modal('hide');
-                openModal('提示',"添加轮播图成功");
-            } else {
-                $('#bannerModal').modal('hide');
-                openModal('警告',"添加轮播图失败："+res.message)
-            }
-        }
-    })
-}
-
-function updateBanner(id) {
-    let url = $('#url').val();
-    let description = $('#description').val();
-    let img = $('#img').val();
-    const data = {
-        id: id,
-        url: url,
-        description: description,
-        img: img
-    };
-    $.ajax({
-        url: '/banner/update',
-        type: 'post',
-        data: data,
-        dataType: 'json',
-        success: function (res) {
-            if (res.code == 200) {
-                queryBanner(currentPageNum_banner,10);
-                $('#bannerModal').modal('hide');
-                openModal('提示',"修改轮播图成功");
-            } else {
-                $('#bannerModal').modal('hide');
-                openModal('警告',"修改轮播图失败："+res.message)
-            }
-        }
-    })
-}
-
-function deleteBanner(id) {
-    $.ajax({
-        url: '/banner/delete',
-        type: 'get',
-        data: {
-            id: id
-        },
-        dataType: 'json',
-        success: function (res) {
-            if (res.code == 200) {
-                queryBanner(currentPageNum_banner,10);
-                $('#bannerModal').modal('hide');
-                openModal('提示',"删除轮播图成功");
-            } else {
-                $('#bannerModal').modal('hide');
-                openModal('警告',"删除轮播图失败："+res.message);
-            }
-        }
-    })
-}
-
-function uploadFile() {
-    const file = $('#imgUpload')[0].files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    $.ajax({
-        url: '/common/uploadFile',
-        type: 'post',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function (res) {
-            $('#imgPreview').attr('src', res.data);
-            $('#img').val(res.data);
-        }
-    });
-}

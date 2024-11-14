@@ -19,16 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
-/**
- * 文件视图对象
- *
- * @author jiang
- * @version 1.0
- * @since 2024年10月8日
- */
 @Data
 public class FileVo {
-
 	/**
 	 * 文件名
 	 */

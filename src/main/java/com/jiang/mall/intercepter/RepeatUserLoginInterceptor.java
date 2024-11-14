@@ -45,7 +45,7 @@ public class RepeatUserLoginInterceptor implements HandlerInterceptor {
      * @param o        处理请求的处理器，通常是一个控制器方法
      * @return boolean 返回值决定是否继续执行其他拦截器和当前请求的处理器方法
      *                 如果返回true，表示继续执行；如果返回false，表示中断执行
-     *
+     * <p>
      * 此方法主要用于检查用户是否已经登录如果用户已经登录，将直接重定向到用户首页，
      * 以避免未授权的访问此拦截器对所有请求生效，但只对未登录的用户进行重定向操作
      */

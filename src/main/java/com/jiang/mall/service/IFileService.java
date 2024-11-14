@@ -13,17 +13,20 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.vo.DirectoryPlusVo;
 import com.jiang.mall.domain.vo.DirectoryVo;
 
 import java.io.File;
 import java.util.List;
 
 public interface IFileService {
-	DirectoryVo getFileList(File folder);
+	DirectoryPlusVo getAllFileList(File folder);
 
 	Long getFolderSize(File folder);
 
 	Integer getFileCount(File folder);
 
 	List<String> getFaceTemplateList(File folder);
+
+	DirectoryVo getFileList(File folder);
 }

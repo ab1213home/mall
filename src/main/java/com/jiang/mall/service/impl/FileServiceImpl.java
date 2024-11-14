@@ -20,7 +20,9 @@ import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.vo.DirectoryPlusVo;
 import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.FilePlusVo;
 import com.jiang.mall.domain.vo.FileVo;
 import com.jiang.mall.service.IFileService;
 import org.jetbrains.annotations.NotNull;
@@ -67,13 +69,13 @@ public class FileServiceImpl implements IFileService {
 	 * @throws IllegalArgumentException 如果提供的文件不是目录或不存在
 	 */
 	@Override
-	public DirectoryVo getFileList(@NotNull File folder) {
+	public DirectoryPlusVo getAllFileList(@NotNull File folder) {
 	    // 检查提供的文件是否为目录且存在，否则抛出异常
 	    if (!folder.exists() || !folder.isDirectory()) {
 	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
 	    }
 	    // 初始化DirectoryVo列表
-	    DirectoryVo directoryVo = new DirectoryVo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
+	    DirectoryPlusVo directoryPlusVo = new DirectoryPlusVo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
 
 	    // 获取目录下的所有文件和子目录
 	    File[] files = folder.listFiles();
@@ -81,71 +83,21 @@ public class FileServiceImpl implements IFileService {
 	        for (File file : files) {
 	            // 如果是目录，则递归获取其文件和子目录信息
 	            if (file.isDirectory()) {
-	                DirectoryVo directory = getFileList(file);
-	                directoryVo.getSubDirectories().add(directory);
+	                DirectoryPlusVo directory = getAllFileList(file);
+	                directoryPlusVo.getSubDirectories().add(directory);
 	            } else {
 	                // 如果是文件，则将其转换为FileVo
-	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
+	                FilePlusVo filePlusVo = new FilePlusVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
 	                String path = "/" + folder.getName() + "/" + file.getName();
-	                List<String> purpose = new ArrayList<>();
-
-					int dotIndex = file.getName().lastIndexOf('.');
-	                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
-	                if (imageSuffix.contains(extension.toLowerCase())) {
-	                    // 只添加图片文件
-	                    if (file.getName().matches("^face.*") ){
-	                        purpose.add("用户头像模板");
-	                    }
-	                }
-
-					if (file.getName().equals("default.jpg")){
-						purpose.add("默认头像");
-					}
-
-	                // 查询该文件是否被用作商品图片
-	                QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
-	                productQueryWrapper.eq("img", path);
-	                List<Product> products = productMapper.selectList(productQueryWrapper);
-	                if (!products.isEmpty()) {
-	                    for (Product product : products) {
-	                        purpose.add("商品" + product.getTitle() + "(id:" + product.getId() + ")的图片");
-	                    }
-	                }
-
-	                // 查询该文件是否被用作轮播图
-	                QueryWrapper<Banner> bannerQueryWrapper = new QueryWrapper<>();
-	                bannerQueryWrapper.eq("img", path);
-	                List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
-	                if (!banners.isEmpty()) {
-	                    for (Banner banner : banners) {
-	                        purpose.add("轮播图描述信息:" + banner.getDescription() + "(id:" + banner.getId() + ")");
-	                    }
-	                }
-
-	                // 查询该文件是否被用作用户头像
-	                QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-	                userQueryWrapper.eq("img", path);
-	                List<User> users = userMapper.selectList(userQueryWrapper);
-	                if (!users.isEmpty()) {
-	                    for (User user : users) {
-	                        purpose.add("用户" + user.getUsername() + "(id:" + user.getId() + ")的头像");
-	                    }
-	                }
-
-	                // 设置文件用途，如果未找到特定用途则标记为"未知"
-	                if (purpose.isEmpty()) {
-	                    fileVo.setPurpose("未知");
-	                } else {
-	                    fileVo.setPurpose(String.join(",", purpose));
-	                }
+					filePlusVo.setPurpose(getFilePurpose(path,file.getName()));
 
 	                // 将文件Vo添加到当前目录的文件列表中
-	                directoryVo.getFiles().add(fileVo);
+	                directoryPlusVo.getFiles().add(filePlusVo);
 	            }
 	        }
 	    }
 	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
-	    return directoryVo;
+	    return directoryPlusVo;
 	}
 
      /**
@@ -231,5 +183,87 @@ public class FileServiceImpl implements IFileService {
             }
         }
 		return fileList;
+	}
+
+	@Override
+	public DirectoryVo getFileList(@NotNull File folder) {
+		// 检查提供的文件是否为目录且存在，否则抛出异常
+	    if (!folder.exists() || !folder.isDirectory()) {
+	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
+	    }
+	    // 初始化DirectoryVo列表
+	    DirectoryVo directoryVo = new DirectoryVo(folder.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
+
+	    // 获取目录下的所有文件和子目录
+	    File[] files = folder.listFiles();
+	    if (files != null) {
+	        for (File file : files) {
+	            // 如果是目录，则递归获取其文件和子目录信息
+	            if (file.isDirectory()) {
+	                DirectoryVo directory = new DirectoryVo(file.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(file.lastModified()));
+	                directoryVo.getSubDirectories().add(directory);
+	            } else {
+	                // 如果是文件，则将其转换为FileVo
+	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
+
+	                // 将文件Vo添加到当前目录的文件列表中
+	                directoryVo.getFiles().add(fileVo);
+	            }
+	        }
+	    }
+	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
+	    return directoryVo;
+	}
+
+	private @NotNull String getFilePurpose(String path, @NotNull String name) {
+		List<String> purpose = new ArrayList<>();
+		int dotIndex = name.lastIndexOf('.');
+		String extension = dotIndex > 0 ? name.substring(dotIndex+1) : "";
+		if (imageSuffix.contains(extension.toLowerCase())) {
+			// 只添加图片文件
+			if (name.matches("^face.*") ){
+				purpose.add("用户头像模板");
+			}
+		}
+		if (name.equals("default.jpg")){
+			purpose.add("默认头像");
+		}
+
+		// 查询该文件是否被用作商品图片
+		QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
+		productQueryWrapper.eq("img", path);
+		List<Product> products = productMapper.selectList(productQueryWrapper);
+		if (!products.isEmpty()) {
+			for (Product product : products) {
+				purpose.add("商品" + product.getTitle() + "(id:" + product.getId() + ")的图片");
+			}
+		}
+
+		// 查询该文件是否被用作轮播图
+		QueryWrapper<Banner> bannerQueryWrapper = new QueryWrapper<>();
+		bannerQueryWrapper.eq("img", path);
+		List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
+		if (!banners.isEmpty()) {
+			for (Banner banner : banners) {
+				purpose.add("轮播图描述信息:" + banner.getDescription() + "(id:" + banner.getId() + ")");
+			}
+		}
+
+	    // 查询该文件是否被用作用户头像
+		QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+		userQueryWrapper.eq("img", path);
+	    List<User> users = userMapper.selectList(userQueryWrapper);
+		if (!users.isEmpty()) {
+			for (User user : users) {
+				purpose.add("用户" + user.getUsername() + "(id:" + user.getId() + ")的头像");
+			}
+		}
+
+		// 设置文件用途，如果未找到特定用途则标记为"未知"
+		if (purpose.isEmpty()) {
+			return "未知";
+		} else {
+			return String.join(",", purpose);
+		}
 	}
 }

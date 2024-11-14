@@ -15,27 +15,44 @@ package com.jiang.mall.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
-import java.util.List;
 
+/**
+ * 文件视图对象
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年10月8日
+ */
 @Data
-public class DirectoryVo {
+public class FilePlusVo {
 
 	/**
-	 * 目录名
+	 * 文件名
 	 */
-    private String name;
+	private String name;
 
 	/**
-	 * 子目录
+	 * 大小
 	 */
-	private List<DirectoryVo> subDirectories;
+	private long size;
 
 	/**
-	 * 文件
+	 * md5
 	 */
-	private List<FileVo> files;
+	private String md5;
+
+	/**
+	 * 类型
+	 */
+	private String type;
+
+	/**
+	 * 用途
+	 */
+	private String purpose;
 
 	/**
 	 * 最后修改时间
@@ -43,21 +60,24 @@ public class DirectoryVo {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date lastModified;
 
-	/**
-	 * 构造函数用于创建DirectoryVo对象，封装目录信息及其相关内容
-	 *
-	 * @param name          目录名称
-	 * @param subDirectories 子目录列表，用于表示该目录下包含的子目录
-	 * @param files         文件列表，用于表示该目录下包含的文件
-	 * @param lastModified  最后修改时间，表示该目录最后一次修改的时间
-	 */
-	public DirectoryVo(String name, List<DirectoryVo> subDirectories, List<FileVo> files, Date lastModified) {
-	    this.name = name;
-	    this.subDirectories = subDirectories;
-	    this.files = files;
-	    this.lastModified = lastModified;
+
+	public FilePlusVo() {
 	}
 
-	public DirectoryVo() {
+	/**
+	 * 构造方法
+	 *
+	 * @param name    文件名
+	 * @param length  文件大小
+	 * @param md5     文件md5
+	 * @param type    文件类型
+	 * @param date    最后修改时间
+	 */
+	public FilePlusVo(String name, long length, @NotNull String md5, @NotNull String type, Date date) {
+		this.name = name;
+		this.size = length;
+		this.md5 = md5;
+		this.type = type;
+		this.lastModified = date;
 	}
 }

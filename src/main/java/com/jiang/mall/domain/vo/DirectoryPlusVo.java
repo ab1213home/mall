@@ -19,8 +19,15 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 文件夹视图对象
+ *
+ * @author jiang
+ * @version 1.0
+ * @since 2024年10月8日
+ */
 @Data
-public class DirectoryVo {
+public class DirectoryPlusVo {
 
 	/**
 	 * 目录名
@@ -28,14 +35,19 @@ public class DirectoryVo {
     private String name;
 
 	/**
+	 * 路径
+	 */
+	private String path;
+
+	/**
 	 * 子目录
 	 */
-	private List<DirectoryVo> subDirectories;
+	private List<DirectoryPlusVo> subDirectories;
 
 	/**
 	 * 文件
 	 */
-	private List<FileVo> files;
+	private List<FilePlusVo> files;
 
 	/**
 	 * 最后修改时间
@@ -47,17 +59,19 @@ public class DirectoryVo {
 	 * 构造函数用于创建DirectoryVo对象，封装目录信息及其相关内容
 	 *
 	 * @param name          目录名称
+	 * @param absolutePath  目录的绝对路径
 	 * @param subDirectories 子目录列表，用于表示该目录下包含的子目录
 	 * @param files         文件列表，用于表示该目录下包含的文件
 	 * @param lastModified  最后修改时间，表示该目录最后一次修改的时间
 	 */
-	public DirectoryVo(String name, List<DirectoryVo> subDirectories, List<FileVo> files, Date lastModified) {
+	public DirectoryPlusVo(String name, String absolutePath, List<DirectoryPlusVo> subDirectories, List<FilePlusVo> files, Date lastModified) {
 	    this.name = name;
+	    this.path = absolutePath;
 	    this.subDirectories = subDirectories;
 	    this.files = files;
 	    this.lastModified = lastModified;
 	}
 
-	public DirectoryVo() {
+	public DirectoryPlusVo() {
 	}
 }

@@ -14,6 +14,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.DirectoryPlusVo;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
@@ -27,11 +28,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.jiang.mall.domain.config.File.*;
@@ -70,7 +69,9 @@ public class FileController {
     public ResponseEntity<FileSystemResource> getFile(@PathVariable String filename) throws IOException {
         // 构建文件完整路径
         File file = new File(FILE_UPLOAD_PATH + filename);
-
+//        if (file.getName().matches("[^\\x00-\\xFF]")) {
+//            throw new IllegalArgumentException("File name contains illegal characters: " + file.getName());
+//        }{date}/
         return handleFileResponse(file);
     }
 
@@ -162,8 +163,9 @@ public class FileController {
         return ResponseResult.okResult(fileList);
     }
 
-    @GetMapping("/file/getList")
-    public ResponseResult getList(HttpSession session){
+    @GetMapping("/file/getAllList")
+    public ResponseResult getAllList(@RequestParam(required = false) String path,
+                                  HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
@@ -171,7 +173,33 @@ public class FileController {
             return result;
         }
         // 创建一个File对象，对应于要检查的文件夹路径
-        File folder = new File(FILE_UPLOAD_PATH);
+        if (path==null|| path.isEmpty()){
+            path=FILE_UPLOAD_PATH;
+        }
+        File folder = new File(path);
+
+        // 确认所创建的File对象确实代表一个文件夹
+        if (!folder.exists() || !folder.isDirectory()) {
+            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+        }
+
+        DirectoryPlusVo directoryList = fileService.getAllFileList(folder);
+
+        return ResponseResult.okResult(directoryList);
+    }
+
+    @GetMapping("/file/getList")
+    public ResponseResult getList(@RequestParam(required = false,defaultValue = "") String path,
+                                  HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkAdminUser(session);
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        File folder = new File(FILE_UPLOAD_PATH+path);
 
         // 确认所创建的File对象确实代表一个文件夹
         if (!folder.exists() || !folder.isDirectory()) {
