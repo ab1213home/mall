@@ -16,13 +16,12 @@ package com.jiang.mall.controller.Uset;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -61,6 +60,13 @@ public class LoginController {
         this.userRecordService = userRecordService;
     }
 
+	private II18nService i18nService;
+
+	@Autowired
+	public void setI18nService(II18nService i18nService) {
+		this.i18nService = i18nService;
+	}
+
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	private final static int max_try_number = 5;
@@ -82,40 +88,45 @@ public class LoginController {
                                 @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
                                 HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult("您已登录，请勿重复登录");
-            }
-        }
-        if (username==null|| password==null|| captcha==null){
-            return ResponseResult.failResult("非法请求");
-        }
-        // 验证验证码是否为空
-        if (!StringUtils.hasText(captcha)) {
-            return ResponseResult.failResult("验证码不能为空");
-        }
+	    ResponseResult result = userService.checkUserLogin(session);
+		if (result.isSuccess()) {
+		   return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
+		}
+		if (!i18nService.checkString(username,255)){
+			return ResponseResult.failResult(i18nService.getMessage("user.login.error.username"));
+		}
+		if (!isSha256Hash(password)){
+			return ResponseResult.failResult(i18nService.getMessage("user.login.error.password"));
+		}
+		if (!i18nService.checkString(captcha)){
+			return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha"));
+		}
+		if (!i18nService.isValidIPv4(clientIp) && !i18nService.isValidIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.login.error.ip"));
+		}
+		if (!i18nService.checkString(fingerprint)){
+			return ResponseResult.failResult(i18nService.getMessage("user.login.error.fingerprint"));
+		}
         // 获取session中的验证码
         Object captchaObj = session.getAttribute("captcha");
         // 检查验证码是否过期
         if (captchaObj == null) {
-            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
+            return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha.expired"));
         }
-        String captchaCode = captchaObj.toString();
+
+		String captchaCode = captchaObj.toString();
 
         // 校验验证码是否正确
         if (!captchaCode.toLowerCase().equals(captcha)) {
             session.removeAttribute("captcha");
-            return ResponseResult.failResult("验证码错误");
+            return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha.error"));
         }
-        // 检查用户名和密码是否为空
-        if (!StringUtils.hasText(username) || !isSha256Hash(password)) {
-            return ResponseResult.failResult("用户名(邮箱)或密码不能为空");
-        }
+
         // 检查用户尝试登录失败次数
         if (userRecordService.countTryNumber(username, clientIp, fingerprint,max_try_number)>=max_try_number){
-            return ResponseResult.failResult("用户尝试登录失败次数过多，请稍后再试");
+            return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
+
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
         if (user != null) {
@@ -127,14 +138,14 @@ public class LoginController {
             // 登录成功，存储用户信息到session
             session.setAttribute("User", userVo);
             // 设置session过期时间
-            session.setMaxInactiveInterval(60 * 60 * 2);
+            session.setMaxInactiveInterval(60 * 60 * 4);
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
-            return ResponseResult.okResult();
+            return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {
             // 登录失败，返回相应错误信息
             session.removeAttribute("captcha");
             userRecordService.failedLoginRecord(username, clientIp, fingerprint);
-            return ResponseResult.failResult("用户不存在或用户名(邮箱)或密码错误");
+            return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         }
     }
 
@@ -153,5 +164,50 @@ public class LoginController {
         }
         // 返回登出成功的结果
         return ResponseResult.okResult();
+    }
+
+	/**
+     * 检查用户是否登录
+     * 通过检查会话（session）中的用户信息来判断用户是否已登录
+     * 如果用户已登录，则返回用户的详细信息
+     *
+     * @param session HTTP会话，用于获取用户登录状态和相关信息
+     * @return ResponseResult 包含用户是否登录的结果或用户详细信息
+     */
+    @GetMapping("/isLogin")
+    public ResponseResult isLogin(HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkUserLogin(session);
+		if (!result.isSuccess()) {
+		    // 如果未登录，则直接返回
+		    return result;
+		}
+        UserVo userVo =(UserVo)session.getAttribute("User");
+	    if (userVo == null)
+	        return ResponseResult.failResult(i18nService.getMessage("user.isLogin.error"));
+        // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
+        if (userVo.getBirthDate()!= null){
+            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+            session.setAttribute("User", userVo);
+        }
+        // 返回包含用户信息的结果
+        return ResponseResult.okResult(userVo);
+    }
+
+    /**
+     * 检查当前用户是否为管理员用户
+     *
+     * @param session HTTP会话对象，用于获取用户是否为管理员的信息
+     * @return 如果会话中没有"UserIsAdmin"属性，返回服务器错误结果；
+     *         如果"UserIsAdmin"属性值为"false"，返回OK结果包含false；
+     *         否则，返回OK结果包含true，表示用户是管理员
+     */
+    @GetMapping("/isAdminUser")
+    public ResponseResult isAdminUser(HttpSession session){
+        if (session.getAttribute("User") == null){
+            return ResponseResult.serverErrorResult(i18nService.getMessage("user.checkUser.noLogin"));
+        }
+        UserVo user = (UserVo) session.getAttribute("User");
+        return ResponseResult.okResult(user.isAdmin());
     }
 }

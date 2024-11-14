@@ -13,8 +13,11 @@
 
 package com.jiang.mall.domain;
 
+import com.jiang.mall.service.II18nService;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,10 +31,18 @@ import java.util.UUID;
  *             默认为null
  */
 @Data
+@Component
 public class ResponseResult<T> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private static II18nService i18nService;
+
+	@Autowired
+	public void setI18nService(II18nService i18nService) {
+		ResponseResult.i18nService = i18nService;
+	}
 
     public static Long RequestCount = 0L;
 
@@ -57,11 +68,6 @@ public class ResponseResult<T> implements Serializable {
 
     private String reqid;
 
-
-    /**
-     * 默认成功消息
-     */
-    private static final String DEFAULT_SUCCESS_MESSAGE = "默认成功消息提示";
     /**
      * 默认失败消息
      */
@@ -142,7 +148,7 @@ public class ResponseResult<T> implements Serializable {
         // 设置响应结果的状态码为默认的成功码
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
         // 设置响应结果的消息为传入的默认消息
-        responseResult.setMessage(DEFAULT_SUCCESS_MESSAGE);
+        responseResult.setMessage(i18nService.getMessage("DEFAULT_SUCCESS_MESSAGE"));
         // 返回构建好的响应结果对象
         return responseResult;
     }
@@ -176,7 +182,7 @@ public class ResponseResult<T> implements Serializable {
     public static @NotNull ResponseResult okResult(Object data) {
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_SUCCESS_CODE);
-        responseResult.setMessage("默认成功消息提示");
+        responseResult.setMessage(i18nService.getMessage("DEFAULT_SUCCESS_MESSAGE"));
         responseResult.setData(data);
         return responseResult;
     }
@@ -191,7 +197,7 @@ public class ResponseResult<T> implements Serializable {
     public static @NotNull ResponseResult failResult(){
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(DEFAULT_FAIL_CODE);
-        responseResult.setMessage(DEFAULT_FAIL_MESSAGE);
+        responseResult.setMessage(i18nService.getMessage("DEFAULT_FAIL_MESSAGE"));
         return responseResult;
     }
 

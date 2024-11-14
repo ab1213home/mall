@@ -15,6 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
@@ -218,21 +219,15 @@ public class FileController {
     }
 
     /**
-     * 设置文件上传配置
-     * <p>
-     * 该方法用于更新文件上传的相关配置，包括是否允许上传文件、上传路径以及允许上传的图片后缀
-     * 只有管理员用户才能访问该方法进行配置更新
+     * 处理文件设置的保存请求
+     * 此方法接收文件设置信息，验证图片后缀的合法性，并更新系统配置
      *
-     * @param AllowUploadFile 是否允许上传文件
-     * @param FileUploadPath 文件上传路径
-     * @param imageSuffix 允许上传的图片后缀及其状态
-     * @param session HTTP会话，用于验证用户登录状态
-     * @return 返回更新配置的结果
+     * @param fileSettingVo 包含文件设置信息的对象，包括图片后缀、是否允许上传文件和文件上传路径
+     * @param session 用户会话，用于验证用户是否已登录
+     * @return 返回操作结果，包括成功或失败信息
      */
     @PostMapping("/file/saveSetting")
-    public ResponseResult setSetting(@RequestParam(required = false) boolean AllowUploadFile,
-                                     @RequestParam(required = false) String FileUploadPath,
-                                     @RequestBody(required = false) List<MapVo> imageSuffix,
+    public ResponseResult setSetting(@RequestBody FileSettingVo fileSettingVo,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
         ResponseResult result = userService.checkAdminUser(session);
@@ -240,13 +235,13 @@ public class FileController {
         if (!result.isSuccess()) {
             return result;
         }
+
         // 标准图片后缀集合，用于校验传入的图片后缀是否合法
         Set<String> standard_imageSuffix = Set.of("xbm", "tif", "pjp", "apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+
         // 遍历传入的图片后缀，校验其合法性并更新配置
-        if (imageSuffix != null) {
-            // 将 imageSuffix 转换为 Map 类型
-//            Map<String, Object> mapImageSuffix = (Map<String, Object>) imageSuffix.get("imageSuffix");
-            for (MapVo suffix : imageSuffix){
+        if (fileSettingVo.getImageSuffix() != null) {
+            for (MapVo suffix : fileSettingVo.getImageSuffix()){
                 if (!standard_imageSuffix.contains(suffix.getKey())) {
                     return ResponseResult.failResult("非法的图片后缀");
                 }
@@ -255,30 +250,29 @@ public class FileController {
                 } else {
                     com.jiang.mall.domain.config.File.imageSuffix.remove(suffix.getKey());
                 }
-    //            if (Objects.equals(suffix.getValue(), "ture")) {
-    //                Config.imageSuffix.add(suffix.getKey());
-    //            } else if (Objects.equals(suffix.getValue(), "false")){
-    //                Config.imageSuffix.remove(suffix.getKey());
-    //            }else {
-    //                return ResponseResult.failResult("非法的状态");
-    //            }
             }
         } else {
             // 处理 imageSuffix 为 null 的情况
             System.out.println("imageSuffix 为空，请检查数据源！");
         }
+
         // 更新是否允许上传文件的配置
-        com.jiang.mall.domain.config.File.AllowUploadFile = AllowUploadFile;
+        AllowUploadFile = fileSettingVo.getAllowUploadFile();
+
         // 如果上传路径不为空，则更新上传路径
-        if (FileUploadPath != null) {
-	        com.jiang.mall.domain.config.File.FILE_UPLOAD_PATH = UriUtils.decode(FileUploadPath, StandardCharsets.UTF_8);
+        if (fileSettingVo.getFileUploadPath() != null) {
+            FILE_UPLOAD_PATH = fileSettingVo.getFileUploadPath();
         }
+
         // 更新允许上传的图片后缀字符串，以逗号分隔
-        com.jiang.mall.domain.config.File.imageSuffixStr = String.join(",", com.jiang.mall.domain.config.File.imageSuffix);
+        imageSuffixStr = String.join(",",imageSuffix);
+
         // 保存更新后的配置
-        com.jiang.mall.domain.config.File.saveProperties();
-        com.jiang.mall.domain.config.File.loadProperties();
+        saveProperties();
+        loadProperties();
+
         // 返回成功结果
         return ResponseResult.okResult();
     }
+
 }

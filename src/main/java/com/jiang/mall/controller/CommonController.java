@@ -117,10 +117,10 @@ public class CommonController {
         ResponseResult result = userService.checkAdminUser(session);
 
         //TODO:临时放行
-//		if (!result.isSuccess()) {
-//			// 如果未登录，则直接返回
-//		    return result;
-//		}
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
         // 检查文件是否为空
         if (file.isEmpty()){
             return ResponseResult.failResult("文件不能为空");

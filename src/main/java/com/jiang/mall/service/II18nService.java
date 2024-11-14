@@ -38,4 +38,8 @@ public interface II18nService {
 	Boolean checkString(String string);
 
 	Boolean checkString(String string,int l);
+
+	Boolean isValidIPv4(String ip);
+
+	Boolean isValidIPv6(String ip);
 }

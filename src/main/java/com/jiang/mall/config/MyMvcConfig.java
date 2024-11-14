@@ -73,7 +73,9 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/forgot.html?*");
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/admin/**.html")
-                .addPathPatterns("/admin/**.html?*");
+                .addPathPatterns("/admin/**.html?*")
+                .addPathPatterns("/admin/**/**.html")
+                .addPathPatterns("/admin/**/**.html?*");
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/")
                 .addPathPatterns("/cart")
@@ -87,6 +89,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/collections.html")
                 .addPathPatterns("/user/**.html")
                 .addPathPatterns("/user/**.html?*")
+                .addPathPatterns("/user/**/**.html")
+                .addPathPatterns("/user/**/**.html?*")
                 .excludePathPatterns("/user/login.html")
                 .excludePathPatterns("/user/register.html")
                 .excludePathPatterns("/user/forgot.html")

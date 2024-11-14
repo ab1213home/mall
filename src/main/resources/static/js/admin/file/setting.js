@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let imageSuffix;
+let imageSuffixArr={};
 function getFileSetting() {
     $.ajax({
         url: '/file/getSetting',
@@ -21,54 +21,37 @@ function getFileSetting() {
             if (res.code == 200) {
                 $("#allow-upload").val(res.data.AllowUploadFile);
                 $("#save-to-where").val(res.data.FileUploadPath);
-                // imageSuffix = res.data.imageSuffix;
-                imageSuffix=new Map(Object.entries(res.data.imageSuffix));
+                imageSuffixArr= {};
                 $("#image-suffix").empty();
                 let row=`<div class="row">`;
-                // for (let i = 0; i < imageSuffix.length; i++) {
-                //     if(i%6==0 && i != 0){
-                //         row+=`</div><div class="row">`;
-                //     }
-                //     row+=`<div class="col-md-2">
-                //             <input class="form-check-input" type="checkbox" id="`+imageSuffix[i]+`" name="allow-upload" value="true" checked>
-                //             <label class="form-check-label" for="allow-upload">允许上传文件</label>
-                //           </div>`;
-                // }
-                imageSuffix.forEach((value, key) => {
+                res.data.imageSuffix.forEach((list, index) => {
+                    imageSuffixArr[index]=list;
                     row+=`<div class="col-md-2 col-lg-1">
-                            <input class="form-check-input" type="checkbox" id="`+key+`" name="`+key+`" value="`+value+`" ${value?"checked":""} onclick="setFormat(${key})">
-                            <label class="form-check-label" for="`+key+`">${key}</label>
+                            <input class="form-check-input" type="checkbox" id="`+index+`" name="`+index+`" value="`+list.value+`" ${list.value?"checked":""} onclick="setFormat(${index})">
+                            <label class="form-check-label" for="`+index+`">${list.key}</label>
                           </div>`;
                 });
-                // for (const format in imageSuffix) {
-                //   if (imageSuffix.hasOwnProperty(format)) {
-                //     row+=`<div class="col-md-2 col-lg-1">
-                //             <input class="form-check-input" type="checkbox" id="`+format+`" name="`+format+`" value="`+imageSuffix[format]+`" ${imageSuffix[format]?"checked":""} onclick="setFormat(`+format+`)">
-                //             <label class="form-check-label" for="`+format+`">${format}</label>
-                //           </div>`;
-                //   }
-                // }
                 row+='</div>';
                 $("#image-suffix").append(row);
             }
         }
     })
 }
-function setFormat(id){
-    let name = id.getAttribute('name');
-    imageSuffix.set(name,!imageSuffix.get(name));
-    // $("#"+name).prop("checked",imageSuffix[name]);
+function setFormat(index){
+    imageSuffixArr[index].value=$("#"+index).prop("checked");
 }
 function saveFileSetting() {
     let data = {
-        imageSuffix: imageSuffix
+        allowUploadFile: $("#allow-upload").prop("checked"),
+        FileUploadPath: $("#save-to-where").val(),
+        imageSuffix: Object.values(imageSuffixArr)
     };
 
     $.ajax({
-        url: '/file/saveSetting?AllowUploadFile='+$("#allow-upload").prop("checked")+"&FileUploadPath="+ encodeURI($("#save-to-where").val()),
+        url: '/file/saveSetting',
         type: 'POST',
         dataType: 'json',
-        data:JSON.stringify(Object.fromEntries(imageSuffix)),
+        data:JSON.stringify(data),
         contentType: 'application/json; charset=utf-8',
         success: function(res) {
             if (res.code == 200) {

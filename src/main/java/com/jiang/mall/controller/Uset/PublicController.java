@@ -50,51 +50,6 @@ public class PublicController {
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * 检查用户是否登录
-     * 通过检查会话（session）中的用户信息来判断用户是否已登录
-     * 如果用户已登录，则返回用户的详细信息
-     *
-     * @param session HTTP会话，用于获取用户登录状态和相关信息
-     * @return ResponseResult 包含用户是否登录的结果或用户详细信息
-     */
-    @GetMapping("/isLogin")
-    public ResponseResult isLogin(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
-		if (!result.isSuccess()) {
-		    // 如果未登录，则直接返回
-		    return result;
-		}
-        UserVo userVo =(UserVo)session.getAttribute("User");
-	    if (userVo == null)
-	        return ResponseResult.failResult("用户信息获取失败！");
-        // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
-        if (userVo.getBirthDate()!= null){
-            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
-            session.setAttribute("User", userVo);
-        }
-        // 返回包含用户信息的结果
-        return ResponseResult.okResult(userVo);
-    }
-
-    /**
-     * 检查当前用户是否为管理员用户
-     *
-     * @param session HTTP会话对象，用于获取用户是否为管理员的信息
-     * @return 如果会话中没有"UserIsAdmin"属性，返回服务器错误结果；
-     *         如果"UserIsAdmin"属性值为"false"，返回OK结果包含false；
-     *         否则，返回OK结果包含true，表示用户是管理员
-     */
-    @GetMapping("/isAdminUser")
-    public ResponseResult isAdminUser(HttpSession session){
-        if (session.getAttribute("User") == null){
-            return ResponseResult.serverErrorResult("系统错误！");
-        }
-        UserVo user = (UserVo) session.getAttribute("User");
-        return ResponseResult.okResult(user.isAdmin());
-    }
-
-    /**
      * 获取距离下一次生日的天数
      *
      * @param session HttpSession对象，用于获取用户 session 信息

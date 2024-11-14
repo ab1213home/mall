@@ -21,6 +21,7 @@ import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
@@ -57,6 +58,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    this.userMapper = userMapper;
 	}
 
+	private II18nService i18nService;
+
+	@Autowired
+	public void setI18nService(II18nService i18nService) {
+	    this.i18nService = i18nService;
+	}
+
 	/**
 	 * 检查用户是否已登录
 	 * <p>
@@ -66,17 +74,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session 当前用户的会话
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
-	public ResponseResult checkUserLogin(HttpSession session) {
+	public ResponseResult checkUserLogin(@NotNull HttpSession session) {
 	    // 检查用户是否已登录
 	    if (session.getAttribute("User") != null) {
 	        UserVo user = (UserVo) session.getAttribute("User");
 			if (user.getId()==null){
-				return ResponseResult.failResult("用户信息获取失败！");
+				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
 			}else{
 				return ResponseResult.okResult(user.getId());
 			}
 	    }else {
-			return ResponseResult.notLoggedResult("您未登录，请先登录");
+			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 	    }
 	}
 
@@ -113,7 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		if (user.isAdmin()){
 			return ResponseResult.okResult(user.getId());
 		}else{
-			return ResponseResult.failResult("您没有权限访问此页面");
+			return ResponseResult.failResult(i18nService.getMessage("user.checkAdmin.noAdmin"));
 		}
 	}
 
@@ -136,13 +144,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		UserVo user = (UserVo) session.getAttribute("User");
 	    // 获取创建修改用户的信息
 		if (userMapper.selectById(oldUserId) == null) {
-//			return ResponseResult.notLoggedResult("用户不存在");
 			return ResponseResult.okResult(result.getData());
 		}
 		User old_user = userMapper.selectById(oldUserId);
-	    // 检查尝试修改轮播图的用户的权限是否足够
+	    // 检查尝试修改用户的权限是否足够
 	    if (old_user.getRoleId() >user.getRoleId()) {
-	        return ResponseResult.notLoggedResult("您没有权限修改此资源");
+	        return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkAdmin.noPermission"));
 	    }
 	    return ResponseResult.okResult(result.getData());
 	}
@@ -172,7 +179,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        queryWrapper_email.eq("email", username);
 	        queryWrapper_email.eq("is_active", true);
 	        User user_email = userMapper.selectOne(queryWrapper_email);
-//encryptToSHA256(password,AES_SALT)
+			//encryptToSHA256(password,AES_SALT)
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
 	            // 如果邮箱未注册，检查用户名是否注册

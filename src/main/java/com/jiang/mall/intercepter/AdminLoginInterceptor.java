@@ -14,9 +14,11 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.II18nService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -26,6 +28,13 @@ import java.nio.charset.StandardCharsets;
 
 @Component
 public class AdminLoginInterceptor implements HandlerInterceptor {
+
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
 
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
@@ -63,7 +72,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
         // 编码请求的URI，以确保URL中的特殊字符能够正确传递
         String urlParam = URLEncoder.encode(requestURI, StandardCharsets.UTF_8);
         // 编码提示信息，以确保非ASCII字符能正确传递
-        String messageParam = URLEncoder.encode("非法访问，请登录！", StandardCharsets.UTF_8);
+        String messageParam = URLEncoder.encode(i18nService.getMessage("user.checkUser.noLogin"), StandardCharsets.UTF_8);
 
         // 设置响应的内容类型和字符编码，确保浏览器正确解析重定向的URL
         response.setContentType("text/html; charset=UTF-8");
