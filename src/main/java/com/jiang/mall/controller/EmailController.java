@@ -79,7 +79,7 @@ public class EmailController {
      * @return 注册结果
      */
     @PostMapping("/sendRegister")
-    public ResponseResult sendRegister(@RequestParam("username") String username,
+    public ResponseResult<Object> sendRegister(@RequestParam("username") String username,
                                        @RequestParam("email") String email,
                                        @RequestParam("password") String password,
                                        @RequestParam("confirmPassword") String confirmPassword,
@@ -176,9 +176,9 @@ public class EmailController {
     }
 
     @GetMapping("/getChecking")
-    public ResponseResult getChecking(HttpSession session) {
+    public ResponseResult<Object> getChecking(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -198,7 +198,7 @@ public class EmailController {
      * @return 操作结果
      */
     @PostMapping("/sendResetPassword")
-    public ResponseResult sendResetPassword(@RequestParam("username") String username,
+    public ResponseResult<Object> sendResetPassword(@RequestParam("username") String username,
                                             @RequestParam("captcha") String captcha,
                                             HttpSession session) {
         if (session.getAttribute("User")!=null){
@@ -270,14 +270,14 @@ public class EmailController {
     }
 
     @PostMapping("/sendChangeEmail")
-    public ResponseResult sendChangeEmail(@RequestParam("password") String password,
+    public ResponseResult<Object> sendChangeEmail(@RequestParam("password") String password,
                                           @RequestParam("email") String email,
                                           @RequestParam("captcha") String captcha,
                                           HttpSession session) {
         if (!AllowSendEmail){
 			return ResponseResult.failResult("管理员不允许发送邮件");
 		}
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -366,7 +366,7 @@ public class EmailController {
      * @return 响应结果
      */
     @PostMapping("/sendChecking")
-    public ResponseResult sendChecking(@RequestParam("username") String username,
+    public ResponseResult<Object> sendChecking(@RequestParam("username") String username,
                                        @RequestParam("email") String email,
                                        @RequestParam("captcha") String captcha,
                                        HttpSession session) {
@@ -376,7 +376,7 @@ public class EmailController {
         }
 
         // 检查用户是否已登录
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

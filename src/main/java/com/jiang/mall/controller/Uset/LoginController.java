@@ -81,14 +81,14 @@ public class LoginController {
      * @return ResponseResult 登录结果
      */
     @PostMapping("/login")
-    public ResponseResult login(@RequestParam("username") String username,
+    public ResponseResult<Object> login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 @RequestParam("captcha") String captcha,
                                 @RequestHeader("CLIENT_IP") String clientIp,
                                 @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
                                 HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (result.isSuccess()) {
 		   return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
 		}
@@ -131,6 +131,7 @@ public class LoginController {
         User user = userService.login(username, password);
         if (user != null) {
             UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
+	        assert userVo != null;
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));

@@ -75,7 +75,7 @@ public class ProductController {
     }
 
     @GetMapping("/getSnapshotInfo")
-    public ResponseResult getSnapshotInfo(@RequestParam("id") Long id,
+    public ResponseResult<Object> getSnapshotInfo(@RequestParam("id") Long id,
                                           HttpSession session) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
@@ -84,7 +84,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -114,7 +114,7 @@ public class ProductController {
      * @return 返回包含产品列表的响应结果，具体结构由productService定义
      */
     @GetMapping("/getList")
-    public ResponseResult getProductList(@RequestParam(required = false) String name,
+    public ResponseResult<Object> getProductList(@RequestParam(required = false) String name,
                                          @RequestParam(required = false) Long categoryId,
                                          @RequestParam(defaultValue = "1") Integer pageNum,
                                          @RequestParam(defaultValue = "5") Integer pageSize) {
@@ -132,7 +132,7 @@ public class ProductController {
      * @return 返回产品信息或者错误信息
      */
     @GetMapping("/getInfo")
-    public ResponseResult getProductInfo(@RequestParam("productId") Long productId) {
+    public ResponseResult<Object> getProductInfo(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -165,7 +165,7 @@ public class ProductController {
      * @return 操作结果
      */
     @PostMapping("/add")
-    public ResponseResult insertProduct(@RequestParam("code") String code,
+    public ResponseResult<Object> insertProduct(@RequestParam("code") String code,
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Long categoryId,
                                         @RequestParam("img") String img,
@@ -174,7 +174,7 @@ public class ProductController {
                                         @RequestParam("description") String description,
                                         HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -228,7 +228,7 @@ public class ProductController {
      * @return              返回操作结果的响应对象
      */
     @PostMapping("/update")
-    public ResponseResult updateProduct(@RequestParam("id") Long id,
+    public ResponseResult<Object> updateProduct(@RequestParam("id") Long id,
                                         @RequestParam("code") String code,
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Long categoryId,
@@ -267,7 +267,7 @@ public class ProductController {
         }
 
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.hasPermission(product.getUpdater(),session);
+        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
@@ -294,7 +294,7 @@ public class ProductController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    public ResponseResult deleteProduct(@RequestParam("id") Long id,
+    public ResponseResult<Object> deleteProduct(@RequestParam("id") Long id,
                                        HttpSession session) {
         if (id==null||id<=0){
             return ResponseResult.failResult("参数错误");
@@ -310,7 +310,7 @@ public class ProductController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.hasPermission(product.getUpdater(),session);
+        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
         // 验证用户权限，确保用户已登录并有权限进行删除操作
         if (!result.isSuccess()) {
             return result;
@@ -327,9 +327,9 @@ public class ProductController {
     }
 
     @GetMapping("/getNum")
-    public ResponseResult getProductNum(HttpSession session) {
+    public ResponseResult<Object> getProductNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }

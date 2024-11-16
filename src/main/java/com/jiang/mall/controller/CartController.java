@@ -72,11 +72,11 @@ public class CartController {
      * 如果用户已登录，则根据会话中的用户ID调用服务方法获取该用户的购物车列表，并返回购物车列表的响应结果
      */
     @GetMapping("/getList")
-    public ResponseResult getCartList(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponseResult<Object> getCartList(@RequestParam(defaultValue = "1") Integer pageNum,
                                       @RequestParam(defaultValue = "5") Integer pageSize,
                                       HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -93,9 +93,9 @@ public class CartController {
      * @return 返回包含购物车商品数量的响应结果；如果用户未登录，则返回登录相关的响应结果
      */
     @GetMapping("/getNum")
-    public ResponseResult getCartNum(HttpSession session) {
+    public ResponseResult<Object> getCartNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -115,11 +115,11 @@ public class CartController {
      * @return 添加结果
      */
     @PostMapping("/add")
-    public ResponseResult addCart(@RequestParam("productId") Long productId,
+    public ResponseResult<Object> addCart(@RequestParam("productId") Long productId,
                                   @RequestParam("num") Integer num,
                                   HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -156,11 +156,11 @@ public class CartController {
      * @return 更新操作的结果，包括是否成功、失败或用户未登录的情况
      */
     @PostMapping("/update")
-    public ResponseResult updateCart(@RequestParam("id") Long id,
+    public ResponseResult<Object> updateCart(@RequestParam("id") Long id,
                                      @RequestParam("num") Integer num,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -204,10 +204,10 @@ public class CartController {
      * @return 删除操作的结果响应
      */
     @GetMapping("/delete")
-    public ResponseResult deleteCart(@RequestParam("id") Long id,
+    public ResponseResult<Object> deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

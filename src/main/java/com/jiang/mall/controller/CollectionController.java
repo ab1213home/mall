@@ -62,10 +62,10 @@ public class CollectionController {
 	}
 
 	@PostMapping("/add")
-	public ResponseResult insertCollection(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> insertCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -88,10 +88,10 @@ public class CollectionController {
 	}
 
 	@GetMapping("/delete")
-	public ResponseResult deleteCollection(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> deleteCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -115,7 +115,7 @@ public class CollectionController {
 	}
 
 	@GetMapping("/deleteById")
-	public ResponseResult deleteByIdCollection(@RequestParam("id") Integer id,
+	public ResponseResult<Object> deleteByIdCollection(@RequestParam("id") Integer id,
                                            HttpSession session) {
 		if (id == null|| id <= 0) {
             return ResponseResult.failResult("非法请求");
@@ -128,12 +128,12 @@ public class CollectionController {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
 		// 检查会话中是否设置表示用户已登录的标志
-		ResponseResult result = userService.checkUserLogin(session);
+		ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
         }
-		Integer userId = (Integer) result.getData();
+		Long userId = (Long) result.getData();
 		if (!Objects.equals(collection.getUserId(), userId)){
 			return ResponseResult.failResult("您没有权限删除该收藏");
 		}
@@ -145,11 +145,11 @@ public class CollectionController {
 	}
 
 	@GetMapping("/getList")
-	public ResponseResult getCollectionList(@RequestParam(defaultValue = "1") Integer pageNum,
+	public ResponseResult<Object> getCollectionList(@RequestParam(defaultValue = "1") Integer pageNum,
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -163,9 +163,9 @@ public class CollectionController {
 	}
 
 	@GetMapping("/getNum")
-	public ResponseResult getCollectionNum(HttpSession session) {
+	public ResponseResult<Object> getCollectionNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -175,10 +175,10 @@ public class CollectionController {
 	}
 
 	@GetMapping("/isCollected")
-	public ResponseResult isCollected(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> isCollected(@RequestParam("productId") Long productId,
 	                                  HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

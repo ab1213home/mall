@@ -110,11 +110,11 @@ public class CommonController {
      */
     @RequestMapping("/uploadFile")
     @ResponseBody
-    public ResponseResult upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
+    public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         if (!AllowUploadFile){
             return ResponseResult.failResult("上传文件被禁止");
         }
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
 
         //TODO:临时放行
 		if (!result.isSuccess()) {
@@ -191,14 +191,14 @@ public class CommonController {
      */
     @RequestMapping("/uploadFaces")
     @ResponseBody
-    public ResponseResult upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
+    public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         // 检查是否允许上传文件
         if (!AllowUploadFile){
             return ResponseResult.failResult("上传文件被禁止");
         }
 
         // 检查用户登录状态
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -287,13 +287,13 @@ public class CommonController {
      */
     @GetMapping("/getSalt")
     @ResponseBody
-    public ResponseResult getSalt(HttpSession session) {
+    public ResponseResult<Object> getSalt(HttpSession session) {
         return ResponseResult.okResult(User.AES_SALT,"获取随机盐值");
     }
 
     @GetMapping("/getFooter")
     @ResponseBody
-    public ResponseResult getFooter(HttpSession session) {
+    public ResponseResult<Object> getFooter(HttpSession session) {
         Map<String, Object> map = new HashMap<>();
         map.put("phone", Config.phone);
         map.put("email", Config.email);

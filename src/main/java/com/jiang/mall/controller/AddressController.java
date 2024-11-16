@@ -83,11 +83,11 @@ public class AddressController {
      * @return 返回收货地址列表或相关错误提示的响应结果
      */
     @GetMapping("/getList")
-    public ResponseResult getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponseResult<Object> getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
                                          @RequestParam(defaultValue = "10") Integer pageSize,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -113,9 +113,9 @@ public class AddressController {
 	 * @return 返回获取地址数据数量的结果，包括是否成功、失败原因以及数据本身（如果成功）
 	 */
 	@GetMapping("/getNum")
-	public ResponseResult getNum(HttpSession session){
+	public ResponseResult<Object> getNum(HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -138,7 +138,7 @@ public class AddressController {
 	 * @return ResponseResult 插入地址操作的结果
 	 */
 	@PostMapping("/add")
-	public ResponseResult insertAddress(@RequestParam("firstName") String firstName,
+	public ResponseResult<Object> insertAddress(@RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
 	                                    @RequestParam("phone") String phone,
 										@RequestParam("areaCode") Long areaCode,
@@ -147,7 +147,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -208,7 +208,7 @@ public class AddressController {
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
-	public ResponseResult updateAddress(@RequestParam("id") Long id,
+	public ResponseResult<Object> updateAddress(@RequestParam("id") Long id,
 	                                    @RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
 	                                    @RequestParam("phone") String phone,
@@ -218,7 +218,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -271,10 +271,10 @@ public class AddressController {
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
-	public ResponseResult deleteAddress(@RequestParam("id") Long id,
+	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
 	                                    HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;

@@ -107,7 +107,7 @@ public class OrderController {
 	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
 	 */
 	@PostMapping("/checkout")
-	public ResponseResult checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
+	public ResponseResult<Object> checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
 		if (list_checkoutVo == null) {
 	        return ResponseResult.failResult("参数错误");
@@ -116,7 +116,7 @@ public class OrderController {
 	        return ResponseResult.failResult("请选择商品");
 	    }
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -158,11 +158,11 @@ public class OrderController {
 	 * 购物车ID列表获取相应的购物车商品列表，并返回成功结果包含该列表
 	 */
 	@GetMapping("/getTemporaryList")
-	public ResponseResult getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize,
 	                                            HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -203,9 +203,9 @@ public class OrderController {
 	 * @return 返回一个响应结果，包含临时购物车中的商品数量或相关错误信息
 	 */
 	@GetMapping("/getTemporaryNum")
-	public ResponseResult getTemporaryCartNum(HttpSession session) {
+	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -243,13 +243,13 @@ public class OrderController {
 	 * @return ResponseResult 包含操作结果和订单ID的响应对象
 	 */
 	@PostMapping("/insert")
-	public ResponseResult insertOrder(@RequestParam("addressId") Long addressId,
+	public ResponseResult<Object> insertOrder(@RequestParam("addressId") Long addressId,
 									  @RequestParam("paymentMethod") byte paymentMethod,
 									  @RequestParam("status") byte status,
 									  @RequestBody List<CheckoutVo> list_checkoutVo,
 									  HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -309,11 +309,11 @@ public class OrderController {
 	 * @return 返回订单列表或相关错误信息
 	 */
 	@GetMapping("/getList")
-	public ResponseResult getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	public ResponseResult<Object> getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                   @RequestParam(defaultValue = "5") Integer pageSize,
 	                                   HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -334,9 +334,9 @@ public class OrderController {
 	}
 
 	@GetMapping("/getNum")
-	public ResponseResult getOrderNum(HttpSession session) {
+	public ResponseResult<Object> getOrderNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -346,11 +346,11 @@ public class OrderController {
 	}
 
 	@GetMapping("/getAllList")
-	public ResponseResult getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                      @RequestParam(defaultValue = "5") Integer pageSize,
 	                                      HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkAdminUser(session);
+	    ResponseResult<Object> result = userService.checkAdminUser(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -370,9 +370,9 @@ public class OrderController {
 	}
 
 	@GetMapping("/getAllNum")
-	public ResponseResult getAllOrderNum(HttpSession session) {
+	public ResponseResult<Object> getAllOrderNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkAdminUser(session);
+	    ResponseResult<Object> result = userService.checkAdminUser(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -381,9 +381,9 @@ public class OrderController {
 	}
 
 	@GetMapping("/getAmount")
-	public ResponseResult getAmount(HttpSession session) {
+	public ResponseResult<Object> getAmount(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = userService.checkAdminUser(session);
+	    ResponseResult<Object> result = userService.checkAdminUser(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;

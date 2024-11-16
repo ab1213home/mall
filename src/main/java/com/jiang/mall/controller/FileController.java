@@ -117,9 +117,9 @@ public class FileController {
      * @return 包含文件夹总大小和文件数量的响应结果
      */
     @GetMapping("/file/getFileSize")
-    public ResponseResult getSize(HttpSession session){
+    public ResponseResult<Object> getSize(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -148,7 +148,7 @@ public class FileController {
 
 
     @GetMapping("/getFaceTemplateList")
-    public ResponseResult getFaceTemplateList(HttpSession session){
+    public ResponseResult<Object> getFaceTemplateList(HttpSession session){
 
     	File folder = new File(FILE_UPLOAD_PATH+"faces/");
 
@@ -164,10 +164,10 @@ public class FileController {
     }
 
     @GetMapping("/file/getAllList")
-    public ResponseResult getAllList(@RequestParam(required = false) String path,
+    public ResponseResult<Object> getAllList(@RequestParam(required = false) String path,
                                   HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -190,10 +190,10 @@ public class FileController {
     }
 
     @GetMapping("/file/getList")
-    public ResponseResult getList(@RequestParam(required = false,defaultValue = "") String path,
+    public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
                                   HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -222,9 +222,9 @@ public class FileController {
      * @return 返回包含文件设置信息的响应结果
      */
     @GetMapping("/file/getSetting")
-    public ResponseResult getSetting(HttpSession session){
+    public ResponseResult<Object> getSetting(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -255,10 +255,10 @@ public class FileController {
      * @return 返回操作结果，包括成功或失败信息
      */
     @PostMapping("/file/saveSetting")
-    public ResponseResult setSetting(@RequestBody FileSettingVo fileSettingVo,
+    public ResponseResult<Object> setSetting(@RequestBody FileSettingVo fileSettingVo,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -311,10 +311,10 @@ public class FileController {
      * @return ResponseResult 包含操作结果或文件用途信息
      */
     @GetMapping("/file/getPurpose")
-    public ResponseResult getPurpose(@RequestParam("path") String path,
+    public ResponseResult<Object> getPurpose(@RequestParam("path") String path,
                                      HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;

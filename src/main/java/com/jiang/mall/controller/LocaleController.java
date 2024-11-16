@@ -26,7 +26,7 @@ public class LocaleController {
 	private II18nService i18nService;
 
 	@GetMapping("/text/Locale")
-	public ResponseResult setLocale() {
+	public ResponseResult<Object> setLocale() {
 		return ResponseResult.okResult(i18nService.getMessage("text"));
 	}
 }

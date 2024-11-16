@@ -67,7 +67,7 @@ public class CategoryController {
      * @return 返回分类列表或相关错误信息
      */
     @GetMapping("/getList")
-    public ResponseResult getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
                                           @RequestParam(defaultValue = "5") Integer pageSize) {
         // 调用服务方法获取分类列表
         List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize);
@@ -88,7 +88,7 @@ public class CategoryController {
      * @return 返回包含分类数量的响应结果
      */
     @GetMapping("/getNum")
-    public ResponseResult getCategoryNum() {
+    public ResponseResult<Object> getCategoryNum() {
         return ResponseResult.okResult(categoryService.getCategoryNum());
     }
 
@@ -103,11 +103,11 @@ public class CategoryController {
      * @return 插入操作的结果或错误信息
      */
     @PostMapping("/add")
-    public ResponseResult insertCategory(@RequestParam("code")String code,
+    public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
                                          @RequestParam("name")String name,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         // 如果用户未登录或无管理员权限，则返回错误结果
         if (!result.isSuccess()) {
             return result;
@@ -141,7 +141,7 @@ public class CategoryController {
      * @return 返回操作结果
      */
     @PostMapping("/update")
-    public ResponseResult updateCategory(@RequestParam("id") Long id,
+    public ResponseResult<Object> updateCategory(@RequestParam("id") Long id,
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
                                          HttpSession session) {
@@ -164,7 +164,7 @@ public class CategoryController {
         }
 
         // 判断当前用户是否有权限进行更新操作
-        ResponseResult result = userService.hasPermission(category.getUpdater(), session);
+        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -187,7 +187,7 @@ public class CategoryController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    public ResponseResult deleteCategory(@RequestParam("id") Integer id,
+    public ResponseResult<Object> deleteCategory(@RequestParam("id") Integer id,
                                          HttpSession session) {
         if (id == null || id <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -203,7 +203,7 @@ public class CategoryController {
         }
 
         // 检查当前会话中用户是否已登录并有权限进行操作
-        ResponseResult result = userService.hasPermission(category.getUpdater(), session);
+        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
         // 如果用户没有权限（未登录或不是要求的管理员角色），返回错误信息
         if (!result.isSuccess()) {
             return result;

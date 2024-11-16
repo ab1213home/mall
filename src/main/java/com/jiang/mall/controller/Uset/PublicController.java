@@ -60,8 +60,8 @@ public class PublicController {
      * 如果生日已设置，则计算距离下一次生日的天数，并返回成功结果。
      */
     @GetMapping("/getDays")
-    public ResponseResult getDaysNextBirthday(HttpSession session){
-        ResponseResult result = userService.checkUserLogin(session);
+    public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    // 如果未登录，则直接返回
 		    return result;
@@ -78,11 +78,11 @@ public class PublicController {
     }
 
     @GetMapping("/getList")
-    public ResponseResult getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
                                       @RequestParam(defaultValue = "5") Integer pageSize,
                                       HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -94,9 +94,9 @@ public class PublicController {
     }
 
     @GetMapping("/getNum")
-    public ResponseResult getUserNum(HttpSession session){
+    public ResponseResult<Object> getUserNum(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }

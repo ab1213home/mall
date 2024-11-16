@@ -84,7 +84,7 @@ public class ForgotController {
      * @return 返回密码重置结果的响应对象
      */
     @PostMapping("/forgot")
-    public ResponseResult forgotStep2(@RequestParam("email") String email,
+    public ResponseResult<Object> forgotStep2(@RequestParam("email") String email,
                                       @RequestParam("code") String code,
                                       @RequestParam("password") String password,
                                       @RequestParam("confirmPassword") String confirmPassword,

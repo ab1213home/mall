@@ -74,7 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session 当前用户的会话
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
-	public ResponseResult checkUserLogin(@NotNull HttpSession session) {
+	public ResponseResult<Object> checkUserLogin(@NotNull HttpSession session) {
 	    // 检查用户是否已登录
 	    if (session.getAttribute("User") != null) {
 	        UserVo user = (UserVo) session.getAttribute("User");
@@ -110,9 +110,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session HTTP会话，用于获取用户登录状态和管理员状态
 	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
 	 */
-	public ResponseResult checkAdminUser(HttpSession session) {
+	public ResponseResult<Object> checkAdminUser(HttpSession session) {
 	    // 检查用户是否已登录
-	    ResponseResult result = checkUserLogin(session);
+	    ResponseResult<Object> result = checkUserLogin(session);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -134,9 +134,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session  当前用户的会话
 	 * @return  包含权限检查结果的响应对象，如果用户无权修改，则返回相应的错误信息
 	 */
-	public ResponseResult hasPermission(Long oldUserId, HttpSession session){
+	public ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult result = checkAdminUser(session);
+	    ResponseResult<Object> result = checkAdminUser(session);
 	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
 	    if (!result.isSuccess()) {
 	        return result;

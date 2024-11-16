@@ -84,7 +84,7 @@ public class ModifyController {
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	    @PostMapping("/modify/email")
-    public ResponseResult modifyEmail(@RequestParam("email") String email,
+    public ResponseResult<Object> modifyEmail(@RequestParam("email") String email,
                                       @RequestParam("code") String code,
                                       HttpSession session) {
         if (email==null||code==null){
@@ -96,7 +96,7 @@ public class ModifyController {
         if (!StringUtils.hasText(code)){
             return ResponseResult.failResult("验证码不能为空");
         }
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -133,7 +133,7 @@ public class ModifyController {
      * @return ResponseResult 修改密码结果的响应对象
      */
     @PostMapping("/modify/password")
-    public ResponseResult modifyPassword(@RequestParam("oldPassword") String oldPassword,
+    public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                          @RequestParam("newPassword") String newPassword,
                                          @RequestParam("confirmPassword")String confirmPassword,
                                          HttpSession session) {
@@ -160,7 +160,7 @@ public class ModifyController {
             return ResponseResult.failResult("旧密码不能为空！");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -194,7 +194,7 @@ public class ModifyController {
      * @return 修改用户信息的结果
      */
     @PostMapping("/modify/info")
-    public ResponseResult modifyUserInfo(@RequestParam(required = false) Long id,
+    public ResponseResult<Object> modifyUserInfo(@RequestParam(required = false) Long id,
                                          @RequestParam(required = false) String phone,
                                          @RequestParam(required = false) String firstName,
                                          @RequestParam(required = false) String lastName,
@@ -205,7 +205,7 @@ public class ModifyController {
                                          @RequestParam(required = false) Integer roleId,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             return result; // 如果未登录，则直接返回
         }
@@ -304,9 +304,9 @@ public class ModifyController {
      *         如果用户锁定失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/modify/self-lock")
-    public ResponseResult lockUser(HttpSession session) {
+    public ResponseResult<Object> lockUser(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -330,7 +330,7 @@ public class ModifyController {
      * @return ResponseResult表示操作结果，包含成功、失败、未找到资源、服务器错误等状态
      */
     @PostMapping("/modify/lock")
-    public ResponseResult selfLock(@RequestParam("userId") Long userId,
+    public ResponseResult<Object> selfLock(@RequestParam("userId") Long userId,
                                    HttpSession session) {
         if (userId == null|| userId <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -346,7 +346,7 @@ public class ModifyController {
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult result = userService.hasPermission(user.getId(), session);
+        ResponseResult<Object> result = userService.hasPermission(user.getId(), session);
         // 如果用户未登录或权限不足，则返回相应的错误信息
         if (!result.isSuccess()) {
             return result;
@@ -375,7 +375,7 @@ public class ModifyController {
      * 如果解锁失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/modify/unlock")
-    public ResponseResult unlockUser(@RequestParam("userId") Long userId,
+    public ResponseResult<Object> unlockUser(@RequestParam("userId") Long userId,
                                      HttpSession session) {
         if (userId == null|| userId <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -391,7 +391,7 @@ public class ModifyController {
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult result = userService.hasPermission(user.getUpdater(), session);
+        ResponseResult<Object> result = userService.hasPermission(user.getUpdater(), session);
         // 如果用户未登录或权限不足，则返回相应的错误信息
         if (!result.isSuccess()) {
             return result;

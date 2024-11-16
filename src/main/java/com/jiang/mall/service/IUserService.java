@@ -53,11 +53,11 @@ public interface IUserService extends IService<User> {
 
 	Boolean unlockUser(Long userId);
 
-    ResponseResult hasPermission(Long oldUserId, HttpSession session);
+    ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
 
-    ResponseResult checkAdminUser(HttpSession session);
+    ResponseResult<Object> checkAdminUser(HttpSession session);
 
-    ResponseResult checkUserLogin(HttpSession session);
+    ResponseResult<Object> checkUserLogin(HttpSession session);
 
     Long getUserNum();
 

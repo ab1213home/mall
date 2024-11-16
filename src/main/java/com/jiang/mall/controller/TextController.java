@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TextController {
 
 	@GetMapping("/time")
-	public ResponseResult time(@RequestParam(defaultValue = "1") Double time) {
+	public ResponseResult<Object> time(@RequestParam(defaultValue = "1") Double time) {
 		try {
             // 延迟指定的时间（以毫秒为单位）
             Thread.sleep((long) (time * 1000));

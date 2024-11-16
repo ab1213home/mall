@@ -89,7 +89,7 @@ public class RegisterController {
      * @return 注册结果
      */
     @PostMapping("/registerStep1")
-    public ResponseResult registerStep1(@RequestParam("username") String username,
+    public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
                                         @RequestParam("password") String password,
                                         @RequestParam("confirmPassword") String confirmPassword,
                                         @RequestParam("email") String email,
@@ -169,7 +169,7 @@ public class RegisterController {
      * @return ResponseResult表示注册结果或错误信息
      */
     @PostMapping("/registerStep2")
-    public ResponseResult registerStep2(@RequestParam("phone") String phone,
+    public ResponseResult<Object> registerStep2(@RequestParam("phone") String phone,
                                         @RequestParam("firstName") String firstName,
                                         @RequestParam("lastName") String lastName,
                                         @RequestParam("birthday") String birthDate,

@@ -50,7 +50,7 @@ public class AdministrativeDivisionController {
 	 * @return 返回行政区划列表的响应结果
 	 */
 	@GetMapping("/getList")
-	public ResponseResult getList(@RequestParam("level")Integer level,
+	public ResponseResult<Object> getList(@RequestParam("level")Integer level,
 	                              @RequestParam("parentCode")Long parentCode) {
 		if (level == null || parentCode == null){
 			return ResponseResult.failResult("参数错误");
@@ -81,7 +81,7 @@ public class AdministrativeDivisionController {
 	 * @return 返回邮政编码的响应结果
 	 */
 	@GetMapping("/getPostalCode")
-	public ResponseResult getPostalCode(@RequestParam("areaCode")Long areaCode) {
+	public ResponseResult<Object> getPostalCode(@RequestParam("areaCode")Long areaCode) {
 		if (areaCode == null){
 			return ResponseResult.failResult("参数错误");
 		}

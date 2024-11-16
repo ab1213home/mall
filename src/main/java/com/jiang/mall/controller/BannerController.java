@@ -69,7 +69,7 @@ public class BannerController {
      * @return 轮播图列表或未找到资源的提示
      */
     @GetMapping("/getList")
-    public ResponseResult getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
+    public ResponseResult<Object> getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
                                         @RequestParam(defaultValue = "5") Integer pageSize,
                                         HttpSession session) {
         List<BannerVo> banner_list = bannerService.getBannerList(pageNum, pageSize);
@@ -86,7 +86,7 @@ public class BannerController {
      * @return 轮播图数量
      */
     @GetMapping("/getNum")
-    public ResponseResult getBannerNum(HttpSession session) {
+    public ResponseResult<Object> getBannerNum(HttpSession session) {
         return ResponseResult.okResult(bannerService.getBannerNum());
     }
 
@@ -100,12 +100,12 @@ public class BannerController {
      * @return 添加结果或错误信息
      */
     @PostMapping("/add")
-    public ResponseResult insertBanner(@RequestParam("img") String img,
+    public ResponseResult<Object> insertBanner(@RequestParam("img") String img,
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,
                                        HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
         if (!result.isSuccess()) {
             return result;
         }
@@ -142,7 +142,7 @@ public class BannerController {
      * @return 更新结果或错误信息
      */
     @PostMapping("/update")
-    public ResponseResult updateBanner(@RequestParam("id") Long id,
+    public ResponseResult<Object> updateBanner(@RequestParam("id") Long id,
                                        @RequestParam("img") String img,
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,
@@ -169,7 +169,7 @@ public class BannerController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.hasPermission(banner.getUpdater(),session);
+        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
@@ -193,7 +193,7 @@ public class BannerController {
      * @return 删除结果或错误信息
      */
     @GetMapping("/delete")
-    public ResponseResult deleteBanner(@RequestParam("id") Integer id,
+    public ResponseResult<Object> deleteBanner(@RequestParam("id") Integer id,
                                        HttpSession session) {
         if (id==null||id<=0){
             return ResponseResult.failResult("参数错误");
@@ -208,7 +208,7 @@ public class BannerController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.hasPermission(banner.getUpdater(),session);
+        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
         // 如果用户未登录或不是管理员，则返回错误信息
         if (!result.isSuccess()) {
             return result;
