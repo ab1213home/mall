@@ -11,9 +11,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
+
 /**
  * 打开模态框并设置其标题和内容
- * 
+ *
  * @param {string} title - 模态框的标题
  * @param {string} content - 模态框的内容
  */
@@ -35,15 +36,37 @@ function openModal(title, content) {
     modal.show();
 }
 
+function show_error(error_msg){
+    openModal("错误", error_msg);
+}
+
+function show_success(success_msg){
+    openModal("成功", success_msg);
+}
+
+function show_warning(warning_msg){
+    openModal("警告", warning_msg);
+}
+
+function show_info(info_msg){
+    openModal("提示", info_msg);
+}
+
 let spinner
+
+let LoadingModal
 
 /**
  * 打开加载中模态框
  * 该函数用于显示一个带有加载指示器的模态框，以指示正在进行中的后台操作
  */
 function openLoadingModal() {
-    // 创建模态框实例
-    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+
+    if (LoadingModal != undefined) {
+        LoadingModal.dispose();
+    }
+
+    LoadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
 
     // 配置加载指示器的选项
     let opts = {
@@ -68,10 +91,11 @@ function openLoadingModal() {
      // 显示加载指示器
     let target = document.getElementById('spinnerContainer');
     spinner = new Spinner(opts).spin(target);
-    target.style.display = 'block';
+    // target.style.display = 'block';
 
     // 显示模态框
-    modal.show();
+    LoadingModal.show();
+
 }
 
 /**
@@ -79,15 +103,16 @@ function openLoadingModal() {
  * 该函数用于隐藏当前显示的加载模态框，停止加载动画并隐藏加载容器
  */
 function closeLoadingModal() {
-    // 创建bootstrap模态框实例
-    const modal = document.getElementById('loadingModal');
-    const modalInstance = bootstrap.Modal.getInstance(modal);
-    // 停止加载动画
-    spinner.stop();
-    // 获取加载容器元素
-    let target = document.getElementById('spinnerContainer');
-    // 隐藏加载容器
-    target.style.display = 'none';
-    // 隐藏模态框
-    modalInstance.hide();
+
+    // 延迟 500 毫秒后关闭加载模态框
+    setTimeout(function () {
+        // 停止加载动画
+        spinner.stop();
+        // 隐藏模态框
+        LoadingModal.hide();
+    }, 500);
+
+    // const loadingModal = document.getElementById('loadingModal');
+    // const LoadingModal = bootstrap.Modal.getInstance(loadingModal); // Returns a Bootstrap modal instance
+
 }

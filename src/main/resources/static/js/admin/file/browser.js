@@ -11,7 +11,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let FileTree;
+let FileTree = {
+	subDirectories: {},
+	files: {},
+	path: "",
+};
 
 /**
  * 根据文件大小返回适当的大小单位和数值
@@ -36,6 +40,29 @@ function changeFileSize(size) {
 function downloadFile(path) {
 	window.open("/"+path);
 }
+function queryPurpose(index) {
+	let file = FileTree.files[index];
+	$.ajax({
+		type: "GET",
+		url: "/file/getPurpose",
+		data: {
+			path: "/"+FileTree.path+"/"+file.name,
+		},
+		beforeSend: function () {
+			openLoadingModal();
+		},
+		dataType: "json",
+		success: function (res) {
+			closeLoadingModal();
+			if (res.code == 200) {
+				FileTree.files[index].purpose = res.data;
+				$('#file_purpose'+index).text(file.purpose);
+			}else{
+				openModal("警告", res.message)
+			}
+		}
+	})
+}
 function queryFile(path) {
 	$.ajax({
 		type: "GET",
@@ -46,14 +73,16 @@ function queryFile(path) {
 		dataType: "json",
 		success: function (res) {
 			if (res.code == 200) {
-				FileTree = res.data;
 				$('#directory-tree tbody').empty();
+				FileTree.path = path;
+				FileTree.subDirectories = {};
 				res.data.subDirectories.forEach((directory, index) => {
-					let row = `<tr>
-						<td><i class="bi bi-folder2"></i>${directory.name}</td>
+					FileTree.subDirectories[index] = directory;
+					let row = `<tr id="directory` + index + `">
+						<td id="directory_name` + index + `"><i class="bi bi-folder2"></i>${directory.name}</td>
 						<td>-</td>
 						<td>文件夹</td>
-						<td>${directory.lastModified}</td>
+						<td id="directory_lastModified` + index + `">${directory.lastModified}</td>
 						<td>-</td>
 						<td>
 							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile('${ path == "upload" ? "":(path +"/")+directory.name}')">
@@ -63,18 +92,22 @@ function queryFile(path) {
 					</tr>`;
 					$('#directory-tree tbody').append(row);
 				});
+				FileTree.files = {};
 				res.data.files.forEach((file, index) => {
-					let row = `<tr>
-						<td><i class="bi bi-card-image"></i>${file.name}</td>
-						<td>${changeFileSize(file.size)}</td>
-						<td>${file.type}</td>
-						<td>${file.lastModified}</td>
-						<td>${file.purpose}</td>
+					FileTree.files[index] = file;
+					let row = `<tr id="file` + index + `">
+						<td id="file_name` + index + `"><i class="bi bi-card-image"></i>${file.name}</td>
+						<td id="file_size` + index + `">${changeFileSize(file.size)}</td>
+						<td id="file_type` + index + `">${file.type}</td>
+						<td id="file_lastModified` + index + `">${file.lastModified}</td>
+						<td id="file_purpose` + index + `">${ file.purpose != "null" ? file.purpose : "未获取" }</td>
 						<td>
 							<button type="button" class="btn btn-primary btn-sm" onclick="downloadFile('${ path + "/" + file.name }')">
 								<i class="fa fa-download"></i>
 							</button>
-							
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryPurpose('${ index }')">
+								获取用途
+							</button>
 						</td>
 					</tr>`;
 					$('#directory-tree tbody').append(row);

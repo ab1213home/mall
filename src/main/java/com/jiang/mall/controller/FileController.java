@@ -303,4 +303,27 @@ public class FileController {
         return ResponseResult.okResult();
     }
 
+    /**
+     * 处理获取文件用途的GET请求
+     *
+     * @param path 文件路径，用于定位文件
+     * @param session HTTP会话，用于检查用户登录状态
+     * @return ResponseResult 包含操作结果或文件用途信息
+     */
+    @GetMapping("/file/getPurpose")
+    public ResponseResult getPurpose(@RequestParam("path") String path,
+                                     HttpSession session){
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult result = userService.checkAdminUser(session);
+        // 如果用户未登录，则直接返回
+        if (!result.isSuccess()) {
+            return result;
+        }
+
+        // 调用服务层方法，获取文件的用途
+        String purpose = fileService.getPurpose(path);
+        // 返回文件用途信息
+        return ResponseResult.okResult(purpose,"获取用途成功");
+    }
+
 }

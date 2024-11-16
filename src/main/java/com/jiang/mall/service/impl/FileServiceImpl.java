@@ -89,7 +89,7 @@ public class FileServiceImpl implements IFileService {
 	                // 如果是文件，则将其转换为FileVo
 	                FilePlusVo filePlusVo = new FilePlusVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
 	                String path = "/" + folder.getName() + "/" + file.getName();
-					filePlusVo.setPurpose(getFilePurpose(path,file.getName()));
+					filePlusVo.setPurpose(getPurpose(path));
 
 	                // 将文件Vo添加到当前目录的文件列表中
 	                directoryPlusVo.getFiles().add(filePlusVo);
@@ -205,7 +205,7 @@ public class FileServiceImpl implements IFileService {
 	            } else {
 	                // 如果是文件，则将其转换为FileVo
 	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
-
+                    fileVo.setPurpose("null");
 	                // 将文件Vo添加到当前目录的文件列表中
 	                directoryVo.getFiles().add(fileVo);
 	            }
@@ -215,7 +215,11 @@ public class FileServiceImpl implements IFileService {
 	    return directoryVo;
 	}
 
-	private @NotNull String getFilePurpose(String path, @NotNull String name) {
+	@Override
+	public String getPurpose(String folder) {
+		folder = folder.replace("\\", "/");
+		String path = folder.substring(folder.indexOf(":")+1);
+		String name = path.substring(path.lastIndexOf("/")+1);
 		List<String> purpose = new ArrayList<>();
 		int dotIndex = name.lastIndexOf('.');
 		String extension = dotIndex > 0 ? name.substring(dotIndex+1) : "";
@@ -231,7 +235,7 @@ public class FileServiceImpl implements IFileService {
 
 		// 查询该文件是否被用作商品图片
 		QueryWrapper<Product> productQueryWrapper = new QueryWrapper<>();
-		productQueryWrapper.eq("img", path);
+		productQueryWrapper.eq("img", folder);
 		List<Product> products = productMapper.selectList(productQueryWrapper);
 		if (!products.isEmpty()) {
 			for (Product product : products) {
@@ -241,7 +245,7 @@ public class FileServiceImpl implements IFileService {
 
 		// 查询该文件是否被用作轮播图
 		QueryWrapper<Banner> bannerQueryWrapper = new QueryWrapper<>();
-		bannerQueryWrapper.eq("img", path);
+		bannerQueryWrapper.eq("img", folder);
 		List<Banner> banners = bannerMapper.selectList(bannerQueryWrapper);
 		if (!banners.isEmpty()) {
 			for (Banner banner : banners) {
@@ -251,7 +255,7 @@ public class FileServiceImpl implements IFileService {
 
 	    // 查询该文件是否被用作用户头像
 		QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-		userQueryWrapper.eq("img", path);
+		userQueryWrapper.eq("img", folder);
 	    List<User> users = userMapper.selectList(userQueryWrapper);
 		if (!users.isEmpty()) {
 			for (User user : users) {

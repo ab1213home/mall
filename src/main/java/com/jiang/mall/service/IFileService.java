@@ -29,4 +29,6 @@ public interface IFileService {
 	List<String> getFaceTemplateList(File folder);
 
 	DirectoryVo getFileList(File folder);
+
+	String getPurpose(String folder);
 }
