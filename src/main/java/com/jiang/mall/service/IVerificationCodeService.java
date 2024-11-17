@@ -25,5 +25,6 @@ public interface IVerificationCodeService extends IService<VerificationCode> {
 
 	VerificationCode queryCodeByEmail(String email);
 
+	@SuppressWarnings("UnusedReturnValue")
 	Boolean useCode(Long userId, VerificationCode verificationCode);
 }

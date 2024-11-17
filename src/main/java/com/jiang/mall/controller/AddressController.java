@@ -71,9 +71,6 @@ public class AddressController {
 		this.divisionService = divisionService;
 	}
 
-	 @Autowired
-	 private MessageSource messageSource;
-
     /**
      * 获取收货地址列表
      *

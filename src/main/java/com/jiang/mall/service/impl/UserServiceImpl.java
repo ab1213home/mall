@@ -381,7 +381,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        return result > 0;
 	    } else {
 	        // 如果用户不存在，则记录日志并返回false。
-	        logger.info("尝试更新不存在的用户信息，ID: {}", newUser.getId());
+	        logger.info("尝试更新(modify)不存在的用户信息，ID: {}", newUser.getId());
 	        return false;
 	    }
 	}

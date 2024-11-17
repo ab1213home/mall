@@ -89,6 +89,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	        // 格式化日期时间
 	        String formattedDateTime = collection.getCreatedAt().format(formatter);
+			assert collectionVoMin != null;
 			collectionVoMin.setDate(formattedDateTime);
 			Product product= productMapper.selectById(collection.getProdId());
 			ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);

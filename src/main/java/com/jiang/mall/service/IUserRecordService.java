@@ -21,11 +21,15 @@ public interface IUserRecordService extends IService<UserRecord> {
 
 	Integer countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
 
-	Boolean successLoginRecord(User user,String clientIp, String fingerprint);
+	@SuppressWarnings("UnusedReturnValue")
+	Boolean successLoginRecord(User user, String clientIp, String fingerprint);
 
+	@SuppressWarnings("UnusedReturnValue")
 	Boolean failedLoginRecord(String username, String clientIp, String fingerprint);
 
+	@SuppressWarnings("UnusedReturnValue")
 	Boolean successRegisterRecord(User user, String clientIp, String fingerprint);
 
+	@SuppressWarnings("UnusedReturnValue")
 	Boolean successModifyEmailRecord(User user, String email);
 }

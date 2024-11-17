@@ -22,11 +22,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LocaleController {
 
-	@Autowired
-	private II18nService i18nService;
-
-	@GetMapping("/text/Locale")
-	public ResponseResult<Object> setLocale() {
-		return ResponseResult.okResult(i18nService.getMessage("text"));
-	}
 }

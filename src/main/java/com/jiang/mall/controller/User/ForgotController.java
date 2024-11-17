@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.Uset;
+package com.jiang.mall.controller.User;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.VerificationCode;

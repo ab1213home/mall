@@ -49,16 +49,12 @@ public class I18nServiceImpl implements II18nService {
 		if (id==null){
 			return false;
 		}
-		if (id<=0){
-			return false;
-		}
-
-		return true;
+		return id > 0;
 	}
 
 	/**
 	 * 检查字符串是否非空且不为空白字符
-	 *
+	 * <p>
 	 * 此方法用于验证给定的字符串是否符合以下条件：
 	 * 1. 不为null，以确保变量已初始化
 	 * 2. 不是空白字符，即字符串内不能仅包含空格或其他Unicode空白字符
@@ -69,7 +65,7 @@ public class I18nServiceImpl implements II18nService {
 	 */
 	@Override
 	public Boolean checkString(String string) {
-	    return (string != null && !string.isBlank() && !string.isEmpty());
+	    return string != null && !string.isBlank();
 	}
 
 	/**

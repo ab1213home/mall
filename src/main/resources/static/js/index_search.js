@@ -13,7 +13,7 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const keyword = urlParams.get('keyword');
-const message = urlParams.get('message');
+let message = urlParams.get('message');
 
 function renderCategory(category_arr) {
     let html = `<div class="row mt-3"><p>已找到`+ category_arr.length +`件符合条件的商品。</p></div>`;

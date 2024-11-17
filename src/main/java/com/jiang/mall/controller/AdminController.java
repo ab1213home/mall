@@ -49,7 +49,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/admin")
-	public ResponseResult setAllowRegistration(@RequestParam(defaultValue = "true",required = false) boolean AllowRegistration,
+	public ResponseResult<Object> setAllowRegistration(@RequestParam(defaultValue = "true",required = false) boolean AllowRegistration,
 										       @RequestParam(defaultValue = "true",required = false) boolean AllowUploadFile,
 										       @RequestParam(defaultValue = "true",required = false) boolean AllowModify,
 											   @RequestParam(defaultValue = "true",required = false) boolean AllowDelete,
@@ -79,7 +79,7 @@ public class AdminController {
 											   @RequestParam(defaultValue = "false",required = false) boolean AllowSendEmail,
 	                                           HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -123,19 +123,19 @@ public class AdminController {
     }
 
 	@GetMapping("/save")
-	public ResponseResult save() {
+	public ResponseResult<Object> save() {
 		saveProperties();
 		return ResponseResult.okResult("保存成功");
 	}
 
 	@GetMapping("/get")
-	public ResponseResult get() {
+	public ResponseResult<Object> get() {
 		return ResponseResult.okResult(File.FILE_UPLOAD_PATH);
 	}
 
 	@GetMapping("/getRequestNum")
-	public ResponseResult getRequestNum(HttpSession session) {
-		ResponseResult result = userService.checkAdminUser(session);
+	public ResponseResult<Object> getRequestNum(HttpSession session) {
+		ResponseResult<Object> result = userService.checkAdminUser(session);
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;

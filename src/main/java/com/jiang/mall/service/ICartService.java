@@ -79,6 +79,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
 	 * @return 返回一个布尔值，表示删除操作是否成功
 	 */
+	@SuppressWarnings("UnusedReturnValue")
 	Boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo);
 
 	Boolean deleteCart(Long id, Long userId);

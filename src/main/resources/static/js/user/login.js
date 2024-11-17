@@ -41,8 +41,8 @@ function submitLoginForm() {
     type: 'POST',
     data: data,
     headers: {
-        'CLIENT_FINGERPRINT':fingerprint,
-        'CLIENT_IP':ip,
+        'X-Real-FINGERPRINT':fingerprint,
+        'X-Real-IP':ip,
     },
     beforeSend: function() {
        // 在发送请求之前，显示加载

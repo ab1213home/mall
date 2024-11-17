@@ -37,7 +37,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
     }
 
 	@Override
-    public boolean preHandle(@NotNull HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         String requestURI = request.getRequestURI();
         if (request.getSession().getAttribute("User")!=null){
             UserVo user = (UserVo) request.getSession().getAttribute("User");

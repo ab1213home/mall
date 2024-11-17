@@ -81,8 +81,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-            productVo.setCategory(categoryVo);
-            cartVo.setProduct(productVo);
+	        assert productVo != null;
+	        productVo.setCategory(categoryVo);
+	        assert cartVo != null;
+	        cartVo.setProduct(productVo);
             cartVos.add(cartVo);
         }
         return cartVos;
@@ -96,18 +98,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         Cart cart1 = cartMapper.selectOne(new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, cart.getUserId()).eq(Cart::getProdId, cart.getProdId()));
         if (cart1 == null) {
             int res = cartMapper.insert(cart);
-            if (res == 1) {
-                return true;
-            }
+	        return res == 1;
         } else {
             cart1.setNum(cart.getNum() + cart.getNum());
             int res = cartMapper.updateById(cart1);
-            if (res == 1) {
-                return true;
-            }
+	        return res == 1;
         }
-        return false;
-    }
+	}
 
     @Override
     public Boolean updateCart(Cart cart) {
@@ -200,8 +197,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-            productVo.setCategory(categoryVo);
-            cartVo.setProduct(productVo);
+	        assert productVo != null;
+	        productVo.setCategory(categoryVo);
+	        assert cartVo != null;
+	        cartVo.setProduct(productVo);
             cartVos.add(cartVo);
         }
         // 返回购物车项视图对象列表

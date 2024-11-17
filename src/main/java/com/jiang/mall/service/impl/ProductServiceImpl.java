@@ -86,7 +86,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             // 根据类别ID查询类别名称，并设置到产品VO中
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-            productVo.setCategory(categoryVo);
+	        assert productVo != null;
+	        productVo.setCategory(categoryVo);
             productVos.add(productVo);
         }
 
@@ -115,7 +116,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             // 通过ID查询产品类别，并设置产品类别的名称
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-            productVo.setCategory(categoryVo);
+	        assert productVo != null;
+	        productVo.setCategory(categoryVo);
             // 返回转换后的ProductVo对象
             return productVo;
         }

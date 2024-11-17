@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.Uset;
+package com.jiang.mall.controller.User;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
@@ -35,9 +35,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.jiang.mall.controller.Uset.LoginController.logout;
+import static com.jiang.mall.controller.User.LoginController.logout;
 import static com.jiang.mall.domain.config.User.*;
-import static com.jiang.mall.domain.config.User.AdminRoleId;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 /**

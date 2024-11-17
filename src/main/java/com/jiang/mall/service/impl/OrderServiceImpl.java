@@ -213,6 +213,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			Address address = addressMapper.selectById(order_item.getAddressId());
 			AddressVo addressVo = addressService.getAddress(address);
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
+			assert orderVo != null;
 			orderVo.setAddress(addressVo);
 			orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
 			orderVo.setStatus(order_status[order_item.getStatus()]);
@@ -225,6 +226,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
 				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+				assert orderListVo != null;
 				orderListVo.setProduct(productVo);
 				orderList_VoList.add(orderListVo);
 			}
@@ -277,7 +279,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	        // 根据订单中的地址ID查询地址信息，并转换为地址VO对象
 	        Address address = addressMapper.selectById(order_item.getAddressId());
 		    // 设置订单VO对象的地址信息
-	        orderVo.setAddress(addressService.getAddress(address));
+		    assert orderVo != null;
+		    orderVo.setAddress(addressService.getAddress(address));
 
 			// 根据订单中的用户ID查询用户信息，并转换为用户VO对象
 			User user = userMapper.selectById(order_item.getUserId());
@@ -307,7 +310,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				// 根据订单详情中的产品ID查询产品信息
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
 				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-				orderListVo.setProduct(productVo);
+		        assert orderListVo != null;
+		        orderListVo.setProduct(productVo);
 
 	            // 将订单详情VO对象添加到列表中
 	            orderList_VoList.add(orderListVo);

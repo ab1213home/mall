@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 邮箱验证码实体类，对应数据库表 tb_verification_codes

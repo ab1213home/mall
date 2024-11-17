@@ -116,6 +116,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 */
 	public AddressVo getAddress(Address address) {
 		AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
+		assert addressVo != null;
 		QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
 		queryWrapper_township.eq("area_code", address.getAreaCode());
 		AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);

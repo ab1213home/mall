@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.Uset;
+package com.jiang.mall.controller.User;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
@@ -20,10 +20,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * 用户控制器
@@ -46,8 +43,6 @@ public class PublicController {
     public void setUserService(IUserService userService) {
         this.userService = userService;
     }
-
-    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      * 获取距离下一次生日的天数

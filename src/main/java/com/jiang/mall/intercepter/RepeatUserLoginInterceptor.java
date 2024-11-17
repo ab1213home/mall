@@ -13,7 +13,6 @@
 
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,11 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @Component
 public class RepeatUserLoginInterceptor implements HandlerInterceptor {

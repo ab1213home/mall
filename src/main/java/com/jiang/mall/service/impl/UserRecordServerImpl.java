@@ -181,11 +181,6 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 	    return loginRecordMapper.insert(userRecord)>0;
 	}
 
-	/**
-	 * @param user
-	 * @param email
-	 * @return
-	 */
 	@Override
 	public Boolean successModifyEmailRecord(User user, String email) {
 		return false;

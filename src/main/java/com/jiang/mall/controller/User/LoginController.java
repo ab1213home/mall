@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.Uset;
+package com.jiang.mall.controller.User;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
@@ -84,8 +84,8 @@ public class LoginController {
     public ResponseResult<Object> login(@RequestParam("username") String username,
                                 @RequestParam("password") String password,
                                 @RequestParam("captcha") String captcha,
-                                @RequestHeader("CLIENT_IP") String clientIp,
-                                @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
+                                @RequestHeader("X-Real-IP") String clientIp,
+                                @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                 HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
 	    ResponseResult<Object> result = userService.checkUserLogin(session);
@@ -158,7 +158,7 @@ public class LoginController {
      * @return 返回一个ResponseResult对象，表示登出操作的结果
      */
     @GetMapping("/logout")
-    public static ResponseResult logout(HttpSession session){
+    public static ResponseResult<Object> logout(HttpSession session){
         // 检查会话中是否存在用户并移除
         if (session.getAttribute("User")!=null){
             session.removeAttribute("User");
@@ -176,9 +176,9 @@ public class LoginController {
      * @return ResponseResult 包含用户是否登录的结果或用户详细信息
      */
     @GetMapping("/isLogin")
-    public ResponseResult isLogin(HttpSession session){
+    public ResponseResult<Object> isLogin(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (!result.isSuccess()) {
 		    // 如果未登录，则直接返回
 		    return result;
@@ -204,7 +204,7 @@ public class LoginController {
      *         否则，返回OK结果包含true，表示用户是管理员
      */
     @GetMapping("/isAdminUser")
-    public ResponseResult isAdminUser(HttpSession session){
+    public ResponseResult<Object> isAdminUser(HttpSession session){
         if (session.getAttribute("User") == null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.checkUser.noLogin"));
         }
