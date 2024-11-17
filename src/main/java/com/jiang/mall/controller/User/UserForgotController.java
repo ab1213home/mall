@@ -16,19 +16,15 @@ package com.jiang.mall.controller.User;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-
-import static com.jiang.mall.domain.config.User.regex_email;
-import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 /**
  * 用户控制器
@@ -71,7 +67,13 @@ public class UserForgotController {
         this.userRecordService = userRecordService;
     }
 
-    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
+
 
     /**
      * 处理用户忘记密码后的第二步操作，包括验证邮箱、验证码、新密码及其确认，并修改密码
@@ -85,51 +87,55 @@ public class UserForgotController {
      */
     @PostMapping("/forgot")
     public ResponseResult<Object> forgotStep2(@RequestParam("email") String email,
-                                      @RequestParam("code") String code,
-                                      @RequestParam("password") String password,
-                                      @RequestParam("confirmPassword") String confirmPassword,
-                                      @RequestHeader("CLIENT_IP") String clientIp,
-                                      @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
-                                      HttpSession session) {
+                                              @RequestParam("code") String code,
+                                              @RequestParam("password") String password,
+                                              @RequestParam("confirmPassword") String confirmPassword,
+                                              @RequestHeader("X-Real-IP") String clientIp,
+                                              @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                              HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("User")!=null){
             UserVo user = (UserVo) session.getAttribute("User");
             if (user.getId()!=null){
-                return ResponseResult.failResult("您已登录，请退出");
+                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
             }
         }
-        if (email==null||code==null||password==null||confirmPassword==null){
-            return ResponseResult.failResult("参数错误");
+        if (!i18nService.checkString(code)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
-        if (!isSha256Hash(password)){
-            return ResponseResult.failResult("请输入新密码");
+        if (!i18nService.isValidIPv4(clientIp)||!i18nService.isValidIPv6(clientIp)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
         }
-        if (!isSha256Hash(confirmPassword)){
-            return ResponseResult.failResult("请输入确认密码");
+        if (!i18nService.checkString(fingerprint)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+        }
+        if (!i18nService.isValidPassword(password)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
         if (!password.equals(confirmPassword)){
-            return ResponseResult.failResult("两次密码输入不一致");
+            return ResponseResult.failResult(i18nService.getMessage("user.password.error.confirm"));
         }
-        if (!StringUtils.hasText(email)||!userService.queryByEmail(email)||!email.matches(regex_email)){
-            return ResponseResult.failResult("邮箱不存在");
+        if (!i18nService.checkString(email)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
         }
         // 验证码正确性及有效期检查
         VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
         if (userVerificationCode ==null){
             // 如果验证码不存在或已过期，则提示错误或过期信息
-            return ResponseResult.failResult("验证码错误或已过期");
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
         // 检查用户输入的验证码与发送的验证码是否一致
         if (!Objects.equals(userVerificationCode.getCode(),code)){
             // 如果验证码不正确，则提示错误
-            return ResponseResult.failResult("验证码错误");
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
         if (userService.modifyPassword(userVerificationCode.getUserId(),password)){
             userVerificationCode.setPassword(password);
             verificationCodeService.useCode(userVerificationCode.getUserId(), userVerificationCode);
-            return ResponseResult.okResult("密码修改成功");
+            userRecordService.successForgotRecord(userVerificationCode.getUserId(),clientIp,fingerprint);
+            return ResponseResult.okResult(i18nService.getMessage("user.modify.password.success"));
         }else{
-            return ResponseResult.serverErrorResult("密码修改失败");
+            return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }
     }
 }

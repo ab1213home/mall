@@ -42,4 +42,10 @@ public interface II18nService {
 	Boolean isValidIPv4(String ip);
 
 	Boolean isValidIPv6(String ip);
+
+	Boolean isValidEmail(String email);
+
+	Boolean isValidPassword(String password);
+
+	Boolean isValidPhone(String phone);
 }

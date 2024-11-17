@@ -17,6 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
@@ -75,82 +76,77 @@ public class UserRegisterController {
         this.userRecordService = userRecordService;
     }
 
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
+
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	/**
-     * 处理用户注册第一步的请求
+     * 处理用户注册第二步的请求
      *
-     * @param username 用户名
-     * @param password 密码
-     * @param confirmPassword 确认密码
-     * @param email 邮箱
      * @param code 验证码
      * @param session HTTP会话
      * @return 注册结果
      */
     @PostMapping("/registerStep1")
-    public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
-                                        @RequestParam("password") String password,
-                                        @RequestParam("confirmPassword") String confirmPassword,
-                                        @RequestParam("email") String email,
-                                        @RequestParam("code")String code,
-                                        @RequestHeader("CLIENT_IP") String clientIp,
-                                        @RequestHeader("CLIENT_FINGERPRINT") String fingerprint,
-                                        HttpSession session) {
+    public ResponseResult<Object> registerStep1(@RequestParam("code")String code,
+                                                @RequestHeader("X-Real-IP") String clientIp,
+                                                @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                                HttpSession session) {
         // 检查用户是否已登录
         if (session.getAttribute("User")!=null){
             UserVo user = (UserVo) session.getAttribute("User");
             if (user.getId()!=null){
-                return ResponseResult.failResult("您已登录，请勿重复注册");
+                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
             }
         }
 
-        // 验证邮箱格式
-        if (StringUtils.hasText(email) || !email.matches(regex_email)){
-            return ResponseResult.failResult("邮箱格式不正确");
+        if (session.getAttribute("RegisterVerificationCode")==null){
+            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+        }
+        VerificationCode registerVerificationCode = (VerificationCode) session.getAttribute("RegisterVerificationCode");
+        if (registerVerificationCode.getId()==null){
+            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
         }
 
         if (!AllowRegistration){
-            return ResponseResult.failResult("管理员用户不允许注册");
+            return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
         }
-        // 检查注册信息是否完整
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password) || !StringUtils.hasText(confirmPassword)||!StringUtils.hasText(email)) {
-            return ResponseResult.failResult("请输入完整的注册信息");
+
+        if (!i18nService.isValidIPv4(clientIp) && !i18nService.isValidIPv6(clientIp)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
         }
-//        if (!password.matches(regex_password)){
-//            return ResponseResult.failResult("密码格式不正确");
-//        }
-        if (!StringUtils.hasText(code)){
-            return ResponseResult.failResult("请输入验证码");
+        if (!i18nService.checkString(fingerprint)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
         }
-        // 验证密码一致性
-        if (!password.equals(confirmPassword)) {
-            return ResponseResult.failResult("两次密码输入不一致");
+
+        if (!i18nService.checkString(code)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
-        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
+
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(registerVerificationCode.getEmail());
         if (userVerificationCode ==null){
-            return ResponseResult.failResult("验证码错误或已过期");
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
         if (!Objects.equals(userVerificationCode.getCode(),code)){
-            return ResponseResult.failResult("验证码错误");
-        }
-        if (!Objects.equals(userVerificationCode.getUsername(), username)){
-            return ResponseResult.failResult("非法请求");
-        }
-        if (!Objects.equals(userVerificationCode.getPassword(), password)){
-            return ResponseResult.failResult("非法请求");
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
 
         // 创建并注册用户
-        User user = new User(username,password,email);
+        User user = new User(registerVerificationCode.getUsername(),registerVerificationCode.getPassword(),registerVerificationCode.getEmail());
         Long userId = userService.registerStep(user);
         if (userId>0) {
             session.setAttribute("UserId",userId);
+            session.removeAttribute("RegisterVerificationCode");
             verificationCodeService.useCode(userId, userVerificationCode);
             userRecordService.successRegisterRecord(user, clientIp, fingerprint);
-            return ResponseResult.okResult();
+            return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {
-            return ResponseResult.serverErrorResult("未知原因注册失败");
+            return ResponseResult.serverErrorResult(i18nService.getMessage("user.register.error"));
         }
     }
 
@@ -170,31 +166,33 @@ public class UserRegisterController {
      */
     @PostMapping("/registerStep2")
     public ResponseResult<Object> registerStep2(@RequestParam("phone") String phone,
-                                        @RequestParam("firstName") String firstName,
-                                        @RequestParam("lastName") String lastName,
-                                        @RequestParam("birthday") String birthDate,
-                                        @RequestParam("img") String img,
-                                        HttpSession session) {
-        // 检查会话中是否包含账号id，以确保用户已开始注册过程
-        if (session.getAttribute("UserId")==null){
-            return ResponseResult.failResult("请先完成第一步注册，会话已过期");
-        }
-        // 防止已登录用户重复注册
+                                                @RequestParam("firstName") String firstName,
+                                                @RequestParam("lastName") String lastName,
+                                                @RequestParam("birthday") String birthDate,
+                                                @RequestParam("img") String img,
+                                                HttpSession session) {
+        // 检查用户是否已登录
         if (session.getAttribute("User")!=null){
             UserVo user = (UserVo) session.getAttribute("User");
             if (user.getId()!=null){
-                return ResponseResult.failResult("您已登录，请勿重复注册");
+                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
             }
         }
+
+        // 检查会话中是否包含账号id，以确保用户已开始注册过程
+        if (session.getAttribute("UserId")==null){
+            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+        }
+
         Long UserId = (Long) session.getAttribute("UserId");
 
         // 验证手机号格式
-        if (StringUtils.hasText(phone) && !phone.matches(regex_phone)){
-            return ResponseResult.failResult("手机号格式不正确");
+        if (!i18nService.isValidPhone(phone)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.phone"));
         }
 
-        if (!StringUtils.hasText(img)){
-            return ResponseResult.failResult("请上传头像");
+        if (!i18nService.checkString(img,255)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.img"));
         }
 
         // 创建User对象以保存用户信息
@@ -205,12 +203,12 @@ public class UserRegisterController {
         try {
             LocalDate localDate = LocalDate.parse(birthDate, formatter);
             if (localDate.isAfter(LocalDate.now())) {
-                return ResponseResult.failResult("生日不能在未来，请输入正确的日期");
+                return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.future"));
             }
             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             user.setBirthDate(date);
         } catch (DateTimeParseException e) {
-            return ResponseResult.failResult("日期格式不正确，请使用yyyy-MM-dd");
+            return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.format"));
         }
         // 调用服务层方法保存用户个人信息
         if (userService.registerStep(user)>0) {
@@ -219,7 +217,7 @@ public class UserRegisterController {
             return ResponseResult.okResult();
         }else {
             // 处理个人信息保存失败的情况
-            return ResponseResult.serverErrorResult("用户个人信息保存失败");
+            return ResponseResult.serverErrorResult(i18nService.getMessage("user.register.info.error"));
         }
     }
 }

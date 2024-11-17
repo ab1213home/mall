@@ -312,7 +312,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果密码修改成功，返回true；否则返回false。
 	 */
     @Override
-    public Boolean modifyPassword(Integer userId, String oldPassword, String newPassword) {
+    public Boolean modifyPassword(Long userId, String oldPassword, String newPassword) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);

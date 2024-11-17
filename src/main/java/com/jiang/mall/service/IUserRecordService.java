@@ -31,5 +31,11 @@ public interface IUserRecordService extends IService<UserRecord> {
 	Boolean successRegisterRecord(User user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successModifyEmailRecord(User user, String email);
+	Boolean successModifyEmailRecord(User user, String email, String clientIp, String fingerprint);
+
+	@SuppressWarnings("UnusedReturnValue")
+	Boolean failedModifyPasswordRecord(Long user , String clientIp, String fingerprint);
+
+	@SuppressWarnings("UnusedReturnValue")
+	Boolean successForgotRecord(Long user, String clientIp, String fingerprint);
 }

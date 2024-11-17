@@ -33,7 +33,7 @@ public interface IUserService extends IService<User> {
 
     User login(String username, String password);
 
-    Boolean modifyPassword(Integer userId, String oldPassword, String newPassword);
+    Boolean modifyPassword(Long userId, String oldPassword, String newPassword);
 
     User getUserInfo(Long userId);
 

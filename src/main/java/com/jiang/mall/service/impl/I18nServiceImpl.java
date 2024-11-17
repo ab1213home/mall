@@ -22,6 +22,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Locale;
 
+import static com.jiang.mall.domain.config.User.regex_email;
+import static com.jiang.mall.domain.config.User.regex_phone;
+import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
+
 @Service
 public class I18nServiceImpl implements II18nService {
 
@@ -110,6 +114,21 @@ public class I18nServiceImpl implements II18nService {
 
 	    // 使用正则表达式进行匹配
 	    return (checkString(ip) && ip.matches(ipv6Pattern));
+	}
+
+	@Override
+	public Boolean isValidEmail(String email) {
+		return (checkString(email,255) && email.matches(regex_email));
+	}
+
+	@Override
+	public Boolean isValidPassword(String password) {
+		return isSha256Hash(password);
+	}
+
+	@Override
+	public Boolean isValidPhone(String phone) {
+		return (checkString(phone,255) && phone.matches(regex_phone));
 	}
 
 }

@@ -44,8 +44,10 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 		FAIL_LOGIN((byte) 1),
 		SUCCESS_REGISTER((byte) 2),
 		FORGET_PASSWORD((byte) 3),
-		MODIFY_PASSWORD((byte) 4),
-		MODIFY_EMAIL((byte) 5);
+		SUCCESS_MODIFY_PASSWORD((byte) 4),
+		FAIL_MODIFY_PASSWORD((byte) 5),
+		SUCCESS_MODIFY_EMAIL((byte) 6),
+		FAIL_MODIFY_EMAIL((byte) 7);
 
 		private final byte value;
 
@@ -182,8 +184,22 @@ public class UserRecordServerImpl extends ServiceImpl<LoginRecordMapper, UserRec
 	}
 
 	@Override
-	public Boolean successModifyEmailRecord(User user, String email) {
+	public Boolean successModifyEmailRecord(User user, String email, String clientIp, String fingerprint) {
 		return false;
+	}
+
+	@Override
+	public Boolean failedModifyPasswordRecord(Long user, String clientIp, String fingerprint) {
+	    UserRecord userRecord = new UserRecord(user, clientIp, State.FAIL_MODIFY_PASSWORD.value,fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
+	}
+
+	@Override
+	public Boolean successForgotRecord(Long user, String clientIp, String fingerprint) {
+		UserRecord userRecord = new UserRecord(user, clientIp, State.FORGET_PASSWORD.value,fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
 	}
 
 }

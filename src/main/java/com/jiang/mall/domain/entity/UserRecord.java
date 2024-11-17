@@ -93,4 +93,12 @@ public class UserRecord implements Serializable {
 		this.fingerprint = fingerprint;
 		this.triggerTime = LocalDateTime.now();
 	}
+
+	public UserRecord(Long userId, String clientIp, byte value, String fingerprint) {
+		this.userId = userId;
+		this.ip = clientIp;
+		this.state = value;
+		this.fingerprint = fingerprint;
+		this.triggerTime = LocalDateTime.now();
+	}
 }

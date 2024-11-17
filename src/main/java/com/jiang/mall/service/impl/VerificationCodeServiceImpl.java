@@ -190,4 +190,9 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 更新数据库中的验证码记录，并返回更新结果
 	    return verificationCodeMapper.updateById(verificationCode) > 0;
 	}
+
+	@Override
+	public Boolean insert(VerificationCode userVerificationCode) {
+		return verificationCodeMapper.insert(userVerificationCode) > 0;
+	}
 }

@@ -164,18 +164,10 @@ function getFaceTemplateList() {
 // 注册表单提交处理函数
 function submitRegisterStepTowForm() {
     // 获取表单数据
-    const email = $('#email').val();
-    const username = $('#username').val();
-    const password = $('#password').val();
-    const confirmPassword = $('#confirmPassword').val();
     const code = $('#code').val();
 
     // 构建请求体
     const data = {
-        email: email,
-        username: username,
-        password: password,
-        confirmPassword: confirmPassword,
         code: code,
     };
 
@@ -185,8 +177,8 @@ function submitRegisterStepTowForm() {
     type: 'POST',
     data: data,
     headers: {
-        'CLIENT_FINGERPRINT':fingerprint,
-        'CLIENT_IP':ip,
+        'X-Real-FINGERPRINT':fingerprint,
+        'X-Real-IP':ip,
     },
     success: function (data) {
         // 处理成功响应

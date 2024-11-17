@@ -93,25 +93,25 @@ public class UserLoginController {
 		   return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
 		}
 		if (!i18nService.checkString(username,255)){
-			return ResponseResult.failResult(i18nService.getMessage("user.login.error.username"));
+			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
 		}
-		if (!isSha256Hash(password)){
-			return ResponseResult.failResult(i18nService.getMessage("user.login.error.password"));
+		if (!i18nService.isValidPassword(password)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.password"));
 		}
 		if (!i18nService.checkString(captcha)){
-			return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha"));
+			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
 		if (!i18nService.isValidIPv4(clientIp) && !i18nService.isValidIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.login.error.ip"));
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 		}
 		if (!i18nService.checkString(fingerprint)){
-			return ResponseResult.failResult(i18nService.getMessage("user.login.error.fingerprint"));
+			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
         // 获取session中的验证码
         Object captchaObj = session.getAttribute("captcha");
         // 检查验证码是否过期
         if (captchaObj == null) {
-            return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha.expired"));
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
 
 		String captchaCode = captchaObj.toString();
@@ -119,7 +119,7 @@ public class UserLoginController {
         // 校验验证码是否正确
         if (!captchaCode.toLowerCase().equals(captcha)) {
             session.removeAttribute("captcha");
-            return ResponseResult.failResult(i18nService.getMessage("user.login.error.captcha.error"));
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
 
         // 检查用户尝试登录失败次数

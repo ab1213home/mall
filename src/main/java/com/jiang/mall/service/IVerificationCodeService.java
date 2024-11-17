@@ -27,4 +27,6 @@ public interface IVerificationCodeService extends IService<VerificationCode> {
 
 	@SuppressWarnings("UnusedReturnValue")
 	Boolean useCode(Long userId, VerificationCode verificationCode);
+
+	Boolean insert(VerificationCode userVerificationCode);
 }

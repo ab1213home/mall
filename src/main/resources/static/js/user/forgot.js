@@ -109,8 +109,8 @@ function submitForgotStepTwoForm() {
     type: 'POST',
     data: data,
     headers: {
-        'CLIENT_FINGERPRINT':fingerprint,
-        'CLIENT_IP':ip,
+        'X-Real-FINGERPRINT':fingerprint,
+        'X-Real-IP':ip,
     },
     success: function (res) {
         // 处理成功响应

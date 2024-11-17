@@ -34,6 +34,10 @@ function changePassword() {
     url: '/user/modify/password',
     type: 'POST',
     data: data,
+    headers: {
+        'X-Real-FINGERPRINT':fingerprint,
+        'X-Real-IP':ip,
+    },
     success: function (data) {
       if (data.code === 200) {
         openModal('提示','密码已成功修改，请重新登录！');
