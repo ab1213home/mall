@@ -38,7 +38,7 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
  */
 @RestController
 @RequestMapping("/user")
-public class ForgotController {
+public class UserForgotController {
 
 	private IUserService userService;
 

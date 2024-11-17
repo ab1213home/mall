@@ -60,7 +60,7 @@ perspec.addEventListener('animationend', function (e) {
             //loop through the lines and add them to the DOM
             for (let index = 0; index < numLines; index++) {
                 let lineLength = randomIntFromInterval(25, 97);
-                var node = document.createElement("li");
+                let node = document.createElement("li");
                 node.classList.add('node-' + index);
                 elem.querySelector('.code ul').appendChild(node).setAttribute('style', '--linelength: ' + lineLength + '%;');
 

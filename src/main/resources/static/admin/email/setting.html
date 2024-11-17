@@ -12,12 +12,437 @@
   -->
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="zh"> <!--begin::Head-->
 
-</body>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>mall管理后台 | SMTP邮箱管理 | 设置</title><!--begin::Primary Meta Tags-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="mall管理后台 | SMTP邮箱管理 | 设置">
+    <meta name="author" content="jiang">
+    <meta name="description" content="mall管理后台 | SMTP邮箱管理 | 设置">
+    <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
+    <link rel="stylesheet" href="/public/source-sans-3-5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <link rel="stylesheet" href="/public/overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
+    <link rel="stylesheet" href="/public/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"><!--end::Third Party Plugin(Bootstrap Icons)--><!--begin::Required Plugin(AdminLTE)-->
+    <link rel="stylesheet" href="/public/adminlte-4.0.0-dist/css/adminlte.css"><!--end::Required Plugin(AdminLTE)--><!-- apexcharts -->
+    <link rel="stylesheet" href="/public/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
+    <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
+    <style>
+        canvas {
+          display: block;
+          vertical-align: bottom;
+        }
+        .password-box {
+          background-color: rgba(255, 255, 255, 0);
+          z-index: 1;
+        }
+        .cartd6{
+        text-align: center;
+        margin-top: 10px;
+        }
+        .file-tag:after {
+            content: "MB";
+        }
+    </style>
+</head> <!--end::Head--> <!--begin::Body-->
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
+    <div class="app-wrapper"> <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body"> <!--begin::Container-->
+            <div class="container-fluid"> <!--begin::Start Navbar Links-->
+                <ul class="navbar-nav">
+                    <li class="nav-item"> <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"> <i class="bi bi-list"></i> </a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="/user/index.html" class="nav-link">用户中心首页</a> </li>
+                    <li class="nav-item d-none d-md-block"> <a href="../index.html" class="nav-link">商城首页</a> </li>
+                </ul> <!--end::Start Navbar Links--> <!--begin::End Navbar Links-->
+                <ul class="navbar-nav ms-auto"> <!--begin::Navbar Search-->
+                    <li class="nav-item"> <a class="nav-link" href="#" data-lte-toggle="fullscreen"> <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i> <i data-lte-icon="minimize" class="bi bi-fullscreen-exit" style="display: none;"></i> </a> </li> <!--end::Fullscreen Toggle--> <!--begin::User Menu Dropdown-->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="" class="user-image rounded-circle shadow profile-picture" id="user-image" alt="用户头像">
+                            <span class="d-none d-md-inline username">Alexander Pierce</span> </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end"> <!--begin::User Image-->
+                            <li class="user-header text-bg-primary"> <img src="" class="rounded-circle shadow profile-picture" alt="用户头像">
+                                <p>
+                                    <span class="text-white username">Alexander Pierce</span>
+                                    <small class="birthday text-center">Nov. 2023</small>
+                                </p>
+                            </li> <!--end::User Image--> <!--begin::Menu Body-->
+                            <li class="user-body"> <!--begin::Row-->
+                                <div class="row">
+                                    <div class="col-4 text-center"> <a href="/user/info.html">用户信息</a> </div>
+                                    <div class="col-4 text-center"> <a href="/user/modify/password.html">修改密码</a> </div>
+                                    <div class="col-4 text-center"> <a href="/user/modify/lock.html">锁定账户</a> </div>
+                                </div> <!--end::Row-->
+                            </li> <!--end::Menu Body--> <!--begin::Menu Footer-->
+                            <li class="user-footer">
+<!--                             <a href="#" class="btn btn-default btn-flat">Profile</a>-->
+                                <a onclick="logout()" class="btn btn-default btn-flat float-end">退出登录</a> </li> <!--end::Menu Footer-->
+                        </ul>
+                    </li> <!--end::User Menu Dropdown-->
+                </ul> <!--end::End Navbar Links-->
+            </div> <!--end::Container-->
+        </nav> <!--end::Header--> <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark"> <!--begin::Sidebar Brand-->
+            <div class="sidebar-brand"> <!--begin::Brand Link--> <a href="/index.html" class="brand-link"> <!--begin::Brand Image-->
+                <img src="/images/logo_min.png" alt="mall by AdminLTE Logo" class="brand-image opacity-75 shadow"> <!--end::Brand Image--> <!--begin::Brand Text-->
+                <span class="brand-text fw-light">管理后台</span> <!--end::Brand Text--> </a> <!--end::Brand Link--> </div> <!--end::Sidebar Brand--> <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2"> <!--begin::Sidebar Menu-->
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                        <li class="nav-item"> <a href="/index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>商城首页</p>
+                            </a> </li>
+                        <li class="nav-header text-center">设置</li>
+                        <li class="nav-item"> <a href="/user/index.html" class="nav-link"> <i class="nav-icon bi bi-house"></i>
+                                <p>用户首页</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="/collections.html" class="nav-link"> <i class="nav-icon bi bi-star-half"></i>
+                                <p>我的收藏</p>
+                            </a> </li>
+                        <li class="nav-item"> <a href="/user/modify/address.html"  class="nav-link"> <i class="nav-icon bi bi-pin-map"></i>
+                                <p>我的收货地址</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="/cart.html"  class="nav-link"> <i class="nav-icon bi bi-cart-dash"></i>
+                                <p>我的购物车</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="/orders.html"  class="nav-link"> <i class="nav-icon bi bi-list-ul"></i>
+                                <p>我的订单</p>
+                            </a>
+                        </li>
+                        <li class="nav-item "> <a href="#" class="nav-link"> <i class="nav-icon bi bi-person"></i>
+                                <p>
+                                    账号与安全
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/user/modify/password.html" class="nav-link"> <i class="nav-icon bi bi-key"></i>
+                                        <p>修改密码</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/email.html" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                        <p>修改邮箱</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/portrait.html" class="nav-link"> <i class="nav-icon bi bi-person-square"></i>
+                                        <p>修改头像</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/user/modify/info.html" class="nav-link"> <i class="nav-icon bi bi-info-circle"></i>
+                                        <p>修改用户信息</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header text-center">消息</li>
+                        <li class="nav-item"> <a href="/message/index.html" class="nav-link"> <i class="nav-icon bi bi-bell"></i>
+                                <p>站内消息</p>
+                            </a> </li>
+                        <li class="nav-header text-center admin" style="display: none;">管理后台</li>
+                        <li class="nav-item admin palette" style="display: none;"> <a href="/admin/index.html" class="nav-link"> <i class="nav-icon bi bi-palette"></i>
+                                <p>仪表盘</p>
+                            </a> </li>
+                        <li class="nav-item admin user" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-people-fill"></i>
+                                <p>
+                                    用户管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/user/setting.html" class="nav-link"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/user/overview.html" class="nav-link"> <i class="nav-icon bi bi-view-list"></i>
+                                        <p>用户概览</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/user/audit.html" class="nav-link"> <i class="nav-icon bi bi-check2-square"></i>
+                                        <p>用户审核</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item admin category" style="display: none;"> <a href="/admin/category.html" class="nav-link"> <i class="nav-icon bi bi-filter-left"></i>
+                                <p>商品分类管理</p>
+                            </a> </li>
+                        <li class="nav-item admin order" style="display: none;"> <a href="/admin/product.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>商品管理</p>
+                            </a> </li>
+                        <li class="nav-item admin order" style="display: none;"> <a href="/admin/order.html" class="nav-link"> <i class="nav-icon bi bi-person-gear"></i>
+                                <p>订单管理</p>
+                            </a> </li>
+                        <li class="nav-item admin banner" style="display: none;"> <a href="/admin/banner.html" class="nav-link"> <i class="nav-icon bi bi-file-earmark-image"></i>
+                                <p>轮播图管理</p>
+                            </a> </li>
+                        <li class="nav-item admin file" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-files"></i>
+                                <p>
+                                    文件管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/file/setting.html" class="nav-link"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/file/browser.html" class="nav-link"> <i class="nav-icon bi bi-folder"></i>
+                                        <p>文件浏览器</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item admin email menu-open" style="display: none;"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                <p>
+                                    SMTP邮箱管理
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/admin/email/setting.html" class="nav-link active"> <i class="nav-icon bi bi-gear-fill"></i>
+                                        <p>设置</p>
+                                    </a> </li>
+                                <li class="nav-item"> <a href="/admin/email/record.html" class="nav-link"> <i class="nav-icon bi bi-clipboard-data"></i>
+                                        <p>发件记录</p>
+                                    </a> </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header text-center">关于商城</li>
+                        <li class="nav-item"><a href="/about.html" class="nav-link"> <i class="nav-icon bi bi-exclamation-circle"></i>
+                                <p>关于商城</p>
+                            </a>
+                        </li>
+                        <li class="nav-item"> <a href="#" class="nav-link"> <i class="nav-icon bi bi-pencil-square"></i>
+                                <p>
+                                    Bug与反馈
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item"> <a href="/github.html" class="nav-link"> <i class="nav-icon bi bi-github"></i>
+                                    <p>Github</p>
+                                </a> </li>
+                                <li class="nav-item"> <a href="mailto:jiangrongjun2004@163.com" class="nav-link"> <i class="nav-icon bi bi-envelope"></i>
+                                    <p>电子邮箱</p>
+                                </a> </li>
+                            </ul>
+                        </li>
+                    </ul> <!--end::Sidebar Menu-->
+                </nav>
+            </div> <!--end::Sidebar Wrapper-->
+        </aside> <!--end::Sidebar--> <!--begin::App Main-->
+        <main class="app-main"> <!--begin::App Content Header-->
+            <div class="app-content-header"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="mb-0">设置</h3>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-end">
+                                <li class="breadcrumb-item"><a href="/admin/index.html">管理后台</a></li>
+                                <li class="breadcrumb-item" aria-current="page">
+                                    SMTP邮箱管理
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    设置
+                                </li>
+                            </ol>
+                        </div>
+                    </div> <!--end::Row-->
+                </div> <!--end::Container-->
+            </div> <!--end::App Content Header--> <!--begin::App Content-->
+            <div class="app-content"> <!--begin::Container-->
+                <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row"> <!--begin::Col-->
+                        <div class="col-lg-3 col-6"> <!--begin::Small Box Widget 1-->
+                            <div class="small-box text-bg-info">
+                                <div class="inner">
+                                    <h3 id="total-size" class="file-tag">0</h3>
+                                    <p>已用存储空间大小</p>
+                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"></path>
+                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"></path>
+                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                                    更多信息 <i class="bi bi-link-45deg"></i> </a>
+                            </div> <!--end::Small Box Widget 1-->
+                        </div> <!--end::Col-->
+                        <div class="col-lg-3 col-6"> <!--begin::Small Box Widget 2-->
+                            <div class="small-box text-bg-secondary">
+                                <div class="inner">
+                                    <h3 id="file-count" class="">0</h3>
+                                    <p>文件数量</p>
+                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="m11.93396,5.28455l-2.06477,-2.32968c-0.19479,-0.22596 -0.49087,-0.35841 -0.79474,-0.35841l-7.9552,0c-0.59216,0 -1.07524,0.47529 -1.07524,1.06745l0,16.96226c0,0.59216 0.47529,1.06745 1.06745,1.06745l21.80082,0c0.59216,0 1.06745,-0.47529 1.06745,-1.06745l0,-13.90796c0,-0.59216 -0.47529,-1.06745 -1.06745,-1.06745l-10.1758,0c-0.30387,0 -0.59995,-0.13246 -0.80253,-0.3662z"></path>
+                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+                                    更多信息 <i class="bi bi-link-45deg"></i> </a>
+                            </div> <!--end::Small Box Widget 2-->
+                        </div> <!--end::Col-->
+                    </div> <!--end::Row--> <!--begin::Row-->
+                    <div class="row">
+                        <!--是否允许文件上传-->
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">文件上传开关</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="allow-upload" name="allow-upload" value="true" checked>
+                                        <label class="form-check-label" for="allow-upload">允许上传文件</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--文件保存位置-->
+                        <div class="card card-outline card-primary mt-2">
+                            <div class="card-header">
+                                <h3 class="card-title">文件保存位置</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="bi bi-folder2-open"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="save-to-where" name="allow-image-extensions" placeholder="请输入文件保存位置" aria-label="请输入文件保存位置" aria-describedby="button-addon2">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--允许上传图片后缀-->
+                        <div class="card card-outline card-primary mt-2">
+                            <div class="card-header">
+                                <h3 class="card-title">允许上传图片后缀</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3" id="image-suffix">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--保存设置-->
+<!--                        <div class="card card-outline card-primary mt-2">-->
+<!--                            <div class="card-header">-->
+<!--                                <h3 class="card-title">保存设置</h3>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="row">-->
+<!--                                    <div class="col-md-12">-->
+<!--                                        <button type="button" class="btn btn-primary float-end" id="save-setting">保存设置</button>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                    </div>
+                </div> <!--end::Container-->
+            </div> <!--end::App Content-->
+        </main> <!--end::App Main--> <!--begin::Footer-->
+        <footer class="app-footer"> <!--begin::To the end-->
+            <div class="float-end d-none d-sm-inline">&copy; 2022-2024&nbsp;</div> <!--end::To the end--> <!--begin::Copyright-->
+            <strong>基于<a href="https://adminlte.io" class="text-decoration-none">AdminLTE</a>模板设计</strong>
+            <!--end::Copyright-->
+        </footer> <!--end::Footer-->
+    </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <!-- 提示模态框 -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+            </div>
+        </div>
+    </div>
+    <!-- 加载中模态框 -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadingModalLabel">加载中...</h5>
+                </div>
+                <div class="modal-body text-center" style="min-height:150px;">
+                    <div id="spinnerContainer" class="spinner-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/public/spin-2.3.2-dist/spin.min.js"></script>
+    <script src="/public/overlayscrollbars-2.10.0-dist/browser/overlayscrollbars.browser.es6.min.js"></script> <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
+    <script src="/public/popper-2.11.8-dist/umd/popper.min.js"></script> <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
+    <script src="/public/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script> <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
+    <script src="/public/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
+    <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+    <script src="/js/user/index_top.js"></script>
+    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/js/admin/email/setting.js"></script>
+    <script>
+        const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
+        const Default = {
+            scrollbarTheme: "os-theme-light",
+            scrollbarAutoHide: "leave",
+            scrollbarClickScroll: true,
+        };
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            if (
+                sidebarWrapper &&
+                typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== "undefined"
+            ) {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                    scrollbars: {
+                        theme: Default.scrollbarTheme,
+                        autoHide: Default.scrollbarAutoHide,
+                        clickScroll: Default.scrollbarClickScroll,
+                    },
+                });
+            }
+        });
+    </script> <!--end::OverlayScrollbars Configure--> <!-- OPTIONAL SCRIPTS --> <!-- sortablejs -->
+    <script src="/public/sortable-1.15.3-dist/Sortable.min.js"></script> <!-- sortablejs -->
+    <script>
+        const connectedSortables =
+            document.querySelectorAll(".connectedSortable");
+        connectedSortables.forEach((connectedSortable) => {
+            let sortable = new Sortable(connectedSortable, {
+                group: "shared",
+                handle: ".card-header",
+            });
+        });
+
+        const cardHeaders = document.querySelectorAll(
+            ".connectedSortable .card-header",
+        );
+        cardHeaders.forEach((cardHeader) => {
+            cardHeader.style.cursor = "move";
+        });
+    </script>
+</body><!--end::Body-->
+
 </html>

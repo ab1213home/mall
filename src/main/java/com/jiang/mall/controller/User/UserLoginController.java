@@ -38,7 +38,7 @@ import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
  */
 @RestController
 @RequestMapping("/user")
-public class LoginController {
+public class UserLoginController {
 
 	private IUserService userService;
 

@@ -30,7 +30,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user")
-public class PublicController {
+public class UserCommonController {
 
     private IUserService userService;
 
@@ -70,32 +70,6 @@ public class PublicController {
         }
         // 计算并返回距离下一次生日的天数
         return ResponseResult.okResult(user.getNextBirthday());
-    }
-
-    @GetMapping("/getList")
-    public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                      @RequestParam(defaultValue = "5") Integer pageSize,
-                                      HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
-        if (!result.isSuccess()) {
-            return result;
-        }
-        List<UserVo> userList = userService.getUserList(pageNum,pageSize,(Integer)result.getData());
-        if (userList == null){
-            return ResponseResult.failResult("获取用户列表失败！");
-        }
-        return ResponseResult.okResult(userList);
-    }
-
-    @GetMapping("/getNum")
-    public ResponseResult<Object> getUserNum(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
-        if (!result.isSuccess()) {
-            return result;
-        }
-        return ResponseResult.okResult(userService.getUserNum());
     }
 
 }

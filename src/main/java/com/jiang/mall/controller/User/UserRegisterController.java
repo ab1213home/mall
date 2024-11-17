@@ -42,7 +42,7 @@ import static com.jiang.mall.domain.config.User.*;
  */
 @RestController
 @RequestMapping("/user")
-public class RegisterController {
+public class UserRegisterController {
 
 	private IUserService userService;
 

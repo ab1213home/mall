@@ -35,7 +35,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.jiang.mall.controller.User.LoginController.logout;
+import static com.jiang.mall.controller.User.UserLoginController.logout;
 import static com.jiang.mall.domain.config.User.*;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
@@ -47,7 +47,7 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
  */
 @RestController
 @RequestMapping("/user")
-public class ModifyController {
+public class UserModifyController {
 
 	private IUserService userService;
 
