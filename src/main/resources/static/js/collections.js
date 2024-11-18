@@ -106,7 +106,7 @@ $(document).ready(function() {
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_collection <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_collection -1;
@@ -130,9 +130,9 @@ function deleteCollection(id){
         success:function(response){
             if(response.code == 200){
                 $("#collection"+id).remove();
-                openModal("提示","删除成功");
+                show_success("删除成功");
             }else{
-                openModal("错误","删除失败"+response.message);
+                show_error("删除失败"+response.message);
             }
         }
     })

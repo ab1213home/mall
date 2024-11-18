@@ -131,7 +131,7 @@ function selectAddress(id){
 function bindPreNextPage_address(){
 	$("#prePage_address").on("click", function(){
 		if(currentPageNum_address <= 1){
-			openModal('错误','已经是第一页');
+			show_warning('已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum_address -1;
@@ -234,7 +234,7 @@ function totalMoney(){
 function sub_checkout(id){
 	let num = parseInt($("#num_text" + id).val());
 	if(num == 1){
-		openModal('警告','不能更小了');
+		show_warning('不能更小了');
 	}else{
 		num = num -1;
 		updateCart_checkout(id,num);
@@ -262,7 +262,7 @@ function deleteCartGood_checkout(id){
 function bindPreNextPage_product(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_cart <= 1){
-			openModal('警告','已经是第一页');
+			show_warning('已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum_cart -1;
@@ -289,11 +289,11 @@ function checkOut(){
 		}
 	}
 	if(cartArr.length == 0){
-		openModal('错误','商品为空');
+		show_warning('商品为空');
 		return;
 	}
 	if(addressId == 0){
-		openModal('错误','请先选择地址');
+		show_warning('请先选择地址');
 		return;
 	}
 	const data = {
@@ -310,14 +310,14 @@ function checkOut(){
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             if (response.code == '200') {
-				openModal('提示','订单提交成功，订单ID:'+response.data);
+				show_success('订单提交成功，订单ID:'+response.data);
 				window.location.href = "./orders.html";
             } else {
-                openModal('警告','订单提交失败：'+ response.message);
+                show_error('订单提交失败：'+ response.message);
             }
         },
         error: function (xhr, status, error) {
-            openModal('错误','请求失败：'+ error);
+            show_error('请求失败：'+ error);
         }
     });
 }

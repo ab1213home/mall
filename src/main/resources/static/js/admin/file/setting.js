@@ -55,10 +55,10 @@ function saveFileSetting() {
         contentType: 'application/json; charset=utf-8',
         success: function(res) {
             if (res.code == 200) {
-                openModal("提示","保存成功");
+                show_success("保存成功");
                 getFileSetting();
             }else{
-                openModal("提示","保存失败："+res.message);
+                show_error("保存失败："+res.message);
             }
         }
     })

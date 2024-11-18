@@ -68,7 +68,7 @@ function renderCategory(category_arr) {
 function search(){
     let keyword = document.getElementById("keyword").value;
     if(keyword == ""){
-		openModal("警告","请输入关键字");
+		show_warning("请输入关键字");
 		return;
 	}
     const data = {
@@ -89,12 +89,12 @@ function search(){
               document.getElementById('mid-swiper').style.display = 'none';
               document.getElementById('goodList').innerHTML = '<div class="col-md-12 mt-4"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>'
           }else{
-              openModal('错误','搜索失败，请联系管理员！');
+              show_error('搜索失败，请联系管理员！');
           }
       },
       fail: function(xhr, status, error) {
         // 显示错误信息给用户
-        openModal('错误','搜索失败，请联系管理员！'+error);
+        show_error('搜索失败，请联系管理员！'+error);
       }
     });
 }

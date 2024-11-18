@@ -21,7 +21,7 @@ $(document).ready(function(){
 		getCartNum();
 	}
     if (message!=null){
-        openModal('提示', message);
+        show_warning( message);
     }
     if (keyword!=null){
         document.getElementById('keyword').textContent = keyword;
@@ -43,7 +43,7 @@ $(document).ready(function(){
                      document.getElementById('goodList').innerHTML = '<div class="col-md-12 mt-4"><div class="alert alert-warning" role="alert">未找到相关商品</div></div>'
                 }
                 else{
-                    openModal('错误','搜索失败，请联系管理员！');
+                    show_error('搜索失败，请联系管理员！');
                     queryCategory();
                     queryBannerNum();
                     queryBanner();
@@ -51,7 +51,7 @@ $(document).ready(function(){
             },
             fail: function(xhr, status, error) {
                 // 显示错误信息给用户
-                openModal('错误','搜索失败，请联系管理员！'+error);
+                show_error('搜索失败，请联系管理员！'+error);
             }
         });
     }else{

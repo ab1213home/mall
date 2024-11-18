@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function validateBirthday() {
     const selectedDate = new Date(birthdayInput.value);
     if (selectedDate > today) {
-      openModal("警告",'生日不能在未来，请输入正确的日期');
+      show_warning('生日不能在未来，请输入正确的日期');
       return false;
     }
     return true;
@@ -71,17 +71,17 @@ function submitRegisterStepOneForm() {
                 step2.forEach(element => {
 					element.style.display = 'block';
 				});
-                openModal('提示','验证码已发送，请查收');
+                show_info('验证码已发送，请查收');
                 startIntervalTimer(600);
             } else {
-                openModal('错误','发送验证码失败:'+res.message);
+                show_error('发送验证码失败:'+res.message);
                 let captchaImg = document.getElementById('captchaImg');
                 captchaImg.src = '/common/captcha';
             }
         },
         fail: function(xhr, status, error) {
             // 显示错误信息给用户
-            openModal('错误','发送验证码失败，请联系管理员！'+error);
+            show_error('发送验证码失败，请联系管理员！'+error);
             let captchaImg = document.getElementById('captchaImg');
             captchaImg.src = '/common/captcha';
         }
@@ -156,7 +156,7 @@ function getFaceTemplateList() {
         displayImages(imagesArr);
     },
     error: function (error) {
-      openModal("错误", "获取图片列表失败" + error)
+      show_error( "获取图片列表失败" + error)
     }
   });
 }
@@ -192,14 +192,14 @@ function submitRegisterStepTowForm() {
                 element.style.display = 'block';
             });
             getFaceTemplateList();
-            openModal('提示','用户注册成功');
+            show_success('用户注册成功');
         } else {
-            openModal('错误','用户注册失败:'+data.message);
+            show_error('用户注册失败:'+data.message);
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
-      openModal('错误','注册失败，请联系管理员！'+error);
+      show_error('注册失败，请联系管理员！'+error);
     }
   });
 }
@@ -238,12 +238,12 @@ function submitRegisterStepFourForm() {
         if (data.code === 200) {
             window.location.href = '/user/login.html';
         } else {
-            openModal('错误','用户信息补充失败:'+data.message);
+            show_error('用户信息补充失败:'+data.message);
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
-      openModal('错误','用户信息补充失败，请联系管理员！'+error);
+      show_error('用户信息补充失败，请联系管理员！'+error);
     }
   });
 }

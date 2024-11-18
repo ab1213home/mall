@@ -16,15 +16,13 @@ $(document).ready(function(){
 	queryMyUserInfo()
 })
 
-
-
 document.addEventListener('DOMContentLoaded', function() {
-        var lockButton = document.getElementById('button_lock');
+    const lockButton = document.getElementById('button_lock');
 
-        lockButton.addEventListener('click', function(e) {
-            e.preventDefault(); // 阻止默认行为
-            lock_user();
-        });
+    lockButton.addEventListener('click', function(e) {
+        e.preventDefault(); // 阻止默认行为
+        lock_user();
+    });
 });
 
 function lock_user() {
@@ -35,10 +33,10 @@ function lock_user() {
         dataType: 'json',
         success: function(rea){
             if(rea.code == 200){
-                openModal('提示',"操作成功！")
+                show_success("操作成功！")
                 logout();
             }else{
-                openModal('错误',"操作失败！"+rea.msg)
+                show_error("操作失败！"+rea.message)
             }
         }
     })

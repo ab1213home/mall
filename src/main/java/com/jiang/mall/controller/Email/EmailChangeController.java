@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.Email;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
@@ -40,7 +40,7 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
  */
 @RestController
 @RequestMapping("/email")
-public class EmailController {
+public class EmailChangeController {
 
     private IVerificationCodeService verificationCodeService;
 
@@ -82,9 +82,9 @@ public class EmailController {
 
     @PostMapping("/sendChangeEmail")
     public ResponseResult<Object> sendChangeEmail(@RequestParam("password") String password,
-                                          @RequestParam("email") String email,
-                                          @RequestParam("captcha") String captcha,
-                                          HttpSession session) {
+                                                  @RequestParam("email") String email,
+                                                  @RequestParam("captcha") String captcha,
+                                                  HttpSession session) {
         if (!AllowSendEmail){
 			return ResponseResult.failResult("管理员不允许发送邮件");
 		}
@@ -161,104 +161,6 @@ public class EmailController {
             }
         }else {
             VerificationCode userVerificationCode = new VerificationCode(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
-            verificationCodeService.save(userVerificationCode);
-            return ResponseResult.failResult("邮件发送失败，请重试");
-        }
-    }
-
-    //TODO: 2024/10/17 放弃接口
-    /**
-     * 处理发送验证码的请求
-     *
-     * @param username 用户名
-     * @param email 邮箱
-     * @param captcha 验证码
-     * @param session HTTP会话
-     * @return 响应结果
-     */
-    @PostMapping("/sendChecking")
-    public ResponseResult<Object> sendChecking(@RequestParam("username") String username,
-                                       @RequestParam("email") String email,
-                                       @RequestParam("captcha") String captcha,
-                                       HttpSession session) {
-        // 检查管理员是否允许发送邮件
-        if (!AllowSendEmail){
-            return ResponseResult.failResult("管理员不允许发送邮件");
-        }
-
-        // 检查用户是否已登录
-        ResponseResult<Object> result = userService.checkUserLogin(session);
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-
-        // 验证请求参数是否为空
-        if (username==null||captcha==null||email==null){
-            return ResponseResult.failResult("非法请求");
-        }
-
-        // 检查验证码是否为空
-        if (!StringUtils.hasText(captcha)) {
-            return ResponseResult.failResult("验证码不能为空");
-        }
-
-        // 检查用户名是否为空
-        if (!StringUtils.hasText(username)){
-            return ResponseResult.failResult("用户名不能为空");
-        }
-
-        // 验证邮箱格式
-        if (!StringUtils.hasText(email) || !email.matches(regex_email)){
-            return ResponseResult.failResult("邮箱格式不正确");
-        }
-
-        // 验证会话中的验证码
-        Object captchaObj = session.getAttribute("captcha");
-        if (captchaObj == null) {
-            return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
-        }
-        String captchaCode = captchaObj.toString();
-        if (!captchaCode.toLowerCase().equals(captcha)) {
-            return ResponseResult.failResult("验证码错误");
-        }
-
-        // 检查是否在特定时间内请求过多验证码
-        if (verificationCodeService.inspectByEmail(email)){
-            return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
-        }
-
-        // 检查邮箱是否已注册
-        if (userService.queryByEmail(email)) {
-            return ResponseResult.failResult("邮箱已存在");
-        }
-
-        // 生成随机验证码
-        String code = generateRandomCode(8);
-
-        // 构造验证码邮件内容
-        String htmlContent = "<html><body>" +
-                "<h1>【"+SENDER_END+"】验证码通知</h1>" +
-                "<p>尊敬的"+username+"用户，您正在尝试使用"+EmailPurpose.REGISTER.getName()+"功能。</p>" +
-                "<div style='font-size: 24px; color: #007bff; font-weight: bold; text-align: center;'>" +
-                "您的验证码是：<span style='font-size: 36px;'>"+code+"</span></div>" +
-                "<p>请在接下来的 "+expiration_time+" 分钟内使用此验证码完成操作。为保证账户安全，请勿向任何人透露此验证码。</p>" +
-                "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
-                "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
-                "</body></html>";
-
-        // 发送验证码邮件
-        if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            // 邮件发送成功，保存验证码信息
-            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, (Long)result.getData());
-            if (verificationCodeService.save(userVerificationCode)){
-                return ResponseResult.okResult();
-            }else {
-                return ResponseResult.serverErrorResult("未知原因注册失败");
-            }
-        }else {
-            // 邮件发送失败，记录失败信息
-            VerificationCode userVerificationCode = new VerificationCode(username,email , code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED, (Long)result.getData());
             verificationCodeService.save(userVerificationCode);
             return ResponseResult.failResult("邮件发送失败，请重试");
         }

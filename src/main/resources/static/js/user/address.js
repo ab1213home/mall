@@ -83,7 +83,7 @@ function queryAddress(pn, pz) {
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_address <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_address -1;

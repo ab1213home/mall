@@ -138,9 +138,9 @@ function unlockUser(id) {
         success: function (response) {
             if (response.code == 200) {
                 queryUser(currentPageNum_user, 10);
-                openModal("提示","解锁成功");
+                show_success("解锁成功");
             }else{
-                openModal("警告","解锁失败："+response.message)
+                show_error("解锁失败："+response.message)
             }
         }
     });
@@ -169,7 +169,7 @@ $(document).ready(function(){
 
 function insertUser() {
     $("#userModal").modal("hide");
-    openModal("提示","请使用注册功能！");
+    show_info("请使用注册功能！");
 }
 
 function updateUser(id) {
@@ -203,10 +203,10 @@ function updateUser(id) {
             if (response.code == 200) {
                 queryUser(currentPageNum_user,10);
                 $("#userModal").modal("hide");
-                openModal("提示","修改用户信息成功");
+                show_success("修改用户信息成功");
             } else {
                 $("#userModal").modal("hide");
-                openModal("警告","修改用户信息失败："+response.message)
+                show_error("修改用户信息失败："+response.message)
             }
         }
 
@@ -241,9 +241,9 @@ function lockUser(id) {
         success: function (response) {
             if (response.code == 200) {
                 queryUser(currentPageNum_user, 10);
-                openModal("提示","锁定成功");
+                show_success("锁定成功");
             }else{
-                openModal("警告","锁定失败："+response.message)
+                show_error("锁定失败："+response.message)
             }
         }
     });
@@ -267,7 +267,7 @@ function clearModal() {
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
 		if(currentPageNum_user <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_user -1;

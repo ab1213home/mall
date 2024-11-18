@@ -120,7 +120,7 @@ function updateCart(id, num){
 				$("#sum_price"+id).html(num * cartArr[id].product.price);	//更新改行的价格
 				totalMoney();
 			}else{
-				openModal('错误',"更新购物车失败:"+res.message);
+				show_error("更新购物车失败:"+res.message);
 			}
 		}
 	})
@@ -141,7 +141,7 @@ function deleteCartGood(id){
 				$("#cart" + id).remove();	//删除某个元素
 				totalMoney();
 			}else{
-				openModal('错误',"删除购物车失败:"+res.message);
+				show_error("删除购物车失败:"+res.message);
 			}
 		}
 	})
@@ -230,7 +230,7 @@ function queryCart(pn, pz){
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_cart <= 1){
-			openModal('警告','已经是第一页');
+			show_warning('已经是第一页');
 			return;
 		}
 		let pageNum = currentPageNum_cart -1;
@@ -253,7 +253,7 @@ function checkOut(){
 		}
 	}
 	if(!flag){
-		openModal('警告','购物车为空，请选择商品');
+		show_warning('购物车为空，请选择商品');
 		return;
 	}
 	$.ajax({
@@ -266,7 +266,7 @@ function checkOut(){
             if (res.code == 200){
 				window.location.href = "./checkout.html";
 			}else{
-				openModal('错误',"下单失败:"+res.message);
+				show_error("下单失败:"+res.message);
 			}
         },
     });

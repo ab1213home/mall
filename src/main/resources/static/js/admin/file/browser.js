@@ -58,7 +58,7 @@ function queryPurpose(index) {
 				FileTree.files[index].purpose = res.data;
 				$('#file_purpose'+index).text(file.purpose);
 			}else{
-				openModal("警告", res.message)
+				show_error(res.message)
 			}
 		}
 	})

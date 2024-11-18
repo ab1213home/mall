@@ -39,21 +39,21 @@ function submitForgotStepOneForm() {
             step2.forEach(element => {
                 element.style.display = 'block';
             });
-            openModal('提示','验证码已发送，请查收');
+            show_info('验证码已发送，请查收');
             email = res.data;
             if (document.getElementById("email_show")!= null){
                 document.getElementById("email_show").textContent = res.data;
             }
             startIntervalTimer(600);
         } else {
-            openModal('错误','发送验证码失败:'+res.message);
+            show_error('发送验证码失败:'+res.message);
             let captchaImg = document.getElementById('captchaImg');
             captchaImg.src = '/common/captcha';
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
-      openModal('错误','发送验证码失败:'+error);
+      show_error('发送验证码失败:'+error);
       let captchaImg = document.getElementById('captchaImg');
       captchaImg.src = '/common/captcha';
     }
@@ -117,12 +117,12 @@ function submitForgotStepTwoForm() {
         if (res.code === 200) {
             window.location.href = '/user/login.html';
         } else {
-            openModal('错误','验证码错误');
+            show_error('验证码错误');
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
-      openModal('错误','验证码错误:'+error);
+      show_error('验证码错误:'+error);
     }
   });
 }

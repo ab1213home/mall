@@ -10,21 +10,22 @@
  * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  */
-let num_email = 0;
-let currentPageNum_email = 1;
-let emailArr = {};
 
-function queryEmail(pz, pn) {
+package com.jiang.mall.domain.vo;
 
+import lombok.Data;
+
+@Data
+public class EmailSettingVo {
+	private String host;
+	private String port;
+	private String username;
+	private String sender_end;
+	private String nickname;
+	private String password;
+	private int expiration_time;
+	private int max_request_num;
+	private int min_request_num;
+	private double max_fail_rate;
+	private boolean AllowSendEmail;
 }
-
-function getEmailNum() {
-
-}
-
-$(document).ready(function(){
-	isAdminUser();
-	queryMyUserInfo();
-	getEmailNum();
-    queryEmail(1,20);
-})

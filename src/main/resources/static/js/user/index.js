@@ -26,10 +26,10 @@ function queryBirthday() {
 		success:function(res){
 			if(res.code == 200){
 				if (res.data == 0){
-					openModal('提示', "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
+					show_info( "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
 					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
 				}if (res.data == 365){
-					openModal('提示', "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
+					show_info("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
 					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
 				}
 				else {

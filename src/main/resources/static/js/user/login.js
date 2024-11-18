@@ -17,7 +17,7 @@ const url = urlParams.get('url');
 document.addEventListener('DOMContentLoaded', function() {
     const message = urlParams.get('message');
     if (message != null) {
-        openModal('提示', message);
+        show_error(message);
     }
 });
 
@@ -56,14 +56,14 @@ function submitLoginForm() {
                 window.location.href = '../index.html';
             }
         } else {
-            openModal('错误','登录失败:'+data.message);
+            show_error('登录失败:'+data.message);
             let captchaImg = document.getElementById('captchaImg');
             captchaImg.src = '/common/captcha';
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
-      openModal('错误','登录失败，请联系管理员！'+error);
+      show_error('登录失败，请联系管理员！'+error);
       let captchaImg = document.getElementById('captchaImg');
       captchaImg.src = '/common/captcha';
     }

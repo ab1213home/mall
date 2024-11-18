@@ -251,89 +251,179 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
-                    <div class="row"> <!--begin::Col-->
-                        <div class="col-lg-3 col-6"> <!--begin::Small Box Widget 1-->
-                            <div class="small-box text-bg-info">
-                                <div class="inner">
-                                    <h3 id="total-size" class="file-tag">0</h3>
-                                    <p>已用存储空间大小</p>
-                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"></path>
-                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"></path>
-                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                                    更多信息 <i class="bi bi-link-45deg"></i> </a>
-                            </div> <!--end::Small Box Widget 1-->
-                        </div> <!--end::Col-->
-                        <div class="col-lg-3 col-6"> <!--begin::Small Box Widget 2-->
-                            <div class="small-box text-bg-secondary">
-                                <div class="inner">
-                                    <h3 id="file-count" class="">0</h3>
-                                    <p>文件数量</p>
-                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="m11.93396,5.28455l-2.06477,-2.32968c-0.19479,-0.22596 -0.49087,-0.35841 -0.79474,-0.35841l-7.9552,0c-0.59216,0 -1.07524,0.47529 -1.07524,1.06745l0,16.96226c0,0.59216 0.47529,1.06745 1.06745,1.06745l21.80082,0c0.59216,0 1.06745,-0.47529 1.06745,-1.06745l0,-13.90796c0,-0.59216 -0.47529,-1.06745 -1.06745,-1.06745l-10.1758,0c-0.30387,0 -0.59995,-0.13246 -0.80253,-0.3662z"></path>
-                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                                    更多信息 <i class="bi bi-link-45deg"></i> </a>
-                            </div> <!--end::Small Box Widget 2-->
-                        </div> <!--end::Col-->
-                    </div> <!--end::Row--> <!--begin::Row-->
+<!--                    <div class="row"> &lt;!&ndash;begin::Col&ndash;&gt;-->
+<!--                        <div class="col-lg-3 col-6"> &lt;!&ndash;begin::Small Box Widget 1&ndash;&gt;-->
+<!--                            <div class="small-box text-bg-info">-->
+<!--                                <div class="inner">-->
+<!--                                    <h3 id="total-size" class="file-tag">0</h3>-->
+<!--                                    <p>已用存储空间大小</p>-->
+<!--                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">-->
+<!--                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z"></path>-->
+<!--                                    <path clip-rule="evenodd" fill-rule="evenodd" d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z"></path>-->
+<!--                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">-->
+<!--                                    更多信息 <i class="bi bi-link-45deg"></i> </a>-->
+<!--                            </div> &lt;!&ndash;end::Small Box Widget 1&ndash;&gt;-->
+<!--                        </div> &lt;!&ndash;end::Col&ndash;&gt;-->
+<!--                        <div class="col-lg-3 col-6"> &lt;!&ndash;begin::Small Box Widget 2&ndash;&gt;-->
+<!--                            <div class="small-box text-bg-secondary">-->
+<!--                                <div class="inner">-->
+<!--                                    <h3 id="file-count" class="">0</h3>-->
+<!--                                    <p>文件数量</p>-->
+<!--                                </div> <svg class="small-box-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">-->
+<!--                                    <path d="m11.93396,5.28455l-2.06477,-2.32968c-0.19479,-0.22596 -0.49087,-0.35841 -0.79474,-0.35841l-7.9552,0c-0.59216,0 -1.07524,0.47529 -1.07524,1.06745l0,16.96226c0,0.59216 0.47529,1.06745 1.06745,1.06745l21.80082,0c0.59216,0 1.06745,-0.47529 1.06745,-1.06745l0,-13.90796c0,-0.59216 -0.47529,-1.06745 -1.06745,-1.06745l-10.1758,0c-0.30387,0 -0.59995,-0.13246 -0.80253,-0.3662z"></path>-->
+<!--                                </svg> <a href="/admin/file/browser.html" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">-->
+<!--                                    更多信息 <i class="bi bi-link-45deg"></i> </a>-->
+<!--                            </div> &lt;!&ndash;end::Small Box Widget 2&ndash;&gt;-->
+<!--                        </div> &lt;!&ndash;end::Col&ndash;&gt;-->
+<!--                    </div> &lt;!&ndash;end::Row&ndash;&gt; &lt;!&ndash;begin::Row&ndash;&gt;-->
                     <div class="row">
-                        <!--是否允许文件上传-->
+<!--                        //  "data": {-->
+<!--//    "host": "smtp.126.com",-->
+<!--//    "port": "465",-->
+<!--//    "username": "jiangrongjun2004@126.com",-->
+<!--//    "sender_end": "mall.com",-->
+<!--//    "nickname": "jiangrongjun",-->
+<!--//    "password": "******",-->
+<!--//    "expiration_time": 15,-->
+<!--//    "max_request_num": 10,-->
+<!--//    "min_request_num": 9,-->
+<!--//    "max_fail_rate": 0.4,-->
+<!--//    "allowSendEemail": true-->
+<!--//  },-->
+                        <!--是否允许发送邮件-->
                         <div class="card card-outline card-primary">
                             <div class="card-header">
-                                <h3 class="card-title">文件上传开关</h3>
+                                <h3 class="card-title">发送邮件开关</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="allow-upload" name="allow-upload" value="true" checked>
-                                        <label class="form-check-label" for="allow-upload">允许上传文件</label>
+                                        <input class="form-check-input" type="checkbox" id="allow-email" name="allow-email" value="true" checked>
+                                        <label class="form-check-label" for="allow-email">允许发送邮件</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveEmailSetting()">保存设置</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--文件保存位置-->
+                        <!--邮件服务器设置-->
                         <div class="card card-outline card-primary mt-2">
                             <div class="card-header">
-                                <h3 class="card-title">文件保存位置</h3>
+                                <h3 class="card-title">邮件服务器设置</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
+                                    <!--邮件服务器地址-->
                                     <div class="col-md-12">
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="bi bi-folder2-open"></i></span>
+                                                <span class="input-group-text"><i>地&nbsp;址</i></span>
                                             </div>
-                                            <input type="text" class="form-control" id="save-to-where" name="allow-image-extensions" placeholder="请输入文件保存位置" aria-label="请输入文件保存位置" aria-describedby="button-addon2">
+                                            <input type="text" class="form-control" id="email-host" name="email-host" placeholder="请输入邮件服务器地址" value="smtp.example.com" aria-label="请输入邮件服务器地址" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--邮件服务器端口-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>端&nbsp;口</i></span>
+                                            </div>
+                                            <input type="number" class="form-control" id="email-port" name="email-port" placeholder="请输入邮件服务器端口" value="465" aria-label="请输入邮件服务器端口" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--发件人邮箱-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>用户名</i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="email-username" name="email-username" placeholder="请输入发件人邮箱" value="example@example.com" aria-label="请输入发件人邮箱" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>后&nbsp;缀</i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="email-sender-end" name="email-sender-end" placeholder="请输入发件人邮箱后缀" value="example.com" aria-label="请输入发件人邮箱后缀" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--发件人昵称-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>昵&nbsp;称</i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="email-nickname" name="email-nickname" placeholder="请输入发件人昵称" value="example" aria-label="请输入发件人昵称" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--密码-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>密&nbsp;码</i></span>
+                                            </div>
+                                            <input type="password" class="form-control" id="email-password" name="email-password" placeholder="请输入密码" value="password" aria-label="请输入密码" aria-describedby="basic-addon1">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveEmailSetting()">保存设置</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--允许上传图片后缀-->
+                        <!--邮件安全性设置-->
                         <div class="card card-outline card-primary mt-2">
                             <div class="card-header">
-                                <h3 class="card-title">允许上传图片后缀</h3>
+                                <h3 class="card-title">邮件安全性设置</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
+                                    <!--邮箱验证码过期时间（分钟）-->
                                     <div class="col-md-12">
-                                        <div class="input-group mb-3" id="image-suffix">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>&nbsp;过期时间（分钟）&nbsp;</i></span>
+                                            </div>
+                                            <input type="number" class="form-control" id="email-expiration-time" name="email-expiration-time" placeholder="请输入邮箱验证码过期时间（分钟）" value="15" aria-label="请输入邮箱验证码过期时间（分钟）" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--邮箱验证码24小时最大请求数量-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>24小时最大请求数</i></span>
+                                            </div>
+                                            <input type="number" class="form-control" id="email-max-request-num" name="email-max-request-num" placeholder="请输入邮箱验证码24小时最大请求数量" value="10" aria-label="请输入邮箱验证码24小时最大请求数量" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--邮箱验证码24小时最小请求数量-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>24小时最小请求数</i></span>
+                                            </div>
+                                            <input type="number" class="form-control" id="email-min-request-num" name="email-min-request-num" placeholder="请输入邮箱验证码24小时最小请求数量" value="5" aria-label="请输入邮箱验证码24小时最小请求数量" aria-describedby="basic-addon1">
+                                        </div>
+                                    </div>
+                                    <!--邮箱验证码24小时最大失败率-->
+                                    <div class="col-md-12">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i>24小时最大失败率</i></span>
+                                            </div>
+                                            <input type="number" class="form-control" id="email-max-fail-rate" name="email-max-fail-rate" placeholder="请输入邮箱验证码24小时最大失败率" value="0.5" aria-label="请输入邮箱验证码24小时最大失败率" aria-describedby="basic-addon1">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
-                                        <button type="button" class="btn btn-primary float-end" onclick="saveFileSetting()">保存设置</button>
+                                        <button type="button" class="btn btn-primary float-end" onclick="saveEmailSetting()">保存设置</button>
                                     </div>
                                 </div>
                             </div>

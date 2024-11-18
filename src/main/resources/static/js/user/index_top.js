@@ -115,7 +115,7 @@ function queryMyUserInfo(){
 					document.getElementById("phone_show").textContent = res.data.phone;
 				}
 			}else {
-				openModal("警告","未登录");
+				show_error("未登录");
 				window.location.href = '/user/login.html';
 			}
 		}

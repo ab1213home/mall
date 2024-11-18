@@ -55,7 +55,7 @@ function getFaceTemplateList() {
         displayImages(imagesArr);
     },
     error: function (error) {
-      openModal("错误", "获取图片列表失败" + error)
+      show_error("获取图片列表失败" + error)
     }
   });
 }
@@ -78,15 +78,15 @@ function changeInfo() {
     dataType:"json",
     success: function (data) {
       if (data.code === 200) {
-        openModal('提示','用户信息已成功更新！');
+        show_success('用户信息已成功更新！');
 		window.location.href = '/user/index.html';
       } else {
-        openModal('警告','用户信息更新失败：'+data.message);
+        show_error('用户信息更新失败：'+data.message);
       }
     },
     fail: function(xhr, status, error) {
       console.error('用户信息更新失败:', error);
-      openModal('错误','用户信息更新失败，请联系管理员！' + error);
+      show_error('用户信息更新失败，请联系管理员！' + error);
     }
   });
 }

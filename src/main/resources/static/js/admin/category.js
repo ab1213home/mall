@@ -96,7 +96,7 @@ $(document).ready(function(){
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
 		if(currentPageNum_category <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_category -1;
@@ -170,10 +170,10 @@ function insertCategory() {
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
-                openModal("提示","添加成功");
+                show_success("添加成功");
                 queryCategory(currentPageNum_category, 10);
             } else {
-                openModal("警告","添加失败："+response.message)
+                show_error("添加失败："+response.message)
             }
         }
     })
@@ -194,10 +194,10 @@ function updateCategory(id) {
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
-                openModal("提示","修改成功");
+                show_success("修改成功");
                 queryCategory(currentPageNum_category, 10);
             }else {
-                openModal("警告","修改失败："+response.message)
+                show_error("修改失败："+response.message)
             }
         }
     })
@@ -211,10 +211,10 @@ function deleteCategory(id) {
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
-                openModal("提示","删除成功");
+                show_success("删除成功");
                 queryCategory(currentPageNum_category, 10);
             }else {
-                openModal("警告","删除失败："+response.message)
+                show_error("删除失败："+response.message)
             }
         }
     })

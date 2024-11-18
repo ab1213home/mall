@@ -274,9 +274,9 @@ function delAddress(id) {
 		success:function(response){
 			if(response.code == 200){
 				queryAddress(currentPageNum_address,10)
-				openModal('提示','删除成功');
+				show_success('删除成功');
 			}else{
-				openModal('错误','删除失败');
+				show_error('删除失败');
 			}
 		}
 	})
@@ -302,7 +302,7 @@ function insertAddress() {
 	}else if (province != null){
 		areaCode = province;
 	}else{
-		openModal('错误','请选择地区');
+		show_warning('请选择地区');
 		return;
 	}
   	// 构建请求体
@@ -328,10 +328,10 @@ function insertAddress() {
 			if (response.code == 200) {
 				queryAddress(currentPageNum_address,10);
 				$('#addressModal').modal('hide');
-				openModal('提示','地址新增成功');
+				show_success('地址新增成功');
 			} else {
 				$('#addressModal').modal('hide');
-				openModal('错误','地址新增失败');
+				show_error('地址新增失败');
 			}
     	}
 	});
@@ -499,7 +499,7 @@ function updateAddress(id) {
 	}else if (province != null){
 		areaCode = province;
 	}else{
-		openModal('错误','请选择地区');
+		show_warning('请选择地区');
 		return;
 	}
 
@@ -527,10 +527,10 @@ function updateAddress(id) {
 			if (response.code == 200) {
 				queryAddress(currentPageNum_address,10);
 				$('#addressModal').modal('hide');
-				openModal('提示','地址修改成功');
+				show_success('地址修改成功');
 			} else {
 				$('#addressModal').modal('hide');
-				openModal('错误','地址修改失败');
+				show_error('地址修改失败');
 			}
 		}
 	});

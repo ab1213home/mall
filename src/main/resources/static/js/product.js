@@ -26,10 +26,10 @@ function delCollect() {
 		success:function(res){
 			if(res.code == 200){
 				$('#collect-btn').html('<i class="fa fa-heart-o" aria-hidden="true"></i>收藏');
-				openModal('提示','删除收藏成功');
+				show_success('删除收藏成功');
 				bool=false;
 			}else{
-				openModal('错误','删除收藏失败');
+				show_error('删除收藏失败');
 			}
 		}
 	})
@@ -91,14 +91,14 @@ function addCollect() {
 			success:function(res){
 				if(res.code == 200){
 					$('#collect-btn').html('<i class="fa fa-heart" aria-hidden="true"></i>已收藏');
-					openModal('提示','添加收藏成功');
+					show_success('添加收藏成功');
 					bool=true;
 				}else{
-					openModal('错误','添加收藏失败');
+					show_error('添加收藏失败');
 				}
 			},
 			error:function(res){
-				openModal('错误','添加收藏失败:'+res.message);
+				show_error('添加收藏失败:'+res.message);
 			}
 		})
 	}else{
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             num--;
             document.getElementById('productNum').value = num;
         }else {
-			openModal('警告','购买数量不能小于1');
+			show_warning('购买数量不能小于1');
         }
     });
 
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             num++;
             document.getElementById('productNum').value = num;
         }else {
-			openModal('提示','库存不足，可能无法正常购买，请注意购买数量');
+			show_warning('库存不足，可能无法正常购买，请注意购买数量');
             num++;
             document.getElementById('productNum').value = num;
         }
@@ -177,13 +177,13 @@ function addCart(){
 			success:function(res){
 				if(res.code == 200){
 					getCartNum();
-					openModal('提示','添加购物车成功');
+					show_success('添加购物车成功');
 				}else{
-					openModal('错误','添加购物车失败');
+					show_error('添加购物车失败');
 				}
 			},
 			error:function(res){
-				openModal('错误','添加购物车失败:'+res.message);
+				show_error('添加购物车失败:'+res.message);
 			}
 		})
 	}else{

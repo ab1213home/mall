@@ -116,3 +116,10 @@ function closeLoadingModal() {
     // const LoadingModal = bootstrap.Modal.getInstance(loadingModal); // Returns a Bootstrap modal instance
 
 }
+
+            //     $('#productModal').modal('hide');
+            //     queryProduct(currentPageNum_product,10);
+            //     show_success("修改成功");
+            // } else {
+            //     $('#productModal').modal('hide');
+            //     show_error("修改失败："+response.message)

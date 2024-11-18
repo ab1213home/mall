@@ -105,7 +105,7 @@ function queryBanner(pn,pz) {
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
 		if(currentPageNum_banner <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_banner -1;
@@ -193,10 +193,10 @@ function insertBanner() {
             if (res.code == 200) {
                 queryBanner(currentPageNum_banner,10);
                 $('#bannerModal').modal('hide');
-                openModal('提示',"添加轮播图成功");
+                show_success("添加轮播图成功");
             } else {
                 $('#bannerModal').modal('hide');
-                openModal('警告',"添加轮播图失败："+res.message)
+                show_error("添加轮播图失败："+res.message)
             }
         }
     })
@@ -221,10 +221,10 @@ function updateBanner(id) {
             if (res.code == 200) {
                 queryBanner(currentPageNum_banner,10);
                 $('#bannerModal').modal('hide');
-                openModal('提示',"修改轮播图成功");
+                show_success("修改轮播图成功");
             } else {
                 $('#bannerModal').modal('hide');
-                openModal('警告',"修改轮播图失败："+res.message)
+                show_error("修改轮播图失败："+res.message)
             }
         }
     })
@@ -242,10 +242,10 @@ function deleteBanner(id) {
             if (res.code == 200) {
                 queryBanner(currentPageNum_banner,10);
                 $('#bannerModal').modal('hide');
-                openModal('提示',"删除轮播图成功");
+                show_success("删除轮播图成功");
             } else {
                 $('#bannerModal').modal('hide');
-                openModal('警告',"删除轮播图失败："+res.message);
+                show_error("删除轮播图失败："+res.message);
             }
         }
     })

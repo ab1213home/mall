@@ -62,10 +62,10 @@ function insertProduct() {
             if (response.code == 200) {
                 $('#productModal').modal('hide');
                 queryProduct(currentPageNum_product,10);
-                openModal('提示',"添加成功");
+                show_success("添加成功");
             } else {
                 $('#productModal').modal('hide');
-                openModal('警告',"添加失败："+response.message)
+                show_error("添加失败："+response.message)
             }
         }
     });
@@ -98,10 +98,10 @@ function updateProduct(id) {
             if (response.code == 200) {
                 $('#productModal').modal('hide');
                 queryProduct(currentPageNum_product,10);
-                openModal('提示',"修改成功");
+                show_success("修改成功");
             } else {
                 $('#productModal').modal('hide');
-                openModal('警告',"修改失败："+response.message)
+                show_error("修改失败："+response.message)
             }
         }
     });
@@ -130,9 +130,9 @@ function delProduct(id) {
             if (response.code == 200) {
                 delete productArr[id];
 				$("#product" + id).remove();
-				openModal('提示','删除成功');
+				show_success('删除成功');
             } else {
-                openModal('警告',"删除失败："+response.message)
+                show_error("删除失败："+response.message)
             }
         }
     });
@@ -309,7 +309,7 @@ function uploadFile() {
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_product <= 1){
-			openModal("警告","已经是第一页")
+			show_warning("已经是第一页")
 			return;
 		}
 		let pageNum = currentPageNum_product -1;

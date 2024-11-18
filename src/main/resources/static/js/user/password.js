@@ -40,15 +40,15 @@ function changePassword() {
     },
     success: function (data) {
       if (data.code === 200) {
-        openModal('提示','密码已成功修改，请重新登录！');
+        show_success('密码已成功修改，请重新登录！');
         window.location.href = '/user/login.html';
       } else {
-        openModal('警告','密码修改失败:'+data.message)
+        show_error('密码修改失败:'+data.message)
       }
     },
     fail: function(xhr, status, error) {
       console.error('密码修改失败:', error);
-      openModal('错误','密码修改失败，请联系管理员！' + error);
+      show_error('密码修改失败，请联系管理员！' + error);
     }
   });
 }
