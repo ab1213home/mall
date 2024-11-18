@@ -15,6 +15,9 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.vo.VerificationCodeVo;
+
+import java.util.List;
 
 public interface IVerificationCodeService extends IService<VerificationCode> {
 	Boolean inspectByEmail(String email);
@@ -29,4 +32,8 @@ public interface IVerificationCodeService extends IService<VerificationCode> {
 	Boolean useCode(Long userId, VerificationCode verificationCode);
 
 	Boolean insert(VerificationCode userVerificationCode);
+
+	List<VerificationCodeVo> getList(Integer pageNum, Integer pageSize);
+
+	Long getVerificationCodeNum();
 }

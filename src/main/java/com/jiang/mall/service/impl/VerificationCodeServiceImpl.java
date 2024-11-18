@@ -14,14 +14,18 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.VerificationCodeMapper;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -194,5 +198,25 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	@Override
 	public Boolean insert(VerificationCode userVerificationCode) {
 		return verificationCodeMapper.insert(userVerificationCode) > 0;
+	}
+
+	@Override
+	public List<VerificationCodeVo> getList(Integer pageNum, Integer pageSize) {
+		Page<VerificationCode> page = new Page<>(pageNum, pageSize);
+		List<VerificationCode> verificationCodes = verificationCodeMapper.selectPage(page, null).getRecords();
+		List<VerificationCodeVo> verificationCodeVos = new ArrayList<>();
+		for (VerificationCode verificationCode : verificationCodes) {
+			VerificationCodeVo verificationCodeVo = BeanCopyUtils.copyBean(verificationCode, VerificationCodeVo.class);
+			assert verificationCodeVo != null;
+			verificationCodeVo.setStatus(email_status[verificationCode.getStatus()]);
+			verificationCodeVo.setPurpose(email_purpose[verificationCode.getPurpose()]);
+			verificationCodeVos.add(verificationCodeVo);
+		}
+		return verificationCodeVos;
+	}
+
+	@Override
+	public Long getVerificationCodeNum() {
+		return verificationCodeMapper.selectCount(null);
 	}
 }

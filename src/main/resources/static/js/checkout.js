@@ -109,7 +109,7 @@ function queryAddress(pn, pz) {
 					 $("#nextPage_address").prop("disabled", true);
 				}
 				if (message!=null){
-					openModal('提示',message);
+					show_warning(message);
 				}
             }
         }

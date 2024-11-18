@@ -91,7 +91,7 @@ function checkAll(){
 function sub(id){
 	let num = parseInt($("#num_text" + id).val());
 	if(num == 1){
-		openModal('警告','不能更小了');
+		show_warning('不能更小了');
 	}else{
 		num = num -1;
 		updateCart(id,num);

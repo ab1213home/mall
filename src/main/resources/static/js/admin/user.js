@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function validateBirthday() {
     const selectedDate = new Date(birthdayInput.value);
     if (selectedDate > today) {
-      openModal("警告",'生日不能在未来，请输入正确的日期');
+      show_warning('生日不能在未来，请输入正确的日期');
       return false;
     }
     return true;

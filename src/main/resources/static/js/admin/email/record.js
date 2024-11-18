@@ -14,17 +14,97 @@ let num_email = 0;
 let currentPageNum_email = 1;
 let emailArr = {};
 
-function queryEmail(pz, pn) {
+function queryEmail(pn, pz) {
+	$.ajax({
+		type: "GET",
+		url: "/email/getList",
+		data: {
+			pageNum: pn,
+			pageSize: pz
+		},
+		dataType: "json",
+		success: function (response) {
+			if (response.code == 200) {
+				$('#recordlist tbody').empty();
+				if (response.data.length == 0) {
+					const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无数据</td>
+						</tr>
+						`;
+					$('#recordlist tbody').append(row);
+				}
+				emailArr = {}
+				for(let record of response.data){
+					emailArr[record.id] = record;
+				}
+				response.data.forEach((record,index) => {
+					const row =
+						`
+						<tr id="record`+ record.id +`" class="address-row text-center">
+							<th scope="row">${record.id}</th>
+							<th id="username`+ record.id +`">${record.username}</th>
+							<th id="email`+ record.id +`">${record.email}</th>
+							<th id="purpose`+ record.id +`">${record.purpose}</th>
+							<th id="triggerTime`+ record.id +`">${record.triggerTime}</th>
+							<th id="status`+ record.id +`">${record.status}</th>
+						</tr>
+						`;
+					$('#recordlist tbody').append(row);
+				})
+				currentPageNum_email = pn;
+                if (currentPageNum_email == 1) {
+                    $("#prePage").prop("disabled", true);
+                } else {
+                    $("#prePage").prop("disabled", false);
+                }
+                if (num_email - currentPageNum_email * pz < 0) {
+                    $("#nextPage").prop("disabled", true);
+                } else {
+                    $("#nextPage").prop("disabled", false);
+                }
+				if (num_email == 0){
+					 $("#nextPage").prop("disabled", true);
+				}
+			}
+		}
+	})
+}
 
+function bindPreNextPage() {
+    $("#prePage").on("click", function(){
+		if(currentPageNum_email <= 1){
+			show_warning("已经是第一页")
+			return;
+		}
+		let pageNum = currentPageNum_email -1;
+		queryEmail(pageNum, 10);
+	})
+
+	$("#nextPage").on("click", function(){
+		let pageNum = currentPageNum_email +1;
+		queryEmail(pageNum, 10);
+	})
 }
 
 function getEmailNum() {
-
+	$.ajax({
+		type: "GET",
+		url: "/email/getNum",
+		dataType: "json",
+		success: function (response) {
+			if (response.code == 200) {
+				num_email = response.data;
+			}
+		}
+	})
 }
 
 $(document).ready(function(){
 	isAdminUser();
 	queryMyUserInfo();
 	getEmailNum();
-    queryEmail(1,20);
+    queryEmail(1,20);//num_email>20?20:num_email
+	bindPreNextPage();
 })

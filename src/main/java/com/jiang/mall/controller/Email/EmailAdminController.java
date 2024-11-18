@@ -16,11 +16,14 @@ package com.jiang.mall.controller.Email;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.Email;
 import com.jiang.mall.domain.vo.EmailSettingVo;
+import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 邮箱验证码控制器
@@ -101,17 +104,29 @@ public class EmailAdminController {
         Email.saveProperties();
         return ResponseResult.okResult();
     }
+
+    @GetMapping("/getList")
+    public ResponseResult<Object> getList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                          @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize,
+                                          HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult<Object> result = userService.checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+        List<VerificationCodeVo> list = verificationCodeService.getList(pageNum, pageSize);
+        return ResponseResult.okResult(list);
+    }
+
+    @GetMapping("/getNum")
+    public ResponseResult<Object> getNum(HttpSession session) {
+        // 检查会话中是否设置表示用户已登录的标志
+        ResponseResult<Object> result = userService.checkAdminUser(session);
+		if (!result.isSuccess()) {
+			// 如果未登录，则直接返回
+		    return result;
+		}
+        return ResponseResult.okResult(verificationCodeService.getVerificationCodeNum());
+    }
 }
-//  "data": {
-//    "host": "smtp.126.com",
-//    "port": "465",
-//    "username": "jiangrongjun2004@126.com",
-//    "sender_end": "mall.com",
-//    "nickname": "jiangrongjun",
-//    "password": "******",
-//    "expiration_time": 15,
-//    "max_request_num": 10,
-//    "min_request_num": 9,
-//    "max_fail_rate": 0.4,
-//    "allowSendEmail": true
-//  },
