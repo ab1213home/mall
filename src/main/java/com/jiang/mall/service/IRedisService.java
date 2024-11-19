@@ -86,18 +86,114 @@ public interface IRedisService {
     Boolean deleteKey(String key);
 
     // Hash 操作
-    void setHash(String key, Map<String, String> hash);
-    String getHashValue(String key, String field);
+    /**
+     * 将给定的键与一个哈希映射关联起来
+     * 此方法用于在某种数据结构或存储系统中设置一个哈希表项，键值对会覆盖已有键的值
+     *
+     * @param key 键，用于标识哈希映射的唯一性不能为空
+     * @param hash 包含键值对的哈希映射，用于设置或更新数据不能为空
+     */
+    void setHash(String key, Map<String, Object> hash);
+    /**
+     * 将给定的键与一个哈希映射关联起来，并设置过期时间
+     * 此方法用于在某种数据结构或存储系统中设置一个哈希表项，键值对会覆盖已有键的值，并且为该键设置过期时间
+     *
+     * @param key 键，用于标识哈希映射的唯一性不能为空
+     * @param hash 包含键值对的哈希映射，用于设置或更新数据不能为空
+     * @param timeout 过期时间，以秒为单位，如果值为0，键将被持久化，不会过期
+     */
+    void setHash(String key, Map<String, Object> hash, long timeout);
+    /**
+     * 获取散列字段的值
+     *
+     * @param key 散列的键
+     * @param field 散列中的字段
+     * @return 字段的值，如果字段不存在则返回null
+     */
+    Object getHashValue(String key, String field);
+    /**
+     * 获取哈希表中所有条目
+     *
+     * @param key 哈希表的键
+     * @return 包含哈希表所有条目的Map对象，其中键为字段键，值为字段值
+     */
     Map<Object, Object> getHashAllEntries(String key);
+    /**
+     * 检查给定的key在Redis中是否存在，并且该key对应的hash中是否包含指定的field
+     *
+     * @param key Redis中的键
+     * @param field hash中要检查的字段
+     * @return 如果key存在且hash中包含指定的field，则返回true；否则返回false
+     */
     Boolean hasHashKey(String key, String field);
+    /**
+     * 删除哈希表中的指定字段
+     *
+     * @param key 哈希表的键
+     * @param field 要删除的字段
+     * @return 如果删除成功，返回1；如果字段不存在，返回0
+     */
     Long deleteHashField(String key, String field);
 
     // List 操作
-    Long listRightPush(String key, String value);
-    Long listLeftPush(String key, String value);
+    /**
+     * 在列表的右侧（尾部）添加一个元素
+     * 如果列表不存在，会创建一个新的列表并将元素添加到尾部
+     *
+     * @param key   列表的键，用于标识列表
+     * @param value 要添加的元素，可以是任意对象
+     * @return 返回列表的新长度如果操作失败，返回null
+     */
+    Long listRightPush(String key, Object value);
+    /**
+     * 在列表的左侧（头部）添加一个元素
+     * 如果列表不存在，会创建一个新的列表并将元素添加到头部
+     *
+     * @param key   列表的键，用于标识列表
+     * @param value 要添加的元素，可以是任意对象
+     * @return 返回列表的新长度如果操作失败，返回null
+     */
+    Long listLeftPush(String key, Object value);
+    /**
+     * 获取列表的最后一个元素，并从列表中移除它
+     * 如果列表为空，返回null
+     *
+     * @param key 列表的键，用于标识列表
+     * @return 返回被移除的元素，如果列表为空，返回null
+     */
     Object listRightPop(String key);
+    /**
+     * 获取列表的第一个元素，并从列表中移除它
+     * 如果列表为空，返回null
+     *
+     * @param key 列表的键，用于标识列表
+     * @return 返回被移除的元素，如果列表为空，返回null
+     */
     Object listLeftPop(String key);
+    /**
+     * 返回列表中指定范围内的元素
+     *
+     * @param key 列表的键，用于标识列表
+     * @param start 起始索引，包含该索引对应的元素，从0开始
+     * @param end 结束索引，包含该索引对应的元素，从0开始
+     * @return 返回指定范围内的元素列表，如果列表为空，返回空列表
+     */
     List<Object> listRange(String key, long start, long end);
+    /**
+     * 获取列表中指定索引位置的元素
+     *
+     * @param key 列表的键，用于标识列表
+     * @param index 索引位置，从0开始
+     * @return 返回指定索引位置的元素，如果索引越界，返回null
+     */
+    Object listGet(String key, long index);
+    /**
+     * 获取列表的长度
+     *
+     * @param key 列表的键，用于标识列表
+     * @return 返回列表的长度，如果列表不存在，返回0
+     */
+    Long listLength(String key);
 
     // Set 操作
     Long setAdd(String key, String... values);

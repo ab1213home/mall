@@ -44,9 +44,15 @@ public class TextController {
 
 	@GetMapping("/session")
 	public ResponseResult<Object> error(HttpSession session) {
-		redisService.setString("greeting", "Hello, Redis!");
-		String greeting = redisService.getString("greeting");
+		redisService.setString(session.getId(), "Hello, Redis!");
+		String greeting = redisService.getString(session.getId());
 		System.out.println(greeting);
 		return ResponseResult.okResult("text");
 	}
+
+	@GetMapping("/session-id")
+    public ResponseResult<Object> getSessionId(HttpSession session) {
+        // 获取当前请求的会话对象
+        return ResponseResult.okResult(session.getId());
+    }
 }

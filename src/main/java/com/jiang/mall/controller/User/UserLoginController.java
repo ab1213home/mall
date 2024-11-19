@@ -148,7 +148,7 @@ public class UserLoginController {
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 4);
-//			redisService.setAdd("User", String.valueOf(userVo));
+			redisService.listLeftPush("User", userVo);
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {
