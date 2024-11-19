@@ -14,6 +14,9 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.IRedisService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/text")
 public class TextController {
+
+	@Autowired
+	private IRedisService redisService;
 
 	@GetMapping("/time")
 	public ResponseResult<Object> time(@RequestParam(defaultValue = "1") Double time) {
@@ -34,5 +40,13 @@ public class TextController {
             return ResponseResult.serverErrorResult("请求被中断");
         }
 		return ResponseResult.okResult();
+	}
+
+	@GetMapping("/session")
+	public ResponseResult<Object> error(HttpSession session) {
+		redisService.setString("greeting", "Hello, Redis!");
+		String greeting = redisService.getString("greeting");
+		System.out.println(greeting);
+		return ResponseResult.okResult("text");
 	}
 }

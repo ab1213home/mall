@@ -17,6 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -65,6 +66,13 @@ public class UserLoginController {
 	@Autowired
 	public void setI18nService(II18nService i18nService) {
 		this.i18nService = i18nService;
+	}
+
+	private IRedisService redisService;
+
+	@Autowired
+	public void setRedisService(IRedisService redisService) {
+		this.redisService = redisService;
 	}
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -140,6 +148,7 @@ public class UserLoginController {
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 4);
+//			redisService.setAdd("User", String.valueOf(userVo));
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {

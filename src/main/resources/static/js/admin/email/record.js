@@ -42,13 +42,13 @@ function queryEmail(pn, pz) {
 				response.data.forEach((record,index) => {
 					const row =
 						`
-						<tr id="record`+ record.id +`" class="address-row text-center">
+						<tr id="record`+ record.id +`">
 							<th scope="row">${record.id}</th>
-							<th id="username`+ record.id +`">${record.username}</th>
-							<th id="email`+ record.id +`">${record.email}</th>
-							<th id="purpose`+ record.id +`">${record.purpose}</th>
-							<th id="triggerTime`+ record.id +`">${record.triggerTime}</th>
-							<th id="status`+ record.id +`">${record.status}</th>
+							<td id="username`+ record.id +`">${record.username}</td>
+							<td id="email`+ record.id +`">${record.email}</td>
+							<td id="purpose`+ record.id +`">${record.purpose}</td>
+							<td id="triggerTime`+ record.id +`">${record.triggerTime}</td>
+							<td id="status`+ record.id +`">${record.status}</td>
 						</tr>
 						`;
 					$('#recordlist tbody').append(row);
