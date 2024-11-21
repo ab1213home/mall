@@ -16,6 +16,7 @@ package com.jiang.mall.controller.Email;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.EmailUtils;
@@ -66,6 +67,13 @@ public class EmailChangeController {
         this.userService = userService;
     }
 
+    private IRedisService redisService;
+
+    @Autowired
+    public void setRedisService(IRedisService redisService) {
+        this.redisService = redisService;
+    }
+
     @GetMapping("/getChecking")
     public ResponseResult<Object> getChecking(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
@@ -113,7 +121,9 @@ public class EmailChangeController {
         }
 
         // 获取并验证会话中的验证码
-        Object captchaObj = session.getAttribute("captcha");
+//        Object captchaObj = session.getAttribute("captcha");
+        Object captchaObj = redisService.getString(session.getId());
+
         if (captchaObj == null) {
             return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
         }
@@ -152,6 +162,7 @@ public class EmailChangeController {
                 "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
+        redisService.deleteKey(session.getId());
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(user.getUsername(),email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (verificationCodeService.save(userVerificationCode)){

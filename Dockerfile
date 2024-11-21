@@ -1,6 +1,6 @@
 # 使用官方的Java运行时作为父镜像
 FROM openjdk:17
-
+MAINTAINER ab1213home<jiangrongjun2004@163.com>
 # 设置时区环境变量
 ENV TZ=Asia/Shanghai
 

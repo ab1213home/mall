@@ -53,17 +53,6 @@ public class RedisServiceImpl implements IRedisService {
         stringRedisTemplate.opsForValue().set(key, value);
     }
 
-    /**
-     * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
-     *
-     * @param key 键，用于唯一标识存储的值
-     * @param value 值，与键关联存储的数据
-     * @param timeout 过期时间，单位毫秒，表示值将在多久之后过期
-     */
-    @Override
-    public void setString(String key, String value, long timeout) {
-        stringRedisTemplate.opsForValue().set(key, value, timeout);
-    }
 
     /**
      * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
@@ -268,7 +257,7 @@ public class RedisServiceImpl implements IRedisService {
 
     // Set 操作实现
     @Override
-    public Long setAdd(String key, String... values) {
+    public Long setAdd(String key, Object values) {
         return redisTemplate.opsForSet().add(key, values);
     }
 
@@ -283,7 +272,7 @@ public class RedisServiceImpl implements IRedisService {
     }
 
     @Override
-    public Long setRemove(String key, String... values) {
+    public Long setRemove(String key, Object values) {
         return redisTemplate.opsForSet().remove(key, values);
     }
 

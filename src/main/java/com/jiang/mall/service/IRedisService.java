@@ -29,14 +29,6 @@ public interface IRedisService {
      */
     void setString(String key, String value);
     /**
-     * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
-     *
-     * @param key 键，用于唯一标识存储的值
-     * @param value 值，与键关联存储的数据
-     * @param timeout 过期时间，单位毫秒，表示值将在多久之后过期
-     */
-    void setString(String key, String value, long timeout);
-    /**
      * 将给定的键值对存储在缓存中，并为该缓存项设置过期时间
      *
      * @param key 缓存项的唯一标识符，用于后续检索缓存值
@@ -69,6 +61,7 @@ public interface IRedisService {
      * @param timeout  键的过期时间，以秒为单位如果值为0，键将被持久化，不会过期
      * @return      如果操作成功，返回true；否则返回false可能的原因包括但不限于键不存在或者数据库执行操作失败
      */
+    @SuppressWarnings("UnusedReturnValue")
     Boolean expire(String key, long timeout);
     /**
      * 获取指定键的剩余过期时间
@@ -83,6 +76,7 @@ public interface IRedisService {
      * @param key 要删除数据的键
      * @return 如果删除成功，返回true；否则返回false
      */
+    @SuppressWarnings("UnusedReturnValue")
     Boolean deleteKey(String key);
 
     // Hash 操作
@@ -153,6 +147,7 @@ public interface IRedisService {
      * @param value 要添加的元素，可以是任意对象
      * @return 返回列表的新长度如果操作失败，返回null
      */
+    @SuppressWarnings("UnusedReturnValue")
     Long listLeftPush(String key, Object value);
     /**
      * 获取列表的最后一个元素，并从列表中移除它
@@ -196,10 +191,10 @@ public interface IRedisService {
     Long listLength(String key);
 
     // Set 操作
-    Long setAdd(String key, String... values);
+    Long setAdd(String key, Object values);
     Set<Object> setMembers(String key);
     Boolean setIsMember(String key, String value);
-    Long setRemove(String key, String... values);
+    Long setRemove(String key, Object values);
 
     // Sorted Set 操作
     Boolean zSetAdd(String key, double score, String member);

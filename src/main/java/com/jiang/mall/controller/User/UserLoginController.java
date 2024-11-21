@@ -116,7 +116,9 @@ public class UserLoginController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
         // 获取session中的验证码
-        Object captchaObj = session.getAttribute("captcha");
+//        Object captchaObj = session.getAttribute("captcha");
+		Object captchaObj = redisService.getString(session.getId());
+
         // 检查验证码是否过期
         if (captchaObj == null) {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
@@ -137,6 +139,7 @@ public class UserLoginController {
 
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
+		redisService.deleteKey(session.getId());
         if (user != null) {
             UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
@@ -153,7 +156,7 @@ public class UserLoginController {
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {
             // 登录失败，返回相应错误信息
-            session.removeAttribute("captcha");
+//            session.removeAttribute("captcha");
             userRecordService.failedLoginRecord(username, clientIp, fingerprint);
             return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         }

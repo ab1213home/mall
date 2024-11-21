@@ -172,7 +172,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    }
 
 	    // 返回最后一条记录，即最新的有效验证码
-	    return list.get(0);
+	    return list.get(0);//getFirst()
 	}
 
 	/**

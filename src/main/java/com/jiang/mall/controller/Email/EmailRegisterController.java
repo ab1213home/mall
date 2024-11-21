@@ -17,6 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.EmailUtils;
@@ -69,6 +70,13 @@ public class EmailRegisterController {
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
+    }
+
+    private IRedisService redisService;
+
+    @Autowired
+    public void setRedisService(IRedisService redisService) {
+        this.redisService = redisService;
     }
 
     /**
@@ -127,7 +135,9 @@ public class EmailRegisterController {
         }
 
         // 获取并验证会话中的验证码
-        Object captchaObj = session.getAttribute("captcha");
+//        Object captchaObj = session.getAttribute("captcha");
+        Object captchaObj = redisService.getString(session.getId());
+
         if (captchaObj == null) {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
@@ -160,6 +170,7 @@ public class EmailRegisterController {
                 "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
+        redisService.deleteKey(session.getId());
         // 发送邮件
         if (EmailUtils.sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);

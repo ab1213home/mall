@@ -1,13 +1,28 @@
 version: '3.8'
-services: 
-  mall:
+services:
+  mall-core:
     image: registry.cn-hangzhou.aliyuncs.com/jianrongjun/mall:latest
-    container_name: mall 
-    restart: unless-stopped
-    ports: 
+    container_name: mall-core
+    restart: always
+    networks:
+      - mall-network
+    ports:
       - "8080:8080"
-    volumes: 
+    volumes:
       - ./home:/home
       - ./logs:/logs
       - ./config.properties:/config.properties
       - ./application.properties:/application.properties
+  mall-redis:
+    image: redis:6.2.16
+    restart: always
+    container_name: mall-redis
+    networks:
+      - mall-network
+    volumes:
+      - ./redis:/data
+      - ./redis_6.2.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+networks:
+  mall-network:
+    external: false
