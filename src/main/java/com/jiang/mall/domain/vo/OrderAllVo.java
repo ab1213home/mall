@@ -33,6 +33,9 @@ public class OrderAllVo {
      */
     private Long id;
 
+    /**
+     * 用户信息
+     */
 	private UserVo user;
 
     /**

@@ -16,10 +16,14 @@ package com.jiang.mall.controller.Email;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.service.Redis.ICaptchaRedisService;
+import com.jiang.mall.service.Redis.IEmailRedisService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +32,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.Email.*;
+import static com.jiang.mall.util.RandomUtils.generateRandomCode;
 
 /**
  * 邮箱验证码控制器
@@ -72,6 +78,27 @@ public class EmailForgotController {
         this.redisService = redisService;
     }
 
+    private ICaptchaRedisService captchaRedisService;
+
+    @Autowired
+    public void setCaptchaRedisService(ICaptchaRedisService captchaRedisService) {
+        this.captchaRedisService = captchaRedisService;
+    }
+
+    private IEmailRedisService emailRedisService;
+
+    @Autowired
+    public void setEmailRedisService(IEmailRedisService emailRedisService) {
+        this.emailRedisService = emailRedisService;
+    }
+
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
+    }
+
     /**
      * 发送重置密码验证码
      *
@@ -103,7 +130,7 @@ public class EmailForgotController {
         }
         // 获取并验证会话中的验证码
 //        Object captchaObj = session.getAttribute("captcha");
-        Object captchaObj = redisService.getString(session.getId());
+        Object captchaObj = captchaRedisService.getString(session.getId());
 
         if (captchaObj == null) {
             return ResponseResult.failResult("会话中的验证码已过期，请重新获取");
@@ -139,11 +166,14 @@ public class EmailForgotController {
                 "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";
-        redisService.deleteKey(session.getId());
+        captchaRedisService.deleteKey(session.getId());
         // 发送邮件并处理结果
         if (EmailUtils.sendEmail(user.getEmail(), "【"+SENDER_END+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,user.getEmail() , code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS, user.getId());
             if (verificationCodeService.save(userVerificationCode)){
+                emailRedisService.setString(session.getId(),code,expiration_time, TimeUnit.MINUTES);
+                UserPo userPo = new UserPo(user.getUsername(),user.getPassword(),user.getEmail());
+                userRedisService.setObject(session.getId(),userPo,expiration_time, TimeUnit.MINUTES);
                 return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
             }else {
                 return ResponseResult.serverErrorResult("未知原因重置密码失败");
@@ -155,20 +185,4 @@ public class EmailForgotController {
         }
     }
 
-
-    public @NotNull String generateRandomCode(int length) {
-        if (length <= 0) {
-            throw new IllegalArgumentException("验证码长度必须大于0");
-        }
-
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder(length);
-
-        for (int i = 0; i < length; i++) {
-            int digit = random.nextInt(10); // 生成0到9之间的随机数字
-            sb.append(digit);
-        }
-
-        return sb.toString();
-    }
 }

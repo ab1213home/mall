@@ -16,6 +16,7 @@ package com.jiang.mall.controller.User;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,13 @@ public class UserCommonController {
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
+    }
+
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
     }
 
     /**

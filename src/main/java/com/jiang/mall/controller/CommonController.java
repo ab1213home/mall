@@ -16,8 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.User;
 import com.jiang.mall.domain.entity.Config;
-import com.jiang.mall.service.IRedisService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.Redis.ICaptchaRedisService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,10 +42,10 @@ import java.util.Map;
 @RequestMapping("/common")
 public class CommonController {
 
-    private IRedisService redisService;
+    private ICaptchaRedisService redisService;
 
     @Autowired
-    public void setRedisService(IRedisService redisService) {
+    public void setRedisService(ICaptchaRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -76,7 +75,7 @@ public class CommonController {
         // captcha.setFont(Captcha.FONT_8, 40);
         // 将生成的验证码文本存储在session中，以便后续表单提交时验证
         redisService.setString(request.getSession().getId() , captcha.text().toLowerCase());
-        redisService.expire(request.getSession().getId(), 60*5);
+        redisService.expire(request.getSession().getId(), 60L * 5);
 //        request.getSession().setAttribute("captcha", captcha.text().toLowerCase());
         // 将验证码图像输出到HTTP响应中，实现浏览器展示验证码图像
         captcha.out(response.getOutputStream());

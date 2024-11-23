@@ -20,6 +20,8 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.Redis.ICaptchaRedisService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +77,20 @@ public class UserLoginController {
 		this.redisService = redisService;
 	}
 
+	private ICaptchaRedisService captchaRedisService;
+
+	@Autowired
+	public void setCaptchaRedisService(ICaptchaRedisService captchaRedisService) {
+		this.captchaRedisService = captchaRedisService;
+	}
+
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
+    }
+
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	private final static int max_try_number = 5;
@@ -117,7 +133,7 @@ public class UserLoginController {
 		}
         // 获取session中的验证码
 //        Object captchaObj = session.getAttribute("captcha");
-		Object captchaObj = redisService.getString(session.getId());
+		Object captchaObj = captchaRedisService.getString(session.getId());
 
         // 检查验证码是否过期
         if (captchaObj == null) {
@@ -139,7 +155,7 @@ public class UserLoginController {
 
         // 调用userService的login方法进行用户登录验证
         User user = userService.login(username, password);
-		redisService.deleteKey(session.getId());
+		captchaRedisService.deleteKey(session.getId());
         if (user != null) {
             UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
@@ -151,7 +167,8 @@ public class UserLoginController {
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 4);
-			redisService.listLeftPush("User", userVo);
+			userRedisService.setObject(session.getId(),userVo);
+			userRedisService.expire(session.getId(),60*60*4);
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {
@@ -170,11 +187,12 @@ public class UserLoginController {
      * @return 返回一个ResponseResult对象，表示登出操作的结果
      */
     @GetMapping("/logout")
-    public static ResponseResult<Object> logout(HttpSession session){
+    public ResponseResult<Object> logout(HttpSession session){
         // 检查会话中是否存在用户并移除
         if (session.getAttribute("User")!=null){
             session.removeAttribute("User");
         }
+		userRedisService.deleteKey(session.getId());
         // 返回登出成功的结果
         return ResponseResult.okResult();
     }

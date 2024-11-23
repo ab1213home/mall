@@ -14,7 +14,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.vo.DirectoryPlusVo;
+import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
@@ -184,7 +184,7 @@ public class FileController {
             return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
         }
 
-        DirectoryPlusVo directoryList = fileService.getAllFileList(folder);
+        DirectoryBo directoryList = fileService.getAllFileList(folder);
 
         return ResponseResult.okResult(directoryList);
     }

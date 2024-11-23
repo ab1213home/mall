@@ -11,9 +11,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.bo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jiang.mall.domain.vo.FilePlusVo;
 import lombok.Data;
 
 import java.util.Date;
@@ -27,7 +28,7 @@ import java.util.List;
  * @since 2024年10月8日
  */
 @Data
-public class DirectoryPlusVo {
+public class DirectoryBo {
 
 	/**
 	 * 目录名
@@ -42,7 +43,7 @@ public class DirectoryPlusVo {
 	/**
 	 * 子目录
 	 */
-	private List<DirectoryPlusVo> subDirectories;
+	private List<DirectoryBo> subDirectories;
 
 	/**
 	 * 文件
@@ -64,7 +65,7 @@ public class DirectoryPlusVo {
 	 * @param files         文件列表，用于表示该目录下包含的文件
 	 * @param lastModified  最后修改时间，表示该目录最后一次修改的时间
 	 */
-	public DirectoryPlusVo(String name, String absolutePath, List<DirectoryPlusVo> subDirectories, List<FilePlusVo> files, Date lastModified) {
+	public DirectoryBo(String name, String absolutePath, List<DirectoryBo> subDirectories, List<FilePlusVo> files, Date lastModified) {
 	    this.name = name;
 	    this.path = absolutePath;
 	    this.subDirectories = subDirectories;
@@ -72,6 +73,6 @@ public class DirectoryPlusVo {
 	    this.lastModified = lastModified;
 	}
 
-	public DirectoryPlusVo() {
+	public DirectoryBo() {
 	}
 }

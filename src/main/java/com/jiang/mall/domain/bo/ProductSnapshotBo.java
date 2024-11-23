@@ -11,12 +11,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.bo;
 
+import com.jiang.mall.domain.vo.ProductVo;
 import lombok.Data;
 
 @Data
-public class ProductSnapshotPlusVo {
+public class ProductSnapshotBo {
 
 	/**
      * 快照ID

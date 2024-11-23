@@ -11,10 +11,11 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 ## 技术栈
 
 - **前端**：JavaScript
-- **后端**：Spring Boot 3.3.4(Oracle OpenJDK 17.0.11)
-- **数据库**：MySQL 8.0.36
+- **后端**：Spring Boot 3.3.4 (Oracle OpenJDK 17.0.11)
+- **数据库**：MySQL 8.0.36 (MySQL Community Server) 
+- **缓存**：Redis 6.2.16
+- **构建工具**：Maven 3.8.4
 - **版本控制**：Git
-- **持续集成/持续部署**：Jenkins / GitHub Actions
 
 #### 第三方API
 1. 使用[ipify](https://www.ipify.org/)实现公网ip获取

@@ -14,12 +14,15 @@
 package com.jiang.mall.controller.User;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.service.Redis.IEmailRedisService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -74,11 +77,24 @@ public class UserForgotController {
         this.i18nService = i18nService;
     }
 
+    private IEmailRedisService emailRedisService;
+
+    @Autowired
+    public void setEmailRedisService(IEmailRedisService emailRedisService) {
+        this.emailRedisService = emailRedisService;
+    }
+
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
+    }
+
 
     /**
      * 处理用户忘记密码后的第二步操作，包括验证邮箱、验证码、新密码及其确认，并修改密码
      *
-     * @param email 用户邮箱，用于识别用户和验证
      * @param code 验证码，用于验证用户身份
      * @param password 新密码，用户希望设置的新密码
      * @param confirmPassword 确认密码，用于确认新密码输入无误
@@ -86,8 +102,7 @@ public class UserForgotController {
      * @return 返回密码重置结果的响应对象
      */
     @PostMapping("/forgot")
-    public ResponseResult<Object> forgotStep2(@RequestParam("email") String email,
-                                              @RequestParam("code") String code,
+    public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
                                               @RequestParam("confirmPassword") String confirmPassword,
                                               @RequestHeader("X-Real-IP") String clientIp,
@@ -115,24 +130,38 @@ public class UserForgotController {
         if (!password.equals(confirmPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.password.error.confirm"));
         }
-        if (!i18nService.checkString(email)){
-            return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
-        }
         // 验证码正确性及有效期检查
-        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
-        if (userVerificationCode ==null){
-            // 如果验证码不存在或已过期，则提示错误或过期信息
+        Object codeObj = emailRedisService.getString(session.getId());
+        if (codeObj == null){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
+        String codeStr = codeObj.toString();
         // 检查用户输入的验证码与发送的验证码是否一致
-        if (!Objects.equals(userVerificationCode.getCode(),code)){
-            // 如果验证码不正确，则提示错误
+        if (!Objects.equals(codeStr,code)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
+
+        Object userObj = userRedisService.getObject(session.getId());
+        if (userObj == null){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
+        }
+        UserPo userPo = (UserPo) userObj;
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(userPo.getEmail());
+//        if (userVerificationCode ==null){
+//            // 如果验证码不存在或已过期，则提示错误或过期信息
+//            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
+//        }
+        // 检查用户输入的验证码与发送的验证码是否一致
+//        if (!Objects.equals(userVerificationCode.getCode(),code)){
+//            // 如果验证码不正确，则提示错误
+//            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
+//        }
         if (userService.modifyPassword(userVerificationCode.getUserId(),password)){
             userVerificationCode.setPassword(password);
             verificationCodeService.useCode(userVerificationCode.getUserId(), userVerificationCode);
             userRecordService.successForgotRecord(userVerificationCode.getUserId(),clientIp,fingerprint);
+            emailRedisService.deleteKey(session.getId());
+            userRedisService.deleteKey(session.getId());
             return ResponseResult.okResult(i18nService.getMessage("user.modify.password.success"));
         }else{
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));

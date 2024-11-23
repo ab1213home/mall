@@ -21,7 +21,9 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import jakarta.servlet.http.HttpSession;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,6 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 
-import static com.jiang.mall.controller.User.UserLoginController.logout;
 import static com.jiang.mall.domain.config.User.*;
 
 /**
@@ -82,6 +83,13 @@ public class UserModifyController {
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
+    }
+
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
     }
 
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -417,4 +425,22 @@ public class UserModifyController {
         // 解锁成功，返回成功信息
         return ResponseResult.okResult(i18nService.getMessage("user.unlock.success"));
     }
+
+    /**
+     * 处理用户登出请求
+     * 该方法通过移除会话中所有的用户相关属性来实现登出功能
+     *
+     * @param session HttpSession对象，用于存储用户会话信息
+     * @return 返回一个ResponseResult对象，表示登出操作的结果
+     */
+    public ResponseResult<Object> logout(@NotNull HttpSession session){
+        // 检查会话中是否存在用户并移除
+        if (session.getAttribute("User")!=null){
+            session.removeAttribute("User");
+        }
+		userRedisService.deleteKey(session.getId());
+        // 返回登出成功的结果
+        return ResponseResult.okResult();
+    }
+
 }

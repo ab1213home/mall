@@ -11,7 +11,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let email = '';
 function submitForgotStepOneForm() {
   // 获取表单数据
   const username = $('#username').val();
@@ -40,7 +39,6 @@ function submitForgotStepOneForm() {
                 element.style.display = 'block';
             });
             show_info('验证码已发送，请查收');
-            email = res.data;
             if (document.getElementById("email_show")!= null){
                 document.getElementById("email_show").textContent = res.data;
             }
@@ -98,7 +96,6 @@ function submitForgotStepTwoForm() {
   // 构建请求体
   const data = {
     code: code,
-    email: email,
     password: sha256(password),
     confirmPassword: sha256(confirmPassword),
   };

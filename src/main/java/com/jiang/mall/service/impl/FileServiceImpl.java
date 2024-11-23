@@ -20,7 +20,7 @@ import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.vo.DirectoryPlusVo;
+import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FilePlusVo;
 import com.jiang.mall.domain.vo.FileVo;
@@ -69,13 +69,13 @@ public class FileServiceImpl implements IFileService {
 	 * @throws IllegalArgumentException 如果提供的文件不是目录或不存在
 	 */
 	@Override
-	public DirectoryPlusVo getAllFileList(@NotNull File folder) {
+	public DirectoryBo getAllFileList(@NotNull File folder) {
 	    // 检查提供的文件是否为目录且存在，否则抛出异常
 	    if (!folder.exists() || !folder.isDirectory()) {
 	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
 	    }
 	    // 初始化DirectoryVo列表
-	    DirectoryPlusVo directoryPlusVo = new DirectoryPlusVo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
+	    DirectoryBo directoryBo = new DirectoryBo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
 
 	    // 获取目录下的所有文件和子目录
 	    File[] files = folder.listFiles();
@@ -83,8 +83,8 @@ public class FileServiceImpl implements IFileService {
 	        for (File file : files) {
 	            // 如果是目录，则递归获取其文件和子目录信息
 	            if (file.isDirectory()) {
-	                DirectoryPlusVo directory = getAllFileList(file);
-	                directoryPlusVo.getSubDirectories().add(directory);
+	                DirectoryBo directory = getAllFileList(file);
+	                directoryBo.getSubDirectories().add(directory);
 	            } else {
 	                // 如果是文件，则将其转换为FileVo
 	                FilePlusVo filePlusVo = new FilePlusVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
@@ -92,12 +92,12 @@ public class FileServiceImpl implements IFileService {
 					filePlusVo.setPurpose(getPurpose(path));
 
 	                // 将文件Vo添加到当前目录的文件列表中
-	                directoryPlusVo.getFiles().add(filePlusVo);
+	                directoryBo.getFiles().add(filePlusVo);
 	            }
 	        }
 	    }
 	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
-	    return directoryPlusVo;
+	    return directoryBo;
 	}
 
      /**

@@ -16,14 +16,15 @@ package com.jiang.mall.controller.User;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.service.Redis.IUserRedisService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.*;
 
@@ -83,6 +85,13 @@ public class UserRegisterController {
         this.i18nService = i18nService;
     }
 
+    private IUserRedisService userRedisService;
+
+    @Autowired
+    public void setUserRedisService(IUserRedisService userRedisService) {
+        this.userRedisService = userRedisService;
+    }
+
     public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	/**
@@ -105,13 +114,11 @@ public class UserRegisterController {
             }
         }
 
-        if (session.getAttribute("RegisterVerificationCode")==null){
+        Object userObj = userRedisService.getObject(session.getId());
+        if (userObj==null){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
         }
-        VerificationCode registerVerificationCode = (VerificationCode) session.getAttribute("RegisterVerificationCode");
-        if (registerVerificationCode.getId()==null){
-            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
-        }
+        UserPo userPo = (UserPo) userObj;
 
         if (!AllowRegistration){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
@@ -128,7 +135,7 @@ public class UserRegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
 
-        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(registerVerificationCode.getEmail());
+        VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(userPo.getEmail());
         if (userVerificationCode ==null){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }
@@ -137,11 +144,12 @@ public class UserRegisterController {
         }
 
         // 创建并注册用户
-        User user = new User(registerVerificationCode.getUsername(),registerVerificationCode.getPassword(),registerVerificationCode.getEmail());
+        User user = new User(userPo.getUsername(),userPo.getPassword(),userPo.getEmail());
         Long userId = userService.registerStep(user);
         if (userId>0) {
-            session.setAttribute("UserId",userId);
-            session.removeAttribute("RegisterVerificationCode");
+//            session.setAttribute("UserId",userId);
+            userRedisService.deleteKey(session.getId());
+            userRedisService.setObject(session.getId(),userId,30, TimeUnit.MINUTES);
             verificationCodeService.useCode(userId, userVerificationCode);
             userRecordService.successRegisterRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
@@ -180,11 +188,17 @@ public class UserRegisterController {
         }
 
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
-        if (session.getAttribute("UserId")==null){
+        Object userIdObj = userRedisService.getObject(session.getId());
+        if (userIdObj ==null){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
         }
 
-        Long UserId = (Long) session.getAttribute("UserId");
+        Long userId = (Long) userIdObj;
+//        if (session.getAttribute("UserId")==null){
+//            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+//        }
+
+//        Long UserId = (Long) session.getAttribute("UserId");
 
         // 验证手机号格式
         if (!i18nService.isValidPhone(phone)){
@@ -196,7 +210,7 @@ public class UserRegisterController {
         }
 
         // 创建User对象以保存用户信息
-        User user = new User(UserId,firstName,lastName,phone);
+        User user = new User(userId,firstName,lastName,phone);
         user.setImg(img);
 
         // 验证和转换生日日期格式
@@ -213,7 +227,8 @@ public class UserRegisterController {
         // 调用服务层方法保存用户个人信息
         if (userService.registerStep(user)>0) {
             // 注册成功后清除会话中的用户id
-            session.removeAttribute("userId");
+//            session.removeAttribute("userId");
+            userRedisService.deleteKey(session.getId());
             return ResponseResult.okResult();
         }else {
             // 处理个人信息保存失败的情况

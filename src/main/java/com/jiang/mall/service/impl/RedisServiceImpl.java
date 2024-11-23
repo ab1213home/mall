@@ -15,6 +15,7 @@ package com.jiang.mall.service.impl;
 
 import com.jiang.mall.service.IRedisService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class RedisServiceImpl implements IRedisService {
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("stringRedisTemplate")StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
