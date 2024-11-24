@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.AdminRoleId;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
@@ -167,8 +168,7 @@ public class UserLoginController {
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 4);
-			userRedisService.setObject(session.getId(),userVo);
-			userRedisService.expire(session.getId(),60*60*4);
+			userRedisService.setObject(session.getId(),userVo,4, TimeUnit.HOURS);
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {
