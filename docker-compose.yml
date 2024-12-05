@@ -5,9 +5,11 @@ services:
     container_name: mall-core
     restart: always
     networks:
-      - mall-network
+      - mall
     ports:
       - "8080:8080"
+    depends_on:
+      - mall-redis
     volumes:
       - ./home:/home
       - ./logs:/logs
@@ -18,11 +20,11 @@ services:
     restart: always
     container_name: mall-redis
     networks:
-      - mall-network
+      - mall
     volumes:
       - ./redis:/data
       - ./redis_6.2.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
 networks:
-  mall-network:
+  mall:
     external: false

@@ -53,6 +53,50 @@ else
     exit 1
 fi
 
+if [ ! -d "home" ]; then
+    echo "home目录不存在，正在创建数据目录..."
+    mkdir -p home
+    echo "数据目录创建成功。"
+else
+    echo "home目录已存在。"
+fi
+
+if [ ! -d "logs" ]; then
+    echo "logs目录不存在，正在创建日志目录..."
+    mkdir -p logs
+    echo "日志目录创建成功。"
+else
+    echo "logs目录已存在。"
+fi
+
+if [ ! -d "redis" ]; then
+    echo "redis目录不存在，正在创建数据目录..."
+    mkdir -p redis
+    echo "数据目录创建成功。"
+else
+    echo "redis目录已存在。"
+fi
+
+if [ ! -f "config.properties" ]; then
+    touch config.properties
+    echo "mall-core配置文件创建成功"
+else
+    echo "mall-core配置文件已存在。"
+fi
+
+if [ ! -f "application.properties" ]; then
+    cp application-template.properties application.properties
+    echo "请把在mysql创建的数据库信息填入application.properties中，然后按任意键继续..."
+    # shellcheck disable=SC2162
+    read -n 1
+else
+    echo "mall-core配置文件已存在。"
+fi
+
+echo "请把data目录下sql文件导入到mysql中，然后按任意键继续..."
+# shellcheck disable=SC2162
+read -n 1
+
 # 检查是否存在名为 mall-network 的网络，如果不存在则创建
 #if ! docker network ls | grep -q mall-network; then
 #    echo "正在创建 mall-network ..."
