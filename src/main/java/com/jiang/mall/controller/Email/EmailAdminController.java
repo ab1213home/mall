@@ -26,7 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 邮箱验证码控制器
+ * 邮箱管理员控制器
+ * 负责处理与邮箱设置相关的管理员操作，如获取和设置邮箱配置，以及验证码管理
  * @author jiang
  * @version 1.0
  * @since 2024年9月20日
@@ -35,11 +36,12 @@ import java.util.List;
 @RequestMapping("/email")
 public class EmailAdminController {
 
+    // 验证码服务接口，用于验证码的管理
     private IVerificationCodeService verificationCodeService;
 
     /**
      * 注入CodeService
-     *
+     * 用于处理验证码相关操作
      * @param verificationCodeService 验证码服务实例
      */
     @Autowired
@@ -47,18 +49,26 @@ public class EmailAdminController {
         this.verificationCodeService = verificationCodeService;
     }
 
+    // 用户服务接口，用于用户信息的管理
     private IUserService userService;
 
     /**
      * 注入UserService
-     *
-     * @param userService UserService
+     * 用于处理用户信息相关操作
+     * @param userService UserService实例
      */
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * 获取邮箱设置信息
+     * 此方法首先检查用户是否已登录，然后创建并填充EmailSettingVo对象，用于展示邮箱设置信息
+     * 为了安全起见，密码字段被设置为"******"
+     * @param session 当前会话
+     * @return 包含邮箱设置信息的响应结果
+     */
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
@@ -81,6 +91,13 @@ public class EmailAdminController {
         return ResponseResult.okResult(emailSettingVo);
     }
 
+    /**
+     * 设置邮箱配置信息
+     * 此方法首先检查用户是否已登录，然后根据EmailSettingVo对象中的信息更新邮箱配置，并保存这些配置
+     * @param emailSettingVo 包含新的邮箱设置信息的对象
+     * @param session 当前会话
+     * @return 表示设置操作结果的响应结果
+     */
     @PostMapping("/setSetting")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo,
                                              HttpSession session) {
@@ -105,6 +122,14 @@ public class EmailAdminController {
         return ResponseResult.okResult();
     }
 
+    /**
+     * 获取验证码列表
+     * 此方法首先检查用户是否已登录，然后根据指定的页码和页面大小获取验证码列表
+     * @param pageNum 页码
+     * @param pageSize 页面大小
+     * @param session 当前会话
+     * @return 包含验证码列表的响应结果
+     */
     @GetMapping("/getList")
     public ResponseResult<Object> getList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                           @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize,
@@ -119,6 +144,12 @@ public class EmailAdminController {
         return ResponseResult.okResult(list);
     }
 
+    /**
+     * 获取验证码数量
+     * 此方法首先检查用户是否已登录，然后获取当前验证码的数量
+     * @param session 当前会话
+     * @return 包含验证码数量的响应结果
+     */
     @GetMapping("/getNum")
     public ResponseResult<Object> getNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志

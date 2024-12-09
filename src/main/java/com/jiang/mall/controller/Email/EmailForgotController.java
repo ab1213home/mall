@@ -18,7 +18,6 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.service.Redis.ICaptchaRedisService;
@@ -26,19 +25,20 @@ import com.jiang.mall.service.Redis.IEmailRedisService;
 import com.jiang.mall.service.Redis.IUserRedisService;
 import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.Email.*;
 import static com.jiang.mall.util.RandomUtils.generateRandomCode;
 
 /**
- * 邮箱验证码控制器
+ * 忘记密码邮箱验证码控制器
  * @author jiang
  * @version 1.0
  * @since 2024年9月20日
@@ -69,13 +69,6 @@ public class EmailForgotController {
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
-    }
-
-    private IRedisService redisService;
-
-    @Autowired
-    public void setRedisService(IRedisService redisService) {
-        this.redisService = redisService;
     }
 
     private ICaptchaRedisService captchaRedisService;

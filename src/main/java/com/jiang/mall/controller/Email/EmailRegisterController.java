@@ -18,7 +18,6 @@ import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.service.Redis.ICaptchaRedisService;
@@ -26,11 +25,12 @@ import com.jiang.mall.service.Redis.IEmailRedisService;
 import com.jiang.mall.service.Redis.IUserRedisService;
 import com.jiang.mall.util.EmailUtils;
 import jakarta.servlet.http.HttpSession;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.Email.*;
@@ -76,13 +76,6 @@ public class EmailRegisterController {
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
-    }
-
-    private IRedisService redisService;
-
-    @Autowired
-    public void setRedisService(IRedisService redisService) {
-        this.redisService = redisService;
     }
 
     private ICaptchaRedisService captchaRedisService;
