@@ -17,23 +17,30 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.dao.UserMapper;
+import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FilePlusVo;
 import com.jiang.mall.domain.vo.FileVo;
 import com.jiang.mall.service.IFileService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static com.jiang.mall.domain.config.File.fileTypeMap;
 import static com.jiang.mall.domain.config.File.imageSuffix;
@@ -269,5 +276,68 @@ public class FileServiceImpl implements IFileService {
 		} else {
 			return String.join(",", purpose);
 		}
+	}
+
+	@Override
+	public ResponseEntity<FileSystemResource> handleFileResponse(@NotNull File file) throws IOException {
+        if (!file.exists() || !file.canRead()) {
+            // 文件不存在或不可读，返回 404 Not Found
+            return ResponseEntity.notFound().build();
+        }
+
+        // 创建 FileSystemResource 对象，用于封装文件资源
+        FileSystemResource resource = new FileSystemResource(file);
+
+        // 设置响应头
+        HttpHeaders headers = new HttpHeaders();
+        // 设置 Content-Disposition 头，指定文件以 inline 方式展示，并附带文件名
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + file.getName());
+
+        // 构建并返回 ResponseEntity 对象
+        // 设置响应状态为 200 OK
+        // 设置响应头为之前构建的 headers
+        // 设置响应体内容长度
+        // 设置响应内容类型为 application/octet-stream，表示二进制流
+        // 返回包含文件资源的 ResponseEntity 对象
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
+    }
+
+	@Override
+	public Boolean writeFile(@NotNull MultipartFile file, String path, String name) throws IOException {
+		// 获取系统中的临时目录
+        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
+
+        // 临时文件使用 UUID 随机命名
+        Path tempFile = tempDir.resolve(Paths.get(UUID.randomUUID().toString()));
+
+        // copy 到临时文件
+        file.transferTo(tempFile);
+
+        try {
+            // 使用 ImageIO 读取文件
+            if (ImageIO.read(tempFile.toFile()) == null) {
+                return false;
+            }
+            // 至此，这的确是一个图片资源文件
+
+            // 检查并创建上传文件的目录
+            File dir = new File(path);
+            if (!dir.exists() && !dir.isDirectory()){
+                dir.mkdir();
+            }
+
+            file.transferTo(new File(path + name));
+
+            // 返回
+            return true;
+
+        } finally {
+            // 始终删除临时文件
+            Files.delete(tempFile);
+        }
 	}
 }

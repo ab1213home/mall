@@ -15,8 +15,12 @@ package com.jiang.mall.service;
 
 import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.vo.DirectoryVo;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public interface IFileService {
@@ -31,4 +35,8 @@ public interface IFileService {
 	DirectoryVo getFileList(File folder);
 
 	String getPurpose(String folder);
+
+	ResponseEntity<FileSystemResource> handleFileResponse(File file) throws IOException;
+
+	Boolean writeFile(MultipartFile file, String path, String name) throws IOException;
 }

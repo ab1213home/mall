@@ -14,41 +14,22 @@
 package com.jiang.mall.controller.File;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.config.User;
-import com.jiang.mall.domain.entity.Config;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IRedisService;
+import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
-import com.wf.captcha.SpecCaptcha;
-import com.wf.captcha.base.Captcha;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import static com.jiang.mall.domain.config.File.*;
-
 
 /**
  * 公共控制器
@@ -59,7 +40,6 @@ import static com.jiang.mall.domain.config.File.*;
 @Controller
 @RequestMapping("/common")
 public class FileUploadController {
-
 
     private IUserService userService;
 
@@ -73,6 +53,12 @@ public class FileUploadController {
         this.userService = userService;
     }
 
+    private IFileService fileService;
+
+    @Autowired
+    public void setFileService(IFileService fileService) {
+        this.fileService = fileService;
+    }
 
     /**
      * 文件上传处理方法
@@ -115,42 +101,14 @@ public class FileUploadController {
         if (!imageSuffix.contains(suffix.trim().toLowerCase())) {
             return ResponseResult.failResult("非法的文件类型");
         }
-
-        // 获取系统中的临时目录
-        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
-
-        // 临时文件使用 UUID 随机命名
-        Path tempFile = tempDir.resolve(Paths.get(UUID.randomUUID().toString()));
-
-        // copy 到临时文件
-        file.transferTo(tempFile);
-
-        try {
-            // 使用 ImageIO 读取文件
-            if (ImageIO.read(tempFile.toFile()) == null) {
-                return ResponseResult.failResult("非法的文件类型");
-            }
-            // 至此，这的确是一个图片资源文件
-
-            // 检查并创建上传文件的目录
-            File dir = new File(FILE_UPLOAD_PATH);
-            if (!dir.exists() && !dir.isDirectory()){
-                dir.mkdir();
-            }
-
-            // 生成文件名，防止重名文件被覆盖
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-            String newName = sdf.format(new Date()) + fileName;
-            file.transferTo(new File(FILE_UPLOAD_PATH + newName));
-
-            // 返回相对访问路径
-            result = ResponseResult.okResult();
-            result.setData("/upload/" + newName);
-            return result;
-
-        } finally {
-            // 始终删除临时文件
-            Files.delete(tempFile);
+        // 生成文件名，防止重名文件被覆盖
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        String newName = sdf.format(new Date()) + file.getOriginalFilename();
+        Boolean res = fileService.writeFile(file,FILE_UPLOAD_PATH,newName);
+        if (!res){
+            return ResponseResult.failResult("非法的文件类型");
+        }else{
+            return ResponseResult.okResult("/upload/" + newName,"上传成功");
         }
     }
 
@@ -204,45 +162,16 @@ public class FileUploadController {
             return ResponseResult.failResult("非法的文件类型");
         }
 
-        // 获取系统中的临时目录
-        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
-
-        // 临时文件使用 UUID 随机命名
-        Path tempFile = tempDir.resolve(Paths.get(UUID.randomUUID().toString()));
-
-        // copy 到临时文件
-        file.transferTo(tempFile);
-
-        try {
-            // 使用 ImageIO 读取文件
-            if (ImageIO.read(tempFile.toFile()) == null) {
-                return ResponseResult.failResult("非法的文件类型");
-            }
-            // 至此，这的确是一个图片资源文件
-
-            // 检查并创建上传文件的目录
-            File dir = new File(FILE_UPLOAD_PATH);
-            if (!dir.exists() && !dir.isDirectory()){
-                dir.mkdir();
-            }
-
-            // 生成唯一的文件名，避免文件重名覆盖
-            String filename = file.getOriginalFilename();
-            int dotIndex = filename != null ? filename.lastIndexOf('.') : 0;
-            String extension = dotIndex > 0 ? filename.substring(dotIndex) : "";
-            UserVo user = (UserVo) session.getAttribute("User");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
-            String newName = sdf.format(new Date()) + extension;
-            file.transferTo(new File(FACE_UPLOAD_PATH + newName));
-
-            // 返回相对访问路径
-            result = ResponseResult.okResult();
-            result.setData("/faces/" + newName);
-            return result;
-
-        } finally {
-            // 始终删除临时文件
-            Files.delete(tempFile);
+        // 生成文件名，防止重名文件被覆盖
+        String extension = index > 0 ? fileName.substring(index) : "";
+        UserVo user = (UserVo) session.getAttribute("User");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
+        String newName = sdf.format(new Date()) + extension;
+        Boolean res = fileService.writeFile(file,FACE_UPLOAD_PATH,newName);
+        if (!res){
+            return ResponseResult.failResult("非法的文件类型");
+        }else{
+            return ResponseResult.okResult("/faces/" + newName,"上传成功");
         }
     }
 

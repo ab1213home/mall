@@ -38,7 +38,7 @@ import static com.jiang.mall.domain.config.User.AllowRegistration;
 import static com.jiang.mall.util.RandomUtils.generateRandomCode;
 
 /**
- * 邮箱验证码控制器
+ * 注册邮箱验证码控制器
  * @author jiang
  * @version 1.0
  * @since 2024年9月20日
