@@ -25,6 +25,7 @@ import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,9 +71,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
 
+        //TODO:分类需要包括子分类
+        List<Long> categoryIds = getCategoryIds(categoryId);
+
         // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(name != null, Product::getTitle, name).eq(categoryId != null, Product::getCategoryId, categoryId);
+        queryWrapper.like(name != null, Product::getTitle, name).eq(categoryId != null, Product::getCategoryId, categoryIds);
 
         // 执行分页查询，获取产品列表
         List<Product> products = productMapper.selectPage(productPage, queryWrapper).getRecords();
@@ -94,6 +98,41 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 返回产品VO列表
         return productVos;
     }
+
+    /**
+	 * 获取指定类别ID及其所有子类别的ID
+	 * <p>
+	 * 该方法用于递归地收集给定类别ID下的所有子类别ID，包括自身ID在内它首先检查传入的类别ID是否非空，
+	 * 然后创建一个查询条件以查找所有父类别ID匹配的子类别，并对每个找到的子类别递归调用自身，
+	 * 直到收集完所有相关子类别ID
+	 *
+	 * @param categoryId 指定的类别ID，作为收集的起始点如果传入的ID为null，方法将返回一个空的列表
+	 * @return 包含指定类别及其所有子类别ID的列表
+	 */
+	private @NotNull List<Long> getCategoryIds(Long categoryId){
+	    // 初始化列表以存储类别ID
+	    List<Long> categoryIds = new ArrayList<>();
+	    // 如果传入的类别ID非空，则继续处理
+	    if (categoryId != null){
+	        // 将当前类别ID添加到列表中
+	        categoryIds.add(categoryId);
+	        // 创建查询条件，用于查找所有父类别ID等于当前类别ID的子类别
+	        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+	        queryWrapper.eq("parent_id", categoryId);
+	        // 执行查询，获取所有子类别列表
+	        List<Category> list = categoryMapper.selectList(queryWrapper);
+            if (list.isEmpty()){
+                return categoryIds;
+            }
+	        // 遍历子类别列表，对每个子类别递归调用本方法，并合并结果
+	        for (Category category : list) {
+	            List<Long> ids = getCategoryIds(category.getId());
+	            categoryIds.addAll(ids);
+	        }
+	    }
+	    // 返回收集到的所有类别ID列表
+	    return categoryIds;
+	}
 
     /**
      * 根据ID获取产品信息

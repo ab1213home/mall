@@ -26,6 +26,7 @@
     <version>1.6.6_reconfiguration</version>
     <name>mall</name>
     <description>mall</description>
+    <packaging>jar</packaging>
     <url/>
     <licenses>
         <license>
@@ -216,6 +217,19 @@
 <!--            <groupId>com.alibaba</groupId>-->
 <!--            <artifactId>fastjson</artifactId>-->
 <!--            <version>1.2.57</version>-->
+<!--        </dependency>-->
+        <!-- 解析客户端操作系统、浏览器等 -->
+<!--        <dependency>-->
+<!--            <groupId>eu.bitwalker</groupId>-->
+<!--            <artifactId>UserAgentUtils</artifactId>-->
+<!--&lt;!&ndash;            <version>${bitwalker.version}</version>&ndash;&gt;-->
+<!--        </dependency>-->
+
+        <!-- 获取系统信息 -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.oshi</groupId>-->
+<!--            <artifactId>oshi-core</artifactId>-->
+<!--&lt;!&ndash;            <version>${oshi.version}</version>&ndash;&gt;-->
 <!--        </dependency>-->
 
     </dependencies>

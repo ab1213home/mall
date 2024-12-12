@@ -60,7 +60,7 @@ public class Category implements Serializable {
     /**
      * 分类级别，默认为 1
      */
-    private Byte level;
+//    private Byte level;
 
     /**
      * 分类名称
