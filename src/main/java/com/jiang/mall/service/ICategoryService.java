@@ -38,4 +38,6 @@ public interface ICategoryService extends IService<Category> {
     Long getCategoryNum();
 
     Boolean deleteCategory(Category category);
+
+	List<CategoryVo> getCategoryTopList(Integer pageNum, Integer pageSize);
 }

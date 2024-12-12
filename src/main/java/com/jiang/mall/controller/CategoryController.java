@@ -82,6 +82,22 @@ public class CategoryController {
         return ResponseResult.okResult(categoryVos);
     }
 
+    @GetMapping("/getTopList")
+    public ResponseResult<Object> getCategoryTopList(@RequestParam(defaultValue = "1") Integer pageNum,
+                                                     @RequestParam(defaultValue = "5") Integer pageSize) {
+        // 调用服务方法获取分类列表
+        List<CategoryVo> categoryVos = categoryService.getCategoryTopList(pageNum, pageSize);
+
+        // 检查返回的列表是否为空
+        if (categoryVos.isEmpty()) {
+            // 如果列表为空，返回资源未找到的响应结果
+            return ResponseResult.notFoundResourceResult("没有找到资源");
+        }
+
+        // 如果列表不为空，返回成功的响应结果，携带分类列表数据
+        return ResponseResult.okResult(categoryVos);
+    }
+
     /**
      * 通过GET请求获取分类数量
      *

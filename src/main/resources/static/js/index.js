@@ -71,7 +71,7 @@ function queryCategory(){
     // 使用jQuery的ajax方法发送异步请求
     $.ajax({
         type:"GET", // 请求类型为GET
-        url:"/category/getList", // 请求的URL地址
+        url:"/category/getTopList", // 请求的URL地址
         data:"", // 请求参数，此处无需额外参数
         dataType:"json", // 预期从服务器返回的数据类型为json
         success:function(res){ // 请求成功后的回调函数

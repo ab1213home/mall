@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CategoryMapper;
@@ -68,6 +69,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public Boolean deleteCategory(Category category) {
 	    return categoryMapper.deleteById(category) == 1;
+    }
+
+    @Override
+    public List<CategoryVo> getCategoryTopList(Integer pageNum, Integer pageSize) {
+        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("parent_id", 0);
+        Page<Category> categoryPage = new Page<>(pageNum, pageSize);
+        List<Category> categorys = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
+	    return BeanCopyUtils.copyBeanList(categorys, CategoryVo.class);
     }
 
 }

@@ -71,7 +71,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
 
-        //TODO:分类需要包括子分类
+        // 获取指定类别及其所有子类别的ID列表
         List<Long> categoryIds = getCategoryIds(categoryId);
 
         // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
