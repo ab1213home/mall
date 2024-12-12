@@ -31,7 +31,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.AdminRoleId;
-import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -145,7 +144,8 @@ public class UserLoginController {
 
         // 校验验证码是否正确
         if (!captchaCode.toLowerCase().equals(captcha)) {
-            session.removeAttribute("captcha");
+//            session.removeAttribute("captcha");
+	        captchaRedisService.deleteKey(session.getId());
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
 

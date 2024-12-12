@@ -155,13 +155,13 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
                 $("div[cgId='" + cgId +"']").append(s1);
                 // 鼠标悬停事件，改变商品链接背景色并显示商品详情
                 $("div[cgId='" + cgId +"']").on("mouseover",function(){
-                    $("div[cgId='" + cgId +"'] .cg_a").css("background-color", "#e9e9e9");
+                    $("div[cgId='" + cgId +"'] .cg_a").addClass("red-text");
                     $("div[cgId='" + cgId +"'] .cg_div").show();
                 });
 
                 // 鼠标移出事件，恢复商品链接背景色并隐藏商品详情
                 $("div[cgId='" + cgId +"']").on("mouseleave", function(){
-                    $("div[cgId='" + cgId +"'] .cg_a").css("background-color", "white");
+                    $("div[cgId='" + cgId +"'] .cg_a").removeClass("red-text");
                     $("div[cgId='" + cgId +"'] .cg_div").hide();
                 });
 
@@ -181,13 +181,13 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
                 $("div[cgId='" + cgId +"']").append(s2);
                 // 鼠标悬停事件，改变商品链接背景色并显示商品详情
                 $("div[cgId='" + cgId +"']").on("mouseover",function(){
-                    $("div[cgId='" + cgId +"'] .cg_a").css("background-color", "#e9e9e9");
+                    $("div[cgId='" + cgId +"'] .cg_a").addClass("red-text");
                     $("div[cgId='" + cgId +"'] .cg_div").show();
                 });
 
                 // 鼠标移出事件，恢复商品链接背景色并隐藏商品详情
                 $("div[cgId='" + cgId +"']").on("mouseleave", function(){
-                    $("div[cgId='" + cgId +"'] .cg_a").css("background-color", "white");
+                    $("div[cgId='" + cgId +"'] .cg_a").removeClass("red-text");
                     $("div[cgId='" + cgId +"'] .cg_div").hide();
                 });
             }
@@ -213,24 +213,22 @@ function listGoods(categoryId, categoryName){
 			count=0;
 		}
 		s+=
-		`	<a href="./product.html?id=`+ good.id +`" target="_blank" class="glid1">
+		`	<a href="./product.html?id=`+ good.id +`" target="_blank" class="glid1"
+               onmouseover="this.querySelector('.good_text').classList.add('red-text')"
+               onmouseout="this.querySelector('.good_text').classList.remove('red-text')">
 				<div class="glid2">
-					<img src="`+ good.img +`" alt="">
+					<img src="`+ good.img +`" alt="商品图片">
 				</div>
 				<div>
 					<div>
-						<p class="gtitle">`+ good.title +`</p>
+						<p class="gtitle good_text">`+ good.title +`</p>
 					</div>
 					<div>
-						<p class="gdetail">
-						`+ good.description +`
-						</p>	
+						<p class="gdetail good_text">`+ good.description +`</p>	
 					</div>
 				</div>
 				<div>
-					<p class="gmoney price-tag">
-						`+ good.price +`			
-					</p>
+					<p class="gmoney price-tag">`+ good.price +`</p>
 				</div>
 			</a>
 		</li>`
