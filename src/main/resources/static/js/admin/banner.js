@@ -163,7 +163,7 @@ function clearModal() {
     $('#url').val('');
     $('#description').val('');
     $('#img').val('');
-    $('#imgUpload').val('');
+    // $('#imgUpload').val('');
     $('#imgPreview').attr('src', '/images/no-image.png');
 }
 

@@ -23,7 +23,6 @@ import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,16 +182,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    return null;
 	}
 
-	private @Nullable String queryCategoryToString(Long categoryId) {
+	private @NotNull String queryCategoryToString(Long categoryId) {
 		Category category = categoryMapper.selectById(categoryId);
-		if (category==null){
+		if (category == null){
 			return "";
 		}
-		String str = category.getName();
-		if (category.getLevel()!=1){
-			str=str+"-"+queryCategoryToString(category.getParentId());
-		}
-		return str;
+		return category.getName()+"-"+queryCategoryToString(category.getParentId());
 	}
 
 	@Override

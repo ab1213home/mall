@@ -76,7 +76,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
         // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(name != null, Product::getTitle, name).eq(categoryId != null, Product::getCategoryId, categoryIds);
+        queryWrapper.like(name != null, Product::getTitle, name).in(categoryId != null, Product::getCategoryId, categoryIds);
 
         // 执行分页查询，获取产品列表
         List<Product> products = productMapper.selectPage(productPage, queryWrapper).getRecords();
