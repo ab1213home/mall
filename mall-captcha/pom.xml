@@ -82,6 +82,10 @@
             <artifactId>annotations</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-common</artifactId>
+        </dependency>
 
     </dependencies>
 

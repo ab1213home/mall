@@ -20,6 +20,7 @@ import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;

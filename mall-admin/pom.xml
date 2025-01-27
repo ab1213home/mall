@@ -71,12 +71,6 @@
             <artifactId>mybatis-spring</artifactId>
         </dependency>
 
-        <!--邮件-->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-        </dependency>
-
         <!-- Thymeleaf依赖 -->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
@@ -116,7 +110,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- sitemap -->
+        <!-- sitemap(seo) -->
          <dependency>
              <groupId>com.github.dfabulich</groupId>
              <artifactId>sitemapgen4j</artifactId>
@@ -145,10 +139,10 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--			<groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-email</artifactId>-->
-<!--		</dependency>-->
+        <dependency>
+			<groupId>com.jiang</groupId>
+			<artifactId>mall-email</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-user</artifactId>

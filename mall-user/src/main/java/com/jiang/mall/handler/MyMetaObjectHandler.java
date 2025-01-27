@@ -40,11 +40,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 从会话中获取当前用户的ID
         UserVo userVo = (UserVo) request.getSession().getAttribute("User");
-        Long userId = userVo.getId();
-        // 设置创建者ID为当前用户的ID
-        this.setFieldValByName("creator", userId, metaObject);
-        // 设置更新者ID为当前用户的ID
-        this.setFieldValByName("updater", userId, metaObject);
+        if(userVo != null){
+            Long userId = userVo.getId();
+            // 设置创建者ID为当前用户的ID
+            this.setFieldValByName("creator", userId, metaObject);
+            // 设置更新者ID为当前用户的ID
+            this.setFieldValByName("updater", userId, metaObject);
+        }
         // 设置创建时间为当前时间
         this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
         // 设置更新时间为当前时间

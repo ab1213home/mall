@@ -17,7 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.File;
 import com.jiang.mall.domain.config.User;
 import com.jiang.mall.domain.entity.Config;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

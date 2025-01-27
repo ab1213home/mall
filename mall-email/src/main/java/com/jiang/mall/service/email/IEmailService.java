@@ -11,10 +11,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service;
+package com.jiang.mall.service.email;
 
 
-import com.jiang.mall.domain.po.EmailCode;
 import com.jiang.mall.domain.po.EmailCodeState;
 
 public interface IEmailService {

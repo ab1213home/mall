@@ -16,22 +16,20 @@ package com.jiang.mall.controller.modify;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
+import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.email.IEmailService;
+import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.user.IUserRecordService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.Objects;
 
-import static com.jiang.mall.domain.config.User.*;
 import static com.jiang.mall.settings.Email.AllowSendEmail;
 import static com.jiang.mall.settings.General.regex_email;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;

@@ -18,8 +18,14 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.po.EmailCodeState;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
+import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.email.IEmailService;
+import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.user.IUserRecordService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,7 +33,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.*;
@@ -74,9 +79,10 @@ public class RegisterController {
     private IRedisService redisService;
 
     @Autowired
-    public void setRedisService(IRedisService redisService) {
+    public void setRedisService(@Qualifier("userRedisService") IRedisService redisService) {
         this.redisService = redisService;
     }
+
     private IEmailService emailService;
 
     @Autowired

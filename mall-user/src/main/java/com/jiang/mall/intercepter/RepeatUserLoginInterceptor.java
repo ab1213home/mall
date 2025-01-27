@@ -13,7 +13,7 @@
 
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;

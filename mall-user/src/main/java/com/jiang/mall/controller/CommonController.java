@@ -15,8 +15,8 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IRedisService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,12 +43,6 @@ public class CommonController {
         this.userService = userService;
     }
 
-    private IRedisService redisService;
-
-    @Autowired
-    public void setRedisService(IRedisService redisService) {
-        this.redisService = redisService;
-    }
     /**
      * 获取距离下一次生日的天数
      *

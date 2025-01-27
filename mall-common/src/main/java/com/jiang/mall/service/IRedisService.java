@@ -13,17 +13,17 @@
 
 package com.jiang.mall.service;
 
+
 import java.util.concurrent.TimeUnit;
 
 public interface IRedisService {
-
-	/**
+    /**
      * 设置一个键值对
      *
      * @param key 键，用于唯一标识一个值
      * @param value 值，与键关联的数据
      */
-    void setString(String key, String value);
+    void setObject(String key, Object value);
     /**
      * 将给定的键值对存储在缓存中，并为该缓存项设置过期时间
      *
@@ -32,14 +32,14 @@ public interface IRedisService {
      * @param timeout 缓存项在缓存中保持有效的时间长度，到达过期时间后，缓存项将被视为无效
      * @param unit 指定timeout参数的时间单位，用于明确过期时间的度量标准
      */
-    void setString(String key, String value, long timeout, TimeUnit unit);
+    void setObject(String key, Object value, long timeout, TimeUnit unit);
     /**
      * 根据键获取对应的字符串值
      *
      * @param key 字符串的键，用于唯一标识一个字符串值
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
-    String getString(String key);
+    Object getObject(String key);
     /**
      * 检查给定的键是否存在于当前数据结构中
      *

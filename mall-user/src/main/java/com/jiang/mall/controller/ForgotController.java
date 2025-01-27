@@ -15,18 +15,18 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.po.EmailCode;
 import com.jiang.mall.domain.po.EmailCodeState;
-import com.jiang.mall.domain.po.UserPo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
+import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.email.IEmailService;
+import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.user.IUserRecordService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 import static com.jiang.mall.settings.Email.AllowSendEmail;
 

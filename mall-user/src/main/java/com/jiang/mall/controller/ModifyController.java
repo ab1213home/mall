@@ -15,12 +15,15 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
+import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.user.IUserRecordService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -84,7 +87,7 @@ public class ModifyController {
     private IRedisService redisService;
 
     @Autowired
-    public void setRedisService(IRedisService redisService) {
+    public void setRedisService(@Qualifier("userRedisService") IRedisService redisService) {
         this.redisService = redisService;
     }
 

@@ -14,12 +14,10 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.service.IRedisService;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -30,8 +28,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequestMapping("/text")
 public class TextController {
 
-	@Autowired
-	private IRedisService redisService;
+//	@Autowired
+//	private IRedisService redisService;
 
 	@GetMapping("/time")
 	public ResponseResult<Object> time(@RequestParam(defaultValue = "1") Double time) {
@@ -46,13 +44,13 @@ public class TextController {
 		return ResponseResult.okResult();
 	}
 
-	@GetMapping("/session")
-	public ResponseResult<Object> error(HttpSession session) {
-		redisService.setString(session.getId(), "Hello, Redis!");
-		String greeting = redisService.getString(session.getId());
-		System.out.println(greeting);
-		return ResponseResult.okResult("text");
-	}
+//	@GetMapping("/session")
+//	public ResponseResult<Object> error(HttpSession session) {
+//		redisService.setString(session.getId(), "Hello, Redis!");
+//		String greeting = redisService.getString(session.getId());
+//		System.out.println(greeting);
+//		return ResponseResult.okResult("text");
+//	}
 
 	@GetMapping("/session-id")
     public ResponseResult<Object> getSessionId(HttpSession session) {

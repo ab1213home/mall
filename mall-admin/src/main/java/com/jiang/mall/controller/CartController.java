@@ -17,7 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.user.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;

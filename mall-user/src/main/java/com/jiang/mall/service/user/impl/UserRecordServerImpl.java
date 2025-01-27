@@ -11,14 +11,14 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.impl;
+package com.jiang.mall.service.user.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.UserRecordMapper;
 import com.jiang.mall.domain.entity.UserRecord;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.service.IUserRecordService;
+import com.jiang.mall.service.user.IUserRecordService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
