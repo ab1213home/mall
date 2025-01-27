@@ -1,0 +1,110 @@
+<!--
+  ~ Copyright (c) 2024 Jiang RongJun
+  ~ Jiang Mall is licensed under Mulan PSL v2.
+  ~ You can use this software according to the terms and conditions of the Mulan
+  ~ PSL v2.
+  ~ You may obtain a copy of Mulan PSL v2 at:
+  ~          http://license.coscl.org.cn/MulanPSL2
+  ~ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+  ~ KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+  ~ See the Mulan PSL v2 for more details.
+  -->
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Quill Editor Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+    <link href="/public/wangeditor-5.1.23-dist/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Create the editor container -->
+<div id="editor—wrapper">
+    <div id="toolbar-container"><!-- 工具栏 --></div>
+    <div id="editor-container"><!-- 编辑器 --></div>
+</div>
+
+<script src="/public/wangeditor-5.1.23-dist/index.js"></script>
+<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+<script>
+    const { createEditor, createToolbar } = window.wangEditor
+
+    const editorConfig = {
+        placeholder: 'Type here...',
+        onChange(editor) {
+          const html = editor.getHtml()
+          console.log('editor content', html)
+          // 也可以同步到 <textarea>
+        },
+        MENU_CONF: {}
+    }
+
+    const editor = createEditor({
+        selector: '#editor-container',
+        html: '<p><br></p>',
+        config: editorConfig,
+        mode: 'default', // or 'simple'
+    })
+
+    const toolbarConfig = {}
+
+    const toolbar = createToolbar({
+        editor,
+        selector: '#toolbar-container',
+        config: toolbarConfig,
+        mode: 'default', // or 'simple'
+    })
+
+    editorConfig.MENU_CONF['uploadImage'] = {
+        // form-data fieldName ，默认值 'wangeditor-uploaded-image'
+        // fieldName: 'your-custom-name',
+
+        // 单个文件的最大体积限制，默认为 2M
+        maxFileSize: 2 * 1024 * 1024, // 1M
+
+        server: '/common/uploadFile',
+
+        // 最多可上传几个文件，默认为 100
+        maxNumberOfFiles: 10,
+
+        // 选择文件时的类型限制，默认为 ['image/*'] 。如不想限制，则设置为 []
+        allowedFileTypes: ['image/*'],
+
+        // 跨域是否传递 cookie ，默认为 false
+        withCredentials: false,
+
+        // 超时时间，默认为 10 秒
+        timeout: 5 * 1000, // 5 秒
+        // 自定义上传
+        async customUpload(file, insertFn) {                   // JS 语法
+            const formData = new FormData();
+            formData.append('file', file);
+            let url = ''
+            // 使用 $.ajax 发送请求
+            $.ajax({
+                url: '/common/uploadFile',
+                type: 'POST',
+                data: formData,
+                processData: false, // 不处理数据
+                contentType: false, // 不设置内容类型
+                success: function(response) {
+                    if (response.code == 200) {
+                        url=response.data; // 返回图片URL给Quill
+                    } else {
+                      console.log(response.message || '上传失败');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('网络错误');
+                }
+            });
+            insertFn(url, "alt", url)
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.4.1</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.jiang</groupId>
+	<artifactId>mall-parent</artifactId>
+	<version>0.0.1</version>
+	<packaging>pom</packaging>
+	<name>mall</name>
+	<description>Jiang Mall</description>
+	<url/>
+	<licenses>
+        <license>
+            <name>Mulan PSL v2</name>
+            <url>http://license.coscl.org.cn/MulanPSL2</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>ab1213home</id>
+            <name>jiangrongjun</name>
+            <email>jiangrongjun2004@163.com</email>
+            <organization>jiangrongjun</organization>
+            <organizationUrl>https://gitee.com/jiangrongjun/mall</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+		<mall.version>0.0.1</mall.version>
+	</properties>
+	<dependencies>
+
+	</dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>3.4.1</version>
+            </dependency>
+
+            <!--mysql驱动-->
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>9.1.0</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!--数据库连接池 HikariCP-->
+            <dependency>
+              <groupId>com.zaxxer</groupId>
+              <artifactId>HikariCP</artifactId>
+              <version>5.0.1</version>
+            </dependency>
+
+            <!--mybatis-plus-->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>3.5.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>3.0.3</version>
+            </dependency>
+
+            <!--验证码-->
+            <dependency>
+                <groupId>com.github.whvcse</groupId>
+                <artifactId>easy-captcha</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+
+            <!--邮件-->
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>jakarta.mail</artifactId>
+                <version>2.0.1</version>
+            </dependency>
+
+            <!-- Thymeleaf依赖 -->
+    <!--        <dependency>-->
+    <!--            <groupId>org.springframework.boot</groupId>-->
+    <!--            <artifactId>spring-boot-starter-thymeleaf</artifactId>-->
+    <!--        </dependency>-->
+
+            <!--servlet-->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>4.0.1</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!--lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.36</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!--JSR303-->
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>26.0.0</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!--logback-->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.5.7</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.5.7</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- sitemap -->
+             <dependency>
+                 <groupId>com.github.dfabulich</groupId>
+                 <artifactId>sitemapgen4j</artifactId>
+                 <version>1.1.1</version>
+             </dependency>
+
+    <!--        <dependency>-->
+    <!--            <groupId>com.h2database</groupId>-->
+    <!--            <artifactId>h2</artifactId>-->
+    <!--            <scope>runtime</scope>-->
+    <!--        </dependency>-->
+
+            <!--监控-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>3.4.1</version>
+            </dependency>
+
+            <!--modelmapper 对象映射库-->
+            <dependency>
+                <groupId>org.modelmapper</groupId>
+                <artifactId>modelmapper</artifactId>
+                <version>2.4.4</version>
+            </dependency>
+
+            <!-- redis -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>3.3.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>2.12.0</version>
+            </dependency>
+
+    <!--        <dependency>-->
+    <!--            <groupId>org.springframework.session</groupId>-->
+    <!--            <artifactId>spring-session-data-redis</artifactId>-->
+    <!--        </dependency>-->
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+            </dependency>
+
+        <!--        <dependency>-->
+<!--            <groupId>com.alibaba</groupId>-->
+<!--            <artifactId>fastjson</artifactId>-->
+<!--            <version>1.2.57</version>-->
+<!--        </dependency>-->
+        <!-- 解析客户端操作系统、浏览器等 -->
+<!--        <dependency>-->
+<!--            <groupId>eu.bitwalker</groupId>-->
+<!--            <artifactId>UserAgentUtils</artifactId>-->
+<!--&lt;!&ndash;            <version>${bitwalker.version}</version>&ndash;&gt;-->
+<!--        </dependency>-->
+
+        <!-- 获取系统信息 -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.oshi</groupId>-->
+<!--            <artifactId>oshi-core</artifactId>-->
+<!--&lt;!&ndash;            <version>${oshi.version}</version>&ndash;&gt;-->
+<!--        </dependency>-->
+
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-admin</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-email</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-user</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-common</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-system</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-task</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-file</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-captcha</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-seo</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <modules>
+        <module>mall-admin</module>
+<!--        <module>mall-framework</module>-->
+        <module>mall-system</module>
+        <module>mall-common</module>
+		<module>mall-file</module>
+		<module>mall-user</module>
+		<module>mall-email</module>
+        <module>mall-seo</module>
+        <module>mall-captcha</module>
+<!--		<module>mall-pay</module>-->
+<!--		<module>mall-order</module>-->
+<!--		<module>mall-finance</module>-->
+<!--        <module>mall-clues</module>-->
+<!--        <module>mall-business</module>-->
+<!--        <module>mall-review</module>-->
+<!--        <module>mall-report</module>-->
+        <module>mall-task</module>
+    </modules>
+
+	<repositories>
+        <!-- 中央仓库 -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <!-- 阿里云中央仓库镜像 -->
+        <repository>
+            <id>aliyun-central</id>
+            <url>https://maven.aliyun.com/repository/central</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <!-- 阿里云公共仓库镜像 -->
+        <repository>
+            <id>aliyun-public</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- 阿里云 Gradle 插件仓库镜像 -->
+        <repository>
+            <id>aliyun-gradle-plugin</id>
+            <url>https://maven.aliyun.com/repository/gradle-plugin</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- 阿里云 Apache 快照仓库镜像 -->
+        <repository>
+            <id>aliyun-apache-snapshots</id>
+            <url>https://maven.aliyun.com/repository/apache-snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
