@@ -16,7 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.EmailSettingVo;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
-import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.settings.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

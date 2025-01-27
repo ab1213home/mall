@@ -15,11 +15,11 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.user.IUserRecordService;
-import com.jiang.mall.service.user.IUserService;
+import com.jiang.mall.service.IUserRecordService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +73,7 @@ public class LoginController {
 	private IRedisService redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("userRedisService") IRedisService redisService) {
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IRedisService redisService) {
         this.redisService = redisService;
     }
 

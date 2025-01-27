@@ -11,15 +11,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.email.impl;
+package com.jiang.mall.service.impl;
 
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.Purpose;
 import com.jiang.mall.domain.enums.Status;
 import com.jiang.mall.domain.po.EmailCode;
 import com.jiang.mall.domain.po.EmailCodeState;
-import com.jiang.mall.service.email.IEmailService;
-import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.IEmailService;
+import com.jiang.mall.service.IVerificationCodeService;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -46,7 +46,7 @@ public class EmailServiceImpl implements IEmailService {
 	private IRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("emailRedisService") IRedisService redisService) {
+	public void setRedisService(@Qualifier("EmailRedisServiceImpl") IRedisService redisService) {
 		this.redisService = redisService;
 	}
 

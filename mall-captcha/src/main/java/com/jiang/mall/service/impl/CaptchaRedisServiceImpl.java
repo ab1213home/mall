@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.captcha.impl;
+package com.jiang.mall.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,13 +21,13 @@ import com.jiang.mall.service.IStringRedisService;
 
 import java.util.concurrent.TimeUnit;
 
-@Service("captchaRedisService")
-public class RedisServiceImpl implements IStringRedisService {
+@Service("CaptchaRedisServiceImpl")
+public class CaptchaRedisServiceImpl implements IStringRedisService {
 
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(@Qualifier("CaptchaRedis")StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("CaptchaRedisTemplate") StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 

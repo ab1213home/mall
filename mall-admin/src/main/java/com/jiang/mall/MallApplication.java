@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 //@MapperScan("com.jiang.mall.dao")
 @SpringBootApplication
 @EnableTransactionManagement
+//@ComponentScan(basePackages = {"com.jiang.mall.config","com.jiang.mall.intercepter","com.jiang.mall.service"})
 public class MallApplication {
 
     public static void main(String[] args) {

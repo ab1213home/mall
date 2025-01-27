@@ -13,23 +13,16 @@
 
 package com.jiang.mall.config;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -47,26 +40,26 @@ public class RedisConfig {
 	@Value("${spring.data.redis.password:}")
 	private String password;
 
-	@Bean(name = "UserRedis")
-    public RedisTemplate<String, Object> redisTemplateUserDb() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory(user));
-		// 创建自定义的ObjectMapper实例
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    // 配置ObjectMapper，例如设置日期格式
-	    objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-
-	    // 使用自定义的ObjectMapper创建Jackson2JsonRedisSerializer
-	    GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-
-	    // 设置键序列化器，使用StringRedisSerializer以确保键以字符串形式存储和读取
-	    template.setKeySerializer(new StringRedisSerializer());
-	    // 设置值序列化器，使用自定义的Jackson2JsonRedisSerializer
-	    template.setValueSerializer(jackson2JsonRedisSerializer);
-
-	    // 返回配置好的RedisTemplate实例
-        return template;
-    }
+//	@Bean(name = "UserRedisTemplate")
+//    public RedisTemplate<String, Object> UserRedisTemplate() {
+//        RedisTemplate<String, Object> template = new RedisTemplate<>();
+//        template.setConnectionFactory(redisConnectionFactory(user));
+//		// 创建自定义的ObjectMapper实例
+//	    ObjectMapper objectMapper = new ObjectMapper();
+//	    // 配置ObjectMapper，例如设置日期格式
+//	    objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+//
+//	    // 使用自定义的ObjectMapper创建Jackson2JsonRedisSerializer
+//	    GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+//
+//	    // 设置键序列化器，使用StringRedisSerializer以确保键以字符串形式存储和读取
+//	    template.setKeySerializer(new StringRedisSerializer());
+//	    // 设置值序列化器，使用自定义的Jackson2JsonRedisSerializer
+//	    template.setValueSerializer(jackson2JsonRedisSerializer);
+//
+//	    // 返回配置好的RedisTemplate实例
+//        return template;
+//    }
 
 	private @NotNull RedisConnectionFactory redisConnectionFactory(int database) {
 		RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();

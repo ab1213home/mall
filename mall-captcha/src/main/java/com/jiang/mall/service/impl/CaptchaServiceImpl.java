@@ -1,7 +1,7 @@
-package com.jiang.mall.service.captcha.impl;
+package com.jiang.mall.service.impl;
 
 import com.jiang.mall.service.IStringRedisService;
-import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public class CaptchaServiceImpl implements ICaptchaService {
 	private IStringRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("captchaRedisService") IStringRedisService redisService) {
+	public void setRedisService(@Qualifier("CaptchaRedisServiceImpl") IStringRedisService redisService) {
 		this.redisService = redisService;
 	}
 

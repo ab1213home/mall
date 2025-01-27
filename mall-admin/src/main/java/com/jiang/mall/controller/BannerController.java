@@ -17,7 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
-import com.jiang.mall.service.user.IUserService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;

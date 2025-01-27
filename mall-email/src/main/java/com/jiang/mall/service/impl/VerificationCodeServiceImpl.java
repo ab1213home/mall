@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.email.impl;
+package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,7 +21,7 @@ import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.Purpose;
 import com.jiang.mall.domain.enums.Status;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
-import com.jiang.mall.service.email.IVerificationCodeService;
+import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;

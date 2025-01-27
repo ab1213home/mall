@@ -37,12 +37,12 @@ public class RedisConfig {
 	@Value("${spring.data.redis.password:}")
 	private String password;
 
-	@Bean(name = "CaptchaRedis")
-    public StringRedisTemplate stringRedisTemplate() {
-        StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(captcha));
-        return template;
-    }
+//	@Bean(name = "CaptchaRedisTemplate")
+//    public StringRedisTemplate CaptchaRedisTemplate() {
+//        StringRedisTemplate template = new StringRedisTemplate();
+//        template.setConnectionFactory(redisConnectionFactory(captcha));
+//        return template;
+//    }
 
 
 	private @NotNull RedisConnectionFactory redisConnectionFactory(int database) {

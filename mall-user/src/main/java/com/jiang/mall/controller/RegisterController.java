@@ -18,11 +18,11 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.po.EmailCodeState;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.captcha.ICaptchaService;
-import com.jiang.mall.service.email.IEmailService;
-import com.jiang.mall.service.email.IVerificationCodeService;
-import com.jiang.mall.service.user.IUserRecordService;
-import com.jiang.mall.service.user.IUserService;
+import com.jiang.mall.service.ICaptchaService;
+import com.jiang.mall.service.IEmailService;
+import com.jiang.mall.service.IVerificationCodeService;
+import com.jiang.mall.service.IUserRecordService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,7 +79,7 @@ public class RegisterController {
     private IRedisService redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("userRedisService") IRedisService redisService) {
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IRedisService redisService) {
         this.redisService = redisService;
     }
 

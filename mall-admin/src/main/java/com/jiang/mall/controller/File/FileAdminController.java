@@ -19,7 +19,7 @@ import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
 import com.jiang.mall.service.IFileService;
-import com.jiang.mall.service.user.IUserService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

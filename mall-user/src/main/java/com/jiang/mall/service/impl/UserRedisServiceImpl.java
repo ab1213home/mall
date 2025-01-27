@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.user.impl;
+package com.jiang.mall.service.impl;
 
 import com.jiang.mall.service.IRedisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Service("userRedisService")
-public class RedisServiceImpl implements IRedisService {
+@Service("UserRedisServiceImpl")
+public class UserRedisServiceImpl implements IRedisService {
 
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
-	public void setRedisTemplate(@Qualifier("UserRedis")RedisTemplate<String, Object> redisTemplate) {
+	public void setRedisTemplate(@Qualifier("UserRedisTemplate")RedisTemplate<String, Object> redisTemplate) {
 	    this.redisTemplate = redisTemplate;
 	}
 

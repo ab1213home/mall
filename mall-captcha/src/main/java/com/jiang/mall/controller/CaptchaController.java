@@ -1,6 +1,6 @@
 package com.jiang.mall.controller;
 
-import com.jiang.mall.service.captcha.ICaptchaService;
+import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
