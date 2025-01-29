@@ -31,7 +31,7 @@ import java.util.List;
  */
 public interface IUserService extends IService<User> {
 
-    User login(String username, String password);
+    Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId);
 
     Boolean modifyPassword(Long userId, String oldPassword, String newPassword);
 

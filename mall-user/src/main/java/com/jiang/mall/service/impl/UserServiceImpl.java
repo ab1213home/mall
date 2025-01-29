@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -22,6 +23,8 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IStringRedisService;
+import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
@@ -29,10 +32,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.AdminRoleId;
 import static com.jiang.mall.domain.config.User.regex_email;
@@ -58,12 +63,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    this.userMapper = userMapper;
 	}
 
+	private IUserRecordService userRecordService;
+
+    @Autowired
+    public void setLoginRecordService(IUserRecordService userRecordService) {
+        this.userRecordService = userRecordService;
+    }
+
 	private II18nService i18nService;
 
 	@Autowired
 	public void setI18nService(II18nService i18nService) {
-	    this.i18nService = i18nService;
+		this.i18nService = i18nService;
 	}
+
+
+	private IStringRedisService redisService;
+
+    @Autowired
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
+        this.redisService = redisService;
+    }
 
 	/**
 	 * 检查用户是否已登录
@@ -158,13 +178,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * 用户登录方法
 	 * 通过用户名(邮箱)和密码尝试登录系统。用户密码是经过MD5加密的，以提高安全性。
 	 *
-	 * @param username 用户名或者邮箱，用于登录验证
-	 * @param password 明文密码，用于登录验证
-	 * @return 如果验证成功，返回对应的User对象；如果验证失败或用户不存在，返回null
+	 * @param username    用户名或者邮箱，用于登录验证
+	 * @param password    密文密码，用于登录验证
+	 * @param clientIp    客户端IP地址
+	 * @param fingerprint 浏览器指纹，用于登录验证
+	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回f
 	 */
 	@Override
-	public User login(String username, String password) {
-	    // 创建查询条件，指定用户名和账号激活状态
+	public Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId) {
+		User user = getUserByUserNameOrEmail(username, password);
+		if (user == null) {
+			// 登录失败，记录登录记录
+			userRecordService.failedLoginRecord(username, clientIp, fingerprint);
+			return false;
+		} else {
+			// 登录成功，记录登录记录
+			userRecordService.successLoginRecord(user, clientIp, fingerprint);
+			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
+	        assert userVo != null;
+	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
+            if (user.getBirthDate()!=null){
+                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+            }
+			// 将用户信息存储到Redis中，并设置过期时间
+			redisService.setString(sessionId, JSON.toJSONString(userVo),4, TimeUnit.HOURS);
+			return true;
+		}
+	}
+
+	public User getUserByUserNameOrEmail(String username, String password) {
+		// 创建查询条件，指定用户名和账号激活状态
 	    QueryWrapper<User> queryWrapper_username = new QueryWrapper<>();
 	    queryWrapper_username.eq("username", username);
 	    queryWrapper_username.eq("is_active", true);

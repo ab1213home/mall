@@ -100,11 +100,11 @@ public class LoginController {
      */
     @PostMapping("/login")
     public ResponseResult<Object> login(@RequestParam("username") String username,
-                                @RequestParam("password") String password,
-                                @RequestParam("captcha") String captcha,
-                                @RequestHeader("X-Real-IP") String clientIp,
-                                @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-                                HttpSession session) {
+                                        @RequestParam("password") String password,
+                                        @RequestParam("captcha") String captcha,
+                                        @RequestHeader("X-Real-IP") String clientIp,
+                                        @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                        HttpSession session) {
         // 检查用户是否已经登录，避免重复登录
 	    ResponseResult<Object> result = userService.checkUserLogin(session);
 		if (result.isSuccess()) {
@@ -135,32 +135,21 @@ public class LoginController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
 		}
 
-
         // 检查用户尝试登录失败次数
         if (userRecordService.countTryNumber(username, clientIp, fingerprint,max_try_number)>=max_try_number){
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 
         // 调用userService的login方法进行用户登录验证
-        User user = userService.login(username, password);
-        if (user != null) {
-            UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
-	        assert userVo != null;
-	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
-            if (user.getBirthDate()!=null){
-                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
-            }
-            // 登录成功，存储用户信息到session
-            session.setAttribute("User", userVo);
-            // 设置session过期时间
-            session.setMaxInactiveInterval(60 * 60 * 4);
-			redisService.setString(session.getId(), JSON.toJSONString(userVo),4, TimeUnit.HOURS);
-            userRecordService.successLoginRecord(user, clientIp, fingerprint);
-            return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
-        } else {
+        flag = userService.login(username, password, clientIp, fingerprint,session.getId());
+        if (flag == null) {
+			//TODO:无状态
+            return ResponseResult.failResult();
+        } else if (!flag){
             // 登录失败，返回相应错误信息
-            userRecordService.failedLoginRecord(username, clientIp, fingerprint);
             return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+        }else {
+			return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         }
     }
 
