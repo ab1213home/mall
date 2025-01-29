@@ -5,7 +5,14 @@
 
 ## 重要提示
 
-**第一次初始化项目时，由于数据库量过大，可能需要耗时较长（10分钟左右），请耐心等待。**
+**第一次初始化项目时，由于数据库量过大，可能需要耗时较长（由于有大量地理数据，预计10分钟左右），请耐心等待。**
+
+![第一次初始化项目过程截图](\doc\picture\img01.png)
+
+如果初始化失败，请手动导入数据库脚本(位于/data目录下)，并把修改配置文件application.properties。
+```properties
+spring.flyway.enabled = false
+```
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -27,7 +34,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
     <script type="application/javascript">
         let ip = "";
         function getIP(json) {
-            ip = json.ip;
+            ip = json.ip
         }
     </script>
     <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
@@ -42,7 +49,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 3. 使用[mybatis-plus](https://github.com/baomidou/mybatis-plus "v3.5.8")实现数据库操作
 
-4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成sitemap
+4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成seo地图
 
 5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "v8.3.0")实现数据库连接
 
@@ -50,7 +57,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
 
-8.使用[fastjson](https://github.com/stleary/JSON-java "v20231013.0")实现JSON解析
+8. 使用[fastjson](https://github.com/stleary/JSON-java "v2.0.54")实现JSON解析
 
 #### 前端
 
@@ -94,7 +101,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
     ```
     修改application.properties中的数据库配置
 4. ~~导入数据库脚本~~（2.0版本无需，2.0.2将更新文档）
-    ```shell
+   ```shell
     tar -xzvf data/mall.zip -C data
     mysql -h127.0.0.1 -uroot -p -D your_db < data/mall.sql
     ```
