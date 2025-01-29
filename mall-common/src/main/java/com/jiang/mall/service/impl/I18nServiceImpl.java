@@ -131,4 +131,13 @@ public class I18nServiceImpl implements II18nService {
 		return (checkString(phone,255) && phone.matches(regex_phone));
 	}
 
+	@Override
+	public Boolean isValidIPv4OrIPv6(String clientIp) {
+		if (isValidIPv4(clientIp)&&!isValidIPv6(clientIp)){
+			return true;
+		}else {
+			return isValidIPv6(clientIp);
+		}
+	}
+
 }

@@ -68,9 +68,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 从会话中获取当前用户的ID
         UserVo userVo = (UserVo) request.getSession().getAttribute("User");
-        Long userId = userVo.getId();
-        // 设置更新者ID为当前用户的ID
-        this.setFieldValByName("updater", userId, metaObject);
+        if(userVo != null){
+            Long userId = userVo.getId();
+            // 设置更新者ID为当前用户的ID
+            this.setFieldValByName("updater", userId, metaObject);
+        }
     }
 
 }

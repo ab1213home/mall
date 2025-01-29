@@ -13,12 +13,14 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.Purpose;
 import com.jiang.mall.domain.enums.Status;
 import com.jiang.mall.domain.po.EmailCode;
 import com.jiang.mall.domain.po.EmailCodeState;
 import com.jiang.mall.service.IEmailService;
+import com.jiang.mall.service.IStringRedisService;
 import com.jiang.mall.service.IVerificationCodeService;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -43,10 +45,10 @@ public class EmailServiceImpl implements IEmailService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
-	private IRedisService redisService;
+	private IStringRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("EmailRedisServiceImpl") IRedisService redisService) {
+	public void setRedisService(@Qualifier("EmailRedisServiceImpl") IStringRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -168,7 +170,7 @@ public class EmailServiceImpl implements IEmailService {
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, Purpose.REGISTER, Status.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setObject(sessionId,emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -200,7 +202,7 @@ public class EmailServiceImpl implements IEmailService {
             VerificationCode userVerificationCode = new VerificationCode(username,email, code, Purpose.RESET_PASSWORD, Status.SUCCESS,userId);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setObject(sessionId, emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -232,7 +234,7 @@ public class EmailServiceImpl implements IEmailService {
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, Purpose.CHANGE_EMAIL, Status.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setObject(sessionId, emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -268,12 +270,12 @@ public class EmailServiceImpl implements IEmailService {
 	public EmailCodeState validateCaptcha(String code, String sessionId){
 		EmailCodeState emailCodeState = new EmailCodeState();
 		// 验证码正确性及有效期检查
-        Object codeObj = redisService.getObject(sessionId);
+        Object codeObj = redisService.getString(sessionId);
         if (codeObj == null){
 			emailCodeState.setState(null);
             return emailCodeState;
         }
-		EmailCode emailCode = (EmailCode) codeObj;
+		EmailCode emailCode = JSON.parseObject(codeObj.toString(), EmailCode.class);
 
         // 检查用户输入的验证码与发送的验证码是否一致
         if (!Objects.equals(emailCode.getCode(),code)){

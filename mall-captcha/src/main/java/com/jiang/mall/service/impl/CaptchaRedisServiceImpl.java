@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.settings.General;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,10 +28,14 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(@Qualifier("CaptchaRedisTemplate") StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("SearchRedisTemplate") StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
+    String prefix = General.redis_key_prefix+"-captcha-";
+    String key(String key){
+        return prefix+key;
+    }
     /**
      * 设置一个键值对
      *
@@ -39,7 +44,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public void setString(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key, value);
+        stringRedisTemplate.opsForValue().set(key(key), value);
     }
 
     /**
@@ -52,7 +57,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public void setString(String key, String value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key, value, timeout, unit);
+        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
     }
 
     /**
@@ -63,7 +68,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public String getString(String key) {
-        return stringRedisTemplate.opsForValue().get(key);
+        return stringRedisTemplate.opsForValue().get(key(key));
     }
 
     /**
@@ -74,7 +79,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public Boolean hasKey(String key) {
-        return stringRedisTemplate.hasKey(key);
+        return stringRedisTemplate.hasKey(key(key));
     }
 
     /**
@@ -89,7 +94,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public Boolean expire(String key, long timeout) {
-        return stringRedisTemplate.expire(key, timeout, TimeUnit.SECONDS);
+        return stringRedisTemplate.expire(key(key), timeout, TimeUnit.SECONDS);
     }
 
     /**
@@ -100,7 +105,7 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public Long getExpire(String key) {
-        return stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return stringRedisTemplate.getExpire(key(key), TimeUnit.SECONDS);
     }
 
     /**
@@ -111,6 +116,6 @@ public class CaptchaRedisServiceImpl implements IStringRedisService {
      */
     @Override
     public Boolean deleteKey(String key) {
-        return stringRedisTemplate.delete(key);
+        return stringRedisTemplate.delete(key(key));
     }
 }

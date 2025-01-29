@@ -144,7 +144,7 @@ public class ForgotController {
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }else if (flag){
 //            return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
-            return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
+            return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
         }
         else {
 //            return ResponseResult.failResult("邮件发送失败，请重试");
@@ -178,7 +178,7 @@ public class ForgotController {
         if (!i18nService.checkString(code)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
-        if (!i18nService.isValidIPv4(clientIp)||!i18nService.isValidIPv6(clientIp)){
+        if (!i18nService.isValidIPv4OrIPv6(clientIp)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
         }
         if (!i18nService.checkString(fingerprint)){

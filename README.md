@@ -46,6 +46,8 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
 
+8.使用[fastjson](https://github.com/stleary/JSON-java "v20231013.0")实现JSON解析
+
 #### 前端
 
 1. bootstrap 5.3.3

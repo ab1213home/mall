@@ -38,7 +38,7 @@ function submitForgotStepOneForm() {
             step2.forEach(element => {
                 element.style.display = 'block';
             });
-            show_info('验证码已发送，请查收');
+            // show_info('验证码已发送，请查收');
             if (document.getElementById("email_show")!= null){
                 document.getElementById("email_show").textContent = res.data;
             }
@@ -89,7 +89,7 @@ function startIntervalTimer(duration) {
 }
 function submitForgotStepTwoForm() {
   // 获取表单数据
-  const code = $('#code').val();
+  const code = $('#verificationCode').val();
   const password = $('#password').val();
   const confirmPassword = $('#confirmPassword').val();
 

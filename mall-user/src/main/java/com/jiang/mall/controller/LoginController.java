@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.service.ICaptchaService;
@@ -70,10 +71,10 @@ public class LoginController {
 	}
 
 
-	private IRedisService redisService;
+	private IStringRedisService redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IRedisService redisService) {
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -118,7 +119,7 @@ public class LoginController {
 		if (!i18nService.checkString(captcha)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-		if (!i18nService.isValidIPv4(clientIp) && !i18nService.isValidIPv6(clientIp)){
+		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 		}
 		if (!i18nService.checkString(fingerprint)){
@@ -153,7 +154,7 @@ public class LoginController {
             session.setAttribute("User", userVo);
             // 设置session过期时间
             session.setMaxInactiveInterval(60 * 60 * 4);
-			redisService.setObject(session.getId(),userVo,4, TimeUnit.HOURS);
+			redisService.setString(session.getId(), JSON.toJSONString(userVo),4, TimeUnit.HOURS);
             userRecordService.successLoginRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         } else {

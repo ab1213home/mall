@@ -95,4 +95,18 @@ public class General {
      */
     public static String regex_phone = properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
 
+    /**
+     * 密码格式正则表达式
+     */
+    public static String regex_password = properties.getProperty("regex.password", "^[a-zA-Z0-9]{6,16}$");
+
+    /**
+     * 用户名格式正则表达式
+     */
+    public static String regex_username = properties.getProperty("regex.username", "^[a-zA-Z0-9]{6,16}$");
+
+    /**
+     * Redis数据库key前缀（防止重复）
+     */
+    public static String redis_key_prefix = properties.getProperty("redis.key.prefix", "mall");
 }

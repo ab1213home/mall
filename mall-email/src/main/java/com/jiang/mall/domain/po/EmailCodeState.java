@@ -21,7 +21,6 @@ public class EmailCodeState {
 	private Boolean state;
 	private VerificationCode verificationCode;
 
-
 	public EmailCodeState() {
 
 	}

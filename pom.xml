@@ -181,26 +181,35 @@
                 <version>2.12.0</version>
             </dependency>
 
+            <!-- 高性能的JSON库 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>2.0.54</version>
+            </dependency>
     <!--        <dependency>-->
     <!--            <groupId>org.springframework.session</groupId>-->
     <!--            <artifactId>spring-session-data-redis</artifactId>-->
     <!--        </dependency>-->
 
-            <!-- Jackson -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-            </dependency>
+            <!-- Jackson库 -->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-core</artifactId>-->
+<!--                <version>2.18.2</version>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-annotations</artifactId>-->
+<!--                <version>2.18.2</version>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-databind</artifactId>-->
+<!--                <version>2.18.2</version>-->
+<!--            </dependency>-->
 
         <!--        <dependency>-->
 <!--            <groupId>com.alibaba</groupId>-->

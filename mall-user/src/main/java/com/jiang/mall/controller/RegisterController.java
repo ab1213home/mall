@@ -76,10 +76,10 @@ public class RegisterController {
         this.i18nService = i18nService;
     }
 
-    private IRedisService redisService;
+	private IStringRedisService redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IRedisService redisService) {
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -209,9 +209,9 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
         }
 
-        if (!i18nService.isValidIPv4(clientIp) && !i18nService.isValidIPv6(clientIp)){
-            return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-        }
+        if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+		}
         if (!i18nService.checkString(fingerprint)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
         }
@@ -234,7 +234,7 @@ public class RegisterController {
         User user = new User(emailCodeState.getVerificationCode().getUsername(),emailCodeState.getVerificationCode().getPassword(),emailCodeState.getVerificationCode().getEmail());
         Long userId = userService.registerStep(user);
         if (userId>0) {
-            redisService.setObject(session.getId(),userId,30, TimeUnit.MINUTES);
+            redisService.setString(session.getId(), String.valueOf(userId),30, TimeUnit.MINUTES);
             verificationCodeService.useCode(userId, emailCodeState.getVerificationCode());
             userRecordService.successRegisterRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
@@ -273,12 +273,12 @@ public class RegisterController {
         }
 
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
-        Object userIdObj = redisService.getObject(session.getId());
-        if (userIdObj ==null){
+        String userIdStr = redisService.getString(session.getId());
+        if (userIdStr ==null){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
         }
 
-        Long userId = (Long) userIdObj;
+        Long userId = Long.parseLong(userIdStr);
 //        if (session.getAttribute("UserId")==null){
 //            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
 //        }

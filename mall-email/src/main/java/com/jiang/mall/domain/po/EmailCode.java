@@ -24,4 +24,7 @@ public class EmailCode {
 		this.id = id;
 		this.code = code;
 	}
+
+	public EmailCode() {
+	}
 }

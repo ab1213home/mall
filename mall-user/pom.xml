@@ -132,6 +132,12 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
+        <!-- 高性能的JSON库 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
         <dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-email</artifactId>

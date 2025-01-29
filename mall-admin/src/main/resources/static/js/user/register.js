@@ -71,7 +71,7 @@ function submitRegisterStepOneForm() {
                 step2.forEach(element => {
 					element.style.display = 'block';
 				});
-                show_info('验证码已发送，请查收');
+                // show_info('验证码已发送，请查收');
                 startIntervalTimer(600);
             } else {
                 show_error('发送验证码失败:'+res.message);

@@ -84,10 +84,10 @@ public class ModifyController {
         this.i18nService = i18nService;
     }
 
-    private IRedisService redisService;
+    private IStringRedisService redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IRedisService redisService) {
+    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -112,6 +112,9 @@ public class ModifyController {
                                                  @RequestHeader("X-Real-IP") String clientIp,
                                                  @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                                  HttpSession session) {
+        if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+		}
         if (!i18nService.isValidPassword(newPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
