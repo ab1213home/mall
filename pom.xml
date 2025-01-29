@@ -211,11 +211,7 @@
 <!--                <version>2.18.2</version>-->
 <!--            </dependency>-->
 
-        <!--        <dependency>-->
-<!--            <groupId>com.alibaba</groupId>-->
-<!--            <artifactId>fastjson</artifactId>-->
-<!--            <version>1.2.57</version>-->
-<!--        </dependency>-->
+
         <!-- 解析客户端操作系统、浏览器等 -->
 <!--        <dependency>-->
 <!--            <groupId>eu.bitwalker</groupId>-->
@@ -229,6 +225,13 @@
 <!--            <artifactId>oshi-core</artifactId>-->
 <!--&lt;!&ndash;            <version>${oshi.version}</version>&ndash;&gt;-->
 <!--        </dependency>-->
+
+            <!-- 数据库迁移 -->
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-core</artifactId>
+                <version>6.5.7</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.jiang</groupId>

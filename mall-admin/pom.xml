@@ -145,21 +145,16 @@
             <artifactId>fastjson2</artifactId>
         </dependency>
 
-        <!-- Jackson库 -->
+        <!-- 数据库迁移 -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
 <!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--            <artifactId>jackson-core</artifactId>-->
+<!--            <groupId>org.flywaydb</groupId>-->
+<!--            <artifactId>flyway-mysql</artifactId>-->
 <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--            <artifactId>jackson-annotations</artifactId>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
-<!--            <artifactId>jackson-databind</artifactId>-->
-<!--        </dependency>-->
         <dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-email</artifactId>
