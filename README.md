@@ -1,7 +1,11 @@
 # Jiang Mall
 
 ## 介绍
-网站开发与设计课程设计
+一款基于Spring Boot 3开发的商城系统
+
+## 重要提示
+
+**第一次初始化项目时，由于数据库量过大，可能需要耗时较长（10分钟左右），请耐心等待。**
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -89,7 +93,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
     cp application-example.properties application.properties
     ```
     修改application.properties中的数据库配置
-4. 导入数据库脚本
+4. ~~导入数据库脚本~~（2.0版本无需，2.0.2将更新文档）
     ```shell
     tar -xzvf data/mall.zip -C data
     mysql -h127.0.0.1 -uroot -p -D your_db < data/mall.sql
