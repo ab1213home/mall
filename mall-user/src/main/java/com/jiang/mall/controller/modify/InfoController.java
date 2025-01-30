@@ -13,12 +13,14 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,9 +33,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.AdminRoleId;
 import static com.jiang.mall.domain.config.User.regex_phone;
+import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * 用户控制器
@@ -98,6 +102,13 @@ public class InfoController {
 		this.emailService = emailService;
 	}
 
+	private IStringRedisService redisService;
+
+	@Autowired
+	public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
+		this.redisService = redisService;
+	}
+
 	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	/**
@@ -130,19 +141,15 @@ public class InfoController {
                                                  @RequestParam(required = false) Integer roleId,
                                                  HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            return result; // 如果未登录，则直接返回
-        }
-        Long userId = (Long) result.getData();
+        UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
 
         // 验证手机号格式是否正确
-        if (StringUtils.hasText(phone)&&!phone.matches(regex_phone)) {
+        if (!i18nService.isValidPhone(phone)) {
             return ResponseResult.failResult(i18nService.getMessage("user.error.phone"));
         }
 
         // 设置用户ID到用户信息对象中
-        User userInfo = new User(userId, firstName, lastName, phone,img);
+        User userInfo = new User(user.getId(), firstName, lastName, phone,img);
         // 验证和转换生日日期格式
         if (birthDate != null){
             try {
@@ -159,14 +166,14 @@ public class InfoController {
         }
         if (id != null) {
             // 管理员后台修改信息时，不允许修改自己的信息
-            if (Objects.equals(id, userId)) {
+            if (Objects.equals(id, user.getId())) {
                 return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.self"));
             }
             // 验证邮箱格式是否正确
             if (!i18nService.isValidEmail(email)) {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.email.format"));
             }
-            result = userService.hasPermission(id,session);
+            ResponseResult<Object> result = userService.hasPermission(id,session);
             // 如果用户未登录或不是管理员，则返回错误信息
             if (!result.isSuccess()) {
                 return result;
@@ -208,13 +215,17 @@ public class InfoController {
             if (!userService.modifyUserInfo(userInfo))
                 return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.info.error"));
             // 更新会话中的用户信息属性
-            UserVo user= (UserVo) session.getAttribute("User");
             user.setPhone(userInfo.getPhone());
             user.setFirstName(userInfo.getFirstName());
             user.setLastName(userInfo.getLastName());
             user.setBirthDate(userInfo.getBirthDate());
             user.setImg(userInfo.getImg());
-            session.setAttribute("User",user);
+			// 设置用户的出生日期，并计算下个生日的天数
+            if (user.getBirthDate()!=null){
+                user.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+            }
+			// 将用户信息存储到Redis中，并设置过期时间
+			redisService.setString(session.getId(), JSON.toJSONString(user),4, TimeUnit.HOURS);
             // 返回操作成功的结果，告知用户信息更新成功
             return ResponseResult.okResult(i18nService.getMessage("user.modify.info.success"));
         }
