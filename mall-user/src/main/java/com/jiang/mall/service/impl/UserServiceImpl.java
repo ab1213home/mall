@@ -21,11 +21,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IStringRedisService;
-import com.jiang.mall.service.IUserRecordService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +83,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         this.redisService = redisService;
     }
 
+	private IVerificationCodeService verificationCodeService;
+
+    @Autowired
+    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
+        this.verificationCodeService = verificationCodeService;
+    }
+
 	/**
 	 * 检查用户是否已登录
 	 * <p>
@@ -118,7 +123,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 通过userMapper查询所有用户，null参数表示不使用任何条件
 	    return userMapper.selectCount(null);
 	}
-
 
 	/**
 	 * 检查当前用户是否为管理员
@@ -326,7 +330,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public Boolean modifyPassword(Long userId, String newPassword) {
+	public Boolean modifyPassword(Long userId, String newPassword, VerificationCode verificationCode, String clientIp, String fingerprint) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);
@@ -340,7 +344,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setPassword(newPassword);
 			user.setIsActive(true);
 			// 通过ID更新用户信息。
-		    return userMapper.updateById(user) > 0;
+		    if (userMapper.updateById(user) > 0){
+				verificationCode.setPassword(newPassword);
+				verificationCodeService.useCode(userId, verificationCode);
+				userRecordService.successForgotRecord(userId,clientIp,fingerprint);
+				return true;
+		    }else {
+				return null;
+		    }
 	    }else {
 			// 如果用户不存在或旧密码验证失败，返回false。
 			return false;
@@ -355,32 +366,82 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		return true;
 	}
 
-	/**
-	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
-	 *
-	 * @param userId 用户ID，用于查询用户信息。
-	 * @param oldPassword 用户当前密码，用于验证身份。
-	 * @param newPassword 用户新密码，待验证通过后设置。
-	 * @return 如果密码修改成功，返回true；否则返回false。
-	 */
-    @Override
-    public Boolean modifyPassword(Long userId, String oldPassword, String newPassword) {
+	@Override
+	public Boolean validatePassword(Long userId, String password) {
 		// 创建查询条件，指定用户ID和账号激活状态。
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id",userId);
+		queryWrapper.eq("password",password);
+
+	    // 根据查询条件尝试获取用户信息。
+	    User user = userMapper.selectOne(queryWrapper);
+
+		return user != null;
+	}
+
+	@Override
+	public Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("id",userId);
+		queryWrapper.eq("is_active", true);
+		User user = userMapper.selectOne(queryWrapper);
+		if (user != null){
+			user.setEmail(email);
+			if (userMapper.updateById(user)>0){
+				// 验证码使用标记
+				verificationCodeService.useCode(userId, verificationCode);
+				// 记录邮箱修改成功日志
+				userRecordService.successModifyEmailRecord(user,email,clientIp,fingerprint);
+				return true;
+			}else {
+				logger.error("修改用户邮箱失败{}", userId);
+				return null;
+			}
+		}else {
+			return false;
+		}
+	}
+
+	/**
+	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
+	 *
+	 * @param userId      用户ID，用于查询用户信息。
+	 * @param oldPassword 用户当前密码，用于验证身份。
+	 * @param newPassword 用户新密码，待验证通过后设置。
+	 * @param sessionId   用户会话ID，用于记录操作日志。
+	 * @param clientIp    ip
+	 * @param fingerprint  指纹
+	 * @return 如果密码修改成功，返回true；否则返回false。
+	 */
+    @Override
+    public Boolean modifyPassword(Long userId, String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
+		// 创建查询条件，指定用户ID和账号激活状态。
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id",userId);
+		queryWrapper.eq("password",oldPassword);
 	    queryWrapper.eq("is_active", true);
 
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectOne(queryWrapper);
 
 	    // 验证用户是否存在且旧密码是否正确。
-	    if (user != null && oldPassword.equals(user.getPassword())) {
+	    if (user != null) {
 	        // 如果验证成功，更新用户密码为新密码。
 	        user.setPassword(newPassword);
 			// 通过ID更新用户信息。
-		    return userMapper.updateById(user) > 0;
+		    if (userMapper.updateById(user) > 0){
+				// 记录邮箱修改成功日志
+				userRecordService.successModifyPasswordRecord(userId,clientIp,fingerprint);
+				// 清除会话中的用户信息，因为密码已修改
+                logout(sessionId);
+				return true;
+		    }else {
+				logger.error("修改用户密码失败{}", userId);
+				return null;
+		    }
 	    }else {
-			// 如果用户不存在或旧密码验证失败，返回false。
+			// 如果用户不存在或旧密码验证失败，返回false
+		    userRecordService.failedModifyPasswordRecord(userId,clientIp,fingerprint);
 			return false;
 	    }
 	}
@@ -517,28 +578,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	/**
 	 * 用户注册步骤
 	 *
-	 * @param user 待注册/更新的用户信息
+	 * @param user             待注册/更新的用户信息
+	 * @param verificationCode 验证码对象，用于验证用户输入的验证码
+	 * @param sessionId        用户会话ID
+	 * @param clientIp         ip
+	 * @param fingerprint       指纹
 	 * @return 注册/更新成功返回用户ID，否则返回0
 	 */
 	@Override
-	public Long registerStep(User user) {
+	public Long register(@NotNull User user, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 	    // 检查用户信息是否完整
 	    if(user.getUsername()!=null && user.getPassword()!=null && user.getEmail()!=null){
 	        // 设置用户账户为激活状态
 	        user.setIsActive(true);
-	        // 加密用户密码和用户名以确保安全性
-	        user.setPassword(user.getPassword());
-	        user.setUsername(user.getUsername());
 	        // 设置用户角色为普通用户
 	        user.setRoleId(1);
 	        // 插入用户信息，若成功则返回用户ID，否则返回0
+		    if (userMapper.insert(user) > 0){
+				redisService.setString(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
+                verificationCodeService.useCode(user.getId(), verificationCode);
+                userRecordService.successRegisterRecord(user, clientIp, fingerprint);
+		    }
 	        return userMapper.insert(user)>0?user.getId():0;
 	    }else{
 	        // 对于信息不完整的用户，清除其账户信息
 	        user.setUsername(null);
 	        user.setPassword(null);
 	        user.setEmail(null);
+			user.setIsActive(true);
+			user.setRoleId(1);
 	        // 更新用户信息，若成功则返回用户ID，否则返回0
+		    redisService.deleteKey(sessionId);
 	        return userMapper.updateById(user)>0?user.getId():0;
 	    }
 	}
@@ -557,7 +627,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * @return 用户列表的Vo对象
      */
 	@Override
-    public List<UserVo> getUserList(Integer pageNum, Integer pageSize, Integer userId) {
+    public List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId) {
         // 通过用户ID获取用户信息
         User user = userMapper.selectById(userId);
         // 创建分页对象

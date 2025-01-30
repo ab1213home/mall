@@ -14,24 +14,20 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.po.EmailCodeState;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import static com.jiang.mall.settings.Email.AllowSendEmail;
-import static com.jiang.mall.settings.General.regex_email;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 /**
@@ -46,11 +42,6 @@ public class EmailController {
 
 	private IUserService userService;
 
-	/**
-	 * 设置用户服务实例
-	 *
-	 * @param userService 用户服务实例
-	 */
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
@@ -58,21 +49,9 @@ public class EmailController {
 
 	private IVerificationCodeService verificationCodeService;
 
-	/**
-	 * 设置验证码服务实例
-	 *
-	 * @param verificationCodeService 验证码服务实例
-	 */
 	@Autowired
 	public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
 		this.verificationCodeService = verificationCodeService;
-	}
-
-	private IUserRecordService userRecordService;
-
-	@Autowired
-	public void setLoginRecordService(IUserRecordService userRecordService) {
-		this.userRecordService = userRecordService;
 	}
 
 	private II18nService i18nService;
@@ -81,7 +60,6 @@ public class EmailController {
 	public void setI18nService(II18nService i18nService) {
 		this.i18nService = i18nService;
 	}
-
 
 	private ICaptchaService captchaService;
 
@@ -97,22 +75,12 @@ public class EmailController {
 		this.emailService = emailService;
 	}
 
-	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-	@PostMapping("/EmailStep1")
-    public ResponseResult<Object> EmailStep1(@RequestParam("password") String password,
+	@PostMapping("/emailStep1")
+    public ResponseResult<Object> emailStep1(@RequestParam("password") String password,
 	                                         @RequestParam("email") String email,
 	                                         @RequestParam("captcha") String captcha,
 	                                         HttpSession session) {
-        if (!AllowSendEmail){
-			return ResponseResult.failResult("管理员不允许发送邮件");
-		}
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Long userId = (Long) result.getData();
+		UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
 
         if (password==null||captcha==null||email==null){
             return ResponseResult.failResult("非法请求");
@@ -127,7 +95,7 @@ public class EmailController {
         }
 
         // 验证邮箱格式
-        if (!StringUtils.hasText(email) || !email.matches(regex_email)){
+        if (!i18nService.isValidEmail(email)){
             return ResponseResult.failResult("邮箱格式不正确");
         }
 
@@ -140,8 +108,7 @@ public class EmailController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
 		}
 
-        User user = userService.getUserInfo(userId);
-        if (!Objects.equals(user.getPassword(), password)) {
+        if (!userService.validatePassword(user.getId(), password)) {
             return ResponseResult.failResult("密码错误");
         }
         if (!StringUtils.hasText(email)){
@@ -183,12 +150,12 @@ public class EmailController {
 	 * @param session HTTP会话，用于获取用户登录信息
 	 * @return 返回修改结果
 	 */
-	@PostMapping("/EmailStep2")
-	public ResponseResult<Object> modifyEmailStep2(@RequestParam("email") String email,
-	                                          @RequestParam("code") String code,
-	                                          @RequestHeader("X-Real-IP") String clientIp,
-	                                          @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-	                                          HttpSession session) {
+	@PostMapping("/emailStep2")
+	public ResponseResult<Object> emailStep2(@RequestParam("email") String email,
+	                                         @RequestParam("code") String code,
+	                                         @RequestHeader("X-Real-IP") String clientIp,
+	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                         HttpSession session) {
 		// 验证邮箱格式是否正确
 		if (!i18nService.isValidEmail(email)) {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.email.format"));
@@ -198,35 +165,27 @@ public class EmailController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
 		// 检查用户是否已登录
-		ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-			return result;
-		}
-		Long userId = (Long) result.getData();
-		// 根据邮箱查询验证码信息
-		VerificationCode userVerificationCode = verificationCodeService.queryCodeByEmail(email);
-		// 检查验证码是否存在
-		if (userVerificationCode == null) {
-			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-		}
-		// 检查验证码是否匹配
-		if (!Objects.equals(userVerificationCode.getCode(), code)) {
-			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
-		}
-		// 创建用户对象并设置新邮箱
-		User user = new User();
-		user.setId(userId);
-		user.setEmail(email);
-		// 更新用户邮箱
-		if (userService.updateById(user)) {
-			// 验证码使用标记
-			verificationCodeService.useCode(userId, userVerificationCode);
-			// 记录邮箱修改成功日志
+		UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
 
-			return ResponseResult.okResult(i18nService.getMessage("user.modify.email.success"));
-		} else {
+		EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
+
+        if (emailCodeState.getState() == null){
+            // 验证码正确性及有效期检查
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
+        }else if (!emailCodeState.getState()){
+            // 检查用户输入的验证码与发送的验证码是否一致
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
+        }
+		Boolean flag = userService.modifyEmail(user.getId(), email, emailCodeState.getVerificationCode(), session.getId(), clientIp, fingerprint);
+		// 更新用户邮箱
+		if (flag==null) {
+			//TODO:无状态
+			return ResponseResult.failResult();
+		} else if (!flag){
 			// 返回修改失败结果
 			return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.email.error"));
+		}else {
+			return ResponseResult.okResult(i18nService.getMessage("user.modify.email.success"));
 		}
 	}
 }

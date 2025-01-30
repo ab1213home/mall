@@ -30,10 +30,10 @@ public class MyMvcConfig implements WebMvcConfigurer {
         this.adminLoginInterceptor = adminLoginInterceptor;
     }
 
-    private UserLoginInterceptor userLoginIntercepter;
+    private UserLoginInterceptor userLoginInterceptor;
     @Autowired
-    public void setUserLoginIntercepter(UserLoginInterceptor userLoginIntercepter) {
-        this.userLoginIntercepter = userLoginIntercepter;
+    public void setUserLoginInterceptor(UserLoginInterceptor userLoginInterceptor) {
+        this.userLoginInterceptor = userLoginInterceptor;
     }
 
     private ApiLoginInterceptor apiLoginInterceptor;
@@ -61,14 +61,18 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(repeatUserLoginInterceptor)
                 .addPathPatterns("/user/login.html")
                 .addPathPatterns("/user/login")
-//                .addPathPatterns("/user/register")
+                .addPathPatterns("/user/registerStep1")
+                .addPathPatterns("/user/registerStep2")
+                .addPathPatterns("/user/registerStep3")
                 .addPathPatterns("/user/register.html")
                 .addPathPatterns("/user/forgot.html")
+                .addPathPatterns("/user/forgotStep1")
+                .addPathPatterns("/user/forgotStep2")
                 .addPathPatterns("/user/login.html?*")
                 .addPathPatterns("/user/register.html?*")
                 .addPathPatterns("/user/forgot.html?*");
         // 用户登录拦截器
-        registry.addInterceptor(userLoginIntercepter)
+        registry.addInterceptor(userLoginInterceptor)
                 .addPathPatterns("/user/")
                 .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
@@ -83,9 +87,16 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/**.html?*")
                 .addPathPatterns("/user/**/**.html")
                 .addPathPatterns("/user/**/**.html?*")
+                .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/login.html")
+                .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/register.html")
+                .excludePathPatterns("/user/registerStep1")
+                .excludePathPatterns("/user/registerStep2")
+                .excludePathPatterns("/user/registerStep3")
                 .excludePathPatterns("/user/forgot.html")
+                .excludePathPatterns("/user/forgotStep1")
+                .excludePathPatterns("/user/forgotStep2")
                 .excludePathPatterns("/user/login.html?*")
                 .excludePathPatterns("/user/register.html?*")
                 .excludePathPatterns("/user/forgot.html?*");

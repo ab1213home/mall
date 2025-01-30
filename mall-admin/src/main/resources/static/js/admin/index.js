@@ -39,7 +39,7 @@ $(document).ready(function(){
 
 function  getUserNum(){
 	$.ajax({
-		url:"/user/getNum",
+		url:"/user/admin/getNum",
 		type:"get",
 		data:{},
 		dataType:"json",

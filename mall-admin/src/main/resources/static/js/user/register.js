@@ -44,12 +44,16 @@ function submitRegisterStepOneForm() {
     const password = $('#password').val();
     const confirmPassword = $('#confirmPassword').val();
     const captcha = $('#captcha').val();
+    if (password !== confirmPassword){
+        show_error('两次密码不一致');
+        return;
+    }
     const data = {
         email: email,
         captcha: captcha,
         username: username,
         password: sha256(password),
-        confirmPassword: sha256(confirmPassword),
+        // confirmPassword: sha256(confirmPassword),
     };
     $.ajax({
         url: '/user/registerStep1',

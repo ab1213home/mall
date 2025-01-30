@@ -22,11 +22,18 @@ function changePassword() {
   const newPassword = $('#newPassword').val();
   const confirmPassword = $('#confirmPassword').val();
 
+  if (newPassword !== confirmPassword){
+    show_error('两次输入的密码不一致');
+    return;
+  }
+  if (oldPassword === newPassword){
+    show_error('新密码不能与旧密码相同');
+    return;
+  }
   // 构建请求体
   const data = {
     oldPassword: sha256(oldPassword),
     newPassword: sha256(newPassword),
-    confirmPassword: sha256(confirmPassword),
   };
 
   // 发送 AJAX 请求

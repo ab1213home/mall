@@ -32,7 +32,7 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/user/admin")
 public class AdminController {
 
     private IUserService userService;
@@ -52,12 +52,8 @@ public class AdminController {
     public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "5") Integer pageSize,
                                               HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        if (!result.isSuccess()) {
-            return result;
-        }
-        List<UserVo> userList = userService.getUserList(pageNum,pageSize,(Integer)result.getData());
+        UserVo user = (UserVo) userService.checkAdminUser(session.getId()).getData();
+        List<UserVo> userList = userService.getUserList(pageNum,pageSize, user.getId());
         if (userList == null){
             return ResponseResult.failResult("获取用户列表失败！");
         }
@@ -66,11 +62,6 @@ public class AdminController {
 
     @GetMapping("/getNum")
     public ResponseResult<Object> getUserNum(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        if (!result.isSuccess()) {
-            return result;
-        }
         return ResponseResult.okResult(userService.getUserNum());
     }
 

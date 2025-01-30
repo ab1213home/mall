@@ -166,8 +166,11 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	}
 
 	@Override
-	public Boolean successModifyEmailRecord(User user, String email, String clientIp, String fingerprint) {
-		return false;
+	public Boolean successModifyEmailRecord(@NotNull User user, String email, String clientIp, String fingerprint) {
+		// 创建用户记录对象，包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹
+	    UserRecord userRecord = new UserRecord(user.getId(), user.getUsername(), clientIp, States.SUCCESS_MODIFY_EMAIL.getValue(),fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
 	}
 
 	@Override
@@ -180,6 +183,13 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	@Override
 	public Boolean successForgotRecord(Long user, String clientIp, String fingerprint) {
 		UserRecord userRecord = new UserRecord(user, clientIp, States.FORGET_PASSWORD.getValue(),fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
+	}
+
+	@Override
+	public Boolean successModifyPasswordRecord(Long user, String clientIp, String fingerprint) {
+		UserRecord userRecord = new UserRecord(user, clientIp, States.SUCCESS_MODIFY_PASSWORD.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
 	    return loginRecordMapper.insert(userRecord)>0;
 	}

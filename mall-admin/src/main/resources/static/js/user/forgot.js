@@ -93,11 +93,15 @@ function submitForgotStepTwoForm() {
   const password = $('#password').val();
   const confirmPassword = $('#confirmPassword').val();
 
+  if (password !== confirmPassword) {
+    show_error('两次输入的密码不一致');
+    return;
+  }
+
   // 构建请求体
   const data = {
     code: code,
     password: sha256(password),
-    confirmPassword: sha256(confirmPassword),
   };
 
   // 发送 AJAX 请求

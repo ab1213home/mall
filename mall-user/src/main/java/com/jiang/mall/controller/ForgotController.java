@@ -16,19 +16,15 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.po.EmailCodeState;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import static com.jiang.mall.settings.Email.AllowSendEmail;
 
 /**
  * 用户控制器
@@ -52,13 +48,6 @@ public class ForgotController {
     @Autowired
     public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
         this.verificationCodeService = verificationCodeService;
-    }
-
-    private IUserRecordService userRecordService;
-
-    @Autowired
-    public void setLoginRecordService(IUserRecordService userRecordService) {
-        this.userRecordService = userRecordService;
     }
 
     private II18nService i18nService;
@@ -94,16 +83,7 @@ public class ForgotController {
     public ResponseResult<Object> forgotStep1(@RequestParam("username") String username,
                                               @RequestParam("captcha") String captcha,
                                               HttpSession session) {
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult("您已登录，请退出");
-            }
-        }
-        // 检查系统是否允许发送邮件
-        if (!AllowSendEmail) {
-            return ResponseResult.failResult("管理员不允许发送邮件");
-        }
+
         if (username==null||captcha==null){
             return ResponseResult.failResult("非法请求");
         }
@@ -157,24 +137,16 @@ public class ForgotController {
      *
      * @param code 验证码，用于验证用户身份
      * @param password 新密码，用户希望设置的新密码
-     * @param confirmPassword 确认密码，用于确认新密码输入无误
+//     * @param confirmPassword 确认密码，用于确认新密码输入无误
      * @param session HTTP会话，用于检查用户登录状态
      * @return 返回密码重置结果的响应对象
      */
     @PostMapping("/forgotStep2")
     public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
-                                              @RequestParam("confirmPassword") String confirmPassword,
                                               @RequestHeader("X-Real-IP") String clientIp,
                                               @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                               HttpSession session) {
-        // 检查用户是否已登录
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
-            }
-        }
         if (!i18nService.checkString(code)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
@@ -187,9 +159,9 @@ public class ForgotController {
         if (!i18nService.isValidPassword(password)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
-        if (!password.equals(confirmPassword)){
-            return ResponseResult.failResult(i18nService.getMessage("user.password.error.confirm"));
-        }
+//        if (!password.equals(confirmPassword)){
+//            return ResponseResult.failResult(i18nService.getMessage("user.password.error.confirm"));
+//        }
         EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
 
         if (emailCodeState.getState() == null){
@@ -199,14 +171,13 @@ public class ForgotController {
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-
-        if (userService.modifyPassword(emailCodeState.getVerificationCode().getUserId(),password)){
-            emailCodeState.getVerificationCode().setPassword(password);
-            verificationCodeService.useCode(emailCodeState.getVerificationCode().getUserId(), emailCodeState.getVerificationCode());
-            userRecordService.successForgotRecord(emailCodeState.getVerificationCode().getUserId(),clientIp,fingerprint);
-            return ResponseResult.okResult(i18nService.getMessage("user.modify.password.success"));
-        }else{
+        Boolean flag = userService.modifyPassword(emailCodeState.getVerificationCode().getUserId(), password, emailCodeState.getVerificationCode(), clientIp, fingerprint);
+        if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
+        }else if (!flag){
+            return ResponseResult.failResult(i18nService.getMessage("user.modify.password.error"));
+        }else{
+            return ResponseResult.okResult(i18nService.getMessage("user.modify.password.success"));
         }
     }
 }

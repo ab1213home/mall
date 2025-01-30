@@ -16,6 +16,7 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import jakarta.servlet.http.HttpSession;
 
@@ -33,7 +34,7 @@ public interface IUserService extends IService<User> {
 
     Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId);
 
-    Boolean modifyPassword(Long userId, String oldPassword, String newPassword);
+    Boolean modifyPassword(Long userId, String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint);
 
     User getUserInfo(Long userId);
 
@@ -45,9 +46,9 @@ public interface IUserService extends IService<User> {
 
     Boolean queryByEmail(String email);
 
-    Long registerStep(User user);
+    Long register(User user, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 
-    List<UserVo> getUserList(Integer pageNum, Integer pageSize, Integer userId);
+    List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId);
 
     Boolean updateUser(User user);
 
@@ -63,7 +64,11 @@ public interface IUserService extends IService<User> {
 
 	User getUserByUserNameOrEmail(String username);
 
-    Boolean modifyPassword(Long userId, String newPassword);
+    Boolean modifyPassword(Long userId, String newPassword, VerificationCode verificationCode, String clientIp, String fingerprint);
 
     Boolean logout(String sessionId);
+
+    Boolean validatePassword(Long userId, String password);
+
+    Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 }

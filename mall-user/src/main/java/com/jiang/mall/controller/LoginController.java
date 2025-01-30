@@ -45,16 +45,10 @@ public class LoginController {
 
 	private IUserService userService;
 
-    /**
-     * 设置用户服务实例
-     *
-     * @param userService 用户服务实例
-     */
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
     }
-
 
     private IUserRecordService userRecordService;
 

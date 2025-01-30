@@ -38,4 +38,7 @@ public interface IUserRecordService extends IService<UserRecord> {
 
 	@SuppressWarnings("UnusedReturnValue")
 	Boolean successForgotRecord(Long user, String clientIp, String fingerprint);
+
+	@SuppressWarnings("UnusedReturnValue")
+	Boolean successModifyPasswordRecord(Long user, String clientIp, String fingerprint);
 }

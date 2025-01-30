@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function lock_user() {
     $.ajax({
-        url: '/modify/self-lock',
+        url: '/user/modify/self-lock',
         type: 'POST',
         data: {},
         dataType: 'json',

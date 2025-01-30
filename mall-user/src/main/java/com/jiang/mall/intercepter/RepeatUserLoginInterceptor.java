@@ -13,6 +13,9 @@
 
 package com.jiang.mall.intercepter;
 
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.io.PrintWriter;
 
 @Component
 public class RepeatUserLoginInterceptor implements HandlerInterceptor {
@@ -30,6 +35,14 @@ public class RepeatUserLoginInterceptor implements HandlerInterceptor {
     public void userService(IUserService userService) {
         this.userService = userService;
     }
+
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
+
 
     /**
      * 在请求处理之前进行预处理
@@ -48,7 +61,13 @@ public class RepeatUserLoginInterceptor implements HandlerInterceptor {
         // 检查用户登录状态
         if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 如果用户已登录，重定向到用户首页
-            response.sendRedirect(request.getContextPath() + "/user/index.html");
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
+            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated")));
+            PrintWriter writer = response.getWriter();
+            writer.write(jsonResponse);
+            writer.flush();
+            writer.close();
         }
         // 允许其他请求继续执行
         return true;

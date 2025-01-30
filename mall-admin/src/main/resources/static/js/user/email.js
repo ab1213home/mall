@@ -44,7 +44,7 @@ function submitChangeEmailStupOneForm() {
     };
     $.ajax({
         type:"POST",
-        url:"/user/modify/EmailStep1",
+        url:"/user/modify/emailStep1",
         data:data,
         dataType:"json",
         success:function(response){
@@ -111,7 +111,7 @@ function submitChangeEmailStupTowForm() {
 
   // 发送 AJAX 请求
   $.ajax({
-    url: '/user/modify/EmailStep2',
+    url: '/user/modify/emailStep2',
     type: 'POST',
     data: data,
     dataType:"json",

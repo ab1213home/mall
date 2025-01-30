@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function queryUser(pn, pz) {
         $.ajax({
         type: "GET",
-        url: "/user/getList",
+        url: "/user/admin/getList",
         data: {
             pageNum: pn,
             pageSize: pz
@@ -149,7 +149,7 @@ function unlockUser(id) {
 function getUserNum() {
     $.ajax({
         type: "GET",
-        url: "/user/getNum",
+        url: "/user/admin/getNum",
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {

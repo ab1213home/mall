@@ -54,14 +54,7 @@ public class CommonController {
      */
     @GetMapping("/getDays")
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-		    // 如果未登录，则直接返回
-		    return result;
-		}
-
-        UserVo user = (UserVo) session.getAttribute("User");
-
+        UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
         // 检查session中是否设置了用户生日
         if (user.getBirthDate() == null){
             return ResponseResult.failResult("未设置生日！");

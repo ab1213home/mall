@@ -16,7 +16,6 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.po.EmailCodeState;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
@@ -36,7 +35,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.*;
-import static com.jiang.mall.settings.Email.AllowSendEmail;
 
 /**
  * 用户控制器
@@ -60,13 +58,6 @@ public class RegisterController {
     @Autowired
     public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
         this.verificationCodeService = verificationCodeService;
-    }
-
-    private IUserRecordService userRecordService;
-
-    @Autowired
-    public void setLoginRecordService(IUserRecordService userRecordService) {
-        this.userRecordService = userRecordService;
     }
 
     private II18nService i18nService;
@@ -105,7 +96,7 @@ public class RegisterController {
      * @param username 用户名
      * @param email 邮箱
      * @param password 密码
-     * @param confirmPassword 确认密码
+//     * @param confirmPassword 确认密码
      * @param captcha 验证码
      * @param session HTTP会话
      * @return 注册结果
@@ -114,17 +105,9 @@ public class RegisterController {
     public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
                                                 @RequestParam("email") String email,
                                                 @RequestParam("password") String password,
-                                                @RequestParam("confirmPassword") String confirmPassword,
+//                                                @RequestParam("confirmPassword") String confirmPassword,
                                                 @RequestParam("captcha") String captcha,
                                                 HttpSession session) {
-        // 检查用户是否已登录
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
-            }
-        }
-
         // 验证邮箱格式
         if (!i18nService.isValidEmail(email)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.email.format"));
@@ -138,16 +121,12 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
         // 验证密码一致性
-        if (!password.equals(confirmPassword)) {
-            return ResponseResult.failResult(i18nService.getMessage("user.error.password.discrepancy"));
-        }
+//        if (!password.equals(confirmPassword)) {
+//            return ResponseResult.failResult(i18nService.getMessage("user.error.password.discrepancy"));
+//        }
 
         if (!i18nService.checkString(captcha)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
-        }
-        // 检查是否允许发送注册邮件
-        if (!AllowSendEmail){
-            return ResponseResult.failResult(i18nService.getMessage("email.error.allowed"));
         }
 
         Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
@@ -197,14 +176,6 @@ public class RegisterController {
                                                 @RequestHeader("X-Real-IP") String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                                 HttpSession session) {
-        // 检查用户是否已登录
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
-            }
-        }
-
         if (!AllowRegistration){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
         }
@@ -232,17 +203,13 @@ public class RegisterController {
         }
         // 创建并注册用户
         User user = new User(emailCodeState.getVerificationCode().getUsername(),emailCodeState.getVerificationCode().getPassword(),emailCodeState.getVerificationCode().getEmail());
-        Long userId = userService.registerStep(user);
+        Long userId = userService.register(user, emailCodeState.getVerificationCode(),session.getId(), clientIp, fingerprint);
         if (userId>0) {
-            redisService.setString(session.getId(), String.valueOf(userId),30, TimeUnit.MINUTES);
-            verificationCodeService.useCode(userId, emailCodeState.getVerificationCode());
-            userRecordService.successRegisterRecord(user, clientIp, fingerprint);
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.register.error"));
         }
     }
-
 
     /**
      * 完成注册过程的第三步
@@ -264,14 +231,6 @@ public class RegisterController {
                                                 @RequestParam("birthday") String birthDate,
                                                 @RequestParam("img") String img,
                                                 HttpSession session) {
-        // 检查用户是否已登录
-        if (session.getAttribute("User")!=null){
-            UserVo user = (UserVo) session.getAttribute("User");
-            if (user.getId()!=null){
-                return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
-            }
-        }
-
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
         String userIdStr = redisService.getString(session.getId());
         if (userIdStr ==null){
@@ -279,11 +238,6 @@ public class RegisterController {
         }
 
         Long userId = Long.parseLong(userIdStr);
-//        if (session.getAttribute("UserId")==null){
-//            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
-//        }
-
-//        Long UserId = (Long) session.getAttribute("UserId");
 
         // 验证手机号格式
         if (!i18nService.isValidPhone(phone)){
@@ -310,10 +264,8 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.format"));
         }
         // 调用服务层方法保存用户个人信息
-        if (userService.registerStep(user)>0) {
+        if (userService.register(user, null,session.getId(),null,null)>0) {
             // 注册成功后清除会话中的用户id
-//            session.removeAttribute("userId");
-            redisService.deleteKey(session.getId());
             return ResponseResult.okResult();
         }else {
             // 处理个人信息保存失败的情况
