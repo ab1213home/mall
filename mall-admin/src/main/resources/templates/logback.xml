@@ -21,7 +21,7 @@
     <property name="baseFile" value="mall-logback" />
 
     <!-- 项目所在盘符的根目录下, 也可以指定具体盘符位置, 如：E:\\app\\ouyangjun-logback\\logs -->
-    <property name="rootPath" value="/logs" />
+    <property name="rootPath" value="/home/logs" />
 
     <!-- 日志输出格式 -->
     <property name="pattern" value="%X{thread} [%date{yyyy-MM-dd HH:mm:ss.SSS}] %level %logger{36} %line - %msg%n"/>

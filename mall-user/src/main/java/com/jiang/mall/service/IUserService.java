@@ -55,13 +55,15 @@ public interface IUserService extends IService<User> {
 
     ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
 
-    ResponseResult<Object> checkAdminUser(HttpSession session);
+    ResponseResult<Object> checkAdminUser(String sessionId);
 
-    ResponseResult<Object> checkUserLogin(HttpSession session);
+    ResponseResult<Object> checkUserLogin(String sessionId);
 
     Long getUserNum();
 
 	User getUserByUserNameOrEmail(String username);
 
     Boolean modifyPassword(Long userId, String newPassword);
+
+    Boolean logout(String sessionId);
 }

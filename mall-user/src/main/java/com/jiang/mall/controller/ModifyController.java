@@ -130,7 +130,7 @@ public class ModifyController {
             return ResponseResult.failResult(i18nService.getMessage("user.modify.password.error.identical"));
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -176,7 +176,7 @@ public class ModifyController {
                                                  @RequestParam(required = false) Integer roleId,
                                                  HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             return result; // 如果未登录，则直接返回
         }
@@ -279,7 +279,7 @@ public class ModifyController {
     @PostMapping("/modify/self-lock")
     public ResponseResult<Object> lockUser(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

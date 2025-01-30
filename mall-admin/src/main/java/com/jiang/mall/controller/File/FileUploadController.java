@@ -74,7 +74,7 @@ public class FileUploadController {
         if (!AllowUploadFile){
             return ResponseResult.failResult("上传文件被禁止");
         }
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
 
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
@@ -129,7 +129,7 @@ public class FileUploadController {
         }
 
         // 检查用户登录状态
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

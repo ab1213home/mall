@@ -76,7 +76,7 @@ public class CartController {
                                               @RequestParam(defaultValue = "5") Integer pageSize,
                                               HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session);
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
@@ -95,7 +95,7 @@ public class CartController {
     @GetMapping("/getNum")
     public ResponseResult<Object> getCartNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -119,7 +119,7 @@ public class CartController {
                                   @RequestParam("num") Integer num,
                                   HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -160,7 +160,7 @@ public class CartController {
                                      @RequestParam("num") Integer num,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -207,7 +207,7 @@ public class CartController {
     public ResponseResult<Object> deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

@@ -54,7 +54,7 @@ public class CommonController {
      */
     @GetMapping("/getDays")
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 		    // 如果未登录，则直接返回
 		    return result;

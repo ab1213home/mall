@@ -61,7 +61,7 @@ public class FileAdminController {
     @GetMapping("/file/getFileSize")
     public ResponseResult<Object> getSize(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -109,7 +109,7 @@ public class FileAdminController {
     public ResponseResult<Object> getAllList(@RequestParam(required = false) String path,
                                   HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -135,7 +135,7 @@ public class FileAdminController {
     public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
                                   HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -166,7 +166,7 @@ public class FileAdminController {
     @GetMapping("/file/getSetting")
     public ResponseResult<Object> getSetting(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -200,7 +200,7 @@ public class FileAdminController {
     public ResponseResult<Object> setSetting(@RequestBody FileSettingVo fileSettingVo,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;
@@ -256,7 +256,7 @@ public class FileAdminController {
     public ResponseResult<Object> getPurpose(@RequestParam("path") String path,
                                      HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录，则直接返回
         if (!result.isSuccess()) {
             return result;

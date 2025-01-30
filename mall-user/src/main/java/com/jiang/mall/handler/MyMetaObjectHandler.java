@@ -15,8 +15,11 @@ package com.jiang.mall.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -26,6 +29,13 @@ import java.util.Objects;
 
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
+
+    private IUserService userService;
+
+    @Autowired
+    public void setUserService(@Lazy IUserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * 插入数据填充方法
@@ -38,14 +48,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         // 获取当前的HTTP请求
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        // 从会话中获取当前用户的ID
-        UserVo userVo = (UserVo) request.getSession().getAttribute("User");
-        if(userVo != null){
-            Long userId = userVo.getId();
+        if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+            // 从会话中获取当前用户的ID
+            UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
             // 设置创建者ID为当前用户的ID
-            this.setFieldValByName("creator", userId, metaObject);
+            this.setFieldValByName("creator", userVo.getId(), metaObject);
             // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", userId, metaObject);
+            this.setFieldValByName("updater", userVo.getId(), metaObject);
         }
         // 设置创建时间为当前时间
         this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
@@ -66,12 +75,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
         // 获取当前的HTTP请求
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-        // 从会话中获取当前用户的ID
-        UserVo userVo = (UserVo) request.getSession().getAttribute("User");
-        if(userVo != null){
-            Long userId = userVo.getId();
+        if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+            // 从会话中获取当前用户的ID
+            UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
             // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", userId, metaObject);
+            this.setFieldValByName("updater", userVo.getId(), metaObject);
         }
     }
 

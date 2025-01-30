@@ -107,7 +107,7 @@ public class EmailController {
         if (!AllowSendEmail){
 			return ResponseResult.failResult("管理员不允许发送邮件");
 		}
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -198,7 +198,7 @@ public class EmailController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
 		// 检查用户是否已登录
-		ResponseResult<Object> result = userService.checkUserLogin(session);
+		ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 			return result;
 		}

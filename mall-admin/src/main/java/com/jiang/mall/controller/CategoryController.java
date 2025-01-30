@@ -123,7 +123,7 @@ public class CategoryController {
                                          @RequestParam("name")String name,
                                          HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         // 如果用户未登录或无管理员权限，则返回错误结果
         if (!result.isSuccess()) {
             return result;

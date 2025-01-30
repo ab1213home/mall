@@ -83,7 +83,7 @@ public class AddressController {
                                                  @RequestParam(defaultValue = "10") Integer pageSize,
                                                  HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -111,7 +111,7 @@ public class AddressController {
 	@GetMapping("/getNum")
 	public ResponseResult<Object> getNum(HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -143,7 +143,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
@@ -214,7 +214,7 @@ public class AddressController {
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
 	    // 检查用户登录状态
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;
@@ -270,7 +270,7 @@ public class AddressController {
 	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
 	                                    HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
 		if (!result.isSuccess()) {
 			// 如果未登录，则直接返回
 		    return result;

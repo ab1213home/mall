@@ -5,10 +5,10 @@
     <parent>
         <artifactId>mall-parent</artifactId>
         <groupId>com.jiang</groupId>
-        <version>0.0.1</version>
+        <version>2.0.1</version>
     </parent>
     <artifactId>mall-system</artifactId>
-    <version>0.0.1</version>
+    <version>2.0.1</version>
     <name>mall-system</name>
     <description>mall-system</description>
     <url/>

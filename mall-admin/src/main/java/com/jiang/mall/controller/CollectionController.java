@@ -65,7 +65,7 @@ public class CollectionController {
 	public ResponseResult<Object> insertCollection(@RequestParam("productId") Long productId,
 	                                               HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -91,7 +91,7 @@ public class CollectionController {
 	public ResponseResult<Object> deleteCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -128,7 +128,7 @@ public class CollectionController {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
 		// 检查会话中是否设置表示用户已登录的标志
-		ResponseResult<Object> result = userService.checkUserLogin(session);
+		ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -149,7 +149,7 @@ public class CollectionController {
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -165,7 +165,7 @@ public class CollectionController {
 	@GetMapping("/getNum")
 	public ResponseResult<Object> getCollectionNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;
@@ -178,7 +178,7 @@ public class CollectionController {
 	public ResponseResult<Object> isCollected(@RequestParam("productId") Long productId,
 	                                  HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             // 如果未登录，则直接返回
             return result;

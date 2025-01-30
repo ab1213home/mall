@@ -15,6 +15,7 @@ package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,13 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class AdminLoginInterceptor implements HandlerInterceptor {
 
+    private IUserService userService;
+
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
+
     private II18nService i18nService;
 
     @Autowired
@@ -38,14 +46,11 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
+        // 获取请求的URI
         String requestURI = request.getRequestURI();
-        if (request.getSession().getAttribute("User")!=null){
-            UserVo user = (UserVo) request.getSession().getAttribute("User");
-            if (user.getId()==null){
-                redirectToLogin(request, response, requestURI);
-                return false;
-            }
-            if (user.isAdmin()){
+
+        if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+            if (userService.checkAdminUser(request.getSession().getId()).isSuccess()){
                 return true;
             }else {
                 response.sendRedirect(request.getContextPath() + "/user/index.html");

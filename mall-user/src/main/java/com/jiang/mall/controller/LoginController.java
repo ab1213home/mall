@@ -70,14 +70,6 @@ public class LoginController {
 		this.i18nService = i18nService;
 	}
 
-
-	private IStringRedisService redisService;
-
-    @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
-        this.redisService = redisService;
-    }
-
     private ICaptchaService captchaService;
 
 	@Autowired
@@ -105,11 +97,6 @@ public class LoginController {
                                         @RequestHeader("X-Real-IP") String clientIp,
                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                         HttpSession session) {
-        // 检查用户是否已经登录，避免重复登录
-	    ResponseResult<Object> result = userService.checkUserLogin(session);
-		if (result.isSuccess()) {
-		   return ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated"));
-		}
 		if (!i18nService.checkString(username,255)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
 		}
@@ -163,10 +150,7 @@ public class LoginController {
     @GetMapping("/logout")
     public ResponseResult<Object> logout(HttpSession session){
         // 检查会话中是否存在用户并移除
-        if (session.getAttribute("User")!=null){
-            session.removeAttribute("User");
-        }
-		redisService.deleteKey(session.getId());
+	    userService.logout(session.getId());
         // 返回登出成功的结果
         return ResponseResult.okResult();
     }
@@ -181,22 +165,7 @@ public class LoginController {
      */
     @GetMapping("/isLogin")
     public ResponseResult<Object> isLogin(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
-		if (!result.isSuccess()) {
-		    // 如果未登录，则直接返回
-		    return result;
-		}
-        UserVo userVo =(UserVo)session.getAttribute("User");
-	    if (userVo == null)
-	        return ResponseResult.failResult(i18nService.getMessage("user.isLogin.error"));
-        // 尝试从会话中获取并设置用户的出生日期，并计算下个生日的天数
-        if (userVo.getBirthDate()!= null){
-            userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
-            session.setAttribute("User", userVo);
-        }
-        // 返回包含用户信息的结果
-        return ResponseResult.okResult(userVo);
+        return userService.checkUserLogin(session.getId());
     }
 
     /**
@@ -209,10 +178,6 @@ public class LoginController {
      */
     @GetMapping("/isAdminUser")
     public ResponseResult<Object> isAdminUser(HttpSession session){
-        if (session.getAttribute("User") == null){
-            return ResponseResult.serverErrorResult(i18nService.getMessage("user.checkUser.noLogin"));
-        }
-        UserVo user = (UserVo) session.getAttribute("User");
-        return ResponseResult.okResult(user.isAdmin());
+        return ResponseResult.okResult(userService.checkAdminUser(session.getId()).isSuccess());
     }
 }

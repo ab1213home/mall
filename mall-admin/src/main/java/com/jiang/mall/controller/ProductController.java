@@ -84,7 +84,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session);
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
             return result;
         }
@@ -174,7 +174,7 @@ public class ProductController {
                                         @RequestParam("description") String description,
                                         HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         if (!result.isSuccess()) {
             return result;
         }
@@ -329,7 +329,7 @@ public class ProductController {
     @GetMapping("/getNum")
     public ResponseResult<Object> getProductNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         if (!result.isSuccess()) {
             return result;
         }

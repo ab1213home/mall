@@ -53,7 +53,7 @@ public class AdminController {
                                               @RequestParam(defaultValue = "5") Integer pageSize,
                                               HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         if (!result.isSuccess()) {
             return result;
         }
@@ -67,7 +67,7 @@ public class AdminController {
     @GetMapping("/getNum")
     public ResponseResult<Object> getUserNum(HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session);
+        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
         if (!result.isSuccess()) {
             return result;
         }

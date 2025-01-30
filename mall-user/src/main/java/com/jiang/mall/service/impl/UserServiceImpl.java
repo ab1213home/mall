@@ -89,23 +89,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * 检查用户是否已登录
 	 * <p>
 	 * 此方法检查会话中的 "User" 属性以确认用户是否已经登录。
-	 * 如果用户未登录，则返回失败的结果；如果已登录，则返回用户ID。
+	 * 如果用户未登录，则返回失败的结果；如果已登录，则返回用户对象。
 	 *
-	 * @param session 当前用户的会话
+	 * @param sessionId 当前用户的会话Id
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
-	public ResponseResult<Object> checkUserLogin(@NotNull HttpSession session) {
-	    // 检查用户是否已登录
-	    if (session.getAttribute("User") != null) {
-	        UserVo user = (UserVo) session.getAttribute("User");
+	public ResponseResult<Object> checkUserLogin(String sessionId) {
+		if (redisService.hasKey(sessionId)){
+			String userJson = redisService.getString(sessionId);
+			UserVo user = JSON.parseObject(userJson, UserVo.class);
 			if (user.getId()==null){
 				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
 			}else{
-				return ResponseResult.okResult(user.getId());
+				return ResponseResult.okResult(user);
 			}
-	    }else {
+		}else{
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
-	    }
+		}
 	}
 
 	/**
@@ -127,19 +127,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * 如果用户已登录但不是管理员，则返回无权限访问的结果
 	 * 如果用户已登录且是管理员，则返回成功的验证结果
 	 *
-	 * @param session HTTP会话，用于获取用户登录状态和管理员状态
+	 * @param sessionId 当前用户的会话Id
 	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
 	 */
-	public ResponseResult<Object> checkAdminUser(HttpSession session) {
+	public ResponseResult<Object> checkAdminUser(String sessionId) {
 	    // 检查用户是否已登录
-	    ResponseResult<Object> result = checkUserLogin(session);
+	    ResponseResult<Object> result = checkUserLogin(sessionId);
 	    if (!result.isSuccess()) {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-		UserVo user = (UserVo) session.getAttribute("User");
+		UserVo user = (UserVo) result.getData();
 		if (user.isAdmin()){
-			return ResponseResult.okResult(user.getId());
+			return ResponseResult.okResult(user);
 		}else{
 			return ResponseResult.failResult(i18nService.getMessage("user.checkAdmin.noAdmin"));
 		}
@@ -156,12 +156,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	public ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = checkAdminUser(session);
+	    ResponseResult<Object> result = checkAdminUser(session.getId());
 	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
 	    if (!result.isSuccess()) {
 	        return result;
 	    }
-		UserVo user = (UserVo) session.getAttribute("User");
+		UserVo user = (UserVo) result.getData();
 	    // 获取创建修改用户的信息
 		if (userMapper.selectById(oldUserId) == null) {
 			return ResponseResult.okResult(result.getData());
@@ -182,7 +182,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param password    密文密码，用于登录验证
 	 * @param clientIp    客户端IP地址
 	 * @param fingerprint 浏览器指纹，用于登录验证
-	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回f
+	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回false
 	 */
 	@Override
 	public Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId) {
@@ -197,6 +197,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
+			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
@@ -344,6 +345,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 如果用户不存在或旧密码验证失败，返回false。
 			return false;
 	    }
+	}
+
+	@Override
+	public Boolean logout(String sessionId) {
+		if (redisService.hasKey(sessionId)){
+			return redisService.deleteKey(sessionId);
+		}
+		return true;
 	}
 
 	/**

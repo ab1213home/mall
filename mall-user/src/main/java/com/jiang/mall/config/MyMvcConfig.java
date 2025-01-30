@@ -36,7 +36,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
         this.userLoginIntercepter = userLoginIntercepter;
     }
 
-
     private ApiLoginInterceptor apiLoginInterceptor;
 
     @Autowired
@@ -51,7 +50,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
         this.repeatUserLoginInterceptor = repeatUserLoginInterceptor;
     }
 
-
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -59,19 +57,17 @@ public class MyMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
+        // 防止重复登录
         registry.addInterceptor(repeatUserLoginInterceptor)
                 .addPathPatterns("/user/login.html")
+                .addPathPatterns("/user/login")
+//                .addPathPatterns("/user/register")
                 .addPathPatterns("/user/register.html")
                 .addPathPatterns("/user/forgot.html")
                 .addPathPatterns("/user/login.html?*")
                 .addPathPatterns("/user/register.html?*")
                 .addPathPatterns("/user/forgot.html?*");
-        registry.addInterceptor(adminLoginInterceptor)
-                .addPathPatterns("/**/admin/**")
-                .addPathPatterns("/admin/**.html")
-                .addPathPatterns("/admin/**.html?*")
-                .addPathPatterns("/admin/**/**.html")
-                .addPathPatterns("/admin/**/**.html?*");
+        // 用户登录拦截器
         registry.addInterceptor(userLoginIntercepter)
                 .addPathPatterns("/user/")
                 .addPathPatterns("/cart")
@@ -93,6 +89,14 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/user/login.html?*")
                 .excludePathPatterns("/user/register.html?*")
                 .excludePathPatterns("/user/forgot.html?*");
+        // 系统管理员登录拦截器
+        registry.addInterceptor(adminLoginInterceptor)
+                .addPathPatterns("/**/admin/**")
+                .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/admin/**.html?*")
+                .addPathPatterns("/admin/**/**.html")
+                .addPathPatterns("/admin/**/**.html?*");
+        // API登录拦截器
         registry.addInterceptor(apiLoginInterceptor)
                 .addPathPatterns("/api/**");
     }

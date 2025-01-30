@@ -15,6 +15,7 @@ package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +37,13 @@ public class UserLoginInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
+    private IUserService userService;
+
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
+
     /**
      * 重写preHandle方法，用于在处理请求前进行用户登录状态的检查
      * 此方法的主要目的是确定用户是否已经登录，如果未登录，则重定向到登录页面
@@ -52,14 +60,8 @@ public class UserLoginInterceptor implements HandlerInterceptor {
         // 获取请求的URI
         String requestURI = request.getRequestURI();
 
-        if (request.getSession().getAttribute("User")!=null){
-            UserVo user = (UserVo) request.getSession().getAttribute("User");
-            if (user.getId()==null){
-                redirectToLogin(request, response, requestURI);
-                return false;
-            }else {
-                return true;
-            }
+        if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+            return true;
         }else {
             redirectToLogin(request, response, requestURI);
             return false;
