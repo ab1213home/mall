@@ -196,8 +196,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			userRecordService.failedLoginRecord(username, clientIp, fingerprint);
 			return false;
 		} else {
-			// 登录成功，记录登录记录
-			userRecordService.successLoginRecord(user, clientIp, fingerprint);
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
 	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
@@ -207,6 +205,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             }
 			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setString(sessionId, JSON.toJSONString(userVo),4, TimeUnit.HOURS);
+			// 登录成功，记录登录记录
+			userRecordService.successLoginRecord(user, clientIp, fingerprint);
 			return true;
 		}
 	}
