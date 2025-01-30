@@ -40,7 +40,7 @@ public interface IUserService extends IService<User> {
 
     Boolean modifyUserInfo(User newUser);
 
-    Boolean lockUser(Long userId);
+    Boolean lockUser(Long userId, String sessionId, String clientIp, String fingerprint);
 
     Boolean queryByUserName(String userName);
 
@@ -52,7 +52,7 @@ public interface IUserService extends IService<User> {
 
     Boolean updateUser(User user);
 
-	Boolean unlockUser(Long userId);
+	Boolean unlockUser(Long userId, String clientIp, String fingerprint);
 
     ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
 
@@ -71,4 +71,6 @@ public interface IUserService extends IService<User> {
     Boolean validatePassword(Long userId, String password);
 
     Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
+
+    Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint);
 }

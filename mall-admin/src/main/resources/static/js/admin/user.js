@@ -130,9 +130,13 @@ function queryUser(pn, pz) {
 function unlockUser(id) {
     $.ajax({
         type: "POST",
-        url: "/user/modify/unlock",
+        url: "/user/modify/admin/unlock",
         data: {
             userId: id
+        },
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
         },
         dataType: "json",
         success: function (response) {
@@ -233,9 +237,13 @@ function getUser(id) {
 function lockUser(id) {
     $.ajax({
         type: "POST",
-        url: "/user/modify/lock",
+        url: "/user/modify/admin/lock",
         data: {
             userId: id
+        },
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
         },
         dataType: "json",
         success: function (response) {

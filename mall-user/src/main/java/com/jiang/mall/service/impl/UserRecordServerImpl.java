@@ -194,4 +194,25 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	    return loginRecordMapper.insert(userRecord)>0;
 	}
 
+	@Override
+	public Boolean successLockRecord(Long user, String clientIp, String fingerprint) {
+		UserRecord userRecord = new UserRecord(user, clientIp, States.SUCCESS_LOCK.getValue(),fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
+	}
+
+	@Override
+	public Boolean successLockAdminRecord(Long user, String clientIp, String fingerprint) {
+		UserRecord userRecord = new UserRecord(user, clientIp, States.SUCCESS_ADMIN_LOCK.getValue(),fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
+	}
+
+	@Override
+	public Boolean successUnlockAdminRecord(Long user, String clientIp, String fingerprint) {
+		UserRecord userRecord = new UserRecord(user, clientIp, States.SUCCESS_UNLOCK.getValue(),fingerprint);
+	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
+	    return loginRecordMapper.insert(userRecord)>0;
+	}
+
 }

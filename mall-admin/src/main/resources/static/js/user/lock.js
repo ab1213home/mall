@@ -30,6 +30,10 @@ function lock_user() {
         url: '/user/modify/self-lock',
         type: 'POST',
         data: {},
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
+        },
         dataType: 'json',
         success: function(rea){
             if(rea.code == 200){

@@ -12,7 +12,6 @@ services:
       - mall-redis
     volumes:
       - ./data:/data
-      - ./logs:/logs
       - ./config.properties:/config.properties
       - ./application.properties:/application.properties
   mall-redis:

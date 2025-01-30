@@ -15,15 +15,13 @@ package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * 用户控制器
@@ -37,33 +35,9 @@ public class LockController {
 
 	private IUserService userService;
 
-	/**
-	 * 设置用户服务实例
-	 *
-	 * @param userService 用户服务实例
-	 */
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
-	}
-
-	private IVerificationCodeService verificationCodeService;
-
-	/**
-	 * 设置验证码服务实例
-	 *
-	 * @param verificationCodeService 验证码服务实例
-	 */
-	@Autowired
-	public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-		this.verificationCodeService = verificationCodeService;
-	}
-
-	private IUserRecordService userRecordService;
-
-	@Autowired
-	public void setLoginRecordService(IUserRecordService userRecordService) {
-		this.userRecordService = userRecordService;
 	}
 
 	private II18nService i18nService;
@@ -71,21 +45,6 @@ public class LockController {
 	@Autowired
 	public void setI18nService(II18nService i18nService) {
 		this.i18nService = i18nService;
-	}
-
-
-	private ICaptchaService captchaService;
-
-	@Autowired
-	public void setCaptchaService(ICaptchaService captchaService) {
-		this.captchaService = captchaService;
-	}
-
-	private IEmailService emailService;
-
-	@Autowired
-	public void setEmailRedisService(IEmailService emailService) {
-		this.emailService = emailService;
 	}
 
 	/**
@@ -99,21 +58,17 @@ public class LockController {
      *         如果用户锁定失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/self-lock")
-    public ResponseResult<Object> lockUser(HttpSession session) {
+    public ResponseResult<Object> lockUser(@RequestHeader("X-Real-IP") String clientIp,
+                                           @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                       HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        // 获取已登录用户的ID
-        Long userId = (Long) result.getData();
+        UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
         // 尝试锁定用户，如果失败则返回错误信息
-        if (userService.lockUser(userId))
-            return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
-        // 用户锁定成功，返回成功信息
-        userService.logout(session.getId());
-        return ResponseResult.okResult(i18nService.getMessage("user.lock.success"));
+        if (!userService.lockUser(user.getId(), session.getId(), clientIp, fingerprint)){
+			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
+        }else {
+			return ResponseResult.okResult(i18nService.getMessage("user.lock.success"));
+		}
     }
 
     /**
@@ -124,8 +79,10 @@ public class LockController {
      * @param session HttpSession对象，用于检查用户是否已登录及权限验证
      * @return ResponseResult表示操作结果，包含成功、失败、未找到资源、服务器错误等状态
      */
-    @PostMapping("/lock")
+    @PostMapping("/admin/lock")
     public ResponseResult<Object> selfLock(@RequestParam("userId") Long userId,
+										   @RequestHeader("X-Real-IP") String clientIp,
+                                           @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                            HttpSession session) {
         if (!i18nService.checkId(userId)){
             return ResponseResult.failResult(i18nService.getMessage("id.error"));
@@ -145,8 +102,13 @@ public class LockController {
             return result;
         }
 
+		UserVo userVo = (UserVo) result.getData();
+		if (Objects.equals(userVo.getId(), userId)){
+			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
+		}
+
         // 尝试锁定用户
-        if (userService.lockUser(userId)){
+        if (userService.lockUserByAdmin(userId, clientIp, fingerprint)){
             // 锁定失败，返回错误信息
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
         }else {
@@ -167,8 +129,10 @@ public class LockController {
      * 如果解锁成功，返回表示成功的响应结果
      * 如果解锁失败，返回表示服务器错误的响应结果
      */
-    @PostMapping("/unlock")
+    @PostMapping("/admin/unlock")
     public ResponseResult<Object> unlockUser(@RequestParam("userId") Long userId,
+											 @RequestHeader("X-Real-IP") String clientIp,
+											 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                              HttpSession session) {
         if (!i18nService.checkId(userId)){
             return ResponseResult.failResult(i18nService.getMessage("id.error"));
@@ -188,11 +152,11 @@ public class LockController {
         }
 
         // 尝试解锁用户，如果失败则返回错误信息
-        if (!userService.unlockUser(userId))
-            return ResponseResult.serverErrorResult(i18nService.getMessage("user.unlock.error"));
-
-        // 解锁成功，返回成功信息
-        return ResponseResult.okResult(i18nService.getMessage("user.unlock.success"));
+        if (!userService.unlockUser(userId, clientIp, fingerprint)){
+			return ResponseResult.serverErrorResult(i18nService.getMessage("user.unlock.error"));
+        }else {
+			return ResponseResult.okResult(i18nService.getMessage("user.unlock.success"));
+		}
     }
 
 }

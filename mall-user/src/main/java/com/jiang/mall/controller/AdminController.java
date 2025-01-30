@@ -50,7 +50,7 @@ public class AdminController {
 
     @GetMapping("/getList")
     public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                              @RequestParam(defaultValue = "5") Integer pageSize,
+                                              @RequestParam(defaultValue = "20") Integer pageSize,
                                               HttpSession session){
         UserVo user = (UserVo) userService.checkAdminUser(session.getId()).getData();
         List<UserVo> userList = userService.getUserList(pageNum,pageSize, user.getId());

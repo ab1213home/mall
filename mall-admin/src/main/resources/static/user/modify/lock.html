@@ -317,6 +317,26 @@
     <script src="/js/user/index_top.js"></script>
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
+    <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
+    <script type="application/javascript">
+        let fingerprint = "";
+        let ip = "";
+        function getIP(json) {
+            ip = json.ip;
+        }
+        async function getFingerprint() {
+            // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+            const fpPromise = await FingerprintJS.load();
+            // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+            const result = await fpPromise.get();
+            // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+            return result.visitorId
+        }
+        (async () => {
+            fingerprint=await getFingerprint();
+        })();
+    </script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
     <script src="/js/user/lock.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";

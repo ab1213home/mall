@@ -402,6 +402,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 	}
 
+	@Override
+	public Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint) {
+		// 创建查询条件，指定用户ID和当前为激活状态
+	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+	    queryWrapper.eq("id", userId);
+	    queryWrapper.eq("is_active", true);
+
+	    // 根据查询条件尝试获取用户信息
+	    User user = userMapper.selectOne(queryWrapper);
+
+	    // 如果用户存在
+	    if (user != null) {
+	        // 将用户活跃状态设置为false，即锁定用户
+	        user.setIsActive(false);
+	        // 更新数据库中的用户信息
+	        if(userMapper.updateById(user)>0) {
+				userRecordService.successLockAdminRecord(userId,clientIp,fingerprint);
+				return true;
+	        }else {
+				logger.error("管理员锁定用户失败{}", userId);
+				return null;
+	        }
+	    } else {
+	        // 记录日志，提示尝试锁定不存在的用
+	        logger.info("管理员尝试锁定不存在的用户，ID: {}", userId);
+	        return false;
+	    }
+	}
+
 	/**
 	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
 	 *
@@ -503,11 +532,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * 锁定用户方法。
 	 * 通过设置用户的活跃状态为false来锁定用户账号。
 	 *
-	 * @param userId 用户ID，用于查询和锁定特定用户。
+	 * @param userId      用户ID，用于查询和锁定特定用户。
+	 * @param sessionId   会话ID，用于记录操作日志。
+	 * @param clientIp    ip
+	 * @param fingerprint  指纹
 	 * @return 如果用户成功被锁定，返回true；如果用户不存在或锁定失败，返回false。
 	 */
     @Override
-    public Boolean lockUser(Long userId) {
+    public Boolean lockUser(Long userId, String sessionId, String clientIp, String fingerprint) {
 	    // 创建查询条件，指定用户ID和当前为激活状态
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("id", userId);
@@ -521,19 +553,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 将用户活跃状态设置为false，即锁定用户
 	        user.setIsActive(false);
 	        // 更新数据库中的用户信息
-	        int result = userMapper.updateById(user);
-	        // 检查更新是否成功，并返回结果
-	        return result <= 0;
+	        if(userMapper.updateById(user)>0) {
+				userRecordService.successLockRecord(userId,clientIp,fingerprint);
+				logout(sessionId);
+				return true;
+	        }else {
+				logger.error("锁定用户失败{}", userId);
+				return null;
+	        }
 	    } else {
 	        // 记录日志，提示尝试锁定不存在的用
 	        logger.info("尝试锁定不存在的用户，ID: {}", userId);
-	        return true;
+	        return false;
 	    }
 	}
 
 	/**
 	 * 根据用户名查询用户是否存在
-	 * 该方法通过加密用户名为MD5格式，然后尝试从数据库中查询匹配该MD5值的用户
 	 * 如果找到匹配的用户，则返回true；否则返回false
 	 *
 	 * @param userName 待查询的用户名
@@ -547,15 +583,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    queryWrapper.eq("username", userName);
 
 	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 判断用户是否存在，存在则返回true，否则返回false
-	    return user != null;
+	    return userMapper.selectCount(queryWrapper)>0;
 	}
 
 	/**
 	 * 根据邮箱查询用户是否存在
-	 * 该方法通过加密邮箱为MD5格式，然后尝试从数据库中查询匹配该MD5值的用户
 	 * 如果找到匹配的用户，则返回true；否则返回false
 	 *
 	 * @param email 待查询的邮箱
@@ -568,10 +600,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		queryWrapper.eq("email", email);
 
 		// 根据查询条件尝试获取用户信息
-		User user = userMapper.selectOne(queryWrapper);
-
-		// 如果用户信息不为空，说明用户存在，返回true；否则返回false
-		return user != null;
+		return userMapper.selectCount(queryWrapper)>0;
 	}
 
 
@@ -677,11 +706,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * 解锁用户方法。
 	 * 通过设置用户的活跃状态为true来解锁用户账号。
 	 *
-	 * @param userId 用户ID，用于查询和锁定特定用户。
+	 * @param userId      用户ID，用于查询和锁定特定用户。
+	 * @param clientIp      ip
+	 * @param fingerprint   指纹
 	 * @return 如果用户成功被解锁，返回true；如果用户不存在或解锁失败，返回false。
 	 */
 	@Override
-	public Boolean unlockUser(Long userId) {
+	public Boolean unlockUser(Long userId, String clientIp, String fingerprint) {
 	    // 创建查询条件对象
 	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件：用户ID等于userId且用户当前是锁定状态（is_active为false）
@@ -696,9 +727,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 将用户状态设置为解锁
 	        user.setIsActive(true);
 	        // 更新数据库中的用户信息
-	        int result = userMapper.updateById(user);
-	        // 检查更新是否成功，并返回结果
-	        return result > 0;
+	        if (userMapper.updateById(user)>0){
+				userRecordService.successUnlockAdminRecord(userId, clientIp, fingerprint);
+				return true;
+	        }else{
+				return null;
+			}
 	    } else {
 	        // 记录日志，提示尝试解锁不存在的用户
 	        logger.info("尝试解锁不存在的用户，ID: {}", userId);

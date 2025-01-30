@@ -25,7 +25,10 @@ public enum States {
 	SUCCESS_MODIFY_PASSWORD((byte) 4, "修改密码成功"),
 	FAIL_MODIFY_PASSWORD((byte) 5,"修改密码失败"),
 	SUCCESS_MODIFY_EMAIL((byte) 6, "修改邮箱成功"),
-	FAIL_MODIFY_EMAIL((byte) 7, "修改邮箱失败");
+	FAIL_MODIFY_EMAIL((byte) 7, "修改邮箱失败"),
+	SUCCESS_LOCK((byte) 8, "用户自我锁定成功"),
+	SUCCESS_ADMIN_LOCK((byte) 9, "管理员锁定用户成功"),
+	SUCCESS_UNLOCK((byte) 10, "解锁用户成功");
 
 	private final byte value;
 	private final String name;
