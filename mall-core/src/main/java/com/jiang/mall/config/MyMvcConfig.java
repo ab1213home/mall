@@ -23,12 +23,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MyMvcConfig implements WebMvcConfigurer {
 
-    private ApiRequestCounterInterceptor apiRequestCounterInterceptor;
 
-	@Autowired
-	public void setApiRequestCounterInterceptor(ApiRequestCounterInterceptor apiRequestCounterInterceptor) {
-		this.apiRequestCounterInterceptor = apiRequestCounterInterceptor;
-	}
+    private CheckoutInterceptor checkoutInterceptor;
+
+    @Autowired
+    public void setCheckoutInterceptor(CheckoutInterceptor checkoutInterceptor) {
+        this.checkoutInterceptor = checkoutInterceptor;
+    }
 
     /**
      * 重写addInterceptors方法，用于添加拦截器
@@ -37,8 +38,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        registry.addInterceptor(apiRequestCounterInterceptor)
-		        .addPathPatterns("/**")
-                .excludePathPatterns("/api/count");
+        registry.addInterceptor(checkoutInterceptor)
+                .addPathPatterns("/checkout.html")
+                .addPathPatterns("/checkout.html?*");
     }
 }

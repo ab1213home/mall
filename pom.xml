@@ -292,12 +292,27 @@
             </dependency>
             <dependency>
                 <groupId>com.jiang</groupId>
-                <artifactId>mall-seo</artifactId>
+                <artifactId>mall-banner</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jiang</groupId>
-                <artifactId>mall-banner</artifactId>
+                <artifactId>mall-address</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-websocket</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-seo</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -314,6 +329,8 @@
         <module>mall-captcha</module>
         <module>mall-websocket</module>
         <module>mall-banner</module>
+        <module>mall-core</module>
+        <module>mall-address</module>
 <!--		<module>mall-pay</module>-->
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->

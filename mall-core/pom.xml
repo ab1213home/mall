@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>mall-parent</artifactId>
         <groupId>com.jiang</groupId>
         <version>2.0.1</version>
     </parent>
-    <artifactId>mall-admin</artifactId>
-    <version>2.0.1</version>
-    <name>mall-admin</name>
-    <description>mall主模块</description>
-    <url/>
+	<artifactId>mall-core</artifactId>
+	<version>2.0.1</version>
+	<name>mall-core</name>
+	<description>mall-core</description>
+	<url/>
     <licenses>
         <license>
             <name>Mulan PSL v2</name>
@@ -32,21 +32,20 @@
             <timezone>+8</timezone>
         </developer>
     </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
-    <properties>
-        <java.version>17</java.version>
-        <mall.version>0.0.1</mall.version>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
 		<!--mysql驱动-->
         <dependency>
@@ -85,6 +84,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--邮件-->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+        </dependency>
+
+        <!-- 高性能的JSON库 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
         <!--JSR303-->
         <dependency>
             <groupId>org.jetbrains</groupId>
@@ -116,66 +127,24 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
-        <!-- 高性能的JSON库 -->
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-        </dependency>
-
-        <!-- 数据库迁移 -->
-<!--        <dependency>-->
-<!--            <groupId>org.flywaydb</groupId>-->
-<!--            <artifactId>flyway-core</artifactId>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-mysql</artifactId>
-        </dependency>
-
-        <dependency>
-			<groupId>com.jiang</groupId>
-			<artifactId>mall-email</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>com.jiang</groupId>
-			<artifactId>mall-user</artifactId>
+			<artifactId>mall-common</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-system</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-task</artifactId>-->
-<!--		</dependency>-->
-		<dependency>
-			<groupId>com.jiang</groupId>
-			<artifactId>mall-file</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-			<artifactId>mall-captcha</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-banner</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-			<artifactId>mall-seo</artifactId>
-        </dependency>
-    </dependencies>
 
-    <build>
-        <finalName>mall-${project.version}</finalName>
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-user</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-address</artifactId>
+        </dependency>
+
+	</dependencies>
+
+	 <build>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -183,12 +152,12 @@
                     <include>**</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>..</directory>
-                <includes>
-                    <include>README.md</include>
-                </includes>
-            </resource>
+<!--            <resource>-->
+<!--                <directory>.</directory>-->
+<!--                <includes>-->
+<!--                    <include>README.md</include>-->
+<!--                </includes>-->
+<!--            </resource>-->
             <resource>
                 <directory>..</directory>
                 <includes>
@@ -196,32 +165,6 @@
                 </includes>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.15</version>
-                <configuration>
-                    <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <warName>${project.artifactId}</warName>
-                </configuration>
-           </plugin>
-        </plugins>
     </build>
 
 </project>

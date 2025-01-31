@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.File;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
@@ -39,7 +39,7 @@ import static com.jiang.mall.domain.config.File.*;
  */
 @Controller
 @RequestMapping("/common")
-public class FileUploadController {
+public class UploadController {
 
     private IUserService userService;
 

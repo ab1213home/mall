@@ -102,15 +102,5 @@ public class Config {
      */
     public static boolean AllowModify = Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
 
-
-    /**
-     * 网页页底联系电话
-     */
-    public static String phone = properties.getProperty("phone", "400-888-8888");
-
-    /**
-     * 网页页底邮箱
-     */
-    public static String email = properties.getProperty("email", "jiangrongjun2004@163.com");
 }
 

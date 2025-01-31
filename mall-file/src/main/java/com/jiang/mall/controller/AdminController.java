@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.File;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.bo.DirectoryBo;
@@ -36,7 +36,7 @@ import static com.jiang.mall.domain.config.File.*;
  * @since 2024年9月20日
  */
 @RestController
-public class FileAdminController {
+public class AdminController {
 
     private IUserService userService;
 

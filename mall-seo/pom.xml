@@ -13,10 +13,24 @@
     <description>mall-seo</description>
     <url/>
     <licenses>
-        <license/>
+        <license>
+            <name>Mulan PSL v2</name>
+            <url>http://license.coscl.org.cn/MulanPSL2</url>
+            <distribution>repo</distribution>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>ab1213home</id>
+            <name>jiangrongjun</name>
+            <email>jiangrongjun2004@163.com</email>
+            <organization>jiangrongjun</organization>
+            <organizationUrl>https://gitee.com/jiangrongjun/mall</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
     </developers>
     <scm>
         <connection/>
@@ -30,14 +44,76 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--servlet-->
+        <dependency>
+        	<groupId>javax.servlet</groupId>
+        	<artifactId>javax.servlet-api</artifactId>
+        	<scope>provided</scope>
+    	</dependency>
+
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--JSR303-->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!--logback-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--监控-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
         </dependency>
+
+        <!-- 高性能的JSON库 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
+         <!-- sitemap(seo) -->
+         <dependency>
+             <groupId>com.github.dfabulich</groupId>
+             <artifactId>sitemapgen4j</artifactId>
+         </dependency>
+
+		<dependency>
+			<groupId>com.jiang</groupId>
+			<artifactId>mall-core</artifactId>
+		</dependency>
+
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-common</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

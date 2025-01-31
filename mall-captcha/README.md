@@ -21,7 +21,7 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 3. 使用[redis](https://github.com/redis/redis "v6.2.16")]实现缓存
 
-4. 使用[pool2](https://github.com/j-easy/easy-pool "v2.12.0")实现线程池
+4. 使用[pool2](https://github.com/j-easy/easy-pool "v2.12.0")实现Redis线程池
 
 5. 使用[javax.servlet-api](https://github.com/javax-servlet/servlet-api "v4.0.1")实现Servlet
 

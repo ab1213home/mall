@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.File;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.service.IFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import static com.jiang.mall.domain.config.File.FILE_UPLOAD_PATH;
 
 @RestController
-public class FileFetchController {
+public class FetchController {
 
 	private IFileService fileService;
 
