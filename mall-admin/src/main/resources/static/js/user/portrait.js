@@ -48,7 +48,7 @@ function toggleSelection(i) {
 }
 function getFaceTemplateList() {
     $.ajax({
-    url: '/getFaceTemplateList',
+    url: '/file/getFaceTemplateList',
     type: 'GET',
     success: function (res) {
         imagesArr = getRandomImages(res.data, 9);

@@ -21,7 +21,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class MyMvcConfig implements WebMvcConfigurer {
+public class UserMvcConfig implements WebMvcConfigurer {
 
     private AdminLoginInterceptor adminLoginInterceptor;
 
@@ -34,13 +34,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Autowired
     public void setUserLoginInterceptor(UserLoginInterceptor userLoginInterceptor) {
         this.userLoginInterceptor = userLoginInterceptor;
-    }
-
-    private ApiLoginInterceptor apiLoginInterceptor;
-
-    @Autowired
-    public void setApiLoginInterceptor(ApiLoginInterceptor apiLoginInterceptor) {
-        this.apiLoginInterceptor = apiLoginInterceptor;
     }
 
     private RepeatUserLoginInterceptor repeatUserLoginInterceptor;
@@ -74,15 +67,6 @@ public class MyMvcConfig implements WebMvcConfigurer {
         // 用户登录拦截器
         registry.addInterceptor(userLoginInterceptor)
                 .addPathPatterns("/user/")
-                .addPathPatterns("/cart")
-                .addPathPatterns("/cart.html")
-                .addPathPatterns("/orders")
-                .addPathPatterns("/orders.html")
-                .addPathPatterns("/tradeSnap.html")
-                .addPathPatterns("/checkout")
-                .addPathPatterns("/checkout.html")
-                .addPathPatterns("/collections")
-                .addPathPatterns("/collections.html")
                 .addPathPatterns("/user/**.html")
                 .addPathPatterns("/user/**.html?*")
                 .addPathPatterns("/user/**/**.html")
@@ -103,12 +87,10 @@ public class MyMvcConfig implements WebMvcConfigurer {
         // 系统管理员登录拦截器
         registry.addInterceptor(adminLoginInterceptor)
                 .addPathPatterns("/**/admin/**")
+                .addPathPatterns("/admin/**")
                 .addPathPatterns("/admin/**.html")
                 .addPathPatterns("/admin/**.html?*")
                 .addPathPatterns("/admin/**/**.html")
                 .addPathPatterns("/admin/**/**.html?*");
-        // API登录拦截器
-        registry.addInterceptor(apiLoginInterceptor)
-                .addPathPatterns("/api/**");
     }
 }

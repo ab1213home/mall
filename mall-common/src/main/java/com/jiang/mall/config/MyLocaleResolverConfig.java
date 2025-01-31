@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.domain.enums.Language;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -25,20 +26,6 @@ import java.util.Locale;
 
 @Configuration
 public class MyLocaleResolverConfig implements LocaleResolver {
-
-	@Getter
-    public enum Language{
-		Chinese("zh", new Locale("zh_CN")),
-		English("en",new Locale("en_US")),
-		Japanese("jp",new Locale("ja_JP"));
-
-		private final Locale locale;
-		private final String name;
-		Language(String name,Locale locale) {
-			this.locale = locale;
-			this.name = name;
-		}
-    }
 
 	private HttpServletRequest request;
 

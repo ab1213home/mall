@@ -20,15 +20,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
-public class RedisConfig {
-
-	@Value("${redis.database.user:4}")
-	private int user;
+public class UserRedisConfig {
 
 	@Value("${spring.data.redis.host:localhost}")
 	private String host;
@@ -39,26 +34,22 @@ public class RedisConfig {
 	@Value("${spring.data.redis.password:}")
 	private String password;
 
-//	@Bean(name = "UserRedisTemplate")
-//    public RedisTemplate<String, Object> UserRedisTemplate() {
-//        RedisTemplate<String, Object> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory(user));
-//		// 创建自定义的ObjectMapper实例
-//	    ObjectMapper objectMapper = new ObjectMapper();
-//	    // 配置ObjectMapper，例如设置日期格式
-//	    objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-//
-//	    // 使用自定义的ObjectMapper创建Jackson2JsonRedisSerializer
-//	    GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-//
-//	    // 设置键序列化器，使用StringRedisSerializer以确保键以字符串形式存储和读取
-//	    template.setKeySerializer(new StringRedisSerializer());
-//	    // 设置值序列化器，使用自定义的Jackson2JsonRedisSerializer
-//	    template.setValueSerializer(jackson2JsonRedisSerializer);
-//
-//	    // 返回配置好的RedisTemplate实例
-//        return template;
-//    }
+	/*#### **(2) 用户会话（Session）**
+		  - **缓存内容**：用户登录状态、权限信息等。
+		  - **缓存理由**：用户会话数据需要频繁读取，使用 Redis 可以支持分布式会话。
+		  - **缓存策略**：
+		  - 设置过期时间（如 30 分钟）。
+		  - 用户退出时清除缓存。
+	 */
+	@Value("${redis.database.user:1}")
+	private int user;
+
+	@Bean(name = "UserRedisTemplate")
+    public StringRedisTemplate UserRedisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(redisConnectionFactory(user));
+        return template;
+    }
 
 	private @NotNull RedisConnectionFactory redisConnectionFactory(int database) {
 		RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();

@@ -36,7 +36,8 @@ import static com.jiang.mall.domain.config.File.*;
  * @since 2024年9月20日
  */
 @RestController
-public class AdminController {
+@RequestMapping("/file/admin")
+public class FileAdminController {
 
     private IUserService userService;
 
@@ -58,14 +59,9 @@ public class AdminController {
      * @param session HttpSession对象，用于检查用户登录状态
      * @return 包含文件夹总大小和文件数量的响应结果
      */
-    @GetMapping("/file/getFileSize")
+    @GetMapping("/getFileSize")
     public ResponseResult<Object> getSize(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
+
         // 创建一个File对象，对应于要检查的文件夹路径
         File folder = new File(FILE_UPLOAD_PATH);
 
@@ -88,24 +84,7 @@ public class AdminController {
         return ResponseResult.okResult(data);
     }
 
-
-    @GetMapping("/getFaceTemplateList")
-    public ResponseResult<Object> getFaceTemplateList(HttpSession session){
-
-    	File folder = new File(FILE_UPLOAD_PATH+"faces/");
-
-    	if (!folder.exists() || !folder.isDirectory()) {
-            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-        }
-        List<String> fileList = fileService.getFaceTemplateList(folder);
-
-        if (fileList.isEmpty()) {
-            return ResponseResult.notFoundResourceResult("未找到任何文件！");
-        }
-        return ResponseResult.okResult(fileList);
-    }
-
-    @GetMapping("/file/getAllList")
+    @GetMapping("/getAllList")
     public ResponseResult<Object> getAllList(@RequestParam(required = false) String path,
                                   HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志
@@ -131,16 +110,9 @@ public class AdminController {
         return ResponseResult.okResult(directoryList);
     }
 
-    @GetMapping("/file/getList")
+    @GetMapping("/getList")
     public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
                                   HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
-
         File folder = new File(FILE_UPLOAD_PATH+path);
 
         // 确认所创建的File对象确实代表一个文件夹
@@ -163,14 +135,8 @@ public class AdminController {
      * @param session HTTP会话，用于检查用户登录状态
      * @return 返回包含文件设置信息的响应结果
      */
-    @GetMapping("/file/getSetting")
+    @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting(HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
         Map<String,Object> setting = new HashMap<>();
         setting.put("AllowUploadFile",AllowUploadFile);
         setting.put("FileUploadPath",FILE_UPLOAD_PATH);
@@ -196,15 +162,9 @@ public class AdminController {
      * @param session 用户会话，用于验证用户是否已登录
      * @return 返回操作结果，包括成功或失败信息
      */
-    @PostMapping("/file/saveSetting")
+    @PostMapping("/saveSetting")
     public ResponseResult<Object> setSetting(@RequestBody FileSettingVo fileSettingVo,
                                      HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
 
         // 标准图片后缀集合，用于校验传入的图片后缀是否合法
         Set<String> standard_imageSuffix = Set.of("xbm", "tif", "pjp", "apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
@@ -252,7 +212,7 @@ public class AdminController {
      * @param session HTTP会话，用于检查用户登录状态
      * @return ResponseResult 包含操作结果或文件用途信息
      */
-    @GetMapping("/file/getPurpose")
+    @GetMapping("/getPurpose")
     public ResponseResult<Object> getPurpose(@RequestParam("path") String path,
                                      HttpSession session){
         // 检查会话中是否设置表示用户已登录的标志

@@ -32,7 +32,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/email/admin")
-public class AdminController {
+public class EmailAdminController {
 
     // 验证码服务接口，用于验证码的管理
     private IVerificationCodeService verificationCodeService;

@@ -33,7 +33,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/user/admin")
-public class AdminController {
+public class UserAdminController {
 
     private IUserService userService;
 

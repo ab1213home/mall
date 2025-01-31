@@ -44,7 +44,7 @@ function queryPurpose(index) {
 	let file = FileTree.files[index];
 	$.ajax({
 		type: "GET",
-		url: "/file/getPurpose",
+		url: "/file/admin/getPurpose",
 		data: {
 			path: "/"+FileTree.path+"/"+file.name,
 		},
@@ -66,7 +66,7 @@ function queryPurpose(index) {
 function queryFile(path) {
 	$.ajax({
 		type: "GET",
-		url: "/file/getList",
+		url: "/file/admin/getList",
 		data: {
 			path: path == "upload" ? "" : path,
 		},

@@ -36,14 +36,7 @@ public class RedisConfig {
 //  - 当商品信息更新时，主动更新缓存。
 	@Value("${redis.database.product:0}")
 	private int product;
-//#### **(2) 用户会话（Session）**
-//- **缓存内容**：用户登录状态、权限信息等。
-//- **缓存理由**：用户会话数据需要频繁读取，使用 Redis 可以支持分布式会话。
-//- **缓存策略**：
-//  - 设置过期时间（如 30 分钟）。
-//  - 用户退出时清除缓存。
-	@Value("${redis.database.user:1}")
-	private int user;
+
 //#### **(3) 购物车数据**
 //- **缓存内容**：用户的购物车商品列表、数量、选中状态等。
 //- **缓存理由**：购物车数据需要频繁读写，缓存可以提升性能。
@@ -107,12 +100,7 @@ public class RedisConfig {
         template.setConnectionFactory(redisConnectionFactory(product));
         return template;
     }
-	@Bean(name = "UserRedisTemplate")
-    public StringRedisTemplate UserRedisTemplate() {
-        StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(user));
-        return template;
-    }
+
 	@Bean(name = "CartRedisTemplate")
     public StringRedisTemplate CartRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();

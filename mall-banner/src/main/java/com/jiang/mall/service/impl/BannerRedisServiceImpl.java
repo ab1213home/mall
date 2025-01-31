@@ -28,7 +28,7 @@ public class BannerRedisServiceImpl implements IStringRedisService {
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(@Qualifier("SearchRedisTemplate") StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("HomeRedisTemplate") StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 

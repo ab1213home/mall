@@ -13,7 +13,7 @@
 
 function grtFileSize() {
 	$.ajax({
-		url:"/file/getFileSize",
+		url:"/file/admin/getFileSize",
 		type:"get",
 		data:{},
 		dataType:"json",

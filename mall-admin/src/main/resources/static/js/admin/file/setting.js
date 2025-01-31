@@ -14,7 +14,7 @@
 let imageSuffixArr={};
 function getFileSetting() {
     $.ajax({
-        url: '/file/getSetting',
+        url: '/file/admin/getSetting',
         type: 'GET',
         dataType: 'json',
         success: function(res) {
@@ -48,7 +48,7 @@ function saveFileSetting() {
     };
 
     $.ajax({
-        url: '/file/saveSetting',
+        url: '/file/admin/saveSetting',
         type: 'POST',
         dataType: 'json',
         data:JSON.stringify(data),
@@ -69,7 +69,7 @@ function saveFileSetting() {
 // })
 function getFileSize() {
 	$.ajax({
-		url:"/file/getFileSize",
+		url:"/file/admin/getFileSize",
 		type:"get",
 		data:{},
 		dataType:"json",

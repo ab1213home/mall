@@ -84,12 +84,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!--邮件-->
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-        </dependency>
-
         <!-- 高性能的JSON库 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
