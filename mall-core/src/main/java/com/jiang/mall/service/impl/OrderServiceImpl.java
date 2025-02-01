@@ -18,6 +18,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.entity.*;
+import com.jiang.mall.domain.enums.OrderStatus;
+import com.jiang.mall.domain.enums.PaymentMethod;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
@@ -32,9 +34,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
-
-import static com.jiang.mall.domain.config.Order.order_status;
-import static com.jiang.mall.domain.config.Order.paymentMethod;
 
 /**
  * <p>
@@ -210,8 +209,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
 			assert orderVo != null;
 			orderVo.setAddress(addressVo);
-			orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
-			orderVo.setStatus(order_status[order_item.getStatus()]);
+			orderVo.setPaymentMethod(PaymentMethod.getNameByValue(order_item.getPaymentMethod()));
+			orderVo.setStatus(OrderStatus.getNameByValue(order_item.getStatus()));
 			QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 			queryWrapper_orderList.eq("order_id", order_item.getId());
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
@@ -285,8 +284,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			orderVo.setUser(userVo);
 
 	        // 设置订单VO对象的支付方式和状态，通过数组获取对应的描述
-	        orderVo.setPaymentMethod(paymentMethod[order_item.getPaymentMethod()]);
-	        orderVo.setStatus(order_status[order_item.getStatus()]);
+			orderVo.setPaymentMethod(PaymentMethod.getNameByValue(order_item.getPaymentMethod()));
+			orderVo.setStatus(OrderStatus.getNameByValue(order_item.getStatus()));
 
 	        // 创建查询构造器，用于查询订单详情
 	        QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
