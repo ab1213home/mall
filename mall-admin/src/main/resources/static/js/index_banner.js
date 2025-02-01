@@ -77,28 +77,3 @@ function queryBanner(){
         }
     })
 }
-
-/**
- * 查询轮播图数量
- * 通过发送GET请求到服务器，获取轮播图的数量，并更新页面上的数量显示
- */
-function queryBannerNum(){
-	$.ajax({
-		// 设置请求方式为GET
-        type:"GET",
-        // 设置请求的URL地址
-		url:"/banner/getNum",
-        // 本次请求无需发送数据
-		data:"",
-        // 预期服务器返回的数据类型为json
-		dataType:"json",
-        // 当请求成功时，处理服务器返回的数据
-		success:function(res){
-			// 如果返回的状态码表示成功
-			if(res.code == '200'){
-                // 更新轮播图数量
-				banner_num= res.data;
-			}
-		}
-	})
-}

@@ -13,7 +13,6 @@
 
 let category_arr = [];
 let goodsMap = {};
-let banner_num = 0;
 $(document).ready(function(){
     let flag=isLogin();
 	getFooterInfo();
@@ -45,7 +44,6 @@ $(document).ready(function(){
                 else{
                     show_error('搜索失败，请联系管理员！');
                     queryCategory();
-                    queryBannerNum();
                     queryBanner();
                 }
             },
@@ -56,7 +54,6 @@ $(document).ready(function(){
         });
     }else{
         queryCategory();
-        queryBannerNum();
         queryBanner();
     }
 })

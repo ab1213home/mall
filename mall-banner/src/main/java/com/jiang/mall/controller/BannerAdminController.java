@@ -15,6 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
@@ -72,7 +73,7 @@ public class BannerAdminController {
     public ResponseResult<Object> getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                 @RequestParam(defaultValue = "10") Integer pageSize,
                                                 HttpSession session) {
-        List<BannerVo> banner_list = bannerService.getBannerList(pageNum, pageSize);
+        List<BannerAdminVo> banner_list = bannerService.getBannerList(pageNum, pageSize);
         if (banner_list.isEmpty()) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }

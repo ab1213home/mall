@@ -17,7 +17,7 @@ let bannerArr = {};
 
 function getBannerNum() {
     $.ajax({
-        url: "/banner/getNum",
+        url: "/banner/admin/getNum",
         type: "get",
         success: function (res) {
             num_banner = res.data;
@@ -36,7 +36,7 @@ $(document).ready(function(){
 function queryBanner(pn,pz) {
     $.ajax({
         type: "GET",
-        url: "/banner/getList",
+        url: "/banner/admin/getList",
         data: {
             pageNum: pn,
             pageSize: pz
@@ -185,7 +185,7 @@ function insertBanner() {
         img: img
     };
     $.ajax({
-        url: '/banner/add',
+        url: '/banner/admin/add',
         type: 'post',
         data: data,
         dataType: 'json',
@@ -213,7 +213,7 @@ function updateBanner(id) {
         img: img
     };
     $.ajax({
-        url: '/banner/update',
+        url: '/banner/admin/update',
         type: 'post',
         data: data,
         dataType: 'json',
@@ -232,7 +232,7 @@ function updateBanner(id) {
 
 function deleteBanner(id) {
     $.ajax({
-        url: '/banner/delete',
+        url: '/banner/admin/delete',
         type: 'get',
         data: {
             id: id

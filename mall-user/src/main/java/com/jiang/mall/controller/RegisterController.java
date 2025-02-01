@@ -15,12 +15,11 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.po.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeState;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.*;
 

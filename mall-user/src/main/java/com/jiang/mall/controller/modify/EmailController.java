@@ -14,7 +14,7 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.po.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeState;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;

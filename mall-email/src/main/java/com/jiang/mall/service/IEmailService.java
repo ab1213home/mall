@@ -14,7 +14,7 @@
 package com.jiang.mall.service;
 
 
-import com.jiang.mall.domain.po.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeState;
 
 public interface IEmailService {
 

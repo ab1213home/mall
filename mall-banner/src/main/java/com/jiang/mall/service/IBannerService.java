@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
 
 import java.util.List;
@@ -33,9 +34,11 @@ public interface IBannerService extends IService<Banner> {
 
     Boolean updateBanner(Banner banner);
 
-    List<BannerVo> getBannerList(Integer categoryId, Integer pageNum);
+    List<BannerAdminVo> getBannerList(Integer categoryId, Integer pageNum);
 
     Long getBannerNum();
 
     Boolean deleteBanner(Integer id);
+
+    List<BannerVo> getBannerList();
 }
