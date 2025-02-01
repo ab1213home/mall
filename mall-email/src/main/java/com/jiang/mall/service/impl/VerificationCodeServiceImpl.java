@@ -18,8 +18,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.VerificationCodeMapper;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.enums.Purpose;
-import com.jiang.mall.domain.enums.Status;
+import com.jiang.mall.domain.enums.EmailPurpose;
+import com.jiang.mall.domain.enums.EmailStatus;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -66,7 +66,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		long listCount = verificationCodeMapper.selectCount(queryWrapper_list);
 		QueryWrapper<VerificationCode> queryWrapper_fail = new QueryWrapper<>();
 		queryWrapper_fail.eq("email", email);
-		queryWrapper_fail.eq("status", Status.FAILED.getValue());
+		queryWrapper_fail.eq("status", EmailStatus.FAILED.getValue());
 		queryWrapper_fail.between("trigger_time", yesterday, now);
 		long failCount = verificationCodeMapper.selectCount(queryWrapper_fail);
 
@@ -104,7 +104,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email);
 	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", Status.EXPIRED.getValue());
+	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
 	    return verificationCodeMapper.selectCount(queryWrapper)>0;
@@ -128,7 +128,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("user_id", id);
 	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", Status.EXPIRED.getValue());
+	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
 
 	    // 查询并返回结果数量
 	    return verificationCodeMapper.selectCount(queryWrapper)>0;
@@ -155,7 +155,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
 	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", Status.SUCCESS.getValue()); // 验证码发送状态为成功
+	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
 
 	    // 执行查询
 	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
@@ -168,7 +168,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 只保留最后一条记录为有效状态，其余设置为失效状态
 	    for (int i = 1; i < list.size(); i++) {
 	        VerificationCode verificationCode = list.get(i);
-	        verificationCode.setStatus(Status.EXPIRED.getValue());
+	        verificationCode.setStatus(EmailStatus.EXPIRED.getValue());
 	        // 更新数据库中的状态
 	        verificationCodeMapper.updateById(verificationCode);
 	    }
@@ -192,7 +192,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
 	    verificationCode.setUserId(userId);
 	    // 将验证码状态更改为“已使用”
-	    verificationCode.setStatus(Status.USED.getValue());
+	    verificationCode.setStatus(EmailStatus.USED.getValue());
 	    // 更新数据库中的验证码记录，并返回更新结果
 	    return verificationCodeMapper.updateById(verificationCode) > 0;
 	}
@@ -210,8 +210,8 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		for (VerificationCode verificationCode : verificationCodes) {
 			VerificationCodeVo verificationCodeVo = BeanCopyUtils.copyBean(verificationCode, VerificationCodeVo.class);
 			assert verificationCodeVo != null;
-			verificationCodeVo.setStatus(Status.getNameByValue(verificationCode.getStatus()));
-			verificationCodeVo.setPurpose(Purpose.getNameByValue(verificationCode.getPurpose()));
+			verificationCodeVo.setStatus(EmailStatus.getNameByValue(verificationCode.getStatus()));
+			verificationCodeVo.setPurpose(EmailPurpose.getNameByValue(verificationCode.getPurpose()));
 			verificationCodeVos.add(verificationCodeVo);
 		}
 		return verificationCodeVos;
@@ -243,7 +243,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
 	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
 	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", Status.SUCCESS.getValue()); // 验证码发送状态为成功
+	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
 
 	    // 执行查询
 	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
@@ -256,7 +256,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 只保留最后一条记录为有效状态，其余设置为失效状态
 	    for (int i = 1; i < list.size(); i++) {
 	        VerificationCode verificationCode = list.get(i);
-	        verificationCode.setStatus(Status.EXPIRED.getValue());
+	        verificationCode.setStatus(EmailStatus.EXPIRED.getValue());
 	        // 更新数据库中的状态
 	        verificationCodeMapper.updateById(verificationCode);
 	    }

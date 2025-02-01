@@ -68,53 +68,6 @@ public class Order {
         }
     }
 
-    /**
-     * 支付方式数组
-     */
-    public static String[] paymentMethod = properties.getProperty("payment.method", "货到付款,在线支付")
-            .split(",");
-    /**
-     * 支付方式枚举类
-     */
-    @Getter
-    public enum PaymentMethod {
-        OFFLINE(0,paymentMethod[0]),
-        ONLINE(1,paymentMethod[1]);
 
-        private final int value;
-        private final String name;
 
-        PaymentMethod(int value,String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-    }
-
-    /**
-     * 订单状态数组
-     */
-    public static String[] order_status = properties.getProperty("order.status", "待付款,待发货,待收货,待评价,已完成")
-            .split(",");
-
-    /**
-     * 订单状态枚举类
-     */
-    @Getter
-    public enum OrderStatus {
-        WAIT_PAYMENT(0,order_status[0]),
-        WAIT_DELIVERY(1,order_status[1]),
-        WAIT_RECEIVE(2,order_status[3]),
-        WAIT_EVALUATE(3,order_status[2]),
-        FINISHED(4,order_status[4]);
-
-        private final int value;
-        private final String name;
-
-        OrderStatus(int value,String name) {
-            this.value = value;
-            this.name = name;
-        }
-
-    }
 }

@@ -15,8 +15,8 @@ package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.enums.Purpose;
-import com.jiang.mall.domain.enums.Status;
+import com.jiang.mall.domain.enums.EmailPurpose;
+import com.jiang.mall.domain.enums.EmailStatus;
 import com.jiang.mall.domain.po.EmailCode;
 import com.jiang.mall.domain.po.EmailCodeState;
 import com.jiang.mall.service.IEmailService;
@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import com.jiang.mall.service.IRedisService;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -163,11 +162,11 @@ public class EmailServiceImpl implements IEmailService {
 		// 生成验证码
         String code = generateRandomCode(8);
         // 构造邮件内容
-		String htmlContent = htmlContent(username, Purpose.REGISTER.getName(), code);
+		String htmlContent = htmlContent(username, EmailPurpose.REGISTER.getName(), code);
 
         // 发送邮件
         if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, Purpose.REGISTER, Status.SUCCESS);
+            VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
                 redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
@@ -176,7 +175,7 @@ public class EmailServiceImpl implements IEmailService {
                 return null;
             }
         }else {
-            VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, Purpose.REGISTER, Status.FAILED);
+            VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
             verificationCodeService.add(userVerificationCode);
             return false;
         }
@@ -195,11 +194,11 @@ public class EmailServiceImpl implements IEmailService {
 		// 生成验证码
         String code = generateRandomCode(8);
         // 构造邮件内容
-		String htmlContent = htmlContent(username, Purpose.RESET_PASSWORD.getName(), code);
+		String htmlContent = htmlContent(username, EmailPurpose.RESET_PASSWORD.getName(), code);
 
         // 发送邮件
         if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            VerificationCode userVerificationCode = new VerificationCode(username,email, code, Purpose.RESET_PASSWORD, Status.SUCCESS,userId);
+            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,userId);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
                 redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
@@ -208,7 +207,7 @@ public class EmailServiceImpl implements IEmailService {
                 return null;
             }
         }else {
-            VerificationCode userVerificationCode = new VerificationCode(username,email, code, Purpose.RESET_PASSWORD, Status.FAILED,userId);
+            VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED,userId);
             verificationCodeService.add(userVerificationCode);
             return false;
         }
@@ -227,11 +226,11 @@ public class EmailServiceImpl implements IEmailService {
 		// 生成验证码
         String code = generateRandomCode(8);
         // 构造邮件内容
-		String htmlContent = htmlContent(username, Purpose.CHANGE_EMAIL.getName(), code);
+		String htmlContent = htmlContent(username, EmailPurpose.CHANGE_EMAIL.getName(), code);
 
         // 发送邮件
         if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
-            VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, Purpose.CHANGE_EMAIL, Status.SUCCESS);
+            VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
                 redisService.setString(sessionId, JSON.toJSONString(emailCode),expiration_time, TimeUnit.MINUTES);
@@ -240,7 +239,7 @@ public class EmailServiceImpl implements IEmailService {
                 return null;
             }
         }else {
-            VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, Purpose.CHANGE_EMAIL, Status.FAILED);
+            VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
             verificationCodeService.add(userVerificationCode);
             return false;
         }

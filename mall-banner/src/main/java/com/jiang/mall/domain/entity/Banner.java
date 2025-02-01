@@ -62,6 +62,18 @@ public class Banner implements Serializable {
      */
     private String description;
 
+     /**
+     * 生效时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime startTime;
+
+    /**
+     * 失效时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime endTime;
+
     /**
      * 创建人
      */
@@ -124,6 +136,8 @@ public class Banner implements Serializable {
             ", createdAt = " + createdAt +
             ", updatedAt = " + updatedAt +
             ", isDel = " + isDel +
+            ", startTime = " + startTime +
+            ", endTime = " + endTime +
         "}";
     }
 }

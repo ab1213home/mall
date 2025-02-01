@@ -16,7 +16,7 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum Status {
+public enum EmailStatus {
 
 	FAILED(0,"发送失败"),
 	SUCCESS(1,"发送成功"),
@@ -26,15 +26,15 @@ public enum Status {
 	private final int value;
 	private final String name;
 
-	Status(int value,String name) {
+	EmailStatus(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
 
 	public static String getNameByValue(int value) {
-        for (Status status : Status.values()) {
-            if (status.getValue() == value) {
-                return status.getName();
+        for (EmailStatus emailStatus : EmailStatus.values()) {
+            if (emailStatus.getValue() == value) {
+                return emailStatus.getName();
             }
         }
         throw new IllegalArgumentException("No Status enum constant with value: " + value);

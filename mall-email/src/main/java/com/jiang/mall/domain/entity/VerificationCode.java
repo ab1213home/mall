@@ -15,8 +15,8 @@ package com.jiang.mall.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jiang.mall.domain.enums.Purpose;
-import com.jiang.mall.domain.enums.Status;
+import com.jiang.mall.domain.enums.EmailPurpose;
+import com.jiang.mall.domain.enums.EmailStatus;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
@@ -94,7 +94,7 @@ public class VerificationCode implements Serializable {
 	public VerificationCode() {
 	}
 
-	public VerificationCode(String username, String email, String code, @NotNull Purpose emailPurpose, @NotNull Status emailStatus, Long userId) {
+	public VerificationCode(String username, String email, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus, Long userId) {
 		this.username = username;
 		this.email = email;
 		this.code = code;
@@ -104,7 +104,7 @@ public class VerificationCode implements Serializable {
 		this.triggerTime = LocalDateTime.now();
 	}
 
-	public VerificationCode(String username, String email, String password, String code, @NotNull Purpose emailPurpose, @NotNull Status emailStatus) {
+	public VerificationCode(String username, String email, String password, String code, @NotNull EmailPurpose emailPurpose, @NotNull EmailStatus emailStatus) {
 		this.username = username;
 		this.email = email;
 		this.password = password;

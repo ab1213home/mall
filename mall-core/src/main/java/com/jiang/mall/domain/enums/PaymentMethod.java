@@ -16,29 +16,27 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 /**
- * 邮箱验证码用途枚举类
+ * 支付方式枚举类
  */
 @Getter
-public enum Purpose {
-
-	REGISTER(0,"注册"),
-	RESET_PASSWORD(1,"重置密码"),
-	CHANGE_EMAIL(2,"修改邮箱");
+public enum PaymentMethod {
+	OFFLINE(0,"货到付款"),
+	ONLINE(1,"在线支付");
 
 	private final int value;
 	private final String name;
 
-	Purpose(int value,String name) {
+	PaymentMethod(int value,String name) {
 		this.value = value;
 		this.name = name;
 	}
 
-    public static String getNameByValue(int value) {
-        for (Purpose purpose : Purpose.values()) {
-            if (purpose.getValue() == value) {
-                return purpose.getName();
+	public static String getNameByValue(int value) {
+        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
+            if (paymentMethod.getValue() == value) {
+                return paymentMethod.getName();
             }
         }
-        throw new IllegalArgumentException("No Purpose enum constant with value: " + value);
+        throw new IllegalArgumentException("No PaymentMethod enum constant with value: " + value);
     }
 }
