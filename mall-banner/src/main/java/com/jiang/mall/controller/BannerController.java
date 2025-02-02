@@ -50,10 +50,7 @@ public class BannerController {
      */
     @GetMapping("/getList")
     public ResponseResult<Object> getBannerList() {
-        List<BannerVo> banner_list = bannerService.getBannerList();
-        if (banner_list.isEmpty()) {
-            return ResponseResult.notFoundResourceResult("没有找到资源");
-        }
+        List<BannerVo> banner_list = bannerService.getBannerListFromRedis();
         return ResponseResult.okResult(banner_list);
     }
 }

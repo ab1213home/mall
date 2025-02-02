@@ -13,36 +13,41 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.service.IBannerRedisService;
+import com.jiang.mall.service.ITemporaryRedisService;
 import com.jiang.mall.settings.General;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
-public class BannerRedisServiceImpl implements IBannerRedisService {
+public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
 
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(@Qualifier("HomeRedisTemplate") StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("SearchRedisTemplate") StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = General.redis_key_prefix+"-";
+    String prefix = General.redis_key_prefix+"-register-";
     String key(String key){
         return prefix+key;
     }
+
     /**
-     * 设置一个键值对
+     * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
      *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
+     * @param key 键，用于唯一标识存储的值
+     * @param value 值，与键关联存储的数据
+     * @param timeout 过期时间，单位毫秒，表示值将在多久之后过期
+     * @param unit 时间单位，用于指定过期时间
      */
     @Override
-    public void setKey(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key(key), value);
+    public void setKey(String key, String value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
     }
 
     /**
@@ -56,18 +61,7 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
         return stringRedisTemplate.opsForValue().get(key(key));
     }
 
-    /**
-     * 检查给定的键是否存在于当前数据结构中
-     *
-     * @param key 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
-     */
-    @Override
-    public Boolean hasKey(String key) {
-        return stringRedisTemplate.hasKey(key(key));
-    }
-
-    /**
+	/**
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键

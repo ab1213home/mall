@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -30,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -75,11 +73,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.i18nService = i18nService;
 	}
 
-
-	private IStringRedisService redisService;
+	private IUserRedisService  redisService;
 
     @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
+    public void setRedisService(IUserRedisService redisService) {
         this.redisService = redisService;
     }
 
@@ -89,6 +86,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
         this.verificationCodeService = verificationCodeService;
     }
+
+	private ITemporaryRedisService temporaryRedisService;
+
+	@Autowired
+	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
+		this.temporaryRedisService = temporaryRedisService;
+	}
 
 	/**
 	 * 检查用户是否已登录
@@ -100,16 +104,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
-		if (redisService.hasKey(sessionId)){
-			String userJson = redisService.getString(sessionId);
-			UserVo user = JSON.parseObject(userJson, UserVo.class);
+		UserVo user = redisService.getKey(sessionId);
+		if (user == null){
+			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
+		}else{
 			if (user.getId()==null){
 				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
 			}else{
 				return ResponseResult.okResult(user);
 			}
-		}else{
-			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}
 	}
 
@@ -204,7 +207,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setString(sessionId, JSON.toJSONString(userVo),4, TimeUnit.HOURS);
+			redisService.setKey(sessionId, userVo,4, TimeUnit.HOURS);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginRecord(user, clientIp, fingerprint);
 			return true;
@@ -624,7 +627,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setRoleId(1);
 	        // 插入用户信息，若成功则返回用户ID，否则返回0
 		    if (userMapper.insert(user) > 0){
-				redisService.setString(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
+				temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
                 verificationCodeService.useCode(user.getId(), verificationCode);
                 userRecordService.successRegisterRecord(user, clientIp, fingerprint);
 		    }

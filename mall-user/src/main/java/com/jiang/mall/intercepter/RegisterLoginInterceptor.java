@@ -16,6 +16,7 @@ package com.jiang.mall.intercepter;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.ITemporaryRedisService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,14 +28,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.io.PrintWriter;
 
 @Component
-public class RepeatUserLoginInterceptor implements HandlerInterceptor {
-
-    private IUserService userService;
-
-    @Autowired
-    public void userService(IUserService userService) {
-        this.userService = userService;
-    }
+public class RegisterLoginInterceptor implements HandlerInterceptor {
 
     private II18nService i18nService;
 
@@ -43,6 +37,12 @@ public class RepeatUserLoginInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
+    private ITemporaryRedisService temporaryRedisService;
+
+	@Autowired
+	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
+		this.temporaryRedisService = temporaryRedisService;
+	}
 
     /**
      * 在请求处理之前进行预处理
@@ -58,12 +58,13 @@ public class RepeatUserLoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
+        String userId = temporaryRedisService.getKey(request.getSession().getId());
         // 检查用户登录状态
-        if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+        if (userId == null){
             // 如果用户已登录，重定向到用户首页
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
-            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.login.error.repeated")));
+            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.register.error.previous")));
             PrintWriter writer = response.getWriter();
             writer.write(jsonResponse);
             writer.flush();

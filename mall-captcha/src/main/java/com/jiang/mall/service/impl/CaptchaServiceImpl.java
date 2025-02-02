@@ -13,21 +13,22 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.service.IStringRedisService;
+import com.jiang.mall.service.ICaptchaRedisService;
 import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CaptchaServiceImpl implements ICaptchaService {
 
-	private IStringRedisService redisService;
+	private ICaptchaRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("CaptchaRedisServiceImpl") IStringRedisService redisService) {
+	public void setRedisService(ICaptchaRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -46,8 +47,7 @@ public class CaptchaServiceImpl implements ICaptchaService {
         // 以下代码行被注释掉，因此没有设置自定义字体
         // captcha.setFont(Captcha.FONT_8, 40);
         // 将生成的验证码文本存储在session中，以便后续表单提交时验证
-        redisService.setString(sessionId , captcha.text().toLowerCase());
-        redisService.expire(sessionId, 60L * 5);
+        redisService.setKey(sessionId , captcha.text().toLowerCase(),5, TimeUnit.MINUTES);
 		// 返回生成的验证码对象
 		return captcha;
 	}
@@ -62,7 +62,7 @@ public class CaptchaServiceImpl implements ICaptchaService {
 	@Override
 	public Boolean validateCaptcha(String sessionId, String captcha) {
 	    // 从Redis中获取对应sessionId的验证码
-	    Object captchaObj = redisService.getString(sessionId);
+	    Object captchaObj = redisService.getKey(sessionId);
 	    // 如果验证码对象为空，可能已经过期，返回null
 	    if (captchaObj == null) {
 	        return null;

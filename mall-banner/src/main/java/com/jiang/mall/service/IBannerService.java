@@ -41,4 +41,6 @@ public interface IBannerService extends IService<Banner> {
     Boolean deleteBanner(Integer id);
 
     List<BannerVo> getBannerList();
+
+    List<BannerVo> getBannerListFromRedis();
 }

@@ -13,15 +13,12 @@
 
 package com.jiang.mall.controller.modify;
 
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,7 +33,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.domain.config.User.AdminRoleId;
-import static com.jiang.mall.domain.config.User.regex_phone;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -102,10 +98,10 @@ public class InfoController {
 		this.emailService = emailService;
 	}
 
-	private IStringRedisService redisService;
+	private IUserRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
+	public void setRedisService(IUserRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -225,7 +221,7 @@ public class InfoController {
                 user.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setString(session.getId(), JSON.toJSONString(user),4, TimeUnit.HOURS);
+			redisService.setKey(session.getId(), user,4, TimeUnit.HOURS);
             // 返回操作成功的结果，告知用户信息更新成功
             return ResponseResult.okResult(i18nService.getMessage("user.modify.info.success"));
         }

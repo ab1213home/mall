@@ -13,7 +13,9 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.service.IStringRedisService;
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.domain.dto.EmailCode;
+import com.jiang.mall.service.IEmailRedisService;
 import com.jiang.mall.settings.General;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,8 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Service("EmailRedisServiceImpl")
-public class EmailRedisServiceImpl implements IStringRedisService {
+@Service
+public class EmailRedisServiceImpl implements IEmailRedisService {
 
 	private StringRedisTemplate stringRedisTemplate;
 
@@ -36,16 +38,6 @@ public class EmailRedisServiceImpl implements IStringRedisService {
     String key(String key){
         return prefix+key;
     }
-    /**
-     * 设置一个键值对
-     *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
-     */
-    @Override
-    public void setString(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key(key), value);
-    }
 
     /**
      * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
@@ -56,8 +48,8 @@ public class EmailRedisServiceImpl implements IStringRedisService {
      * @param unit 时间单位，用于指定过期时间
      */
     @Override
-    public void setString(String key, String value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
+    public void setKey(String key, EmailCode value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
     }
 
     /**
@@ -67,45 +59,9 @@ public class EmailRedisServiceImpl implements IStringRedisService {
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public String getString(String key) {
-        return stringRedisTemplate.opsForValue().get(key(key));
-    }
-
-    /**
-     * 检查给定的键是否存在于当前数据结构中
-     *
-     * @param key 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
-     */
-    @Override
-    public Boolean hasKey(String key) {
-        return stringRedisTemplate.hasKey(key(key));
-    }
-
-    /**
-     * 设置指定键的过期时间
-     * <p>
-     * 此方法用于为给定的键设置过期时间当键过期时，它将不再在数据库中可用此方法常用于缓存场景，
-     * 以确保数据不会永久存储，并且可以自动清除旧的或不再需要的数据
-     *
-     * @param key   要设置过期时间的键不能为空
-     * @param timeout  键的过期时间，以秒为单位如果值为0，键将被持久化，不会过期
-     * @return      如果操作成功，返回true；否则返回false可能的原因包括但不限于键不存在或者数据库执行操作失败
-     */
-    @Override
-    public Boolean expire(String key, long timeout) {
-        return stringRedisTemplate.expire(key(key), timeout, TimeUnit.SECONDS);
-    }
-
-    /**
-     * 获取指定键的剩余过期时间
-     *
-     * @param key 要获取过期时间的键
-     * @return 剩余过期时间，以秒为单位，如果键不存在或者没有设置过期时间，则返回null
-     */
-    @Override
-    public Long getExpire(String key) {
-        return stringRedisTemplate.getExpire(key(key), TimeUnit.SECONDS);
+    public EmailCode getKey(String key) {
+        String value = stringRedisTemplate.opsForValue().get(key(key));
+        return value == null ? null : JSON.parseObject(value, EmailCode.class);
     }
 
     /**

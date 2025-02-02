@@ -34,6 +34,8 @@ CREATE TABLE `tb_banners`  (
   `img` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '轮播图图片地址',
   `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '跳转URL',
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '描述信息',
+  `start_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '生效时间',
+  `end_time` datetime NOT NULL DEFAULT '9999-12-31 23:59:59' COMMENT '失效时间',
   `creator` bigint UNSIGNED NOT NULL COMMENT '创建人',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `updater` bigint UNSIGNED NOT NULL COMMENT '更新人',
@@ -45,7 +47,6 @@ CREATE TABLE `tb_banners`  (
   CONSTRAINT `banners_creator` FOREIGN KEY (`creator`) REFERENCES `tb_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `banners_updater` FOREIGN KEY (`updater`) REFERENCES `tb_users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '轮播图表' ROW_FORMAT = DYNAMIC;
-
 
 -- ----------------------------
 -- Table structure for tb_carts

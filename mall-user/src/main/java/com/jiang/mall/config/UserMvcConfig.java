@@ -36,11 +36,18 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.userLoginInterceptor = userLoginInterceptor;
     }
 
-    private RepeatUserLoginInterceptor repeatUserLoginInterceptor;
+    private RepeatLoginInterceptor repeatLoginInterceptor;
 
     @Autowired
-    public void setRepeatUserLoginInterceptor(RepeatUserLoginInterceptor repeatUserLoginInterceptor) {
-        this.repeatUserLoginInterceptor = repeatUserLoginInterceptor;
+    public void setRepeatUserLoginInterceptor(RepeatLoginInterceptor repeatLoginInterceptor) {
+        this.repeatLoginInterceptor = repeatLoginInterceptor;
+    }
+
+    private RegisterLoginInterceptor registerLoginInterceptor;
+
+    @Autowired
+    public void setRegisterLoginInterceptor(RegisterLoginInterceptor registerLoginInterceptor) {
+        this.registerLoginInterceptor = registerLoginInterceptor;
     }
 
     /**
@@ -51,7 +58,7 @@ public class UserMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         // 防止重复登录
-        registry.addInterceptor(repeatUserLoginInterceptor)
+        registry.addInterceptor(repeatLoginInterceptor)
                 .addPathPatterns("/user/login.html")
                 .addPathPatterns("/user/login")
                 .addPathPatterns("/user/registerStep1")
@@ -92,5 +99,8 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**.html?*")
                 .addPathPatterns("/admin/**/**.html")
                 .addPathPatterns("/admin/**/**.html?*");
+        // 注册第三步拦截器
+        registry.addInterceptor(registerLoginInterceptor)
+                .addPathPatterns("/user/registerStep3");
     }
 }

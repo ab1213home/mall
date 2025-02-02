@@ -65,12 +65,12 @@ public class RegisterController {
         this.i18nService = i18nService;
     }
 
-	private IStringRedisService redisService;
+    private ITemporaryRedisService temporaryRedisService;
 
-    @Autowired
-    public void setRedisService(@Qualifier("UserRedisServiceImpl") IStringRedisService redisService) {
-        this.redisService = redisService;
-    }
+	@Autowired
+	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
+		this.temporaryRedisService = temporaryRedisService;
+	}
 
     private IEmailService emailService;
 
@@ -230,12 +230,7 @@ public class RegisterController {
                                                 @RequestParam("img") String img,
                                                 HttpSession session) {
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
-        String userIdStr = redisService.getString(session.getId());
-        if (userIdStr ==null){
-            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
-        }
-
-        Long userId = Long.parseLong(userIdStr);
+        Long userId = Long.parseLong(temporaryRedisService.getKey(session.getId()));
 
         // 验证手机号格式
         if (!i18nService.isValidPhone(phone)){

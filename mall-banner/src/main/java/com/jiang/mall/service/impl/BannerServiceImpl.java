@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -20,14 +21,15 @@ import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
+import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
-import com.jiang.mall.service.IStringRedisService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,10 +50,10 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         this.bannerMapper = bannerMapper;
     }
 
-	private IStringRedisService redisService;
+	private IBannerRedisService redisService;
 
 	@Autowired
-	public void setRedisService(@Qualifier("BannerRedisServiceImpl") IStringRedisService redisService) {
+	public void setRedisService(IBannerRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -59,7 +61,15 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     public List<BannerAdminVo> getBannerList(Integer pageNum, Integer pageSize) {
         Page<Banner> bannerPage = new Page<>(pageNum, pageSize);
         List<Banner> banners = bannerMapper.selectPage(bannerPage, null).getRecords();
-	    return BeanCopyUtils.copyBeanList(banners, BannerAdminVo.class);
+		List<BannerAdminVo> bannerAdminVos = new ArrayList<>();
+		for (Banner banner : banners) {
+			BannerAdminVo bannerAdminVo = BeanCopyUtils.copyBean(banner, BannerAdminVo.class);
+			assert bannerAdminVo != null;
+			bannerAdminVo.setCreator(BeanCopyUtils.copyBean(banner.getCreator(), UserVo.class));
+			bannerAdminVo.setUpdater(BeanCopyUtils.copyBean(banner.getUpdater(), UserVo.class));
+			bannerAdminVos.add(bannerAdminVo);
+		}
+	    return bannerAdminVos;
     }
 
     @Override
@@ -77,12 +87,28 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		LocalDateTime now = LocalDateTime.now();
 		QueryWrapper<Banner> queryWrapper = new QueryWrapper<>();
 		// banner的开始时间小于等于当前时间，结束时间大于等于当前时间
-		queryWrapper.ge("start_time", now);
-		queryWrapper.le("end_time", now);
+		queryWrapper.le("start_time", now);
+		queryWrapper.ge("end_time", now);
         List<Banner> banners = bannerMapper.selectList(queryWrapper);
 	    return BeanCopyUtils.copyBeanList(banners, BannerVo.class);
 	}
 
+	@Override
+	public List<BannerVo> getBannerListFromRedis() {
+		if (redisService.hasKey("banner")) {
+			String bannerListJson = redisService.getKey("banner");
+			return JSON.parseArray(bannerListJson, BannerVo.class);
+		}else {
+			List<BannerVo> bannerList = getBannerList();
+			if (!bannerList.isEmpty()){
+				String bannerListJson = JSON.toJSONString(bannerList);
+				redisService.setKey("banner", bannerListJson);
+				return bannerList;
+			}else {
+				return List.of();
+			}
+		}
+	}
 
 	@Override
     public Boolean insertBanner(Banner banner) {
@@ -93,6 +119,5 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     public Boolean updateBanner(Banner banner) {
 	    return bannerMapper.updateById(banner) == 1;
     }
-
 
 }

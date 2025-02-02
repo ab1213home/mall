@@ -13,7 +13,9 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.service.IStringRedisService;
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.IUserRedisService;
 import com.jiang.mall.settings.General;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,8 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Service("UserRedisServiceImpl")
-public class UserRedisServiceImpl implements IStringRedisService {
+@Service
+public class UserRedisServiceImpl implements IUserRedisService {
 
 	private StringRedisTemplate stringRedisTemplate;
 
@@ -36,16 +38,6 @@ public class UserRedisServiceImpl implements IStringRedisService {
     String key(String key){
         return prefix+key;
     }
-    /**
-     * 设置一个键值对
-     *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
-     */
-    @Override
-    public void setString(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key(key), value);
-    }
 
     /**
      * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
@@ -56,8 +48,8 @@ public class UserRedisServiceImpl implements IStringRedisService {
      * @param unit 时间单位，用于指定过期时间
      */
     @Override
-    public void setString(String key, String value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
+    public void setKey(String key, UserVo value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
     }
 
     /**
@@ -67,8 +59,9 @@ public class UserRedisServiceImpl implements IStringRedisService {
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public String getString(String key) {
-        return stringRedisTemplate.opsForValue().get(key(key));
+    public UserVo getKey(String key) {
+        String value = stringRedisTemplate.opsForValue().get(key(key));
+        return value == null ? null : JSON.parseObject(value, UserVo.class);
     }
 
     /**
