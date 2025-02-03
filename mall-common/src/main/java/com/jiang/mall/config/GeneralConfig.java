@@ -15,6 +15,7 @@ package com.jiang.mall.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,13 +23,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class GeneralConfig {
-	/**
-     * 配置文件路径
-     */
-    private static final String CONFIG_FILE_PATH = "config.properties";
+
+    @Value("${mall.config.location:./}")
+    private static String configFilePath;
 
     private static final Logger logger = LoggerFactory.getLogger(GeneralConfig.class);
 
+	// 指向外部配置文件
+    private static final String CONFIG_FILE_PATH = configFilePath +"config.properties";
     public static Properties properties = new Properties();
 
     static {

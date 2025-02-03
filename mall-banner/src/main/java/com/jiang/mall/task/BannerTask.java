@@ -13,6 +13,7 @@
 
 package com.jiang.mall.task;
 import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
@@ -23,9 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static com.jiang.mall.config.BannerConfig.BannerCache;
-import static com.jiang.mall.config.BannerConfig.BannerSyncTime;
 
 @Component
 public class BannerTask {
@@ -54,9 +52,9 @@ public class BannerTask {
 	 */
 	@Scheduled(fixedRate = 100, initialDelay = 0)
     public void checkBanner() {
-		if (BannerCache){
+		if (BannerConfig.isBannerCacheEnabled()){
 			timer=timer+100;
-			if (timer==100||timer>=BannerSyncTime){
+			if (timer==100||timer>=BannerConfig.getBannerSyncTime()){
 				timer = 1;
 				List<BannerVo> bannerList = bannerService.getBannerList();
 				if (bannerList == null || bannerList.isEmpty()) {

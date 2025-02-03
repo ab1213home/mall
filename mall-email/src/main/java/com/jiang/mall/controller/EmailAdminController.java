@@ -57,17 +57,17 @@ public class EmailAdminController {
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
         EmailSettingVo emailSettingVo = new EmailSettingVo();
-        emailSettingVo.setAllowSendEmail(EmailConfig.AllowSendEmail);
-        emailSettingVo.setHost(EmailConfig.HOST);
-        emailSettingVo.setPort(EmailConfig.PORT);
-        emailSettingVo.setUsername(EmailConfig.USERNAME);
-        emailSettingVo.setSender_end(EmailConfig.SENDER_END);
-        emailSettingVo.setNickname(EmailConfig.NICKNAME);
+        emailSettingVo.setAllowSendEmail(EmailConfig.isSendEmailEnabled());
+        emailSettingVo.setHost(EmailConfig.getEmailHost());
+        emailSettingVo.setPort(EmailConfig.getEmailPort());
+        emailSettingVo.setUsername(EmailConfig.getEmailUsername());
+        emailSettingVo.setSender_end(EmailConfig.getEmailSenderEnd());
+        emailSettingVo.setNickname(EmailConfig.getEmailNickname());
         emailSettingVo.setPassword("******");
-        emailSettingVo.setExpiration_time(EmailConfig.expiration_time);
-        emailSettingVo.setMax_request_num(EmailConfig.max_request_num);
-        emailSettingVo.setMin_request_num(EmailConfig.min_request_num);
-        emailSettingVo.setMax_fail_rate(EmailConfig.max_fail_rate);
+        emailSettingVo.setExpiration_time(EmailConfig.getEmailExpirationTime());
+        emailSettingVo.setMax_request_num(EmailConfig.getEmailMaxRequestNum());
+        emailSettingVo.setMin_request_num(EmailConfig.getEmailMinRequestNum());
+        emailSettingVo.setMax_fail_rate(EmailConfig.getEmailMaxFailRate());
         return ResponseResult.okResult(emailSettingVo);
     }
 
@@ -80,17 +80,17 @@ public class EmailAdminController {
     @PostMapping("/setSetting")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo) {
         // 更新配置文件
-        EmailConfig.HOST = emailSettingVo.getHost();
-        EmailConfig.PORT = emailSettingVo.getPort();
-        EmailConfig.USERNAME = emailSettingVo.getUsername();
-        EmailConfig.SENDER_END = emailSettingVo.getSender_end();
-        EmailConfig.NICKNAME = emailSettingVo.getNickname();
-        EmailConfig.PASSWORD = emailSettingVo.getPassword();
-        EmailConfig.expiration_time = emailSettingVo.getExpiration_time();
-        EmailConfig.max_request_num = emailSettingVo.getMax_request_num();
-        EmailConfig.min_request_num = emailSettingVo.getMin_request_num();
-        EmailConfig.max_fail_rate = emailSettingVo.getMax_fail_rate();
-        EmailConfig.saveProperties();
+        EmailConfig.updateEmailHost(emailSettingVo.getHost());
+        EmailConfig.updateEmailPort(emailSettingVo.getPort());
+        EmailConfig.updateEmailUsername(emailSettingVo.getUsername());
+        EmailConfig.updateEmailSenderEnd(emailSettingVo.getSender_end());
+        EmailConfig.updateEmailNickname(emailSettingVo.getNickname());
+        EmailConfig.updateEmailPassword(emailSettingVo.getPassword());
+        EmailConfig.updateEmailExpirationTime(emailSettingVo.getExpiration_time());
+        EmailConfig.updateEmailMaxRequestNum(emailSettingVo.getMax_request_num());
+        EmailConfig.updateEmailMinRequestNum(emailSettingVo.getMin_request_num());
+        EmailConfig.updateEmailMaxFailRate(emailSettingVo.getMax_fail_rate());
+        EmailConfig.updateSendEmailEnabled(emailSettingVo.isAllowSendEmail());
         return ResponseResult.okResult();
     }
 

@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.EmailConfig;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.EmailPurpose;
 import com.jiang.mall.domain.enums.EmailStatus;
@@ -34,8 +35,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import static com.jiang.mall.config.EmailConfig.*;
 
 @Service
 public class EmailServiceImpl implements IEmailService {
@@ -66,21 +65,21 @@ public class EmailServiceImpl implements IEmailService {
 	 */
 	@Override
 	public Boolean sendEmail(String to, String subject, String content) {
-		if (!AllowSendEmail){
+		if (!EmailConfig.isSendEmailEnabled()){
 			return false;
 		}
 	    // 配置邮件会话属性
 	    Properties properties = new Properties();
 		// 设置邮件服务器主机名
-	    properties.put("mail.smtp.host", HOST);
+	    properties.put("mail.smtp.host", EmailConfig.getEmailHost());
 	    // 设置邮件服务器端口号
-		properties.put("mail.smtp.port", PORT);
+		properties.put("mail.smtp.port", EmailConfig.getEmailPort());
 	    // 启用身份验证
 		properties.put("mail.smtp.auth", "true");
 	    // 启用 TLS
 		properties.put("mail.smtp.starttls.enable", "true");
 	    // 设置 SSL 端口
-		properties.put("mail.smtp.socketFactory.port", PORT);
+		properties.put("mail.smtp.socketFactory.port", EmailConfig.getEmailPort());
 	    // 设置 SSL Socket Factory
 		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		// 禁用 SSL 回退
@@ -89,7 +88,7 @@ public class EmailServiceImpl implements IEmailService {
 	    // 创建会话对象，用于发送邮件
 	    Session session = Session.getInstance(properties, new Authenticator() {
 	        protected PasswordAuthentication getPasswordAuthentication() {
-	            return new PasswordAuthentication(USERNAME, PASSWORD);
+	            return new PasswordAuthentication(EmailConfig.getEmailUsername(), EmailConfig.getEmailPassword());
 	        }
 	    });
 
@@ -97,7 +96,7 @@ public class EmailServiceImpl implements IEmailService {
 	        // 创建邮件消息
 	        Message message = new MimeMessage(session);
 			// 设置发件人邮箱
-	        message.setFrom(new InternetAddress(USERNAME));
+	        message.setFrom(new InternetAddress(EmailConfig.getEmailUsername()));
 	        // 设置收件人邮箱
 		    message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 	        // 设置邮件主题
@@ -163,11 +162,11 @@ public class EmailServiceImpl implements IEmailService {
 		String htmlContent = htmlContent(username, EmailPurpose.REGISTER.getName(), code);
 
         // 发送邮件
-        if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
+        if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -195,11 +194,11 @@ public class EmailServiceImpl implements IEmailService {
 		String htmlContent = htmlContent(username, EmailPurpose.RESET_PASSWORD.getName(), code);
 
         // 发送邮件
-        if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
+        if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,userId);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -227,11 +226,11 @@ public class EmailServiceImpl implements IEmailService {
 		String htmlContent = htmlContent(username, EmailPurpose.CHANGE_EMAIL.getName(), code);
 
         // 发送邮件
-        if (sendEmail(email, "【"+SENDER_END+"】验证码通知", htmlContent)){
+        if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
                 EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,expiration_time, TimeUnit.MINUTES);
+                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -245,11 +244,11 @@ public class EmailServiceImpl implements IEmailService {
 
 	public String htmlContent(String username, String purpose, String code) {
 		return "<html><body>" +
-                "<h1>【"+SENDER_END+"】验证码通知</h1>" +
+                "<h1>【"+EmailConfig.getEmailSenderEnd()+"】验证码通知</h1>" +
                 "<p>尊敬的"+username+"用户，您正在尝试使用"+purpose+"功能。</p>" +
                 "<div style='font-size: 24px; color: #007bff; font-weight: bold; text-align: center;'>" +
                 "您的验证码是：<span style='font-size: 36px;'>"+code+"</span></div>" +
-                "<p>请在接下来的 "+expiration_time+" 分钟内使用此验证码完成操作。为保证账户安全，请勿向任何人透露此验证码。</p>" +
+                "<p>请在接下来的 "+EmailConfig.getEmailExpirationTime()+" 分钟内使用此验证码完成操作。为保证账户安全，请勿向任何人透露此验证码。</p>" +
                 "<p>如果您没有发起此操作，请忽略此邮件。</p>" +
                 "<div style='text-align: center; color: #999999; font-size: 12px;'>本邮件由系统自动发送，请勿回复。</div>" +
                 "</body></html>";

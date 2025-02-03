@@ -17,6 +17,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerAdminVo;
@@ -31,8 +32,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.jiang.mall.config.BannerConfig.BannerCache;
 
 /**
  * <p>
@@ -97,7 +96,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
 	@Override
 	public List<BannerVo> getBannerListFromRedis() {
-		if (BannerCache){
+		if (BannerConfig.isBannerCacheEnabled()){
 			if (redisService.hasKey("banner")) {
 				String bannerListJson = redisService.getKey("banner");
 				return JSON.parseArray(bannerListJson, BannerVo.class);

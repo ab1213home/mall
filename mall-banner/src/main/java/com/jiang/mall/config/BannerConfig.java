@@ -13,26 +13,23 @@
 
 package com.jiang.mall.config;
 
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
-@Data
 public class BannerConfig {
 
-	/**
-     * 配置文件路径
-     */
-    private static final String CONFIG_FILE_PATH = "config.properties";
+    @Value("${mall.config.location:./}")
+    private static String configFilePath;
 
     private static final Logger logger = LoggerFactory.getLogger(BannerConfig.class);
 
-    public static Properties properties = new Properties();
+    // 指向外部配置文件
+    private static final String CONFIG_FILE_PATH = configFilePath +"config.properties";
+    private static final Properties properties = new Properties();
 
     static {
         loadProperties();
@@ -42,51 +39,98 @@ public class BannerConfig {
      * 加载配置文件
      */
     public static void loadProperties() {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
-            // 加载配置文件
-            properties.load(fis);
-
+        try (InputStream input = new FileInputStream(CONFIG_FILE_PATH)) {
+            properties.load(input);
+            logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("加载配置文件失败！",e);
+            logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+            // 尝试创建默认配置文件（可选）
+            createDefaultConfig();
         }
     }
 
     /**
      * 保存配置文件
-     * <p>
-     * 此方法用于将内存中修改过的配置信息持久化到配置文件中确保配置的变更不会丢失
-     * 它通过FileOutputStream将属性集（properties）存储到指定的配置文件路径中
-     * 如果配置文件不存在，此方法会创建一个新的配置文件
-     * <p>
-     * 注意：此方法会覆盖现有配置文件中的内容
      */
     public static void saveProperties() {
-        try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(fos, "配置文件");
+        // 确保目录存在
+        File configFile = new File(CONFIG_FILE_PATH);
+        File parentDir = configFile.getParentFile();
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
+            return;
+        }
+
+        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
+            properties.store(output, "Updated by application");
+            logger.info("配置文件保存成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("保存配置文件失败！",e);
+            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
         }
     }
 
     /**
-     * 获取配置文件中的属性值
-     *
-     * @param key 配置项的键
-     * @return 配置项的值，如果键不存在则返回null
+     * 创建默认配置文件
      */
-    public static String getProperty(String key) {
-        return properties.getProperty(key);
+    private static void createDefaultConfig() {
+        try {
+            File configFile = new File(CONFIG_FILE_PATH);
+            if (configFile.createNewFile()) {
+                properties.setProperty("allow.banner.cache", "false");
+                properties.setProperty("banner.sync.time", "60000");
+                saveProperties();
+                logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
+            }
+        } catch (IOException e) {
+            logger.error("创建默认配置文件失败！", e);
+        }
     }
 
     /**
-     * 设置轮播图是否缓存在redis中
+     * 检查是否启用了轮播图缓存功能
+     *
+     * @return 如果轮播图缓存功能已启用，则返回true；否则返回false
      */
-    public static boolean BannerCache = Boolean.parseBoolean(properties.getProperty("allow.banner.cache", "false"));
+    public static boolean isBannerCacheEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("allow.banner.cache", "false"));
+    }
 
     /**
-     * 设置轮播图从数据库同步时间间隔（毫秒）
+     * 获取轮播图同步时间
+     * <p>
+     * 此方法从配置文件中读取轮播图同步时间的属性如果属性不存在，则返回默认值60000毫秒（1分钟）
+     * 该方法用于确定轮播图内容在客户端更新的频率
+     *
+     * @return 轮播图同步时间，以毫秒为单位如果无法解析属性或属性不存在，则返回默认值60000毫秒
      */
-    public static int BannerSyncTime = Integer.parseInt(properties.getProperty("banner.sync.time", "60000"));
+    public static int getBannerSyncTime() {
+        return Integer.parseInt(properties.getProperty("banner.sync.time", "60000"));
+    }
 
+    /**
+     * 更新Banner缓存设置
+     * 此方法用于启用或禁用Banner的缓存功能通过修改属性值来实现
+     *
+     * @param enabled 如果为true，则允许缓存Banner；如果为false，则不允许缓存
+     */
+    public static void updateBannerCache(boolean enabled) {
+        // 设置是否允许缓存Banner的属性值
+        properties.setProperty("allow.banner.cache", String.valueOf(enabled));
+        // 保存属性，以确保在应用程序重新启动后设置仍然有效
+        saveProperties();
+    }
 
+    /**
+     * 更新横幅同步时间
+     * <p>
+     * 此方法用于更新配置文件中的横幅同步时间属性这在需要记录或更新横幅内容最后一次同步的时间时特别有用
+     *
+     * @param milliseconds 毫秒数，表示横幅内容的同步时间
+     */
+    public static void updateBannerSyncTime(int milliseconds) {
+        // 将横幅同步时间以字符串形式设置到属性文件中
+        properties.setProperty("banner.sync.time", String.valueOf(milliseconds));
+        // 保存更新后的属性文件
+        saveProperties();
+    }
 }

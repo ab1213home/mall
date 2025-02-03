@@ -13,26 +13,23 @@
 
 package com.jiang.mall.config;
 
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
-@Data
 public class EmailConfig {
 
-	/**
-     * 配置文件路径
-     */
-    private static final String CONFIG_FILE_PATH = "config.properties";
+    @Value("${mall.config.location:./}")
+    private static String configFilePath;
 
     private static final Logger logger = LoggerFactory.getLogger(EmailConfig.class);
 
-    public static Properties properties = new Properties();
+    // 指向外部配置文件
+    private static final String CONFIG_FILE_PATH = configFilePath +"config.properties";
+    private static final Properties properties = new Properties();
 
     static {
         loadProperties();
@@ -42,84 +39,145 @@ public class EmailConfig {
      * 加载配置文件
      */
     public static void loadProperties() {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
-            // 加载配置文件
-            properties.load(fis);
-
+        try (InputStream input = new FileInputStream(CONFIG_FILE_PATH)) {
+            properties.load(input);
+            logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("加载配置文件失败！",e);
+            logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+            // 尝试创建默认配置文件（可选）
+            createDefaultConfig();
         }
     }
 
     /**
      * 保存配置文件
-     * <p>
-     * 此方法用于将内存中修改过的配置信息持久化到配置文件中确保配置的变更不会丢失
-     * 它通过FileOutputStream将属性集（properties）存储到指定的配置文件路径中
-     * 如果配置文件不存在，此方法会创建一个新的配置文件
-     * <p>
-     * 注意：此方法会覆盖现有配置文件中的内容
      */
     public static void saveProperties() {
-        try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(fos, "配置文件");
+        // 确保目录存在
+        File configFile = new File(CONFIG_FILE_PATH);
+        File parentDir = configFile.getParentFile();
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
+            return;
+        }
+
+        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
+            properties.store(output, "Updated by application");
+            logger.info("配置文件保存成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("保存配置文件失败！",e);
+            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
         }
     }
 
-	/**
-     * 邮件服务器主机名
+    /**
+     * 创建默认配置文件
      */
-    public static String HOST = properties.getProperty("mail.host", "smtp.example.com");
+    private static void createDefaultConfig() {
+        try {
+            File configFile = new File(CONFIG_FILE_PATH);
+            if (configFile.createNewFile()) {
+                properties.setProperty("mail.host", "smtp.example.com");
+                properties.setProperty("mail.port", "465");
+                properties.setProperty("mail.username", "example@example.com");
+                properties.setProperty("mail.sender.end", "mall.jiangrongjun.top");
+                properties.setProperty("mail.nickname", "example");
+                properties.setProperty("mail.password", "example");
+                properties.setProperty("email.expiration.time", "15");
+                properties.setProperty("email.max.request.num", "10");
+                properties.setProperty("email.min.request.num", "5");
+                properties.setProperty("email.max.fail.rate", "0.4");
+                properties.setProperty("allow.send.email", "false");
+                saveProperties();
+                logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
+            }
+        } catch (IOException e) {
+            logger.error("创建默认配置文件失败！", e);
+        }
+    }
 
     /**
-     * 邮件服务器端口号
+     * 获取配置值（动态读取，避免静态变量缓存问题）
      */
-    public static String PORT = properties.getProperty("mail.port", "465");
+    public static String getEmailHost() {
+        return properties.getProperty("mail.host", "smtp.example.com");
+    }
+    public static String getEmailPort() {
+        return properties.getProperty("mail.port", "465");
+    }
+    public static String getEmailUsername() {
+        return properties.getProperty("mail.username", "example@example.com");
+    }
+    public static String getEmailSenderEnd() {
+        return properties.getProperty("mail.sender.end", "mall.jiangrongjun.top");
+    }
+    public static String getEmailNickname() {
+        return properties.getProperty("mail.nickname", "example");
+    }
+    public static String getEmailPassword() {
+        return properties.getProperty("mail.password", "example");
+    }
+    public static int getEmailExpirationTime() {
+        return Integer.parseInt(properties.getProperty("email.expiration.time", "15"));
+    }
+    public static int getEmailMaxRequestNum() {
+        return Integer.parseInt(properties.getProperty("email.max.request.num", "10"));
+    }
+    public static int getEmailMinRequestNum() {
+        return Integer.parseInt(properties.getProperty("email.min.request.num", "5"));
+    }
+    public static double getEmailMaxFailRate() {
+        return Double.parseDouble(properties.getProperty("email.max.fail.rate", "0.4"));
+    }
+    public static boolean isSendEmailEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("allow.send.email", "false"));
+    }
 
     /**
-     * 发件人邮箱
+     * 修改配置
      */
-    public static String USERNAME = properties.getProperty("mail.username", "example@example.com");
+    public static void updateEmailHost(String host) {
+        properties.setProperty("mail.host", host);
+        saveProperties();
+    }
+    public static void updateEmailPort(String port) {
+        properties.setProperty("mail.port", port);
+        saveProperties();
+    }
+    public static void updateEmailUsername(String username) {
+        properties.setProperty("mail.username", username);
+        saveProperties();
+    }
+    public static void updateEmailSenderEnd(String senderEnd) {
+        properties.setProperty("mail.sender.end", senderEnd);
+        saveProperties();
+    }
+    public static void updateEmailNickname(String nickname) {
+        properties.setProperty("mail.nickname", nickname);
+        saveProperties();
+    }
+    public static void updateEmailPassword(String password) {
+        properties.setProperty("mail.password", password);
+        saveProperties();
+    }
+    public static void updateEmailExpirationTime(int milliseconds) {
+        properties.setProperty("email.expiration.time", String.valueOf(milliseconds));
+        saveProperties();
+    }
+    public static void updateEmailMaxRequestNum(int num) {
+        properties.setProperty("email.max.request.num", String.valueOf(num));
+        saveProperties();
+    }
+    public static void updateEmailMinRequestNum(int num) {
+        properties.setProperty("email.min.request.num", String.valueOf(num));
+        saveProperties();
+    }
+    public static void updateEmailMaxFailRate(double rate) {
+        properties.setProperty("email.max.fail.rate", String.valueOf(rate));
+        saveProperties();
+    }
+    public static void updateSendEmailEnabled(boolean enabled) {
+        properties.setProperty("allow.send.email", String.valueOf(enabled));
+        saveProperties();
+    }
 
-    /**
-     * 发件人邮箱后缀
-     */
-    public static String SENDER_END = properties.getProperty("mail.sender.end", "mall.jiangrongjun.top");
-
-    /**
-     * 发件人邮箱昵称
-     */
-    public static String NICKNAME = properties.getProperty("mail.nickname", "example");
-
-    /**
-     * 发件人邮箱密码
-     */
-    public static String PASSWORD = properties.getProperty("mail.password", "example");
-
-    /**
-     * 邮箱验证码过期时间（分钟）
-     */
-    public static int expiration_time = Integer.parseInt(properties.getProperty("email.expiration.time", "15"));
-
-    /**
-     * 邮箱验证码24小时最大请求数量
-     */
-    public static int max_request_num = Integer.parseInt(properties.getProperty("email.max.request.num", "10"));
-
-    /**
-     * 邮箱验证码24小时最小请求数量
-     */
-    public static int min_request_num = Integer.parseInt(properties.getProperty("email.min.request.num", "5"));
-
-    /**
-     * 邮箱验证码24小时最大失败率
-     */
-    public static double max_fail_rate = Double.parseDouble(properties.getProperty("email.max.fail.rate", "0.4"));
-
-	/**
-     * 是否允许发送邮件
-     */
-    public static boolean AllowSendEmail = Boolean.parseBoolean(properties.getProperty("allow.send.email", "false"));
 }
