@@ -32,6 +32,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jiang.mall.config.BannerConfig.BannerCache;
+
 /**
  * <p>
  * 服务实现类
@@ -95,18 +97,15 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
 	@Override
 	public List<BannerVo> getBannerListFromRedis() {
-		if (redisService.hasKey("banner")) {
-			String bannerListJson = redisService.getKey("banner");
-			return JSON.parseArray(bannerListJson, BannerVo.class);
-		}else {
-			List<BannerVo> bannerList = getBannerList();
-			if (!bannerList.isEmpty()){
-				String bannerListJson = JSON.toJSONString(bannerList);
-				redisService.setKey("banner", bannerListJson);
-				return bannerList;
+		if (BannerCache){
+			if (redisService.hasKey("banner")) {
+				String bannerListJson = redisService.getKey("banner");
+				return JSON.parseArray(bannerListJson, BannerVo.class);
 			}else {
-				return List.of();
+				return getBannerList();
 			}
+		}else {
+			return getBannerList();
 		}
 	}
 

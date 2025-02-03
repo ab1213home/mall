@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static com.jiang.mall.config.BannerConfig.BannerCache;
+import static com.jiang.mall.config.BannerConfig.BannerSyncTime;
+
 @Component
 public class BannerTask {
 
@@ -43,24 +46,34 @@ public class BannerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(BannerTask.class);
 
+	private long timer = 0;
+
 	/*
-	 * 每隔一分钟执行检查轮播图是否有过期的轮播图，如果有则删除
+	 * 每隔BannerSyncTime分钟执行检查轮播图是否有过期的轮播图，如果有则删除
 	 * 是否有需要更新轮播图，如果有则更新
 	 */
-	@Scheduled(cron = "0 0/1 * * * ?")
+	@Scheduled(fixedRate = 100, initialDelay = 0)
     public void checkBanner() {
-		List<BannerVo> bannerList = bannerService.getBannerList();
-		if (bannerList == null || bannerList.isEmpty()) {
-			logger.info("No banners found.");
-			redisService.deleteKey("banner");
-			return;
+		if (BannerCache){
+			timer=timer+100;
+			if (timer==100||timer>=BannerSyncTime){
+				timer = 1;
+				List<BannerVo> bannerList = bannerService.getBannerList();
+				if (bannerList == null || bannerList.isEmpty()) {
+					logger.info("No banners found.");
+					redisService.deleteKey("banner");
+					return;
+				}
+				String bannerListJson = JSON.toJSONString(bannerList);
+				// 添加保护措施防止大Key
+				if(bannerListJson.getBytes().length > 1024 * 1024){ // 超过1MB报警
+					logger.warn("Large banner data detected: {} bytes", bannerListJson.length());
+				}
+				redisService.setKey("banner", bannerListJson);
+				logger.info("Banner data updated.");
+			}
+		}else{
+			logger.info("Banner cache is disabled.");
 		}
-		String bannerListJson = JSON.toJSONString(bannerList);
-		// 添加保护措施防止大Key
-		if(bannerListJson.getBytes().length > 1024 * 1024){ // 超过1MB报警
-			logger.warn("Large banner data detected: {} bytes", bannerListJson.length());
-		}
-		redisService.setKey("banner", bannerListJson);
-		logger.info("Banner data updated.");
     }
 }
