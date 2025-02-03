@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.EmailPurpose;
 import com.jiang.mall.domain.enums.EmailStatus;
@@ -36,7 +35,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import static com.jiang.mall.settings.Email.*;
+import static com.jiang.mall.config.EmailConfig.*;
 
 @Service
 public class EmailServiceImpl implements IEmailService {

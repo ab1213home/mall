@@ -35,8 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.jiang.mall.domain.config.User.AdminRoleId;
-import static com.jiang.mall.domain.config.User.regex_email;
+import static com.jiang.mall.config.UserConfig.AdminRoleId;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -224,7 +223,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    User user_username = userMapper.selectOne(queryWrapper_username);
 
 	    // 根据邮箱格式匹配用户
-	    if (username.matches(regex_email)) {
+	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
 	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
 	        queryWrapper_email.eq("email", username);
@@ -306,7 +305,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    User user_username = userMapper.selectOne(queryWrapper_username);
 
 	    // 根据邮箱格式匹配用户
-	    if (username.matches(regex_email)) {
+	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
 	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
 	        queryWrapper_email.eq("email", username);

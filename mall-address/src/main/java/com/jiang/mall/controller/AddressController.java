@@ -18,6 +18,7 @@ import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.jiang.mall.domain.config.User.max_address_num;
-import static com.jiang.mall.domain.config.User.regex_phone;
+import static com.jiang.mall.config.UserConfig.max_address_num;
 
 /**
  * 收货地址管理
@@ -68,6 +68,13 @@ public class AddressController {
 	@Autowired
 	public void setDivisionService(IAdministrativeDivisionService divisionService) {
 		this.divisionService = divisionService;
+	}
+
+	private II18nService i18nService;
+
+	@Autowired
+	public void setI18nService(II18nService i18nService) {
+		this.i18nService = i18nService;
 	}
 
     /**
@@ -152,7 +159,7 @@ public class AddressController {
 			return ResponseResult.failResult("请输入完整信息");
 		}
 	    // 验证手机号格式
-	    if (!StringUtils.hasText(phone) && !phone.matches(regex_phone)){
+	    if (!i18nService.isValidPhone(phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
 		if (!StringUtils.hasText(firstName)){
@@ -224,7 +231,7 @@ public class AddressController {
 			return ResponseResult.failResult("请输入完整信息");
 		}
 	    // 验证电话号码格式
-		if (!StringUtils.hasText(phone) && !phone.matches(regex_phone)){
+		if (!i18nService.isValidPhone(phone)){
 	        return ResponseResult.failResult("手机号格式不正确");
 	    }
 		if (!StringUtils.hasText(firstName)){

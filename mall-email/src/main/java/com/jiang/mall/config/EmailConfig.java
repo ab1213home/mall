@@ -11,8 +11,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.settings;
+package com.jiang.mall.config;
 
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +22,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class General {
+@Data
+public class EmailConfig {
+
 	/**
      * 配置文件路径
      */
     private static final String CONFIG_FILE_PATH = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(General.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailConfig.class);
 
     public static Properties properties = new Properties();
 
@@ -65,61 +68,58 @@ public class General {
         }
     }
 
+	/**
+     * 邮件服务器主机名
+     */
+    public static String HOST = properties.getProperty("mail.host", "smtp.example.com");
 
     /**
-     * 日期时间格式
+     * 邮件服务器端口号
      */
-    public static String PATTERN = properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+    public static String PORT = properties.getProperty("mail.port", "465");
 
     /**
-     * 时区
+     * 发件人邮箱
      */
-    public static String timeZone = properties.getProperty("time.zone", "GMT+8");
-
+    public static String USERNAME = properties.getProperty("mail.username", "example@example.com");
 
     /**
-     * 是否允许修改
+     * 发件人邮箱后缀
      */
-    public static boolean AllowModify = Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
-
-
-    /**
-     * 网页页底联系电话
-     */
-    public static String phone = properties.getProperty("phone", "400-888-8888");
+    public static String SENDER_END = properties.getProperty("mail.sender.end", "mall.jiangrongjun.top");
 
     /**
-     * 网页页底邮箱
+     * 发件人邮箱昵称
      */
-    public static String email = properties.getProperty("email", "jiangrongjun2004@163.com");
+    public static String NICKNAME = properties.getProperty("mail.nickname", "example");
+
+    /**
+     * 发件人邮箱密码
+     */
+    public static String PASSWORD = properties.getProperty("mail.password", "example");
+
+    /**
+     * 邮箱验证码过期时间（分钟）
+     */
+    public static int expiration_time = Integer.parseInt(properties.getProperty("email.expiration.time", "15"));
+
+    /**
+     * 邮箱验证码24小时最大请求数量
+     */
+    public static int max_request_num = Integer.parseInt(properties.getProperty("email.max.request.num", "10"));
+
+    /**
+     * 邮箱验证码24小时最小请求数量
+     */
+    public static int min_request_num = Integer.parseInt(properties.getProperty("email.min.request.num", "5"));
+
+    /**
+     * 邮箱验证码24小时最大失败率
+     */
+    public static double max_fail_rate = Double.parseDouble(properties.getProperty("email.max.fail.rate", "0.4"));
 
 	/**
-     * AES254的salt
+     * 是否允许发送邮件
      */
-    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
-
-	/**
-     * 邮箱格式正则表达式
-     */
-    public static String regex_email = properties.getProperty("regex.email", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
-
-    /**
-     * 手机号格式正则表达式
-     */
-    public static String regex_phone = properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
-
-    /**
-     * 密码格式正则表达式
-     */
-    public static String regex_password = properties.getProperty("regex.password", "^[a-zA-Z0-9]{6,16}$");
-
-    /**
-     * 用户名格式正则表达式
-     */
-    public static String regex_username = properties.getProperty("regex.username", "^[a-zA-Z0-9]{6,16}$");
-
-    /**
-     * Redis数据库key前缀（防止重复）
-     */
-    public static String redis_key_prefix = properties.getProperty("redis.key.prefix", "mall");
+    public static boolean AllowSendEmail = Boolean.parseBoolean(properties.getProperty("allow.send.email", "false"));
 }

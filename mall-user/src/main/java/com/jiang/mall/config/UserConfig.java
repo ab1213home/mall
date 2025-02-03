@@ -11,10 +11,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.settings;
+package com.jiang.mall.config;
 
 import lombok.Data;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,14 +23,13 @@ import java.io.IOException;
 import java.util.Properties;
 
 @Data
-public class Email {
-
+public class UserConfig {
 	/**
      * 配置文件路径
      */
     private static final String CONFIG_FILE_PATH = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(Email.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
 
     public static Properties properties = new Properties();
 
@@ -69,58 +67,24 @@ public class Email {
         }
     }
 
-	/**
-     * 邮件服务器主机名
+    /**
+     * 管理员角色ID
      */
-    public static String HOST = properties.getProperty("mail.host", "smtp.example.com");
+    public static int AdminRoleId = Integer.parseInt(properties.getProperty("admin.role.id", "10"));
 
     /**
-     * 邮件服务器端口号
+     * 收货地址最大数量
      */
-    public static String PORT = properties.getProperty("mail.port", "465");
+    public static int max_address_num = Integer.parseInt(properties.getProperty("max.address.num", "50"));
 
     /**
-     * 发件人邮箱
+     * 是否允许注册
      */
-    public static String USERNAME = properties.getProperty("mail.username", "example@example.com");
+    public static boolean AllowRegistration = Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
 
     /**
-     * 发件人邮箱后缀
+     * AES254的salt
      */
-    public static String SENDER_END = properties.getProperty("mail.sender.end", "mall.jiangrongjun.top");
+    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
 
-    /**
-     * 发件人邮箱昵称
-     */
-    public static String NICKNAME = properties.getProperty("mail.nickname", "example");
-
-    /**
-     * 发件人邮箱密码
-     */
-    public static String PASSWORD = properties.getProperty("mail.password", "example");
-
-    /**
-     * 邮箱验证码过期时间（分钟）
-     */
-    public static int expiration_time = Integer.parseInt(properties.getProperty("email.expiration.time", "15"));
-
-    /**
-     * 邮箱验证码24小时最大请求数量
-     */
-    public static int max_request_num = Integer.parseInt(properties.getProperty("email.max.request.num", "10"));
-
-    /**
-     * 邮箱验证码24小时最小请求数量
-     */
-    public static int min_request_num = Integer.parseInt(properties.getProperty("email.min.request.num", "5"));
-
-    /**
-     * 邮箱验证码24小时最大失败率
-     */
-    public static double max_fail_rate = Double.parseDouble(properties.getProperty("email.max.fail.rate", "0.4"));
-
-	/**
-     * 是否允许发送邮件
-     */
-    public static boolean AllowSendEmail = Boolean.parseBoolean(properties.getProperty("allow.send.email", "false"));
 }

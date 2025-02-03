@@ -23,7 +23,6 @@ import com.jiang.mall.service.IVerificationCodeService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -32,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
-import static com.jiang.mall.domain.config.User.*;
+import static com.jiang.mall.config.UserConfig.*;
 
 /**
  * 用户控制器

@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.jiang.mall.domain.config.User.AdminRoleId;
+import static com.jiang.mall.config.UserConfig.AdminRoleId;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**

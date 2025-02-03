@@ -11,9 +11,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.config;
+package com.jiang.mall.config;
 
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +21,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-@Data
-public class User {
+public class GeneralConfig {
 	/**
      * 配置文件路径
      */
     private static final String CONFIG_FILE_PATH = "config.properties";
 
-    private static final Logger logger = LoggerFactory.getLogger(User.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeneralConfig.class);
 
     public static Properties properties = new Properties();
 
@@ -67,12 +65,40 @@ public class User {
         }
     }
 
-    /**
-     * 管理员角色ID
-     */
-    public static int AdminRoleId = Integer.parseInt(properties.getProperty("admin.role.id", "10"));
 
     /**
+     * 日期时间格式
+     */
+    public static String PATTERN = properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+
+    /**
+     * 时区
+     */
+    public static String timeZone = properties.getProperty("time.zone", "GMT+8");
+
+
+    /**
+     * 是否允许修改
+     */
+    public static boolean AllowModify = Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
+
+
+    /**
+     * 网页页底联系电话
+     */
+    public static String phone = properties.getProperty("phone", "400-888-8888");
+
+    /**
+     * 网页页底邮箱
+     */
+    public static String email = properties.getProperty("email", "jiangrongjun2004@163.com");
+
+	/**
+     * AES254的salt
+     */
+    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
+
+	/**
      * 邮箱格式正则表达式
      */
     public static String regex_email = properties.getProperty("regex.email", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
@@ -83,19 +109,17 @@ public class User {
     public static String regex_phone = properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
 
     /**
-     * 收货地址最大数量
+     * 密码格式正则表达式
      */
-    public static int max_address_num = Integer.parseInt(properties.getProperty("max.address.num", "50"));
+    public static String regex_password = properties.getProperty("regex.password", "^[a-zA-Z0-9]{6,16}$");
 
     /**
-     * 是否允许注册
+     * 用户名格式正则表达式
      */
-    public static boolean AllowRegistration = Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
-
+    public static String regex_username = properties.getProperty("regex.username", "^[a-zA-Z0-9]{6,16}$");
 
     /**
-     * AES254的salt
+     * Redis数据库key前缀（防止重复）
      */
-    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
-
+    public static String redis_key_prefix = properties.getProperty("redis.key.prefix", "mall");
 }

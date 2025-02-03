@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import static com.jiang.mall.settings.General.AES_SALT;
+import static com.jiang.mall.config.UserConfig.AES_SALT;
 
 /**
  * 用户控制器

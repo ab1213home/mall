@@ -14,7 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.jiang.mall.service.ITemporaryRedisService;
-import com.jiang.mall.settings.General;
+import com.jiang.mall.config.GeneralConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,7 +32,7 @@ public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = General.redis_key_prefix+"-register-";
+    String prefix = GeneralConfig.redis_key_prefix+"-register-";
     String key(String key){
         return prefix+key;
     }

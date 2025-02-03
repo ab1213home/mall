@@ -58,11 +58,6 @@ public class Category implements Serializable {
     private Long parentId;
 
     /**
-     * 分类级别，默认为 1
-     */
-//    private Byte level;
-
-    /**
      * 分类名称
      */
     private String name;

@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.MyLocaleResolverConfig;
 import com.jiang.mall.service.II18nService;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Locale;
 
-import static com.jiang.mall.settings.General.regex_email;
-import static com.jiang.mall.settings.General.regex_phone;
+import static com.jiang.mall.config.GeneralConfig.regex_email;
+import static com.jiang.mall.config.GeneralConfig.regex_phone;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 @Service
@@ -138,6 +139,11 @@ public class I18nServiceImpl implements II18nService {
 		}else {
 			return isValidIPv6(clientIp);
 		}
+	}
+
+	@Override
+	public Boolean isValidUsername(String username) {
+		return username.matches(GeneralConfig.regex_username);
 	}
 
 }

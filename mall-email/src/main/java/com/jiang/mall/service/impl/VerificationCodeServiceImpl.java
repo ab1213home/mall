@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.jiang.mall.settings.Email.*;
+import static com.jiang.mall.config.EmailConfig.*;
 
 @Service
 public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMapper, VerificationCode> implements IVerificationCodeService {

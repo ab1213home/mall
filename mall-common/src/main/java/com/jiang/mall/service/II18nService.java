@@ -53,4 +53,6 @@ public interface II18nService {
 
 	Boolean isValidIPv4OrIPv6(String clientIp);
 
+	Boolean isValidUsername(String username);
+
 }

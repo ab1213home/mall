@@ -14,21 +14,13 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-
-import static com.jiang.mall.settings.Email.AllowSendEmail;
-import static com.jiang.mall.settings.General.regex_email;
-import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 /**
  * 用户控制器

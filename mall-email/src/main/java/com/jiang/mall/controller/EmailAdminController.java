@@ -17,7 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.EmailSettingVo;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.settings.Email;
+import com.jiang.mall.config.EmailConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,17 +57,17 @@ public class EmailAdminController {
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
         EmailSettingVo emailSettingVo = new EmailSettingVo();
-        emailSettingVo.setAllowSendEmail(Email.AllowSendEmail);
-        emailSettingVo.setHost(Email.HOST);
-        emailSettingVo.setPort(Email.PORT);
-        emailSettingVo.setUsername(Email.USERNAME);
-        emailSettingVo.setSender_end(Email.SENDER_END);
-        emailSettingVo.setNickname(Email.NICKNAME);
+        emailSettingVo.setAllowSendEmail(EmailConfig.AllowSendEmail);
+        emailSettingVo.setHost(EmailConfig.HOST);
+        emailSettingVo.setPort(EmailConfig.PORT);
+        emailSettingVo.setUsername(EmailConfig.USERNAME);
+        emailSettingVo.setSender_end(EmailConfig.SENDER_END);
+        emailSettingVo.setNickname(EmailConfig.NICKNAME);
         emailSettingVo.setPassword("******");
-        emailSettingVo.setExpiration_time(Email.expiration_time);
-        emailSettingVo.setMax_request_num(Email.max_request_num);
-        emailSettingVo.setMin_request_num(Email.min_request_num);
-        emailSettingVo.setMax_fail_rate(Email.max_fail_rate);
+        emailSettingVo.setExpiration_time(EmailConfig.expiration_time);
+        emailSettingVo.setMax_request_num(EmailConfig.max_request_num);
+        emailSettingVo.setMin_request_num(EmailConfig.min_request_num);
+        emailSettingVo.setMax_fail_rate(EmailConfig.max_fail_rate);
         return ResponseResult.okResult(emailSettingVo);
     }
 
@@ -80,17 +80,17 @@ public class EmailAdminController {
     @PostMapping("/setSetting")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo) {
         // 更新配置文件
-        Email.HOST = emailSettingVo.getHost();
-        Email.PORT = emailSettingVo.getPort();
-        Email.USERNAME = emailSettingVo.getUsername();
-        Email.SENDER_END = emailSettingVo.getSender_end();
-        Email.NICKNAME = emailSettingVo.getNickname();
-        Email.PASSWORD = emailSettingVo.getPassword();
-        Email.expiration_time = emailSettingVo.getExpiration_time();
-        Email.max_request_num = emailSettingVo.getMax_request_num();
-        Email.min_request_num = emailSettingVo.getMin_request_num();
-        Email.max_fail_rate = emailSettingVo.getMax_fail_rate();
-        Email.saveProperties();
+        EmailConfig.HOST = emailSettingVo.getHost();
+        EmailConfig.PORT = emailSettingVo.getPort();
+        EmailConfig.USERNAME = emailSettingVo.getUsername();
+        EmailConfig.SENDER_END = emailSettingVo.getSender_end();
+        EmailConfig.NICKNAME = emailSettingVo.getNickname();
+        EmailConfig.PASSWORD = emailSettingVo.getPassword();
+        EmailConfig.expiration_time = emailSettingVo.getExpiration_time();
+        EmailConfig.max_request_num = emailSettingVo.getMax_request_num();
+        EmailConfig.min_request_num = emailSettingVo.getMin_request_num();
+        EmailConfig.max_fail_rate = emailSettingVo.getMax_fail_rate();
+        EmailConfig.saveProperties();
         return ResponseResult.okResult();
     }
 

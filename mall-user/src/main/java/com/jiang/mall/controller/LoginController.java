@@ -13,25 +13,16 @@
 
 package com.jiang.mall.controller;
 
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.service.ICaptchaService;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.IUserRecordService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.TimeUnit;
-
-import static com.jiang.mall.domain.config.User.AdminRoleId;
-import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * 用户控制器
