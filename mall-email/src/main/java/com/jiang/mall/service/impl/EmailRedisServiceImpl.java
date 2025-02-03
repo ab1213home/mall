@@ -34,7 +34,7 @@ public class EmailRedisServiceImpl implements IEmailRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.redis_key_prefix+"-email-";
+    String prefix = GeneralConfig.getRedisKeyPrefix()+"-email-";
     String key(String key){
         return prefix+key;
     }

@@ -20,15 +20,14 @@ import org.springframework.beans.factory.annotation.Value;
 import java.io.*;
 import java.util.Properties;
 
-public class BannerConfig {
+import static com.jiang.mall.config.GeneralConfig.getConfigFilePath;
 
-    @Value("${mall.config.location:./}")
-    private static String configFilePath;
+public class BannerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(BannerConfig.class);
 
     // 指向外部配置文件
-    private static final String CONFIG_FILE_PATH = configFilePath +"config.properties";
+    private static final String CONFIG_FILE_PATH = getConfigFilePath("banner");
     private static final Properties properties = new Properties();
 
     static {

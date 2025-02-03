@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.jiang.mall.config.GeneralConfig.*;
-
 
 /**
  * 公共控制器
@@ -38,8 +36,8 @@ public class CommonController {
     @GetMapping("/getFooter")
     public ResponseResult<Object> getFooter(HttpSession session) {
         Map<String, Object> map = new HashMap<>();
-        map.put("phone", phone);
-        map.put("email", email);
+        map.put("phone", GeneralConfig.getPhone());
+        map.put("email", GeneralConfig.getEmail());
         return ResponseResult.okResult(map);
     }
 

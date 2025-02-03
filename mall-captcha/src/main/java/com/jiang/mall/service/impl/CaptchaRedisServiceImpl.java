@@ -32,7 +32,7 @@ public class CaptchaRedisServiceImpl implements ICaptchaRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.redis_key_prefix+"-captcha-";
+    String prefix = GeneralConfig.getRedisKeyPrefix()+"-captcha-";
     String key(String key){
         return prefix+key;
     }

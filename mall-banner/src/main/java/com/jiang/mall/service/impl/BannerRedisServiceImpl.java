@@ -30,7 +30,7 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.redis_key_prefix+"-";
+    String prefix = GeneralConfig.getRedisKeyPrefix()+"-";
     String key(String key){
         return prefix+key;
     }

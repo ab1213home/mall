@@ -34,7 +34,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.redis_key_prefix+"-user-";
+    String prefix = GeneralConfig.getRedisKeyPrefix()+"-user-";
     String key(String key){
         return prefix+key;
     }

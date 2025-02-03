@@ -32,7 +32,7 @@ public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.redis_key_prefix+"-register-";
+    String prefix = GeneralConfig.getRedisKeyPrefix()+"-register-";
     String key(String key){
         return prefix+key;
     }

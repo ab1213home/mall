@@ -15,20 +15,18 @@ package com.jiang.mall.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.util.Properties;
 
-public class EmailConfig {
+import static com.jiang.mall.config.GeneralConfig.getConfigFilePath;
 
-    @Value("${mall.config.location:./}")
-    private static String configFilePath;
+public class EmailConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailConfig.class);
 
     // 指向外部配置文件
-    private static final String CONFIG_FILE_PATH = configFilePath +"config.properties";
+    private static final String CONFIG_FILE_PATH = getConfigFilePath("email");
     private static final Properties properties = new Properties();
 
     static {
@@ -310,7 +308,7 @@ public class EmailConfig {
 
     /**
      * 更新邮件过期时间属性
-     *
+     * <p>
      * 此方法用于更新系统属性中邮件过期时间，以毫秒为单位
      * 更新后，通过调用 saveProperties 方法保存系统属性
      *

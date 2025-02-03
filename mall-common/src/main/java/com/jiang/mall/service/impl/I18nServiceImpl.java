@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Locale;
 
-import static com.jiang.mall.config.GeneralConfig.regex_email;
-import static com.jiang.mall.config.GeneralConfig.regex_phone;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
 
 @Service
@@ -119,7 +117,7 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidEmail(String email) {
-		return (checkString(email,255) && email.matches(regex_email));
+		return (checkString(email,255) && email.matches(GeneralConfig.getRegexEmail()));
 	}
 
 	@Override
@@ -129,7 +127,7 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidPhone(String phone) {
-		return (checkString(phone,255) && phone.matches(regex_phone));
+		return (checkString(phone,255) && phone.matches(GeneralConfig.getRegexPhone()));
 	}
 
 	@Override
@@ -142,8 +140,8 @@ public class I18nServiceImpl implements II18nService {
 	}
 
 	@Override
-	public Boolean isValidUsername(String username) {
-		return username.matches(GeneralConfig.regex_username);
+	public Boolean isValidUsername(@NotNull String username) {
+		return username.matches(GeneralConfig.getRegexUsername());
 	}
 
 }
