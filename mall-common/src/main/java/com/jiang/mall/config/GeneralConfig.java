@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,21 +29,13 @@ public class GeneralConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(GeneralConfig.class);
 
-    private static String configFilePath;
-
-    public static String configMode;
-
     @Value("${mall.config.location:./}")
-    public void setConfigFilePath(String path) {
-        GeneralConfig.configFilePath = path;
-    }
+    private  String configFilePath;
 
     @Value("${mall.config.mode:single}")
-    public void setConfigMode(String mode) {
-        GeneralConfig.configMode = mode;
-    }
+    private  String configMode;
 
-    public static @NotNull String getConfigFilePath(String configName) {
+    private @NotNull String getConfigFilePath(String configName) {
         if (Objects.equals(configMode, "files")){
             //如果末尾有"/"则去掉"/"
             configFilePath = Objects.requireNonNull(configFilePath).replaceAll("/$","");
@@ -52,10 +45,16 @@ public class GeneralConfig {
         }
     }
 
-    private static final String CONFIG_FILE_PATH = getConfigFilePath("mall");
+    private static String CONFIG_FILE_PATH;
     private static final Properties properties = new Properties();
 
-    static {
+//    static {
+//        loadProperties();
+//    }
+    @PostConstruct
+    public void init() {
+        // 确保配置注入后初始化路径和加载属性
+        CONFIG_FILE_PATH = getConfigFilePath("mall");
         loadProperties();
     }
 
@@ -63,12 +62,18 @@ public class GeneralConfig {
      * 加载配置文件
      */
     public static void loadProperties() {
-        try (InputStream input = new FileInputStream(CONFIG_FILE_PATH)) {
-            properties.load(input);
-            logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-            // 尝试创建默认配置文件（可选）
+        File configFile = new File(CONFIG_FILE_PATH);
+        if (configFile.exists()) {
+            try (InputStream input = new FileInputStream(configFile)) {
+                properties.load(input);
+                logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
+            } catch (IOException e) {
+                logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+                // 尝试创建默认配置文件（可选）
+                createDefaultConfig();
+            }
+        } else {
+            logger.warn("配置文件不存在: {}", CONFIG_FILE_PATH);
             createDefaultConfig();
         }
     }
@@ -100,16 +105,16 @@ public class GeneralConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                properties.setProperty("date.format", "yyyy-MM-dd hh:mm:ss");
-                properties.setProperty("time.zone", "GMT+8");
+                properties.setProperty("mall.date.format", "yyyy-MM-dd hh:mm:ss");
+                properties.setProperty("mall.time.zone", "GMT+8");
                 properties.setProperty("allow.modify", "true");
-                properties.setProperty("phone", "400-888-8888");
-                properties.setProperty("email", "jiangrongjun2004@163.com");
-                properties.setProperty("aes.salt", "mall");
-                properties.setProperty("regex.email", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
-                properties.setProperty("regex.phone", "^1[3-9]\\d{9}$");
-                properties.setProperty("regex.password", "^[a-zA-Z0-9]{6,16}$");
-                properties.setProperty("regex.username", "^[a-zA-Z0-9]{6,16}$");
+                properties.setProperty("mall.phone", "400-888-8888");
+                properties.setProperty("mall.email", "jiangrongjun2004@163.com");
+                properties.setProperty("mall.aes.salt", "mall");
+                properties.setProperty("mall.email.regexp", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
+                properties.setProperty("mall.phone.regexp", "^1[3-9]\\d{9}$");
+                properties.setProperty("mall.password.regexp", "^[a-zA-Z0-9]{6,16}$");
+                properties.setProperty("mall.username.regexp", "^[a-zA-Z0-9]{6,16}$");
                 properties.setProperty("redis.key.prefix", "mall");
                 saveProperties();
                 logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -120,11 +125,11 @@ public class GeneralConfig {
     }
 
     public static String getDateFormat() {
-        return properties.getProperty("date.format", "yyyy-MM-dd hh:mm:ss");
+        return properties.getProperty("mall.date.format", "yyyy-MM-dd hh:mm:ss");
     }
 
     public static String getTimeZone() {
-        return properties.getProperty("time.zone", "GMT+8");
+        return properties.getProperty("mall.time.zone", "GMT+8");
     }
 
     public static boolean isAllowModify() {
@@ -132,31 +137,31 @@ public class GeneralConfig {
     }
 
     public static String getPhone() {
-        return properties.getProperty("phone", "400-888-8888");
+        return properties.getProperty("mall.phone", "400-888-8888");
     }
 
     public static String getEmail() {
-        return properties.getProperty("email", "jiangrongjun2004@163.com");
+        return properties.getProperty("mall.email", "jiangrongjun2004@163.com");
     }
 
     public static String getAesSalt() {
-        return properties.getProperty("aes.salt", "mall");
+        return properties.getProperty("mall.aes.salt", "mall");
     }
 
     public static String getRegexEmail() {
-        return properties.getProperty("regex.email", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
+        return properties.getProperty("mall.email.regexp", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
     }
 
     public static String getRegexPhone() {
-        return properties.getProperty("regex.phone", "^1[3-9]\\d{9}$");
+        return properties.getProperty("mall.phone.regexp", "^1[3-9]\\d{9}$");
     }
 
     public static String getRegexPassword() {
-        return properties.getProperty("regex.password", "^[a-zA-Z0-9]{6,16}$");
+        return properties.getProperty("mall.password.regexp", "^[a-zA-Z0-9]{6,16}$");
     }
 
     public static String getRegexUsername() {
-        return properties.getProperty("regex.username", "^[a-zA-Z0-9]{6,16}$");
+        return properties.getProperty("mall.username.regexp", "^[a-zA-Z0-9]{6,16}$");
     }
 
     public static String getRedisKeyPrefix() {
@@ -164,12 +169,12 @@ public class GeneralConfig {
     }
 
     public static void updateDateFormat(String format) {
-        properties.setProperty("date.format", format);
+        properties.setProperty("mall.date.format", format);
         saveProperties();
     }
 
     public static void updateTimeZone(String zone) {
-        properties.setProperty("time.zone", zone);
+        properties.setProperty("mall.time.zone", zone);
         saveProperties();
     }
 
@@ -180,43 +185,43 @@ public class GeneralConfig {
     }
 
     public static void updatePhone(String phone) {
-        properties.setProperty("phone", phone);
+        properties.setProperty("mall.phone", phone);
         saveProperties();
         loadProperties();
     }
 
     public static void updateEmail(String email) {
-        properties.setProperty("email", email);
+        properties.setProperty("mall.email", email);
         saveProperties();
         loadProperties();
     }
 
     public static void updateAesSalt(String salt) {
-        properties.setProperty("aes.salt", salt);
+        properties.setProperty("mall.aes.salt", salt);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexEmail(String regex) {
-        properties.setProperty("regex.email", regex);
+        properties.setProperty("mall.email.regexp", regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexPhone(String regex) {
-        properties.setProperty("regex.phone", regex);
+        properties.setProperty("mall.phone.regexp", regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexPassword(String regex) {
-        properties.setProperty("regex.password", regex);
+        properties.setProperty("mall.password.regexp", regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexUsername(String regex) {
-        properties.setProperty("regex.username", regex);
+        properties.setProperty("mall.username.regexp", regex);
         saveProperties();
         loadProperties();
     }

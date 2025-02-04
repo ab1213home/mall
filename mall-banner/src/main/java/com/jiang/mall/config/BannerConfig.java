@@ -13,24 +13,49 @@
 
 package com.jiang.mall.config;
 
+import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Properties;
 
-import static com.jiang.mall.config.GeneralConfig.getConfigFilePath;
-
+@Component
 public class BannerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(BannerConfig.class);
 
+    @Value("${mall.config.location:./}")
+    private  String configFilePath;
+
+    @Value("${mall.config.mode:single}")
+    private  String configMode;
+
+    private @NotNull String getConfigFilePath(String configName) {
+        if (Objects.equals(configMode, "files")){
+            //如果末尾有"/"则去掉"/"
+            configFilePath = Objects.requireNonNull(configFilePath).replaceAll("/$","");
+            return configFilePath + "/" + configName+".properties";
+        } else {
+            return configFilePath + "config.properties";
+        }
+    }
+
     // 指向外部配置文件
-    private static final String CONFIG_FILE_PATH = getConfigFilePath("banner");
+    private static String CONFIG_FILE_PATH;
     private static final Properties properties = new Properties();
 
-    static {
+//    static {
+//        loadProperties();
+//    }
+    @PostConstruct
+    public void init() {
+        // 确保配置注入后初始化路径和加载属性
+        CONFIG_FILE_PATH = getConfigFilePath("banner");
         loadProperties();
     }
 
@@ -38,12 +63,18 @@ public class BannerConfig {
      * 加载配置文件
      */
     public static void loadProperties() {
-        try (InputStream input = new FileInputStream(CONFIG_FILE_PATH)) {
-            properties.load(input);
-            logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-            // 尝试创建默认配置文件（可选）
+        File configFile = new File(CONFIG_FILE_PATH);
+        if (configFile.exists()) {
+            try (InputStream input = new FileInputStream(configFile)) {
+                properties.load(input);
+                logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
+            } catch (IOException e) {
+                logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+                // 尝试创建默认配置文件（可选）
+                createDefaultConfig();
+            }
+        } else {
+            logger.warn("配置文件不存在: {}", CONFIG_FILE_PATH);
             createDefaultConfig();
         }
     }
