@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.jiang.mall.config.UserConfig.AdminRoleId;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -200,7 +200,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		} else {
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
-	        userVo.setAdmin(user.getRoleId() >= AdminRoleId);
+	        userVo.setAdmin(user.getRoleId() >= UserConfig.getAdminRoleId());
 			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
@@ -675,7 +675,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			if (userVo.getBirthDate() != null) {
 				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
 			}
-            userVo.setAdmin(userVo.getRoleId() >= AdminRoleId);
+            userVo.setAdmin(userVo.getRoleId() >= UserConfig.getAdminRoleId());
         }
         // 返回处理后的用户列表Vo对象
         return userVos;

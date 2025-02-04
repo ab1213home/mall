@@ -121,6 +121,11 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-common</artifactId>

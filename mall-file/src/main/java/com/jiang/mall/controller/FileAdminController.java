@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.vo.DirectoryVo;
@@ -138,12 +139,12 @@ public class FileAdminController {
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting(HttpSession session){
         Map<String,Object> setting = new HashMap<>();
-        setting.put("AllowUploadFile",AllowUploadFile);
+        setting.put("AllowUploadFile", FileConfig.getAllowUploadFile());
         setting.put("FileUploadPath",FILE_UPLOAD_PATH);
         List<MapVo> imageSuffix_with_parameters = new ArrayList<>();
         Set<String> standard_imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
         for (String suffix : standard_imageSuffix) {
-            if (imageSuffix.contains(suffix)){
+            if (FileConfig.getImageSuffix().contains(suffix)){
                 imageSuffix_with_parameters.add(new MapVo(suffix,true));
             }else {
                 imageSuffix_with_parameters.add(new MapVo(suffix,false));
@@ -170,15 +171,14 @@ public class FileAdminController {
         Set<String> standard_imageSuffix = Set.of("xbm", "tif", "pjp", "apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
 
         // 遍历传入的图片后缀，校验其合法性并更新配置
+        StringBuilder imageSuffixStr = new StringBuilder();
         if (fileSettingVo.getImageSuffix() != null) {
             for (MapVo suffix : fileSettingVo.getImageSuffix()){
                 if (!standard_imageSuffix.contains(suffix.getKey())) {
                     return ResponseResult.failResult("非法的图片后缀");
                 }
                 if ((boolean)suffix.getValue()){
-                    com.jiang.mall.domain.config.File.imageSuffix.add(suffix.getKey());
-                } else {
-                    com.jiang.mall.domain.config.File.imageSuffix.remove(suffix.getKey());
+                    imageSuffixStr.append(suffix.getKey()).append(",");
                 }
             }
         } else {
@@ -186,20 +186,15 @@ public class FileAdminController {
             System.out.println("imageSuffix 为空，请检查数据源！");
         }
 
+        FileConfig.updateImageSuffix(imageSuffixStr.toString());
+
         // 更新是否允许上传文件的配置
-        AllowUploadFile = fileSettingVo.getAllowUploadFile();
+        FileConfig.updateAllowUploadFile(fileSettingVo.getAllowUploadFile());
 
         // 如果上传路径不为空，则更新上传路径
         if (fileSettingVo.getFileUploadPath() != null) {
             FILE_UPLOAD_PATH = fileSettingVo.getFileUploadPath();
         }
-
-        // 更新允许上传的图片后缀字符串，以逗号分隔
-        imageSuffixStr = String.join(",",imageSuffix);
-
-        // 保存更新后的配置
-        saveProperties();
-        loadProperties();
 
         // 返回成功结果
         return ResponseResult.okResult();

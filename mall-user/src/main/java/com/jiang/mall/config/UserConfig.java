@@ -13,25 +13,21 @@
 
 package com.jiang.mall.config;
 
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
-@Data
+import static com.jiang.mall.config.GeneralConfig.getConfigFilePath;
+
 public class UserConfig {
-	/**
-     * 配置文件路径
-     */
-    private static final String CONFIG_FILE_PATH = "config.properties";
 
     private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
 
-    public static Properties properties = new Properties();
+    // 指向外部配置文件
+    private static final String CONFIG_FILE_PATH = getConfigFilePath("user");
+    private static final Properties properties = new Properties();
 
     static {
         loadProperties();
@@ -41,50 +37,83 @@ public class UserConfig {
      * 加载配置文件
      */
     public static void loadProperties() {
-        try (FileInputStream fis = new FileInputStream(CONFIG_FILE_PATH)) {
-            // 加载配置文件
-            properties.load(fis);
-
+        try (InputStream input = new FileInputStream(CONFIG_FILE_PATH)) {
+            properties.load(input);
+            logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("加载配置文件失败！",e);
+            logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+            // 尝试创建默认配置文件（可选）
+            createDefaultConfig();
         }
     }
 
     /**
      * 保存配置文件
-     * <p>
-     * 此方法用于将内存中修改过的配置信息持久化到配置文件中确保配置的变更不会丢失
-     * 它通过FileOutputStream将属性集（properties）存储到指定的配置文件路径中
-     * 如果配置文件不存在，此方法会创建一个新的配置文件
-     * <p>
-     * 注意：此方法会覆盖现有配置文件中的内容
      */
     public static void saveProperties() {
-        try (FileOutputStream fos = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(fos, "配置文件");
+        // 确保目录存在
+        File configFile = new File(CONFIG_FILE_PATH);
+        File parentDir = configFile.getParentFile();
+        if (!parentDir.exists() && !parentDir.mkdirs()) {
+            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
+            return;
+        }
+
+        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
+            properties.store(output, "Updated by application");
+            logger.info("配置文件保存成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
-            logger.error("保存配置文件失败！",e);
+            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
         }
     }
 
     /**
-     * 管理员角色ID
+     * 创建默认配置文件
      */
-    public static int AdminRoleId = Integer.parseInt(properties.getProperty("admin.role.id", "10"));
+    private static void createDefaultConfig() {
+        try {
+            File configFile = new File(CONFIG_FILE_PATH);
+            if (configFile.createNewFile()) {
+                properties.setProperty("admin.role.id", "10");
+                properties.setProperty("max.address.num", "50");
+                properties.setProperty("allow.registration", "true");
+                saveProperties();
+                logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
+            }
+        } catch (IOException e) {
+            logger.error("创建默认配置文件失败！", e);
+        }
+    }
 
-    /**
-     * 收货地址最大数量
-     */
-    public static int max_address_num = Integer.parseInt(properties.getProperty("max.address.num", "50"));
+    public static int getAdminRoleId() {
+        return Integer.parseInt(properties.getProperty("admin.role.id", "10"));
+    }
 
-    /**
-     * 是否允许注册
-     */
-    public static boolean AllowRegistration = Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
+    public static int getMaxAddressNum() {
+        return Integer.parseInt(properties.getProperty("max.address.num", "50"));
+    }
 
-    /**
-     * AES254的salt
-     */
-    public static final String AES_SALT = properties.getProperty("aes.salt", "mall");
+    public static boolean isAllowRegistration() {
+        return Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
+    }
+
+
+    public static void updateAdminRoleId(int id) {
+        properties.setProperty("admin.role.id", String.valueOf(id));
+        saveProperties();
+        loadProperties();
+    }
+
+    public static void updateMaxAddressNum(int num) {
+        properties.setProperty("max.address.num", String.valueOf(num));
+        saveProperties();
+        loadProperties();
+    }
+
+    public static void updateAllowRegistration(boolean allow) {
+        properties.setProperty("allow.registration", String.valueOf(allow));
+        saveProperties();
+        loadProperties();
+    }
 
 }

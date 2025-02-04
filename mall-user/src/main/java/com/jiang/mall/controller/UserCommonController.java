@@ -13,14 +13,13 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import static com.jiang.mall.config.UserConfig.AES_SALT;
 
 /**
  * 用户控制器
@@ -79,7 +78,7 @@ public class UserCommonController {
      */
     @GetMapping("/common/getSalt")
     public ResponseResult<Object> getSalt(HttpSession session) {
-        return ResponseResult.okResult(AES_SALT,"获取随机盐值");
+        return ResponseResult.okResult(GeneralConfig.getAesSalt(),"获取随机盐值");
     }
 
 }

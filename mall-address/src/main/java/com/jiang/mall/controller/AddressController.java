@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
@@ -26,8 +27,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static com.jiang.mall.config.UserConfig.max_address_num;
 
 /**
  * 收货地址管理
@@ -177,8 +176,8 @@ public class AddressController {
 //		if (!StringUtils.hasText(postalCode) || !postalCode.matches(regex_postal)){
 //			return ResponseResult.failResult("邮政编码格式不正确");
 //		}
-		if ((Integer)getNum(session).getData()>max_address_num){
-			return ResponseResult.failResult("最多只能添加"+max_address_num+"个收货地址");
+		if ((Integer)getNum(session).getData()> UserConfig.getMaxAddressNum()){
+			return ResponseResult.failResult("最多只能添加"+UserConfig.getMaxAddressNum()+"个收货地址");
 		}
 		if (divisionService.isTure(areaCode)){
 			return ResponseResult.failResult("地区代码不正确");

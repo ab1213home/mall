@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
@@ -32,7 +33,6 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static com.jiang.mall.config.UserConfig.AdminRoleId;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -181,12 +181,12 @@ public class InfoController {
             }
             // 角色权限检查，确保权限的正确性
             if (isAdmin) {
-                if (roleId < AdminRoleId) {
-                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.lack") + AdminRoleId);
+                if (roleId < UserConfig.getAdminRoleId()) {
+                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.lack") + UserConfig.getAdminRoleId());
                 }
             } else {
-                if (roleId >= AdminRoleId) {
-                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.overtop") + AdminRoleId );
+                if (roleId >= UserConfig.getAdminRoleId()) {
+                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.overtop") + UserConfig.getAdminRoleId());
                 }
             }
             UserVo adminUser = (UserVo) session.getAttribute("User");

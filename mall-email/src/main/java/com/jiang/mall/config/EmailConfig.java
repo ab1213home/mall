@@ -236,6 +236,7 @@ public class EmailConfig {
         properties.setProperty("mail.host", host);
         // 保存更新后的属性文件
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -251,6 +252,7 @@ public class EmailConfig {
         properties.setProperty("mail.port", port);
         // 调用方法保存更新后的配置
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -264,6 +266,7 @@ public class EmailConfig {
     public static void updateEmailUsername(String username) {
         properties.setProperty("mail.username", username);
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -279,6 +282,7 @@ public class EmailConfig {
         properties.setProperty("mail.sender.end", senderEnd);
         // 保存更新后的属性到文件中
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -292,6 +296,7 @@ public class EmailConfig {
         properties.setProperty("mail.nickname", nickname);
         // 保存对属性文件的修改
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -304,6 +309,7 @@ public class EmailConfig {
         properties.setProperty("mail.password", password);
         // 保存更新后的属性文件
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -319,6 +325,7 @@ public class EmailConfig {
         properties.setProperty("email.expiration.time", String.valueOf(milliseconds));
         // 保存更新后的系统属性
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -332,6 +339,7 @@ public class EmailConfig {
         properties.setProperty("email.max.request.num", String.valueOf(num));
         // 保存更新后的属性配置
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -345,6 +353,7 @@ public class EmailConfig {
         properties.setProperty("email.min.request.num", String.valueOf(num));
         // 调用方法保存更新后的属性到文件中
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -358,6 +367,7 @@ public class EmailConfig {
         properties.setProperty("email.max.fail.rate", String.valueOf(rate));
         // 保存更新后的属性到文件中
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -370,6 +380,7 @@ public class EmailConfig {
         properties.setProperty("allow.send.email", String.valueOf(enabled));
         // 保存属性配置
         saveProperties();
+        loadProperties();
     }
 
 }

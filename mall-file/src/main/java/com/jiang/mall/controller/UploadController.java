@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileService;
@@ -71,7 +72,7 @@ public class UploadController {
     @RequestMapping("/uploadFile")
     @ResponseBody
     public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        if (!AllowUploadFile){
+        if (!FileConfig.getAllowUploadFile()){
             return ResponseResult.failResult("上传文件被禁止");
         }
         ResponseResult<Object> result = userService.checkAdminUser(session.getId());
@@ -98,7 +99,7 @@ public class UploadController {
 
         String suffix = fileName.substring(index + 1);
 
-        if (!imageSuffix.contains(suffix.trim().toLowerCase())) {
+        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
             return ResponseResult.failResult("非法的文件类型");
         }
         // 生成文件名，防止重名文件被覆盖
@@ -124,7 +125,7 @@ public class UploadController {
     @ResponseBody
     public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         // 检查是否允许上传文件
-        if (!AllowUploadFile){
+        if (!FileConfig.getAllowUploadFile()){
             return ResponseResult.failResult("上传文件被禁止");
         }
 
@@ -158,7 +159,7 @@ public class UploadController {
 
         String suffix = fileName.substring(index + 1);
 
-        if (!imageSuffix.contains(suffix.trim().toLowerCase())) {
+        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
             return ResponseResult.failResult("非法的文件类型");
         }
 

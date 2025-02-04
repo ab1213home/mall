@@ -166,46 +166,55 @@ public class GeneralConfig {
     public static void updateAllowModify(boolean allow) {
         properties.setProperty("allow.modify", String.valueOf(allow));
         saveProperties();
+        loadProperties();
     }
 
     public static void updatePhone(String phone) {
         properties.setProperty("phone", phone);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateEmail(String email) {
         properties.setProperty("email", email);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateAesSalt(String salt) {
         properties.setProperty("aes.salt", salt);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateRegexEmail(String regex) {
         properties.setProperty("regex.email", regex);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateRegexPhone(String regex) {
         properties.setProperty("regex.phone", regex);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateRegexPassword(String regex) {
         properties.setProperty("regex.password", regex);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateRegexUsername(String regex) {
         properties.setProperty("regex.username", regex);
         saveProperties();
+        loadProperties();
     }
 
     public static void updateRedisKeyPrefix(String prefix) {
         properties.setProperty("redis.key.prefix", prefix);
         saveProperties();
+        loadProperties();
     }
 
 }

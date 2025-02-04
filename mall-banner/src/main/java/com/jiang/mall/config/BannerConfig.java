@@ -117,6 +117,7 @@ public class BannerConfig {
         properties.setProperty("allow.banner.cache", String.valueOf(enabled));
         // 保存属性，以确保在应用程序重新启动后设置仍然有效
         saveProperties();
+        loadProperties();
     }
 
     /**
@@ -131,5 +132,6 @@ public class BannerConfig {
         properties.setProperty("banner.sync.time", String.valueOf(milliseconds));
         // 保存更新后的属性文件
         saveProperties();
+        loadProperties();
     }
 }

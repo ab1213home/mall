@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.dao.UserMapper;
@@ -21,6 +22,7 @@ import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FilePlusVo;
 import com.jiang.mall.domain.vo.FileVo;
@@ -42,8 +44,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static com.jiang.mall.domain.config.File.fileTypeMap;
-import static com.jiang.mall.domain.config.File.imageSuffix;
 import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 
 @Service
@@ -117,7 +117,7 @@ public class FileServiceImpl implements IFileService {
         int dotIndex = fileName.lastIndexOf('.');
         if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
             String extension = fileName.substring(dotIndex + 1).toLowerCase();
-            return fileTypeMap.getOrDefault(extension, "未知");
+            return FileType.getNameByValue(extension, "未知");
         }
         return "未知";
     }
@@ -181,7 +181,7 @@ public class FileServiceImpl implements IFileService {
             if (file.isFile()) {
                 int dotIndex = file.getName().lastIndexOf('.');
                 String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
-                if (imageSuffix.contains(extension.toLowerCase())) {
+                if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
                     // 只添加图片文件
                     if (file.getName().matches("^face.*") ){
                         fileList.add("/faces/" +file.getName());
@@ -230,7 +230,7 @@ public class FileServiceImpl implements IFileService {
 		List<String> purpose = new ArrayList<>();
 		int dotIndex = name.lastIndexOf('.');
 		String extension = dotIndex > 0 ? name.substring(dotIndex+1) : "";
-		if (imageSuffix.contains(extension.toLowerCase())) {
+		if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
 			// 只添加图片文件
 			if (name.matches("^face.*") ){
 				purpose.add("用户头像模板");
