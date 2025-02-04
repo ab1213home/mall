@@ -34,6 +34,7 @@ build/
 
 ### Jiang Mall ###
 /config.properties
+/config.properties.bak
 /application.properties
 /mall.burp
 /mall.burp.backup
