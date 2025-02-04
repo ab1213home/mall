@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.bo.DirectoryBo;
+import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
@@ -151,7 +152,7 @@ public class FileAdminController {
             }
         }
         setting.put("imageSuffix",imageSuffix_with_parameters);
-        setting.put("fileTypeMap", fileTypeMap);
+        setting.put("fileTypeMap", FileType.toMap());
         return ResponseResult.okResult(setting);
     }
 

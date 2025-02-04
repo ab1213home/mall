@@ -16,6 +16,7 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.EmailConfig;
 import com.jiang.mall.dao.VerificationCodeMapper;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.EmailPurpose;
@@ -71,15 +72,15 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		long failCount = verificationCodeMapper.selectCount(queryWrapper_fail);
 
 	    // 检查请求数量是否小于等于最小请求数量
-	    if (listCount <= min_request_num) {
+	    if (listCount <= EmailConfig.getEmailMinRequestNum()) {
 	        return false;
 	    }
 	    // 检查请求数量是否大于最大请求数量
-	    if (listCount > max_request_num) {
+	    if (listCount > EmailConfig.getEmailMaxRequestNum()) {
 	        return true;
 	    }
 	    // 计算失败率并判断是否超过最大失败率阈值
-	    return failCount / (double) listCount > max_fail_rate;
+	    return failCount / (double) listCount > EmailConfig.getEmailMaxFailRate();
 	}
 
 	/**
@@ -98,7 +99,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 当前时间
 	    Date now = new Date();
 	    // expiration_time前的时间
-	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
+	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
@@ -122,7 +123,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 当前时间
 	    Date now = new Date();
 	    // 计算expiration_time前的时间
-	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
+	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
@@ -149,7 +150,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    // 获取当前时间
 	    Date now = new Date();
 	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
-	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
+	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
@@ -237,7 +238,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		// 获取当前时间
 	    Date now = new Date();
 	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
-	    Date yesterday = new Date(now.getTime() - (long) expiration_time * 60 * 1000);
+	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
 	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();

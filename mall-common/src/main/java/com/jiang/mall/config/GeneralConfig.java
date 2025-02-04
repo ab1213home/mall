@@ -17,20 +17,30 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.Objects;
 import java.util.Properties;
 
+@Component
 public class GeneralConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(GeneralConfig.class);
 
-    @Value("${mall.config.location:./}")
     private static String configFilePath;
 
-    @Value("${mall.config.mode:single}")
     public static String configMode;
+
+    @Value("${mall.config.location:./}")
+    public void setConfigFilePath(String path) {
+        GeneralConfig.configFilePath = path;
+    }
+
+    @Value("${mall.config.mode:single}")
+    public void setConfigMode(String mode) {
+        GeneralConfig.configMode = mode;
+    }
 
     public static @NotNull String getConfigFilePath(String configName) {
         if (Objects.equals(configMode, "files")){

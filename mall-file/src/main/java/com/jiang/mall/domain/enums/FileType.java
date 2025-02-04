@@ -14,7 +14,10 @@
 package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -52,4 +55,12 @@ public enum FileType {
         }
         return defaultValue;
     }
+
+	public static @NotNull Map<String,String> toMap() {
+		Map<String,String> map = new HashMap<>();
+		for (FileType fileType : FileType.values()) {
+			map.put(fileType.getValue(),fileType.getName());
+		}
+		return map;
+	}
 }

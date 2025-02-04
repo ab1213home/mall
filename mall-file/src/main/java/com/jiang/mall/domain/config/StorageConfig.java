@@ -20,6 +20,8 @@ public class StorageConfig {
 
 	private String type;
 
+	private boolean health;
+
 	private Object config;
 
 

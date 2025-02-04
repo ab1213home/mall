@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.dto.EmailCodeState;
@@ -173,7 +174,7 @@ public class RegisterController {
                                                 @RequestHeader("X-Real-IP") String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                                 HttpSession session) {
-        if (!AllowRegistration){
+        if (!UserConfig.isAllowRegistration()){
             return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
         }
 
