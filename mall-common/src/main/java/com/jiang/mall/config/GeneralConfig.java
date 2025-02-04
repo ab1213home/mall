@@ -48,9 +48,6 @@ public class GeneralConfig {
     private static String CONFIG_FILE_PATH;
     private static final Properties properties = new Properties();
 
-//    static {
-//        loadProperties();
-//    }
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
