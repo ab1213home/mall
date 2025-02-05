@@ -62,7 +62,10 @@ public class FileConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = getConfigFilePath("file");
         loadProperties();
+        storageConfig=getStorageConfig();
     }
+    
+    public static List<StorageConfig> storageConfig = new ArrayList<>();
 
     /**
      * 加载配置文件
@@ -74,7 +77,7 @@ public class FileConfig {
                 properties.load(input);
                 for (FileConfigItems item : FileConfigItems.values()) {
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
+                    if (!properties.containsKey(keyToCheck)&&item.isCheck()) {
                         properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }

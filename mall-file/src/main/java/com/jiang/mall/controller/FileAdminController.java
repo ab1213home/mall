@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.util.*;
 
-import static com.jiang.mall.domain.config.File.*;
-
 /**
  * 文件控制器
  * @author jiang
@@ -64,26 +62,26 @@ public class FileAdminController {
     @GetMapping("/getFileSize")
     public ResponseResult<Object> getSize(HttpSession session){
 
-        // 创建一个File对象，对应于要检查的文件夹路径
-        File folder = new File(FILE_UPLOAD_PATH);
-
-        // 确认所创建的File对象确实代表一个文件夹
-        if (!folder.exists() || !folder.isDirectory()) {
-            // 如果给定路径不是一个有效的文件夹，则返回错误信息
-            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-        }
-
-        // 计算文件夹的总大小
-        long totalSize = fileService.getFolderSize(folder);
-        // 统计文件夹中的文件数量
-        int fileCount = fileService.getFileCount(folder);
-        // 创建一个Map来存储结果数据
-        Map<String, Object> data = new HashMap<>();
-        // 将总大小和文件数量放入数据Map
-        data.put("totalSize", totalSize);
-        data.put("fileCount", fileCount);
+//        // 创建一个File对象，对应于要检查的文件夹路径
+//        File folder = new File(FILE_UPLOAD_PATH);
+//
+//        // 确认所创建的File对象确实代表一个文件夹
+//        if (!folder.exists() || !folder.isDirectory()) {
+//            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+//            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+//        }
+//
+//        // 计算文件夹的总大小
+//        long totalSize = fileService.getFolderSize(folder);
+//        // 统计文件夹中的文件数量
+//        int fileCount = fileService.getFileCount(folder);
+//        // 创建一个Map来存储结果数据
+//        Map<String, Object> data = new HashMap<>();
+//        // 将总大小和文件数量放入数据Map
+//        data.put("totalSize", totalSize);
+//        data.put("fileCount", fileCount);
         // 返回包含数据Map的成功响应结果
-        return ResponseResult.okResult(data);
+        return ResponseResult.okResult();
     }
 
     @GetMapping("/getAllList")
@@ -95,37 +93,37 @@ public class FileAdminController {
         if (!result.isSuccess()) {
             return result;
         }
-        // 创建一个File对象，对应于要检查的文件夹路径
-        if (path==null|| path.isEmpty()){
-            path=FILE_UPLOAD_PATH;
-        }
-        File folder = new File(path);
+//        // 创建一个File对象，对应于要检查的文件夹路径
+//        if (path==null|| path.isEmpty()){
+//            path=FILE_UPLOAD_PATH;
+//        }
+//        File folder = new File(path);
+//
+//        // 确认所创建的File对象确实代表一个文件夹
+//        if (!folder.exists() || !folder.isDirectory()) {
+//            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+//            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+//        }
+//
+//        DirectoryBo directoryList = fileService.getAllFileList(folder);
 
-        // 确认所创建的File对象确实代表一个文件夹
-        if (!folder.exists() || !folder.isDirectory()) {
-            // 如果给定路径不是一个有效的文件夹，则返回错误信息
-            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-        }
-
-        DirectoryBo directoryList = fileService.getAllFileList(folder);
-
-        return ResponseResult.okResult(directoryList);
+        return ResponseResult.okResult();
     }
 
     @GetMapping("/getList")
     public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
                                   HttpSession session){
-        File folder = new File(FILE_UPLOAD_PATH+path);
+//        File folder = new File(FILE_UPLOAD_PATH+path);
+//
+//        // 确认所创建的File对象确实代表一个文件夹
+//        if (!folder.exists() || !folder.isDirectory()) {
+//            // 如果给定路径不是一个有效的文件夹，则返回错误信息
+//            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+//        }
+//
+//        DirectoryVo directoryList = fileService.getFileList(folder);
 
-        // 确认所创建的File对象确实代表一个文件夹
-        if (!folder.exists() || !folder.isDirectory()) {
-            // 如果给定路径不是一个有效的文件夹，则返回错误信息
-            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-        }
-
-        DirectoryVo directoryList = fileService.getFileList(folder);
-
-        return ResponseResult.okResult(directoryList);
+        return ResponseResult.okResult();
     }
 
     /**
@@ -141,7 +139,7 @@ public class FileAdminController {
     public ResponseResult<Object> getSetting(HttpSession session){
         Map<String,Object> setting = new HashMap<>();
         setting.put("AllowUploadFile", FileConfig.getAllowUploadFile());
-        setting.put("FileUploadPath",FILE_UPLOAD_PATH);
+//        setting.put("FileUploadPath",FILE_UPLOAD_PATH);
         List<MapVo> imageSuffix_with_parameters = new ArrayList<>();
         Set<String> standard_imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
         for (String suffix : standard_imageSuffix) {
@@ -194,7 +192,7 @@ public class FileAdminController {
 
         // 如果上传路径不为空，则更新上传路径
         if (fileSettingVo.getFileUploadPath() != null) {
-            FILE_UPLOAD_PATH = fileSettingVo.getFileUploadPath();
+//            FILE_UPLOAD_PATH = fileSettingVo.getFileUploadPath();
         }
 
         // 返回成功结果

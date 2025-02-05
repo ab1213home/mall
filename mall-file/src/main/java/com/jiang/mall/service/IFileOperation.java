@@ -13,7 +13,13 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.ResponseResult;
 import io.minio.MinioClient;
+import io.minio.errors.MinioException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface IFileOperation {
 	//  测试本地文件读写
@@ -21,10 +27,13 @@ public interface IFileOperation {
 	String TestLocalFileRead(String filePath);
 	void TestLocalFileDelete(String filePath);
 
-	// 测试S3文件读写
+	// 测试S3文件读写（测试Minio文件读写）
 	boolean TestS3FileWrite(MinioClient minioClient, String content, String bucket, String fileName);
 	String TestS3FileRead(MinioClient minioClient, String bucket, String fileName);
 	void TestS3FileDelete(MinioClient minioClient, String bucket, String fileName);
 
-
+	// 文件写
+	ResponseResult<Object> FileWrite(MultipartFile file, Long userId, String fileName) throws IOException;
+	// 文件读
+	ResponseEntity<Object> FileRead(String storageName, String fileName) throws MinioException, IOException;
 }

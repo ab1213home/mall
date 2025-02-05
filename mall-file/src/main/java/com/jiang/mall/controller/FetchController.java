@@ -13,27 +13,25 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.service.IFileService;
+import com.jiang.mall.service.IFileOperation;
+import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.io.IOException;
 
-import static com.jiang.mall.domain.config.File.FILE_UPLOAD_PATH;
 
 @RestController
 public class FetchController {
 
-	private IFileService fileService;
+    private IFileOperation fileOperation;
 
     @Autowired
-    public void setFileService(IFileService fileService) {
-        this.fileService = fileService;
+    public void setFileOperation(IFileOperation fileOperation) {
+        this.fileOperation = fileOperation;
     }
 
     /**
@@ -43,22 +41,20 @@ public class FetchController {
      * @return 返回包含文件的 ResponseEntity 对象
      * @throws IOException 如果文件不存在或不可读，则抛出 IOException
      */
-    @GetMapping("/upload/{filename}")
-    public ResponseEntity<FileSystemResource> getFile(@PathVariable String filename) throws IOException {
-        // 构建文件完整路径
-        File file = new File(FILE_UPLOAD_PATH + filename);
-//        if (file.getName().matches("[^\\x00-\\xFF]")) {
-//            throw new IllegalArgumentException("File name contains illegal characters: " + file.getName());
-//        }{date}/
-        return fileService.handleFileResponse(file);
+    @GetMapping("/upload/{storageName}/{filename}")
+    public ResponseEntity<Object> getFile(@PathVariable String filename, @PathVariable String storageName) throws IOException, MinioException {
+        if (filename.matches("[^\\x00-\\xFF]")) {
+            return ResponseEntity.badRequest().build();
+        }
+        return fileOperation.FileRead(storageName,filename);
     }
 
     @GetMapping("/faces/{filename}")
-    public ResponseEntity<FileSystemResource> getFace(@PathVariable String filename) throws IOException {
-        // 构建文件完整路径
-        File file = new File(FILE_UPLOAD_PATH+"faces/" + filename);
+    public ResponseEntity<Object> getFace(@PathVariable String filename) throws IOException {
+//        // 构建文件完整路径
+//        File file = new File(FILE_UPLOAD_PATH+"faces/" + filename);
 
-        return fileService.handleFileResponse(file);
+        return ResponseEntity.internalServerError().build();
     }
 
 }

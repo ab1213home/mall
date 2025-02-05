@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -29,8 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.jiang.mall.domain.config.File.*;
 
 /**
  * 公共控制器
@@ -61,6 +60,13 @@ public class UploadController {
         this.fileService = fileService;
     }
 
+    private IFileOperation fileOperation;
+
+    @Autowired
+    public void setFileOperation(IFileOperation fileOperation) {
+        this.fileOperation = fileOperation;
+    }
+
     /**
      * 文件上传处理方法
      * 该方法用于处理文件上传请求，接收上传的文件并将其保存到指定路径
@@ -81,99 +87,72 @@ public class UploadController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
-        // 检查文件是否为空
-        if (file.isEmpty()){
-            return ResponseResult.failResult("文件不能为空");
-        }
-        // 文件的原始名称
-        String fileName = file.getOriginalFilename();
-        if (fileName == null) {
-            return ResponseResult.failResult("文件名称不能为空");
-        }
+        UserVo user = (UserVo) result.getData();
+        return fileOperation.FileWrite(file, user.getId(), file.getOriginalFilename());
 
-        // 解析出文件后缀
-        int index = fileName.lastIndexOf(".");
-        if (index == -1) {
-            return ResponseResult.failResult("文件后缀不能为空");
-        }
-
-        String suffix = fileName.substring(index + 1);
-
-        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
-            return ResponseResult.failResult("非法的文件类型");
-        }
-        // 生成文件名，防止重名文件被覆盖
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-        String newName = sdf.format(new Date()) + file.getOriginalFilename();
-        Boolean res = fileService.writeFile(file,FILE_UPLOAD_PATH,newName);
-        if (!res){
-            return ResponseResult.failResult("非法的文件类型");
-        }else{
-            return ResponseResult.okResult("/upload/" + newName,"上传成功");
-        }
     }
 
-    /**
-     * 处理用户头像上传请求
-     *
-     * @param file 用户上传的文件
-     * @param session 用户会话
-     * @return 包含上传结果和文件访问路径的响应对象
-     * @throws IOException 文件处理或I/O过程中可能出现的异常
-     */
-    @RequestMapping("/uploadFaces")
-    @ResponseBody
-    public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        // 检查是否允许上传文件
-        if (!FileConfig.getAllowUploadFile()){
-            return ResponseResult.failResult("上传文件被禁止");
-        }
-
-        // 检查用户登录状态
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Integer userId = (Integer) result.getData();
-
-        // 检查上传文件是否为空
-        if (file.isEmpty()){
-            return ResponseResult.failResult("文件不能为空");
-        }
-
-        // 设置用户头像上传路径
-        String FACE_UPLOAD_PATH = FILE_UPLOAD_PATH + "faces/";
-
-        // 文件的原始名称
-        String fileName = file.getOriginalFilename();
-        if (fileName == null) {
-            return ResponseResult.failResult("文件名称不能为空");
-        }
-
-        // 解析出文件后缀
-        int index = fileName.lastIndexOf(".");
-        if (index == -1) {
-            return ResponseResult.failResult("文件后缀不能为空");
-        }
-
-        String suffix = fileName.substring(index + 1);
-
-        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
-            return ResponseResult.failResult("非法的文件类型");
-        }
-
-        // 生成文件名，防止重名文件被覆盖
-        String extension = index > 0 ? fileName.substring(index) : "";
-        UserVo user = (UserVo) session.getAttribute("User");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
-        String newName = sdf.format(new Date()) + extension;
-        Boolean res = fileService.writeFile(file,FACE_UPLOAD_PATH,newName);
-        if (!res){
-            return ResponseResult.failResult("非法的文件类型");
-        }else{
-            return ResponseResult.okResult("/faces/" + newName,"上传成功");
-        }
-    }
+//    /**
+//     * 处理用户头像上传请求
+//     *
+//     * @param file 用户上传的文件
+//     * @param session 用户会话
+//     * @return 包含上传结果和文件访问路径的响应对象
+//     * @throws IOException 文件处理或I/O过程中可能出现的异常
+//     */
+//    @RequestMapping("/uploadFaces")
+//    @ResponseBody
+//    public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
+//        // 检查是否允许上传文件
+//        if (!FileConfig.getAllowUploadFile()){
+//            return ResponseResult.failResult("上传文件被禁止");
+//        }
+//
+//        // 检查用户登录状态
+//        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+//        if (!result.isSuccess()) {
+//            // 如果未登录，则直接返回
+//            return result;
+//        }
+//        Integer userId = (Integer) result.getData();
+//
+//        // 检查上传文件是否为空
+//        if (file.isEmpty()){
+//            return ResponseResult.failResult("文件不能为空");
+//        }
+//
+//        // 设置用户头像上传路径
+//        String FACE_UPLOAD_PATH = FILE_UPLOAD_PATH + "faces/";
+//
+//        // 文件的原始名称
+//        String fileName = file.getOriginalFilename();
+//        if (fileName == null) {
+//            return ResponseResult.failResult("文件名称不能为空");
+//        }
+//
+//        // 解析出文件后缀
+//        int index = fileName.lastIndexOf(".");
+//        if (index == -1) {
+//            return ResponseResult.failResult("文件后缀不能为空");
+//        }
+//
+//        String suffix = fileName.substring(index + 1);
+//
+//        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
+//            return ResponseResult.failResult("非法的文件类型");
+//        }
+//
+//        // 生成文件名，防止重名文件被覆盖
+//        String extension = index > 0 ? fileName.substring(index) : "";
+//        UserVo user = (UserVo) session.getAttribute("User");
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
+//        String newName = sdf.format(new Date()) + extension;
+//        Boolean res = fileService.writeFile(file,FACE_UPLOAD_PATH,newName);
+//        if (!res){
+//            return ResponseResult.failResult("非法的文件类型");
+//        }else{
+//            return ResponseResult.okResult("/faces/" + newName,"上传成功");
+//        }
+//    }
 
 }

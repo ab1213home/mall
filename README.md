@@ -14,6 +14,8 @@
 spring.flyway.enabled = false
 ```
 
+**docker部署支持本地文件上传需要修改路径为"/home/upload/"，正常使用可以自定义，但需要有对应权限。**
+
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 

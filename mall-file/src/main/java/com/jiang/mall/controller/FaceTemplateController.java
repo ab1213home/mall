@@ -17,15 +17,12 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IFileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.util.List;
-
-import static com.jiang.mall.domain.config.File.FILE_UPLOAD_PATH;
 
 @RestController
 @RequestMapping("/file")
@@ -41,16 +38,17 @@ public class FaceTemplateController {
 	@GetMapping("/getFaceTemplateList")
     public ResponseResult<Object> getFaceTemplateList(HttpSession session){
 
-    	File folder = new File(FILE_UPLOAD_PATH+"faces/");
-
-    	if (!folder.exists() || !folder.isDirectory()) {
-            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-        }
-        List<String> fileList = fileService.getFaceTemplateList(folder);
-
-        if (fileList.isEmpty()) {
-            return ResponseResult.notFoundResourceResult("未找到任何文件！");
-        }
-        return ResponseResult.okResult(fileList);
+//    	File folder = new File(FILE_UPLOAD_PATH+"faces/");
+//
+//    	if (!folder.exists() || !folder.isDirectory()) {
+//            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
+//        }
+//        List<String> fileList = fileService.getFaceTemplateList(folder);
+//
+//        if (fileList.isEmpty()) {
+//            return ResponseResult.notFoundResourceResult("未找到任何文件！");
+//        }
+//        return ResponseResult.okResult(fileList);
+		return ResponseResult.okResult();
     }
 }
