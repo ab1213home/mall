@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.domain.enums.GeneralConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -63,6 +64,13 @@ public class GeneralConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
+                for (GeneralConfigItems item : GeneralConfigItems.values()){
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        saveProperties();
+                    }
+                }
                 logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -102,17 +110,9 @@ public class GeneralConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                properties.setProperty("mall.date.format", "yyyy-MM-dd hh:mm:ss");
-                properties.setProperty("mall.time.zone", "GMT+8");
-                properties.setProperty("allow.modify", "true");
-                properties.setProperty("mall.phone", "400-888-8888");
-                properties.setProperty("mall.email", "jiangrongjun2004@163.com");
-                properties.setProperty("mall.aes.salt", "mall");
-                properties.setProperty("mall.email.regexp", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
-                properties.setProperty("mall.phone.regexp", "^1[3-9]\\d{9}$");
-                properties.setProperty("mall.password.regexp", "^[a-zA-Z0-9]{6,16}$");
-                properties.setProperty("mall.username.regexp", "^[a-zA-Z0-9]{6,16}$");
-                properties.setProperty("redis.key.prefix", "mall");
+                for (GeneralConfigItems item : GeneralConfigItems.values()){
+                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                }
                 saveProperties();
                 logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
             }
@@ -122,109 +122,109 @@ public class GeneralConfig {
     }
 
     public static String getDateFormat() {
-        return properties.getProperty("mall.date.format", "yyyy-MM-dd hh:mm:ss");
+        return properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue());
     }
 
     public static String getTimeZone() {
-        return properties.getProperty("mall.time.zone", "GMT+8");
+        return properties.getProperty(GeneralConfigItems.TIME_ZONE.getKey(), GeneralConfigItems.TIME_ZONE.getDefaultValue());
     }
 
     public static boolean isAllowModify() {
-        return Boolean.parseBoolean(properties.getProperty("allow.modify", "true"));
+        return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), GeneralConfigItems.ALLOW_MODIFY.getDefaultValue()));
     }
 
     public static String getPhone() {
-        return properties.getProperty("mall.phone", "400-888-8888");
+        return properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
     }
 
     public static String getEmail() {
-        return properties.getProperty("mall.email", "jiangrongjun2004@163.com");
+        return properties.getProperty(GeneralConfigItems.MALL_EMAIL.getKey(), GeneralConfigItems.MALL_EMAIL.getDefaultValue());
     }
 
     public static String getAesSalt() {
-        return properties.getProperty("mall.aes.salt", "mall");
+        return properties.getProperty(GeneralConfigItems.AES_SALT.getKey(), GeneralConfigItems.AES_SALT.getDefaultValue());
     }
 
     public static String getRegexEmail() {
-        return properties.getProperty("mall.email.regexp", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
+        return properties.getProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), GeneralConfigItems.REGEX_EMAIL.getDefaultValue());
     }
 
     public static String getRegexPhone() {
-        return properties.getProperty("mall.phone.regexp", "^1[3-9]\\d{9}$");
+        return properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.REGEX_PHONE.getDefaultValue());
     }
 
     public static String getRegexPassword() {
-        return properties.getProperty("mall.password.regexp", "^[a-zA-Z0-9]{6,16}$");
+        return properties.getProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), GeneralConfigItems.REGEX_PASSWORD.getDefaultValue());
     }
 
     public static String getRegexUsername() {
-        return properties.getProperty("mall.username.regexp", "^[a-zA-Z0-9]{6,16}$");
+        return properties.getProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), GeneralConfigItems.REGEX_USERNAME.getDefaultValue());
     }
 
     public static String getRedisKeyPrefix() {
-        return properties.getProperty("redis.key.prefix", "mall");
+        return properties.getProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), GeneralConfigItems.REDIS_KEY_PREFIX.getDefaultValue());
     }
 
     public static void updateDateFormat(String format) {
-        properties.setProperty("mall.date.format", format);
+        properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
         saveProperties();
     }
 
     public static void updateTimeZone(String zone) {
-        properties.setProperty("mall.time.zone", zone);
+        properties.setProperty(GeneralConfigItems.TIME_ZONE.getKey(), zone);
         saveProperties();
     }
 
     public static void updateAllowModify(boolean allow) {
-        properties.setProperty("allow.modify", String.valueOf(allow));
+        properties.setProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), String.valueOf(allow));
         saveProperties();
         loadProperties();
     }
 
     public static void updatePhone(String phone) {
-        properties.setProperty("mall.phone", phone);
+        properties.setProperty(GeneralConfigItems.MALL_PHONE.getKey(), phone);
         saveProperties();
         loadProperties();
     }
 
     public static void updateEmail(String email) {
-        properties.setProperty("mall.email", email);
+        properties.setProperty(GeneralConfigItems.MALL_EMAIL.getKey(), email);
         saveProperties();
         loadProperties();
     }
 
     public static void updateAesSalt(String salt) {
-        properties.setProperty("mall.aes.salt", salt);
+        properties.setProperty(GeneralConfigItems.AES_SALT.getKey(), salt);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexEmail(String regex) {
-        properties.setProperty("mall.email.regexp", regex);
+        properties.setProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexPhone(String regex) {
-        properties.setProperty("mall.phone.regexp", regex);
+        properties.setProperty(GeneralConfigItems.REGEX_PHONE.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexPassword(String regex) {
-        properties.setProperty("mall.password.regexp", regex);
+        properties.setProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRegexUsername(String regex) {
-        properties.setProperty("mall.username.regexp", regex);
+        properties.setProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
     public static void updateRedisKeyPrefix(String prefix) {
-        properties.setProperty("redis.key.prefix", prefix);
+        properties.setProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), prefix);
         saveProperties();
         loadProperties();
     }

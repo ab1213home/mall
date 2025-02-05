@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.domain.enums.BannerConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -64,6 +65,13 @@ public class BannerConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
+                for (BannerConfigItems item : BannerConfigItems.values()){
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        saveProperties();
+                    }
+                }
                 logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -103,8 +111,9 @@ public class BannerConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                properties.setProperty("allow.banner.cache", "false");
-                properties.setProperty("banner.sync.time", "60000");
+                for (BannerConfigItems item : BannerConfigItems.values()){
+                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                }
                 saveProperties();
                 logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
             }
@@ -119,7 +128,7 @@ public class BannerConfig {
      * @return 如果轮播图缓存功能已启用，则返回true；否则返回false
      */
     public static boolean isBannerCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty("allow.banner.cache", "false"));
+        return Boolean.parseBoolean(properties.getProperty(BannerConfigItems.BANNER_CACHE.getKey(), BannerConfigItems.BANNER_CACHE.getDefaultValue()));
     }
 
     /**
@@ -131,7 +140,7 @@ public class BannerConfig {
      * @return 轮播图同步时间，以毫秒为单位如果无法解析属性或属性不存在，则返回默认值60000毫秒
      */
     public static int getBannerSyncTime() {
-        return Integer.parseInt(properties.getProperty("banner.sync.time", "60000"));
+        return Integer.parseInt(properties.getProperty(BannerConfigItems.SYNC_TIME.getKey(), BannerConfigItems.SYNC_TIME.getDefaultValue()));
     }
 
     /**
@@ -142,7 +151,7 @@ public class BannerConfig {
      */
     public static void updateBannerCache(boolean enabled) {
         // 设置是否允许缓存Banner的属性值
-        properties.setProperty("allow.banner.cache", String.valueOf(enabled));
+        properties.setProperty(BannerConfigItems.BANNER_CACHE.getKey(),String.valueOf(enabled));
         // 保存属性，以确保在应用程序重新启动后设置仍然有效
         saveProperties();
         loadProperties();
@@ -157,7 +166,7 @@ public class BannerConfig {
      */
     public static void updateBannerSyncTime(int milliseconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
-        properties.setProperty("banner.sync.time", String.valueOf(milliseconds));
+        properties.setProperty(BannerConfigItems.SYNC_TIME.getKey(), String.valueOf(milliseconds));
         // 保存更新后的属性文件
         saveProperties();
         loadProperties();

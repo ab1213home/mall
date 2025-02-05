@@ -47,14 +47,14 @@ public class BannerTask {
 	private long timer = 0;
 
 	/*
-	 * 每隔BannerSyncTime分钟执行检查轮播图是否有过期的轮播图，如果有则删除
+	 * 每隔（BannerSyncTime/1000/60）分钟执行检查轮播图是否有过期的轮播图，如果有则删除
 	 * 是否有需要更新轮播图，如果有则更新
 	 */
-	@Scheduled(fixedRate = 100, initialDelay = 0)
+	@Scheduled(fixedRate = 1000, initialDelay = 0)
     public void checkBanner() {
 		if (BannerConfig.isBannerCacheEnabled()){
-			timer=timer+100;
-			if (timer==100||timer>=BannerConfig.getBannerSyncTime()){
+			timer=timer+1000;
+			if (timer==1000||timer>=BannerConfig.getBannerSyncTime()){
 				timer = 1;
 				List<BannerVo> bannerList = bannerService.getBannerList();
 				if (bannerList == null || bannerList.isEmpty()) {

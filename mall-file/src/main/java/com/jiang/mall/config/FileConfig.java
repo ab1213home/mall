@@ -16,6 +16,7 @@ package com.jiang.mall.config;
 import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
+import com.jiang.mall.domain.enums.FileConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -68,6 +69,13 @@ public class FileConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
+                for (FileConfigItems item : FileConfigItems.values()) {
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        saveProperties();
+                    }
+                }
                 logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -107,9 +115,9 @@ public class FileConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                properties.setProperty("allow.upload.file", "true");
-                properties.setProperty("image.suffix", "xbm,tif,pjp,apng,svgz,jpg,jpeg,ico,tiff,gif,svg,jfif,webp,png,bmp,pjpeg,avif");
-                properties.setProperty("storage.name","default");
+                for (FileConfigItems item : FileConfigItems.values()) {
+                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                }
                 String defaultUploadPath = System.getProperty("user.home") + File.separator + "upload" + File.separator;
                 LocalSetting localSetting = new LocalSetting("default",defaultUploadPath,true,-1);
                 createLocalConfig(localSetting);
@@ -127,8 +135,8 @@ public class FileConfig {
     public static void createLocalConfig(@NotNull LocalSetting localSetting) {
         properties.setProperty(localSetting.getName()+".storage.type","local");
         properties.setProperty(localSetting.getName()+".storage.path",localSetting.getPath());
-        properties.setProperty(localSetting.getName()+".storage.max.size", String.valueOf(localSetting.getMaxSize()));
-        properties.setProperty(localSetting.getName()+".storage.is.default", String.valueOf(localSetting.isDefault()));
+        properties.setProperty(localSetting.getName()+".storage.max-size", String.valueOf(localSetting.getMaxSize()));
+        properties.setProperty(localSetting.getName()+".storage.is-default", String.valueOf(localSetting.isDefault()));
     }
 
     /**
@@ -141,7 +149,7 @@ public class FileConfig {
         properties.setProperty(s3Setting.getName()+".storage.secret-key",s3Setting.getSecretKey());
         properties.setProperty(s3Setting.getName()+".storage.bucket",s3Setting.getBucket());
         properties.setProperty(s3Setting.getName()+".storage.region",s3Setting.getRegion());
-        properties.setProperty(s3Setting.getName()+".storage.is.default", String.valueOf(s3Setting.isDefault()));
+        properties.setProperty(s3Setting.getName()+".storage.is-default", String.valueOf(s3Setting.isDefault()));
     }
 
     /**
@@ -151,7 +159,7 @@ public class FileConfig {
      * @param allow 如果允许上传文件，则设置为true；否则设置为false
      */
     public static void updateAllowUploadFile(boolean allow) {
-        properties.setProperty("allow.upload.file", String.valueOf(allow));
+        properties.setProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), String.valueOf(allow));
         saveProperties();
         loadProperties();
     }
@@ -165,7 +173,7 @@ public class FileConfig {
      * @return boolean 表示是否允许上传文件true表示允许，false表示不允许
      */
     public static boolean getAllowUploadFile() {
-        return Boolean.parseBoolean(properties.getProperty("allow.upload.file", "true"));
+        return Boolean.parseBoolean(properties.getProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), FileConfigItems.ALLOW_UPLOAD_FILE.getDefaultValue()));
     }
 
     /**
@@ -178,7 +186,7 @@ public class FileConfig {
      */
     public static Set<String> getImageSuffix() {
         // 从配置属性中获取图片后缀字符串，如果没有设置，则使用默认值
-        String imageSuffixStr = properties.getProperty("image.suffix", "xbm,tif,pjp,apng,svgz,jpg,jpeg,ico,tiff,gif,svg,jfif,webp,png,bmp,pjpeg,avif");
+        String imageSuffixStr = properties.getProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), FileConfigItems.IMAGE_SUFFIX.getDefaultValue());
         // 将后缀字符串按逗号分割，去除前后空格，然后收集到一个集合中
         return Stream.of(imageSuffixStr.split(",")).map(String::trim).collect(Collectors.toSet());
     }
@@ -195,7 +203,7 @@ public class FileConfig {
         Set<String> imageSuffixSet = Stream.of(imageSuffix.split(",")).map(String::trim).collect(Collectors.toSet());
         StringBuilder sb = new StringBuilder();
         // 定义一个标准的图片后缀集合，用于验证输入的图片后缀是否有效
-        Set<String> standard_imageSuffix = Set.of("xbm", "tif","pjp","apng", "svgz", "jpg", "jpeg", "ico", "tiff", "gif", "svg", "jfif", "webp", "png", "bmp", "pjpeg", "avif");
+        Set<String> standard_imageSuffix = Set.of(FileConfigItems.IMAGE_SUFFIX.getDefaultValue());
         // 如果在标准集合中，则添加到sb中，否则不添加
         for (String suffix : imageSuffixSet) {
             if (standard_imageSuffix.contains(suffix)) {
@@ -203,7 +211,7 @@ public class FileConfig {
             }
         }
         // 将有效的图片后缀字符串保存到配置文件中
-        properties.setProperty("image.suffix", sb.toString());
+        properties.setProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), sb.toString());
         // 保存并重新加载配置文件，以确保更改生效
         saveProperties();
         loadProperties();
@@ -217,7 +225,7 @@ public class FileConfig {
      */
     public static @NotNull List<StorageConfig> getStorageConfig() {
         // 分割属性以获取存储名称数组
-        String[] storageName = properties.getProperty("storage.name").split(",");
+        String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
         // 初始化存储配置列表
         List<StorageConfig> storageConfigList = new ArrayList<>();
         // 初始化第一个默认存储配置标志
@@ -230,7 +238,7 @@ public class FileConfig {
             // 根据类型创建存储配置对象
             StorageConfig storageConfig = new StorageConfig(type);
             // 解析当前存储是否为默认存储
-            boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+".storage.is.default"));
+            boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+".storage.is-default"));
 
             // 根据存储类型构建具体的配置
             if (type.equals("local")) {
@@ -238,7 +246,7 @@ public class FileConfig {
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
                 localSetting.setPath(properties.getProperty(name+".storage.path"));
-                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+".storage.max.size")));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+".storage.max-size")));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);
@@ -290,7 +298,7 @@ public class FileConfig {
      */
     public static void updateStorageConfig(@NotNull StorageConfig storageConfig) {
         // 获取系统中已配置的存储名称列表
-        String[] storageName = properties.getProperty("storage.name").split(",");
+        String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
 
         // 处理本地存储配置
         if (storageConfig.getConfig() instanceof LocalSetting localSetting){
@@ -301,9 +309,9 @@ public class FileConfig {
                     if (name.equals(localSetting.getName())){
                         continue;
                     }
-                    if (Boolean.parseBoolean(properties.getProperty(name+".storage.is.default"))){
+                    if (Boolean.parseBoolean(properties.getProperty(name+".storage.is-default"))){
                         logger.error("存在多个默认储存配置{}，新配置取代旧默认配置文件",name);
-                        properties.setProperty(name+".storage.is.default","false");
+                        properties.setProperty(name+".storage.is-default","false");
                     }
                 }
             }
@@ -311,7 +319,7 @@ public class FileConfig {
             createLocalConfig(localSetting);
             //检查名字是否存在，不存在追加
             if (!Arrays.asList(storageName).contains(localSetting.getName())){
-                properties.setProperty("storage.name",properties.getProperty("storage.name")+","+localSetting.getName());
+                properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+localSetting.getName());
             }
             // 保存并加载配置
             saveProperties();
@@ -333,7 +341,7 @@ public class FileConfig {
                 createS3Config(s3Setting);
                 //检查名字是否存在，不存在追加
                 if (!Arrays.asList(storageName).contains(s3Setting.getName())){
-                    properties.setProperty("storage.name",properties.getProperty("storage.name")+","+s3Setting.getName());
+                    properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+s3Setting.getName());
                 }
                 // 保存并加载配置
                 saveProperties();

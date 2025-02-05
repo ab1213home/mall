@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.domain.enums.UserConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -64,6 +65,13 @@ public class UserConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
+                for (UserConfigItems item : UserConfigItems.values()) {
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, item.getDefaultValue());
+                        saveProperties();
+                    }
+                }
                 logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -103,9 +111,9 @@ public class UserConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                properties.setProperty("admin.role.id", "10");
-                properties.setProperty("max.address.num", "50");
-                properties.setProperty("allow.registration", "true");
+                for (UserConfigItems item : UserConfigItems.values()) {
+                    properties.setProperty(item.getKey(), item.getDefaultValue());
+                }
                 saveProperties();
                 logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
             }
@@ -115,32 +123,32 @@ public class UserConfig {
     }
 
     public static int getAdminRoleId() {
-        return Integer.parseInt(properties.getProperty("admin.role.id", "10"));
+        return Integer.parseInt(properties.getProperty(UserConfigItems.ADMIN_ROLE_ID.getKey(), UserConfigItems.ADMIN_ROLE_ID.getDefaultValue()));
     }
 
     public static int getMaxAddressNum() {
-        return Integer.parseInt(properties.getProperty("max.address.num", "50"));
+        return Integer.parseInt(properties.getProperty(UserConfigItems.MAX_ADDRESS_NUM.getKey(), UserConfigItems.MAX_ADDRESS_NUM.getDefaultValue()));
     }
 
     public static boolean isAllowRegistration() {
-        return Boolean.parseBoolean(properties.getProperty("allow.registration", "true"));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), UserConfigItems.ALLOW_REGISTRATION.getDefaultValue()));
     }
 
 
     public static void updateAdminRoleId(int id) {
-        properties.setProperty("admin.role.id", String.valueOf(id));
+        properties.setProperty(UserConfigItems.ADMIN_ROLE_ID.getKey(), String.valueOf(id));
         saveProperties();
         loadProperties();
     }
 
     public static void updateMaxAddressNum(int num) {
-        properties.setProperty("max.address.num", String.valueOf(num));
+        properties.setProperty(UserConfigItems.MAX_ADDRESS_NUM.getKey(), String.valueOf(num));
         saveProperties();
         loadProperties();
     }
 
     public static void updateAllowRegistration(boolean allow) {
-        properties.setProperty("allow.registration", String.valueOf(allow));
+        properties.setProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), String.valueOf(allow));
         saveProperties();
         loadProperties();
     }
