@@ -18,23 +18,13 @@ import lombok.Data;
 @Data
 public class StorageConfig {
 
-	private String type;
-
 	private boolean health;
+
+	private String name;
 
 	private Object config;
 
-
-	public StorageConfig(String type, Object config) {
-		this.type = type;
-		this.config = config;
-	}
-
 	public StorageConfig() {
 
-	}
-
-	public StorageConfig(String type){
-		this.type = type;
 	}
 }

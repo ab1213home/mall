@@ -11,22 +11,29 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service;
+package com.jiang.mall.domain.vo;
 
-import com.jiang.mall.domain.bo.DirectoryBo;
-import com.jiang.mall.domain.vo.DirectoryVo;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.Data;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+@Data
+public class StorageConfigVo {
 
-public interface IFileService {
-	DirectoryBo getAllFileList(File folder);
+	private String type;
 
-	List<String> getFaceTemplateList(File folder);
+	private String name;
 
-	String getPurpose(String folder);
+	private Object config;
+
+	public StorageConfigVo(String type, Object config) {
+		this.type = type;
+		this.config = config;
+	}
+
+	public StorageConfigVo() {
+
+	}
+
+	public StorageConfigVo(String type){
+		this.type = type;
+	}
 }

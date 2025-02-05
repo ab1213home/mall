@@ -122,58 +122,6 @@ public class FileServiceImpl implements IFileService {
         return "未知";
     }
 
-	/**
-     * 计算文件夹的大小
-     * 此方法通过递归遍历文件夹中的所有文件和子文件夹来计算总大小
-     *
-     * @param folder 要计算大小的文件夹
-     * @return 文件夹的大小，以字节为单位
-     */
-	@Override
-    public Long getFolderSize(@NotNull File folder) {
-        // 初始化文件夹大小为0
-        long size = 0L;
-        // 遍历文件夹中的所有文件和子文件夹
-        for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.isFile()) {
-                // 如果是文件，则累加文件的大小到总大小中
-                size += file.length();
-            } else if (file.isDirectory()) {
-                // 如果是子文件夹，则递归调用getFolderSize方法，累加子文件夹的大小到总大小中
-                size += getFolderSize(file);
-            }
-        }
-        // 返回文件夹的总大小
-        return size;
-    }
-
-    /**
-     * 计算给定文件夹中的文件数量
-     * 此方法通过递归遍历文件夹中的所有文件和子文件夹来计算总数
-     *
-     * @param folder 要计算文件数量的文件夹，不能为null
-     * @return 文件夹中的文件数量
-     */
-	@Override
-    public Integer getFileCount(@NotNull File folder) {
-        // 初始化文件计数器
-        int count = 0;
-
-        // 遍历文件夹中的所有文件和子文件夹
-        for (File file : Objects.requireNonNull(folder.listFiles())) {
-            // 如果是文件，则计数器加一
-            if (file.isFile()) {
-                count++;
-            } else if (file.isDirectory()) {
-                // 如果是文件夹，则递归调用getFileCount方法，将子文件夹的文件数加到计数器中
-                count += getFileCount(file);
-            }
-        }
-
-        // 返回文件夹中的文件数量
-        return count;
-    }
-
 	@Override
 	public List<String> getFaceTemplateList(@NotNull File folder) {
 		List<String> fileList = new ArrayList<>();
@@ -190,36 +138,6 @@ public class FileServiceImpl implements IFileService {
             }
         }
 		return fileList;
-	}
-
-	@Override
-	public DirectoryVo getFileList(@NotNull File folder) {
-		// 检查提供的文件是否为目录且存在，否则抛出异常
-	    if (!folder.exists() || !folder.isDirectory()) {
-	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
-	    }
-	    // 初始化DirectoryVo列表
-	    DirectoryVo directoryVo = new DirectoryVo(folder.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
-
-	    // 获取目录下的所有文件和子目录
-	    File[] files = folder.listFiles();
-	    if (files != null) {
-	        for (File file : files) {
-	            // 如果是目录，则递归获取其文件和子目录信息
-	            if (file.isDirectory()) {
-	                DirectoryVo directory = new DirectoryVo(file.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(file.lastModified()));
-	                directoryVo.getSubDirectories().add(directory);
-	            } else {
-	                // 如果是文件，则将其转换为FileVo
-	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
-                    fileVo.setPurpose("null");
-	                // 将文件Vo添加到当前目录的文件列表中
-	                directoryVo.getFiles().add(fileVo);
-	            }
-	        }
-	    }
-	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
-	    return directoryVo;
 	}
 
 	@Override
@@ -276,68 +194,5 @@ public class FileServiceImpl implements IFileService {
 		} else {
 			return String.join(",", purpose);
 		}
-	}
-
-	@Override
-	public ResponseEntity<FileSystemResource> handleFileResponse(@NotNull File file) throws IOException {
-        if (!file.exists() || !file.canRead()) {
-            // 文件不存在或不可读，返回 404 Not Found
-            return ResponseEntity.notFound().build();
-        }
-
-        // 创建 FileSystemResource 对象，用于封装文件资源
-        FileSystemResource resource = new FileSystemResource(file);
-
-        // 设置响应头
-        HttpHeaders headers = new HttpHeaders();
-        // 设置 Content-Disposition 头，指定文件以 inline 方式展示，并附带文件名
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + file.getName());
-
-        // 构建并返回 ResponseEntity 对象
-        // 设置响应状态为 200 OK
-        // 设置响应头为之前构建的 headers
-        // 设置响应体内容长度
-        // 设置响应内容类型为 application/octet-stream，表示二进制流
-        // 返回包含文件资源的 ResponseEntity 对象
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(resource.contentLength())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(resource);
-    }
-
-	@Override
-	public Boolean writeFile(@NotNull MultipartFile file, String path, String name) throws IOException {
-		// 获取系统中的临时目录
-        Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
-
-        // 临时文件使用 UUID 随机命名
-        Path tempFile = tempDir.resolve(Paths.get(UUID.randomUUID().toString()));
-
-        // copy 到临时文件
-        file.transferTo(tempFile);
-
-        try {
-            // 使用 ImageIO 读取文件
-            if (ImageIO.read(tempFile.toFile()) == null) {
-                return false;
-            }
-            // 至此，这的确是一个图片资源文件
-
-            // 检查并创建上传文件的目录
-            File dir = new File(path);
-            if (!dir.exists() && !dir.isDirectory()){
-                dir.mkdir();
-            }
-
-            file.transferTo(new File(path + name));
-
-            // 返回
-            return true;
-
-        } finally {
-            // 始终删除临时文件
-            Files.delete(tempFile);
-        }
 	}
 }

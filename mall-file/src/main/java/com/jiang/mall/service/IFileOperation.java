@@ -14,12 +14,13 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.DirectoryVo;
 import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface IFileOperation {
 	//  测试本地文件读写
@@ -35,5 +36,9 @@ public interface IFileOperation {
 	// 文件写
 	ResponseResult<Object> FileWrite(MultipartFile file, Long userId, String fileName) throws IOException;
 	// 文件读
-	ResponseEntity<Object> FileRead(String storageName, String fileName) throws MinioException, IOException;
+	ResponseEntity<Object> FileRead(String storageName, String fileName) throws IOException;
+
+	Map<String,Object> getFolderStats(String storageName);
+
+	DirectoryVo getFileList(String path, String storageName);
 }

@@ -285,7 +285,7 @@ public class FileConfig {
             // 获取当前存储的类型
             String type = properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
             // 根据类型创建存储配置对象
-            StorageConfig storageConfig = new StorageConfig(type);
+            StorageConfig storageConfig = new StorageConfig();
             // 解析当前存储是否为默认存储
             boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
 
@@ -304,6 +304,7 @@ public class FileConfig {
                     localSetting.setDefault(first == 1 && isDefault);
                 }
                 storageConfig.setConfig(localSetting);
+                storageConfig.setName(name);
             }else if (type.equals(StorageType.S3.getKey())) {
                 // 构建S3存储配置
                 S3Setting s3Setting = new S3Setting();
@@ -321,9 +322,10 @@ public class FileConfig {
                     s3Setting.setDefault(first == 1 && isDefault);
                 }
                 storageConfig.setConfig(s3Setting);
+                storageConfig.setName(name);
             }else {
                 // 记录未知存储类型错误
-                logger.error("未知的储存类型: {}", type);
+                logger.error("读取到未知的储存类型: {}", type);
             }
 
             // 如果是第一个默认存储配置，则将其添加到列表的开头
@@ -398,7 +400,7 @@ public class FileConfig {
             }
         }else {
             // 如果存储类型未知，记录错误
-            logger.error("未知的储存类型: {}", storageConfig.getType());
+            logger.error("更新的配置是未知的储存配置: {}", storageConfig.getConfig().toString());
         }
     }
 }

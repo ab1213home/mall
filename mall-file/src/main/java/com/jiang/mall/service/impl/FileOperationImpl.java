@@ -18,13 +18,14 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
+import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.enums.StorageType;
+import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.FileVo;
 import com.jiang.mall.service.IFileOperation;
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.*;
 import io.minio.errors.*;
+import io.minio.messages.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -46,9 +47,9 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+
+import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 
 @Service
 public class FileOperationImpl implements IFileOperation {
@@ -208,16 +209,14 @@ public class FileOperationImpl implements IFileOperation {
         StorageConfig storageConfig = FileConfig.storageConfig.get(0);
         boolean res;
         String storageName;
-        if (storageConfig.getType().equals(StorageType.LOCAL.getKey())){
-            LocalSetting localSetting = (LocalSetting)storageConfig.getConfig();
+        if (storageConfig.getConfig() instanceof LocalSetting localSetting){
             res=LocalFileWrite(localSetting,file,newName);
             storageName = localSetting.getName();
-        }else if (storageConfig.getType().equals(StorageType.S3.getKey())){
-            S3Setting s3Setting = (S3Setting)storageConfig.getConfig();
+        }else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
             res=S3FileWrite(s3Setting,file,newName);
             storageName = s3Setting.getName();
         }else{
-            return ResponseResult.failResult("文件上传配置错误："+storageConfig.getType());
+            return ResponseResult.failResult("文件上传配置错误："+storageConfig.getConfig().toString());
         }
         if (!res){
             return ResponseResult.failResult("非法的文件类型");
@@ -227,7 +226,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     @Override
-    public ResponseEntity<Object> FileRead(String storageName, String fileName) throws MinioException, IOException {
+    public ResponseEntity<Object> FileRead(String storageName, String fileName) throws IOException {
         // 设置响应头
         HttpHeaders headers = new HttpHeaders();
         // 设置 Content-Disposition 头，指定文件以 inline 方式展示，并附带文件名
@@ -263,6 +262,185 @@ public class FileOperationImpl implements IFileOperation {
         return ResponseEntity.notFound().build();
     }
 
+    @Override
+    public Map<String, Object> getFolderStats(String storageName) {
+        for (StorageConfig storageConfig : FileConfig.storageConfig) {
+            if (storageConfig.getConfig() instanceof S3Setting s3Setting){
+                if (s3Setting.getName().equals(storageName)){
+                    return getS3Stats(s3Setting);
+                }
+            }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
+                if (localSetting.getName().equals(storageName)){
+                    return getLocalStats(localSetting);
+                }
+            }
+        }
+        return Map.of();
+    }
+
+    @Override
+    public DirectoryVo getFileList(String path, String storageName) {
+        for (StorageConfig storageConfig : FileConfig.storageConfig) {
+            if (storageConfig.getConfig() instanceof S3Setting s3Setting){
+                if (s3Setting.getName().equals(storageName)){
+                    return getS3List(s3Setting, path);
+                }
+            }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
+                if (localSetting.getName().equals(storageName)){
+                    return getLocalList(localSetting, path);
+                }
+            }
+        }
+        return null;
+    }
+
+    private @Nullable DirectoryVo getLocalList(@NotNull LocalSetting localSetting, String path) {
+        File folder = new File(localSetting.getPath()+path);
+        // 检查提供的文件是否为目录且存在，否则抛出异常
+	    if (!folder.exists() || !folder.isDirectory()) {
+            logger.error("提供的文件不是目录或不存在。");
+            return null;
+	    }
+	    // 初始化DirectoryVo列表
+	    DirectoryVo directoryVo = new DirectoryVo(folder.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
+
+	    // 获取目录下的所有文件和子目录
+	    File[] files = folder.listFiles();
+	    if (files != null) {
+	        for (File file : files) {
+	            // 如果是目录
+	            if (file.isDirectory()) {
+	                DirectoryVo directory = new DirectoryVo(file.getName(),  new ArrayList<>(), new ArrayList<>(), new Date(file.lastModified()));
+	                directoryVo.getSubDirectories().add(directory);
+	            } else {
+	                // 如果是文件，则将其转换为FileVo
+	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
+                    fileVo.setPurpose("null");
+	                // 将文件Vo添加到当前目录的文件列表中
+	                directoryVo.getFiles().add(fileVo);
+	            }
+	        }
+	    }
+	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
+	    return directoryVo;
+    }
+
+    private @Nullable DirectoryVo getS3List(@NotNull S3Setting s3Setting, String path) {
+        MinioClient minioClient = MinioClient.builder()
+                    .endpoint(s3Setting.getEndpoint())
+                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
+                    .build();
+        // 列出所有对象
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(s3Setting.getBucket())
+                        .recursive(false)
+                        .build());
+        return null;
+    }
+
+    /**
+     * 从文件名获取文件类型
+     *
+     * @param fileName 文件名
+     * @return 文件类型（图片、音频、文档）
+     */
+    private @NotNull String getTypeFromName(@NotNull String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
+            String extension = fileName.substring(dotIndex + 1).toLowerCase();
+            return FileType.getNameByValue(extension, "未知");
+        }
+        return "未知";
+    }
+
+    private @NotNull Map<String, Object> getS3Stats(@NotNull S3Setting s3Setting) {
+        MinioClient minioClient = MinioClient.builder()
+                    .endpoint(s3Setting.getEndpoint())
+                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
+                    .build();
+        // 列出所有对象（递归）
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(s3Setting.getBucket())
+                        .recursive(true)  // 递归获取所有对象
+                        .build());
+        // 统计文件夹中的文件数量
+        long fileCount = 0;
+        // 统计文件夹中的文件大小
+        long totalSize = 0;
+        for (Result<Item> result : results) {
+	        Item item;
+	        try {
+		        item = result.get();
+	        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+	                 InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
+	                 IOException e) {
+		        logger.error("获取文件失败：{}", e.getMessage());
+                continue;
+	        }
+	        if (!item.isDir()) {  // 排除目录
+                fileCount++;
+                totalSize += item.size();
+            }
+        }
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalSize", fileCount);
+        stats.put("fileCount", totalSize);
+        return stats;
+    }
+
+    private @NotNull Map<String, Object> getLocalStats(@NotNull LocalSetting localSetting) {
+        File folder = new File(localSetting.getPath());
+        Map<String, Object> stats = new HashMap<>();
+        if (folder.exists() && folder.isDirectory()) {
+            // 统计文件夹中的文件数量
+            long fileCount = getLocalCount(folder);
+            // 统计文件夹中的文件大小
+            long totalSize = getLocalSize(folder);
+            // 创建一个Map来存储结果数据
+            stats.put("totalSize", totalSize);
+            stats.put("fileCount", fileCount);
+        }
+        return stats;
+    }
+
+    public Integer getLocalCount(@NotNull File folder) {
+        // 初始化文件计数器
+        int count = 0;
+
+        // 遍历文件夹中的所有文件和子文件夹
+        for (File file : Objects.requireNonNull(folder.listFiles())) {
+            // 如果是文件，则计数器加一
+            if (file.isFile()) {
+                count++;
+            } else if (file.isDirectory()) {
+                // 如果是文件夹，则递归调用getFileCount方法，将子文件夹的文件数加到计数器中
+                count += getLocalCount(file);
+            }
+        }
+
+        // 返回文件夹中的文件数量
+        return count;
+    }
+
+    public Long getLocalSize(@NotNull File folder) {
+        // 初始化文件夹大小为0
+        long size = 0L;
+        // 遍历文件夹中的所有文件和子文件夹
+        for (File file : Objects.requireNonNull(folder.listFiles())) {
+            if (file.isFile()) {
+                // 如果是文件，则累加文件的大小到总大小中
+                size += file.length();
+            } else if (file.isDirectory()) {
+                // 如果是子文件夹，则递归调用getFolderSize方法，累加子文件夹的大小到总大小中
+                size += getLocalSize(file);
+            }
+        }
+        // 返回文件夹的总大小
+        return size;
+    }
+
     private @Nullable FileSystemResource LocalFileRead(@NotNull LocalSetting localSetting, String name) {
         File file = new File(localSetting.getPath()+"/"+name);
         if (!file.exists() || !file.canRead()){
@@ -271,7 +449,7 @@ public class FileOperationImpl implements IFileOperation {
 	    return new FileSystemResource(file);
     }
 
-    private @Nullable InputStream S3FileRead(@NotNull S3Setting s3Setting, String name) throws MinioException {
+    private @Nullable InputStream S3FileRead(@NotNull S3Setting s3Setting, String name){
         try {
             // 初始化 MinioClient
             MinioClient minioClient = MinioClient.builder()
@@ -311,26 +489,9 @@ public class FileOperationImpl implements IFileOperation {
         }
     }
 
-    public Long getFolderSize(@NotNull File folder) {
-        // 初始化文件夹大小为0
-        long size = 0L;
-        // 遍历文件夹中的所有文件和子文件夹
-        for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.isFile()) {
-                // 如果是文件，则累加文件的大小到总大小中
-                size += file.length();
-            } else if (file.isDirectory()) {
-                // 如果是子文件夹，则递归调用getFolderSize方法，累加子文件夹的大小到总大小中
-                size += getFolderSize(file);
-            }
-        }
-        // 返回文件夹的总大小
-        return size;
-    }
-
     private @NotNull Boolean LocalFileWrite(@NotNull LocalSetting localSetting, @NotNull MultipartFile file, String name) {
         if (localSetting.getMaxSize()!=-1){
-            if (getFolderSize(new File(localSetting.getPath()))>localSetting.getMaxSize()){
+            if (getLocalSize(new File(localSetting.getPath()))>localSetting.getMaxSize()){
                 return false;
             }
         }

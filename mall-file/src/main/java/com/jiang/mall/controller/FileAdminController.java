@@ -15,18 +15,17 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileSettingVo;
 import com.jiang.mall.domain.vo.MapVo;
+import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -53,6 +52,13 @@ public class FileAdminController {
         this.fileService = fileService;
     }
 
+    private IFileOperation fileOperation;
+
+    @Autowired
+    public void setFileOperation(IFileOperation fileOperation) {
+        this.fileOperation = fileOperation;
+    }
+
     /**
      * 获取文件夹大小和文件数量
      *
@@ -61,27 +67,9 @@ public class FileAdminController {
      */
     @GetMapping("/getFileSize")
     public ResponseResult<Object> getSize(HttpSession session){
-
-//        // 创建一个File对象，对应于要检查的文件夹路径
-//        File folder = new File(FILE_UPLOAD_PATH);
-//
-//        // 确认所创建的File对象确实代表一个文件夹
-//        if (!folder.exists() || !folder.isDirectory()) {
-//            // 如果给定路径不是一个有效的文件夹，则返回错误信息
-//            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-//        }
-//
-//        // 计算文件夹的总大小
-//        long totalSize = fileService.getFolderSize(folder);
-//        // 统计文件夹中的文件数量
-//        int fileCount = fileService.getFileCount(folder);
-//        // 创建一个Map来存储结果数据
-//        Map<String, Object> data = new HashMap<>();
-//        // 将总大小和文件数量放入数据Map
-//        data.put("totalSize", totalSize);
-//        data.put("fileCount", fileCount);
+        Map<String, Object> data = fileOperation.getFolderStats(FileConfig.storageConfig.get(0).getName());
         // 返回包含数据Map的成功响应结果
-        return ResponseResult.okResult();
+        return ResponseResult.okResult(data);
     }
 
     @GetMapping("/getAllList")
@@ -112,7 +100,8 @@ public class FileAdminController {
 
     @GetMapping("/getList")
     public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
-                                  HttpSession session){
+                                          @RequestParam(required = false) String storageName
+                                          ){
 //        File folder = new File(FILE_UPLOAD_PATH+path);
 //
 //        // 确认所创建的File对象确实代表一个文件夹
@@ -120,10 +109,12 @@ public class FileAdminController {
 //            // 如果给定路径不是一个有效的文件夹，则返回错误信息
 //            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
 //        }
-//
-//        DirectoryVo directoryList = fileService.getFileList(folder);
+        if (storageName==null||storageName.isEmpty()){
+            storageName=FileConfig.storageConfig.get(0).getName();
+        }
+        DirectoryVo directoryList = fileOperation.getFileList(path,storageName);
 
-        return ResponseResult.okResult();
+        return ResponseResult.okResult(directoryList);
     }
 
     /**
