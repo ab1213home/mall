@@ -15,12 +15,12 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
+import java.io.File;
+
 @Getter
 public enum FileLocalConfigItems {
-	LOCAL_STORAGE_PATH(".storage.path", "本地存储路径", ""),
-	LOCAL_STORAGE_MAX_SIZE(".storage.max-size", "本地存储最大值", "-1"),
-	LOCAL_STORAGE_IS_DEFAULT(".storage.is-default", "是否默认存储", "true"),
-	LOCAL_STORAGE_NAME(".storage.type", "本地存储类型", "local");
+	LOCAL_STORAGE_PATH(".storage.path", "本地存储路径", System.getProperty("user.home") + File.separator + "upload" + File.separator),
+	LOCAL_STORAGE_MAX_SIZE(".storage.max-size", "本地存储最大值", "-1");
 
 	private final String key;
 	private final String description;

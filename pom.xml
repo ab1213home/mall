@@ -207,7 +207,7 @@
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
-                <version>8.5.6</version>
+                <version>8.5.17</version>
             </dependency>
 
             <!-- git版本管理 -->

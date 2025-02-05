@@ -17,6 +17,9 @@ import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
 import com.jiang.mall.domain.enums.FileConfigItems;
+import com.jiang.mall.domain.enums.FileLocalConfigItems;
+import com.jiang.mall.domain.enums.FileS3ConfigItems;
+import com.jiang.mall.domain.enums.StorageType;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -76,6 +79,49 @@ public class FileConfig {
                         saveProperties();
                     }
                 }
+                // 分割属性以获取存储名称数组
+                String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
+                // 初始化第一个默认存储配置标志
+                int first = 1;
+                // 遍历每个存储名称以检查其配置
+                for (String name : storageName) {
+                    // 获取当前存储的类型
+                    String type = properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
+                    // 解析当前存储是否为默认存储
+                    boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
+                    // 检查是否存在多个默认存储配置
+                    if (first == 0 && isDefault){
+                        logger.warn("存在多个默认储存配置{}",name);
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
+                    }
+                    // 根据存储类型检查具体的配置
+                    if (type.equals(StorageType.LOCAL.getKey())) {
+                        // 检查本地存储配置
+                        for (FileLocalConfigItems item : FileLocalConfigItems.values()) {
+                            String keyToCheck = name+item.getKey();
+                            if (!properties.containsKey(keyToCheck)) {
+                                properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                                saveProperties();
+                            }
+                        }
+                    }else if (type.equals(StorageType.S3.getKey())) {
+                        // 检查S3存储配置
+                        for (FileS3ConfigItems item : FileS3ConfigItems.values()) {
+                            String keyToCheck = name+item.getKey();
+                            if (!properties.containsKey(keyToCheck)) {
+                                properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                                saveProperties();
+                            }
+                        }
+                    }else {
+                        // 记录未知存储类型错误
+                        logger.error("未知的储存类型: {}", type);
+                    }
+                    // 如果是第一个默认存储配置，则将其添加到列表的开头
+                    if (first == 1 && isDefault){
+                        first = 0;
+                    }
+                }
                 logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -133,23 +179,23 @@ public class FileConfig {
      * 创建本地储存配置
      */
     public static void createLocalConfig(@NotNull LocalSetting localSetting) {
-        properties.setProperty(localSetting.getName()+".storage.type","local");
-        properties.setProperty(localSetting.getName()+".storage.path",localSetting.getPath());
-        properties.setProperty(localSetting.getName()+".storage.max-size", String.valueOf(localSetting.getMaxSize()));
-        properties.setProperty(localSetting.getName()+".storage.is-default", String.valueOf(localSetting.isDefault()));
+        properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
+        properties.setProperty(localSetting.getName()+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
+        properties.setProperty(localSetting.getName()+ FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
+        properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(localSetting.isDefault()));
     }
 
     /**
      * 创建对象储存配置
      */
     public static void createS3Config(@NotNull S3Setting s3Setting) {
-        properties.setProperty(s3Setting.getName()+".storage.type","s3");
-        properties.setProperty(s3Setting.getName()+".storage.endpoint",s3Setting.getEndpoint());
-        properties.setProperty(s3Setting.getName()+".storage.access-key",s3Setting.getAccessKey());
-        properties.setProperty(s3Setting.getName()+".storage.secret-key",s3Setting.getSecretKey());
-        properties.setProperty(s3Setting.getName()+".storage.bucket",s3Setting.getBucket());
-        properties.setProperty(s3Setting.getName()+".storage.region",s3Setting.getRegion());
-        properties.setProperty(s3Setting.getName()+".storage.is-default", String.valueOf(s3Setting.isDefault()));
+        properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
+        properties.setProperty(s3Setting.getName()+ FileS3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
+        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
+        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_SECRET_KEY.getKey(),s3Setting.getSecretKey());
+        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_BUCKET.getKey(),s3Setting.getBucket());
+        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_REGION.getKey(),s3Setting.getRegion());
+        properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(s3Setting.isDefault()));
     }
 
     /**
@@ -234,19 +280,19 @@ public class FileConfig {
         // 遍历每个存储名称以构建其配置
         for (String name : storageName) {
             // 获取当前存储的类型
-            String type = properties.getProperty(name+".storage.type");
+            String type = properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
             // 根据类型创建存储配置对象
             StorageConfig storageConfig = new StorageConfig(type);
             // 解析当前存储是否为默认存储
-            boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+".storage.is-default"));
+            boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
 
             // 根据存储类型构建具体的配置
-            if (type.equals("local")) {
+            if (type.equals(StorageType.LOCAL.getKey())) {
                 // 构建本地存储配置
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
-                localSetting.setPath(properties.getProperty(name+".storage.path"));
-                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+".storage.max-size")));
+                localSetting.setPath(properties.getProperty(name+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey()));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey())));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);
@@ -255,15 +301,15 @@ public class FileConfig {
                     localSetting.setDefault(first == 1 && isDefault);
                 }
                 storageConfig.setConfig(localSetting);
-            }else if (type.equals("s3")) {
+            }else if (type.equals(StorageType.S3.getKey())) {
                 // 构建S3存储配置
                 S3Setting s3Setting = new S3Setting();
                 s3Setting.setName(name);
-                s3Setting.setEndpoint(properties.getProperty(name+".storage.endpoint"));
-                s3Setting.setAccessKey(properties.getProperty(name+".storage.access-key"));
-                s3Setting.setSecretKey(properties.getProperty(name+".storage.secret-key"));
-                s3Setting.setBucket(properties.getProperty(name+".storage.bucket"));
-                s3Setting.setRegion(properties.getProperty(name+".storage.region"));
+                s3Setting.setEndpoint(properties.getProperty(name+FileS3ConfigItems.S3_ENDPOINT.getKey()));
+                s3Setting.setAccessKey(properties.getProperty(name+FileS3ConfigItems.S3_ACCESS_KEY.getKey()));
+                s3Setting.setSecretKey(properties.getProperty(name+FileS3ConfigItems.S3_SECRET_KEY.getKey()));
+                s3Setting.setBucket(properties.getProperty(name+FileS3ConfigItems.S3_BUCKET.getKey()));
+                s3Setting.setRegion(properties.getProperty(name+FileS3ConfigItems.S3_REGION.getKey()));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);
@@ -309,9 +355,9 @@ public class FileConfig {
                     if (name.equals(localSetting.getName())){
                         continue;
                     }
-                    if (Boolean.parseBoolean(properties.getProperty(name+".storage.is-default"))){
+                    if (Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
                         logger.error("存在多个默认储存配置{}，新配置取代旧默认配置文件",name);
-                        properties.setProperty(name+".storage.is-default","false");
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
                     }
                 }
             }
@@ -332,9 +378,9 @@ public class FileConfig {
                     if (name.equals(s3Setting.getName())){
                         continue;
                     }
-                    if (Boolean.parseBoolean(properties.getProperty(name+".storage.is.default"))){
+                    if (Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
                         logger.error("存在多个默认储存配置{}，新配置取代旧默认配置文件",name);
-                        properties.setProperty(name+".storage.is.default","false");
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
                     }
                 }
                 // 创建或更新S3存储配置
