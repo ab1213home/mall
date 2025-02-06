@@ -15,17 +15,10 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class StorageConfigVo {
-
-	private String type;
-
-	private String name;
-
-	private Object config;
-
-	public StorageConfigVo() {
-
-	}
-
+public class FileMainSettingVo {
+	private Boolean allowUploadFile;
+	private List<MapVo> imageSuffix;
 }

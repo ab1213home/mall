@@ -14,13 +14,13 @@
 let imageSuffixArr={};
 function getFileSetting() {
     $.ajax({
-        url: '/file/admin/getSetting',
+        url: '/file/admin/getMainSetting',
         type: 'GET',
         dataType: 'json',
         success: function(res) {
             if (res.code == 200) {
                 $("#allow-upload").val(res.data.AllowUploadFile);
-                $("#save-to-where").val(res.data.FileUploadPath);
+                // $("#save-to-where").val(res.data.FileUploadPath);
                 imageSuffixArr= {};
                 $("#image-suffix").empty();
                 let row=`<div class="row">`;
@@ -43,12 +43,11 @@ function setFormat(index){
 function saveFileSetting() {
     let data = {
         allowUploadFile: $("#allow-upload").prop("checked"),
-        FileUploadPath: $("#save-to-where").val(),
         imageSuffix: Object.values(imageSuffixArr)
     };
 
     $.ajax({
-        url: '/file/admin/saveSetting',
+        url: '/file/admin/saveMainSetting',
         type: 'POST',
         dataType: 'json',
         data:JSON.stringify(data),

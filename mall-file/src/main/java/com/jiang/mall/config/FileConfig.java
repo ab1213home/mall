@@ -83,7 +83,9 @@ public class FileConfig {
                     }
                 }
                 // 分割属性以获取存储名称数组
-                String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
+                List<String> storageName = Arrays.stream(properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(","))
+                        .filter(s -> !s.isEmpty())
+                        .toList();
                 // 初始化第一个默认存储配置标志
                 int first = 1;
                 // 遍历每个存储名称以检查其配置
@@ -332,9 +334,10 @@ public class FileConfig {
             if (first == 1 && isDefault){
                 storageConfigList.add(0,storageConfig);
                 first = 0;
+            }else {
+                // 如果不是第一个默认存储配置，则将其添加到列表的末尾
+                storageConfigList.add(storageConfig);
             }
-            // 将当前存储配置添加到列表中
-            storageConfigList.add(storageConfig);
         }
         // 返回构建的存储配置列表
         return storageConfigList;
