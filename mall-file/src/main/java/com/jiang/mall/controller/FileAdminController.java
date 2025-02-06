@@ -34,8 +34,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.jiang.mall.config.FileConfig.saveProperties;
-
 /**
  * 文件控制器
  * @author jiang
@@ -75,7 +73,7 @@ public class FileAdminController {
      */
     @GetMapping("/getFileSize")
     public ResponseResult<Object> getSize(HttpSession session){
-        Map<String, Object> data = fileOperation.getFolderStats(FileConfig.storageConfig.get(0).getName());
+        Map<String, Object> data = fileOperation.getFolderStats(FileConfig.defaultStorageConfig.getName());
         // 返回包含数据Map的成功响应结果
         return ResponseResult.okResult(data);
     }
@@ -111,7 +109,7 @@ public class FileAdminController {
                                           @RequestParam(required = false) String storageName
                                           ){
         if (storageName==null||storageName.isEmpty()){
-            storageName=FileConfig.storageConfig.get(0).getName();
+            storageName=FileConfig.defaultStorageConfig.getName();
         }
         DirectoryVo directoryList = fileOperation.getFileList(path,storageName);
 
@@ -138,7 +136,6 @@ public class FileAdminController {
         Set<String> standard_imageSuffix = Stream.of(FileConfigItems.IMAGE_SUFFIX.getDefaultValue().split(","))
                                                .map(String::trim)
                                                .collect(Collectors.toSet());
-
         // 遍历标准图片后缀，检查每个后缀是否被当前系统允许上传
         for (String suffix : standard_imageSuffix) {
             if (FileConfig.getImageSuffix().contains(suffix)){

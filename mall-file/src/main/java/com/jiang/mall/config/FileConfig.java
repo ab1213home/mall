@@ -63,10 +63,13 @@ public class FileConfig {
         CONFIG_FILE_PATH = getConfigFilePath("file");
         loadProperties();
         storageConfig=getStorageConfig();
+        defaultStorageConfig=storageConfig.get(0);
     }
     
     public static List<StorageConfig> storageConfig = new ArrayList<>();
 
+    //默认存储配置
+    public static StorageConfig defaultStorageConfig = new StorageConfig();
     /**
      * 加载配置文件
      */

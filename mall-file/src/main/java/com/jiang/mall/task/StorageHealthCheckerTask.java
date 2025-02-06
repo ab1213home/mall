@@ -13,19 +13,79 @@
 
 package com.jiang.mall.task;
 
+import com.jiang.mall.config.FileConfig;
+import com.jiang.mall.domain.config.LocalSetting;
+import com.jiang.mall.domain.config.S3Setting;
+import com.jiang.mall.domain.config.StorageConfig;
+import com.jiang.mall.service.IFileOperation;
+import com.jiang.mall.service.IStorageHealthChecker;
+import com.jiang.mall.service.impl.FileOperationImpl;
+import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class StorageHealthCheckerTask {
 
-	@Scheduled(fixedRate = 300000) // 每 5 分钟检查一次
+	private static final Logger logger = LoggerFactory.getLogger(StorageHealthCheckerTask.class);
+
+	private IStorageHealthChecker storageHealthChecker;
+
+	@Autowired
+	public void setStorageHealthChecker(IStorageHealthChecker storageHealthChecker) {
+		this.storageHealthChecker = storageHealthChecker;
+	}
+
+	@Scheduled(fixedRate = 300000,initialDelay = 0) // 每 5 分钟检查一次
     public void checkAndRecover() {
-//        FileConfig.checkStorageHealth();
-//
-//        // 如果主存储恢复健康，优先切换回主存储
-//        if (FileConfig.isStorageHealthy(FileConfig.primaryStorage)) {
-//            logger.info("主存储已恢复: {}", FileConfig.primaryStorage);
-//        }
+		boolean defaultHealth = checkStorageHealth(FileConfig.defaultStorageConfig);
+		if (!defaultHealth){
+			logger.error("Default storage is not healthy, try to recover...");
+			for (StorageConfig storageConfig : FileConfig.storageConfig) {
+				if (checkStorageHealth(storageConfig)){
+					FileConfig.defaultStorageConfig=storageConfig;
+					break;
+				}
+			}
+		}else{
+			logger.info("Default storage is healthy");
+		}
+		for (StorageConfig storageConfig : FileConfig.storageConfig) {
+			checkStorageHealth(storageConfig);
+		}
+		logger.info("All storage is check");
     }
+
+	private @NotNull Boolean checkStorageHealth(@NotNull StorageConfig storageConfig){
+		if (storageConfig.getConfig() instanceof LocalSetting localSetting){
+			boolean health = storageHealthChecker.checkLocalStorageHealth(localSetting);
+			storageConfig.setHealth(health);
+			if (!health){
+				logger.error("Local storage is not healthy, try to recover...");
+				return false;
+			}else{
+				logger.info("Local storage is healthy");
+				return true;
+			}
+		}else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
+			boolean health = storageHealthChecker.checkS3StorageHealth(s3Setting);
+			storageConfig.setHealth(health);
+			if (!health){
+				logger.error("S3 storage is not healthy, try to recover...");
+				return false;
+			}else{
+				logger.info("S3 storage is healthy");
+				return true;
+			}
+		}else{
+			logger.error("Unknown storage config type");
+			return false;
+		}
+	}
 }

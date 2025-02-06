@@ -208,7 +208,7 @@ public class FileOperationImpl implements IFileOperation {
         // 生成文件名，防止重名文件被覆盖
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
         String newName = sdf.format(new Date()) + "_"+userId + "_" + file.getOriginalFilename();
-        StorageConfig storageConfig = FileConfig.storageConfig.get(0);
+        StorageConfig storageConfig = FileConfig.defaultStorageConfig;
         boolean res;
         String storageName;
         if (storageConfig.getConfig() instanceof LocalSetting localSetting){
@@ -234,8 +234,8 @@ public class FileOperationImpl implements IFileOperation {
         // 设置 Content-Disposition 头，指定文件以 inline 方式展示，并附带文件名
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName);
         for (StorageConfig storageConfig : FileConfig.storageConfig) {
-            if (storageConfig.getConfig() instanceof S3Setting s3Setting){
-                if (s3Setting.getName().equals(storageName)){
+            if (Objects.equals(storageConfig.getName(), storageName)){
+                if (storageConfig.getConfig() instanceof S3Setting s3Setting){
                     InputStream inputStream = S3FileRead(s3Setting,fileName);
                     if (inputStream == null){
                         return ResponseEntity.notFound().build();
@@ -246,9 +246,7 @@ public class FileOperationImpl implements IFileOperation {
                                     .contentLength(inputStream.available())
                                     .contentType(MediaType.parseMediaType("application/octet-stream"))
                                     .body(resource);
-                }
-            }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
-                if (localSetting.getName().equals(storageName)){
+                }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
                     FileSystemResource resource = LocalFileRead(localSetting,fileName);
                     if (resource == null){
                         return ResponseEntity.notFound().build();
@@ -267,12 +265,10 @@ public class FileOperationImpl implements IFileOperation {
     @Override
     public Map<String, Object> getFolderStats(String storageName) {
         for (StorageConfig storageConfig : FileConfig.storageConfig) {
-            if (storageConfig.getConfig() instanceof S3Setting s3Setting){
-                if (s3Setting.getName().equals(storageName)){
+            if (Objects.equals(storageConfig.getName(), storageName)){
+                if (storageConfig.getConfig() instanceof S3Setting s3Setting){
                     return getS3Stats(s3Setting);
-                }
-            }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
-                if (localSetting.getName().equals(storageName)){
+                }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
                     return getLocalStats(localSetting);
                 }
             }
@@ -283,14 +279,12 @@ public class FileOperationImpl implements IFileOperation {
     @Override
     public DirectoryVo getFileList(String path, String storageName) {
         for (StorageConfig storageConfig : FileConfig.storageConfig) {
-            if (storageConfig.getConfig() instanceof S3Setting s3Setting){
-                if (s3Setting.getName().equals(storageName)){
-                    return getS3List(s3Setting, path);
-                }
-            }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
-                if (localSetting.getName().equals(storageName)){
+            if (Objects.equals(storageConfig.getName(), storageName)){
+                 if (storageConfig.getConfig() instanceof S3Setting s3Setting){
+                     return getS3List(s3Setting, path);
+                 }else if (storageConfig.getConfig() instanceof LocalSetting localSetting){
                     return getLocalList(localSetting, path);
-                }
+                 }
             }
         }
         return null;
