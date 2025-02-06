@@ -47,6 +47,8 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
@@ -325,18 +327,76 @@ public class FileOperationImpl implements IFileOperation {
 	    return directoryVo;
     }
 
-    private @Nullable DirectoryVo getS3List(@NotNull S3Setting s3Setting, String path) {
+    private @NotNull String buildPrefix(@NotNull String path) {
+        if (path.isEmpty()) return "";
+        return path.endsWith("/") ? path : path + "/";
+    }
+
+    private @NotNull DirectoryVo getS3List(@NotNull S3Setting s3Setting, @NotNull String path) {
         MinioClient minioClient = MinioClient.builder()
                     .endpoint(s3Setting.getEndpoint())
                     .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
                     .build();
+        // 处理根目录路径
+        String adjustedPath = path.equals("/") ? "" : path;
+        String prefix = buildPrefix(adjustedPath);
+
+        DirectoryVo directoryVo = new DirectoryVo();
+        directoryVo.setName(path.equals("/") ? "/" : adjustedPath);
         // 列出所有对象
-        Iterable<Result<Item>> results = minioClient.listObjects(
-                ListObjectsArgs.builder()
-                        .bucket(s3Setting.getBucket())
-                        .recursive(false)
-                        .build());
-        return null;
+        ListObjectsArgs args = ListObjectsArgs.builder()
+                .bucket(s3Setting.getBucket())
+                .prefix(prefix)
+                .delimiter("/")
+                .recursive(false)
+                .build();
+        List<DirectoryVo> subDirs = new ArrayList<>();
+        List<FileVo> files = new ArrayList<>();
+        Date latestModified = null;
+
+        // 处理目录和文件
+        for (Result<Item> result : minioClient.listObjects(args)) {
+            Item item;
+            try {
+		        item = result.get();
+	        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+	                 InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException |
+	                 IOException e) {
+		        logger.error("获取文件失败：{}", e.getMessage());
+                continue;
+	        }
+            if (item.isDir()) {
+                DirectoryVo subDir = new DirectoryVo();
+                String fullPath = item.objectName();
+                String dirName = fullPath.substring(prefix.length(), fullPath.length() - 1);
+                subDir.setName(dirName);
+                subDirs.add(subDir);
+                latestModified = getLatestDate(latestModified, subDir.getLastModified());
+            } else {
+                String fullName = item.objectName();
+                String fileName = fullName.substring(prefix.length());
+                FileVo fileVo = new FileVo();
+                fileVo.setName(fileName);
+                fileVo.setSize(item.size());
+                fileVo.setMd5(item.etag());
+                ZonedDateTime dateTime = item.lastModified().toInstant().atZone(ZoneId.systemDefault());
+                fileVo.setLastModified(Date.from(dateTime.toInstant()));
+                fileVo.setType(getTypeFromName(fileName));
+                files.add(fileVo);
+                latestModified = getLatestDate(latestModified, fileVo.getLastModified());
+            }
+        }
+
+        directoryVo.setSubDirectories(subDirs);
+        directoryVo.setFiles(files);
+        directoryVo.setLastModified(latestModified);
+        return directoryVo;
+    }
+
+    private Date getLatestDate(Date currentLatest, Date newDate) {
+        if (newDate == null) return currentLatest;
+        if (currentLatest == null) return newDate;
+        return newDate.after(currentLatest) ? newDate : currentLatest;
     }
 
     /**
