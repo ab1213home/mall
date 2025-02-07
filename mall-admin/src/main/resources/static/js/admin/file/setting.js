@@ -12,7 +12,8 @@
  */
 
 let imageSuffixArr={};
-function getFileSetting() {
+let storageConfig;
+function getMainSetting() {
     $.ajax({
         url: '/file/admin/getMainSetting',
         type: 'GET',
@@ -20,7 +21,6 @@ function getFileSetting() {
         success: function(res) {
             if (res.code == 200) {
                 $("#allow-upload").val(res.data.AllowUploadFile);
-                // $("#save-to-where").val(res.data.FileUploadPath);
                 imageSuffixArr= {};
                 $("#image-suffix").empty();
                 let row=`<div class="row">`;
@@ -40,7 +40,7 @@ function getFileSetting() {
 function setFormat(index){
     imageSuffixArr[index].value=$("#"+index).prop("checked");
 }
-function saveFileSetting() {
+function saveMainSetting() {
     let data = {
         allowUploadFile: $("#allow-upload").prop("checked"),
         imageSuffix: Object.values(imageSuffixArr)
@@ -81,9 +81,60 @@ function getFileSize() {
 	})
 }
 
-$(document).ready(function(){
-	isAdminUser();
-	queryMyUserInfo();
-    getFileSetting();
+function getDetailSetting() {
+    $.ajax({
+        url: '/file/admin/getDetailSetting',
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.code == 200) {
+                $("#storage-config").empty();
+                storageConfig=res.data;
+                let row=``;
+                res.data.forEach((list, index) => {
+                    row+=`
+                    <div class="col-sm-3 mb-3 ${ index == 0?"mb-sm-0":''}">
+                        <div class="card ${list.health==true?"text-bg-success":'text-bg-danger'}">
+                            <div class="card-header">${list.name}</div>
+                            <div class="card-body"
+                                <ul>
+                                  <li>${list.isDefault?"默认储存":"普通储存"}</li>
+                    `
+                    if (list.type=="local"){
+                        row+=`
+                                  <li>类型：本地储存</li>
+                                  <li>路径：${list.path}</li>
+                                  <li>存储最大值：${list.maxSize==-1?"无限制":list.maxSize+"MB"}</li>
+                                  <li>状态：${list.health?"健康":"不健康"}</li>
+                                  `
+                    }else if (list.type=="s3"){
+                        row+=`
+                                  <li>类型：对象储存</li>
+                                  <li>服务密钥：${list.secretKey}</li>
+                                  <li>访问密钥：${list.accessKey}</li>
+                                  <li>桶名：${list.bucket}</li>
+                                  <li>服务地址：${list.endpoint}</li>
+                                  <li>区域：${list.region}</li>
+                                  <li>状态：${list.health?"健康":"不健康"}</li>
+                        `
+                    }
+                    row+=`
+                                </ul>
+                            </div>
+                        </div>
+                    </div>`
+                });
+
+                $("#file-config").append(row);
+            }
+        }
+    })
+}
+
+$(document).ready(function () {
+    isAdminUser();
+    queryMyUserInfo();
+    getMainSetting();
+    getDetailSetting();
     getFileSize();
 })
