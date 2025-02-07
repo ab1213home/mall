@@ -88,32 +88,34 @@ public class UploadController {
 		    return result;
 		}
         UserVo user = (UserVo) result.getData();
-        return fileOperation.FileWrite(file, user.getId(), file.getOriginalFilename());
+        return fileOperation.FileWrite(file, user.getId(), "standard");
 
     }
 
-//    /**
-//     * 处理用户头像上传请求
-//     *
-//     * @param file 用户上传的文件
-//     * @param session 用户会话
-//     * @return 包含上传结果和文件访问路径的响应对象
-//     * @throws IOException 文件处理或I/O过程中可能出现的异常
-//     */
-//    @RequestMapping("/uploadFaces")
-//    @ResponseBody
-//    public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-//        // 检查是否允许上传文件
-//        if (!FileConfig.getAllowUploadFile()){
-//            return ResponseResult.failResult("上传文件被禁止");
-//        }
-//
-//        // 检查用户登录状态
-//        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-//        if (!result.isSuccess()) {
-//            // 如果未登录，则直接返回
-//            return result;
-//        }
+    /**
+     * 处理用户头像上传请求
+     *
+     * @param file 用户上传的文件
+     * @param session 用户会话
+     * @return 包含上传结果和文件访问路径的响应对象
+     * @throws IOException 文件处理或I/O过程中可能出现的异常
+     */
+    @RequestMapping("/uploadFaces")
+    @ResponseBody
+    public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
+        // 检查是否允许上传文件
+        if (!FileConfig.getAllowUploadFile()){
+            return ResponseResult.failResult("上传文件被禁止");
+        }
+
+        // 检查用户登录状态
+        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+        if (!result.isSuccess()) {
+            // 如果未登录，则直接返回
+            return result;
+        }
+        UserVo user = (UserVo) result.getData();
+        return fileOperation.FileWrite(file, user.getId(), "picture");
 //        Integer userId = (Integer) result.getData();
 //
 //        // 检查上传文件是否为空
@@ -153,6 +155,6 @@ public class UploadController {
 //        }else{
 //            return ResponseResult.okResult("/faces/" + newName,"上传成功");
 //        }
-//    }
+    }
 
 }

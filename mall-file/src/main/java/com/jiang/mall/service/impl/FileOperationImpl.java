@@ -177,7 +177,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     @Override
-    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, Long userId, String fileName) throws IOException {
+    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, Long userId, String type) throws IOException {
         if (!FileConfig.getAllowUploadFile()){
             return ResponseResult.failResult("上传文件被禁止");
         }

@@ -34,7 +34,7 @@ public interface IFileOperation {
 	void TestS3FileDelete(MinioClient minioClient, String bucket, String fileName);
 
 	// 文件写
-	ResponseResult<Object> FileWrite(MultipartFile file, Long userId, String fileName) throws IOException;
+	ResponseResult<Object> FileWrite(MultipartFile file, Long userId, String type) throws IOException;
 	// 文件读
 	ResponseEntity<Object> FileRead(String storageName, String fileName) throws IOException;
 
