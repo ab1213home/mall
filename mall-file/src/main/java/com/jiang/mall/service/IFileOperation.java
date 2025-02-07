@@ -14,7 +14,9 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.UserVo;
 import io.minio.MinioClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +36,7 @@ public interface IFileOperation {
 	void TestS3FileDelete(MinioClient minioClient, String bucket, String fileName);
 
 	// 文件写
-	ResponseResult<Object> FileWrite(MultipartFile file, Long userId, String type) throws IOException;
+	ResponseResult<Object> FileWrite(MultipartFile file, UserVo userId, FilePurpose type) throws IOException;
 	// 文件读
 	ResponseEntity<Object> FileRead(String storageName, String fileName) throws IOException;
 

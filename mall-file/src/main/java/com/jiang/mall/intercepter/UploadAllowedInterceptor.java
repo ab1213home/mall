@@ -1,0 +1,67 @@
+/*
+ * Copyright (c) 2024 Jiang RongJun
+ * Jiang Mall is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan
+ * PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
+package com.jiang.mall.intercepter;
+
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.FileConfig;
+import com.jiang.mall.config.UserConfig;
+import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.II18nService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.io.PrintWriter;
+
+@Component
+public class UploadAllowedInterceptor implements HandlerInterceptor {
+
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
+
+    /**
+     * 在请求处理之前进行预处理
+     *
+     * @param request  HTTP请求对象，用于获取请求信息
+     * @param response HTTP响应对象，用于发送响应信息
+     * @param o        处理请求的处理器，通常是一个控制器方法
+     * @return boolean 返回值决定是否继续执行其他拦截器和当前请求的处理器方法
+     *                 如果返回true，表示继续执行；如果返回false，表示中断执行
+     * <p>
+     * 此方法主要用于检查用户是否已经登录如果用户已经登录，将直接重定向到用户首页，
+     * 以避免未授权的访问此拦截器对所有请求生效，但只对未登录的用户进行重定向操作
+     */
+    @Override
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
+        // 检查是否允许上传文件
+        if (!FileConfig.getAllowUploadFile()){
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
+            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(403,"上传文件被禁止"));
+            PrintWriter writer = response.getWriter();
+            writer.write(jsonResponse);
+            writer.flush();
+            writer.close();
+        }
+        // 允许其他请求继续执行
+        return true;
+    }
+}

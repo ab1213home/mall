@@ -17,28 +17,30 @@ import lombok.Getter;
 
 @Getter
 public enum FilePurpose {
-	USER_AVATAR("用户头像"),
-	USER_FACE("用户人脸"),
-	PRODUCT_IMAGE("商品图片"),
-	PRODUCT_VIDEO("商品视频"),
-	PRODUCT_AUDIO("商品音频"),
-	PRODUCT_FILE("商品附件"),
-	PRODUCT_DOC("商品文档"),
-	PRODUCT_OTHER("商品其他"),
-	BANNER("轮播图"),
-	ADVERTISEMENT("广告"),
-	NOTICE_IMAGE("公告图片"),
-	NOTICE_VIDEO("公告视频"),
-	NOTICE_AUDIO("公告音频"),
-	NOTICE_FILE("公告附件"),
-	OTHER("其他");
+	USER_AVATAR("用户头像", "avatar/", "image", "faces"),
+	USER_FACE("用户人脸","faces/","image", "faces"),
+	PRODUCT_IMAGE("商品图片","/","image", "upload"),
+	BANNER("轮播图","","image", "upload"),
+	ADVERTISEMENT("广告","/","image", "upload"),
+	NOTICE_IMAGE("公告图片","/","image", "upload"),
+	NOTICE_VIDEO("公告视频","/","video", "upload"),
+	NOTICE_AUDIO("公告音频","/","audio", "upload"),
+	NOTICE_FILE("公告附件","/","text", "upload"),
+	DEFAULT_IMAGE("默认图片","/","image", "upload"),
+	OTHER("其他","/","other", "upload");
 
 	private final String description;
 	private final int value;
+	private final String path;
+	private final String type;
+	private final String prefix;
 
-	FilePurpose(String description) {
+	FilePurpose(String description,String path,String type,String prefix) {
 		this.description = description;
 		this.value = this.ordinal();
+		this.path = path;
+		this.type = type;
+		this.prefix = prefix;
 	}
 
 }

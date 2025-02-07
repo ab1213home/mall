@@ -18,10 +18,11 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
+import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.domain.enums.FileType;
-import com.jiang.mall.domain.enums.StorageType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileOperation;
 import io.minio.*;
 import io.minio.errors.*;
@@ -177,10 +178,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     @Override
-    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, Long userId, String type) throws IOException {
-        if (!FileConfig.getAllowUploadFile()){
-            return ResponseResult.failResult("上传文件被禁止");
-        }
+    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, UserVo user, FilePurpose type) throws IOException {
         // 检查文件是否为空
         if (file.isEmpty()){
             return ResponseResult.failResult("文件不能为空");
@@ -199,31 +197,43 @@ public class FileOperationImpl implements IFileOperation {
 
         String suffix = oldFileName.substring(index + 1);
 
-        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
-            return ResponseResult.failResult("非法的文件类型");
+        //如果类型为图片，则判断是否为图片文件
+        if (Objects.equals(type.getType(), "image")){
+            if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
+                return ResponseResult.failResult("非法的文件类型");
+            }
+            if (!isImageFile(file)){
+                return ResponseResult.failResult("非法的文件类型");
+            }
         }
-        if (!isImageFile(file)){
-            return ResponseResult.failResult("非法的文件类型");
-        }
+
         // 生成文件名，防止重名文件被覆盖
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-        String newName = sdf.format(new Date()) + "_"+userId + "_" + file.getOriginalFilename();
-        StorageConfig storageConfig = FileConfig.defaultStorageConfig;
+        String newName;
+        if (type==FilePurpose.USER_AVATAR||type==FilePurpose.USER_FACE){
+            String extension = index > 0 ? oldFileName.substring(index) : "";
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss_" + user.getId()+"_"+user.getUsername());
+            newName = sdf.format(new Date()) + extension;
+        }else{
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+            newName = sdf.format(new Date()) + "_" + file.getOriginalFilename();
+        }
+
         boolean res;
         String storageName;
-        if (storageConfig.getConfig() instanceof LocalSetting localSetting){
-            res=LocalFileWrite(localSetting,file,newName);
+        if (FileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
+            res=LocalFileWrite(localSetting,file,type.getPath()+"/"+newName);
             storageName = localSetting.getName();
-        }else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
-            res=S3FileWrite(s3Setting,file,newName);
+        }else if (FileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
+            res=S3FileWrite(s3Setting,file,type.getPath()+"/"+newName);
             storageName = s3Setting.getName();
         }else{
-            return ResponseResult.failResult("文件上传配置错误："+storageConfig.getConfig().toString());
+            return ResponseResult.failResult("文件上传配置错误："+FileConfig.defaultStorageConfig.getConfig().toString());
         }
         if (!res){
             return ResponseResult.failResult("非法的文件类型");
         }else{
-            return ResponseResult.okResult("/upload/"+storageName+"/" + newName,"上传成功");
+            return ResponseResult.okResult("/"+type.getPrefix()+"/"+storageName+"/" + newName,"上传成功");
         }
     }
 
@@ -496,7 +506,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     private @Nullable FileSystemResource LocalFileRead(@NotNull LocalSetting localSetting, String name) {
-        File file = new File(localSetting.getPath()+"/"+name);
+        File file = new File(localSetting.getPath()+File.separator+name);
         if (!file.exists() || !file.canRead()){
             return null;
         }

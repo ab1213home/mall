@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.service.IFileOperation;
 import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +50,12 @@ public class FetchController {
         return fileOperation.FileRead(storageName,filename);
     }
 
-    @GetMapping("/faces/{filename}")
-    public ResponseEntity<Object> getFace(@PathVariable String filename) throws IOException {
-//        // 构建文件完整路径
-//        File file = new File(FILE_UPLOAD_PATH+"faces/" + filename);
-
-        return ResponseEntity.internalServerError().build();
+    @GetMapping("/faces/{storageName}/{filename}")
+    public ResponseEntity<Object> getFace(@PathVariable String filename, @PathVariable String storageName) throws IOException {
+        if (filename.matches("[^\\x00-\\xFF]")) {
+            return ResponseEntity.badRequest().build();
+        }
+        return fileOperation.FileRead(storageName,FilePurpose.USER_FACE.getPath()+filename);
     }
 
 }

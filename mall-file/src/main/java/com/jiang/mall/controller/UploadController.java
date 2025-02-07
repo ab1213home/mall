@@ -15,6 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
@@ -28,8 +29,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * 公共控制器
@@ -78,9 +77,6 @@ public class UploadController {
     @RequestMapping("/uploadFile")
     @ResponseBody
     public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        if (!FileConfig.getAllowUploadFile()){
-            return ResponseResult.failResult("上传文件被禁止");
-        }
         ResponseResult<Object> result = userService.checkAdminUser(session.getId());
 
 		if (!result.isSuccess()) {
@@ -88,7 +84,7 @@ public class UploadController {
 		    return result;
 		}
         UserVo user = (UserVo) result.getData();
-        return fileOperation.FileWrite(file, user.getId(), "standard");
+        return fileOperation.FileWrite(file, user,FilePurpose.DEFAULT_IMAGE);
 
     }
 
@@ -103,11 +99,6 @@ public class UploadController {
     @RequestMapping("/uploadFaces")
     @ResponseBody
     public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        // 检查是否允许上传文件
-        if (!FileConfig.getAllowUploadFile()){
-            return ResponseResult.failResult("上传文件被禁止");
-        }
-
         // 检查用户登录状态
         ResponseResult<Object> result = userService.checkUserLogin(session.getId());
         if (!result.isSuccess()) {
@@ -115,46 +106,7 @@ public class UploadController {
             return result;
         }
         UserVo user = (UserVo) result.getData();
-        return fileOperation.FileWrite(file, user.getId(), "picture");
-//        Integer userId = (Integer) result.getData();
-//
-//        // 检查上传文件是否为空
-//        if (file.isEmpty()){
-//            return ResponseResult.failResult("文件不能为空");
-//        }
-//
-//        // 设置用户头像上传路径
-//        String FACE_UPLOAD_PATH = FILE_UPLOAD_PATH + "faces/";
-//
-//        // 文件的原始名称
-//        String fileName = file.getOriginalFilename();
-//        if (fileName == null) {
-//            return ResponseResult.failResult("文件名称不能为空");
-//        }
-//
-//        // 解析出文件后缀
-//        int index = fileName.lastIndexOf(".");
-//        if (index == -1) {
-//            return ResponseResult.failResult("文件后缀不能为空");
-//        }
-//
-//        String suffix = fileName.substring(index + 1);
-//
-//        if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
-//            return ResponseResult.failResult("非法的文件类型");
-//        }
-//
-//        // 生成文件名，防止重名文件被覆盖
-//        String extension = index > 0 ? fileName.substring(index) : "";
-//        UserVo user = (UserVo) session.getAttribute("User");
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-" + userId+"-"+user.getUsername());
-//        String newName = sdf.format(new Date()) + extension;
-//        Boolean res = fileService.writeFile(file,FACE_UPLOAD_PATH,newName);
-//        if (!res){
-//            return ResponseResult.failResult("非法的文件类型");
-//        }else{
-//            return ResponseResult.okResult("/faces/" + newName,"上传成功");
-//        }
+        return fileOperation.FileWrite(file, user,FilePurpose.USER_FACE);
     }
 
 }

@@ -94,7 +94,6 @@ public class RegisterController {
      * @param username 用户名
      * @param email 邮箱
      * @param password 密码
-//     * @param confirmPassword 确认密码
      * @param captcha 验证码
      * @param session HTTP会话
      * @return 注册结果
@@ -103,7 +102,6 @@ public class RegisterController {
     public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
                                                 @RequestParam("email") String email,
                                                 @RequestParam("password") String password,
-//                                                @RequestParam("confirmPassword") String confirmPassword,
                                                 @RequestParam("captcha") String captcha,
                                                 HttpSession session) {
         // 验证邮箱格式
@@ -118,10 +116,6 @@ public class RegisterController {
         if (!i18nService.isValidPassword(password)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
-        // 验证密码一致性
-//        if (!password.equals(confirmPassword)) {
-//            return ResponseResult.failResult(i18nService.getMessage("user.error.password.discrepancy"));
-//        }
 
         if (!i18nService.checkString(captcha)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
@@ -174,10 +168,6 @@ public class RegisterController {
                                                 @RequestHeader("X-Real-IP") String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                                 HttpSession session) {
-        if (!UserConfig.isAllowRegistration()){
-            return ResponseResult.failResult(i18nService.getMessage("user.register.error.allowed"));
-        }
-
         if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 		}
