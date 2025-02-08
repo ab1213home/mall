@@ -251,8 +251,13 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row"> <!--end::Col-->
+                        <ul class="nav nav-tabs" id="fileTab">
+
+                        </ul>
+                    </div>
                     <div class="row"> <!--begin::Col-->
-                        <table class="table table-bordered table-striped text-center" id="directory-tree">
+                        <table class="table table-bordered table-striped text-center" id="directory-tree" style="display: none;">
                             <thead>
                                 <tr>
                                     <th scope="col">文件名</th>
@@ -265,6 +270,9 @@
                             </thead>
                             <tbody></tbody>
                         </table>
+                        <div class="row" id="s3-warn" style="display: none;">
+                            <h5 class="text-center">提示：当前使用的是对象存储服务。请登录到对象存储提供商的管理控制台进行文件的浏览、上传和下载等操作。</h5>
+                        </div>
                     </div> <!--end::Row--> <!--begin::Row-->
                 </div> <!--end::Container-->
             </div> <!--end::App Content-->

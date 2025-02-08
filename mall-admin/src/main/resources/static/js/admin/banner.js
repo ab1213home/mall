@@ -250,20 +250,3 @@ function deleteBanner(id) {
         }
     })
 }
-
-function uploadFile() {
-    const file = $('#imgUpload')[0].files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    $.ajax({
-        url: '/common/uploadFile',
-        type: 'post',
-        data:formData,
-        contentType: false,
-        processData: false,
-        success: function (res){
-            $('#imgPreview').attr('src', res.data);
-            $('#img').val(res.data);
-        }
-    });
-}

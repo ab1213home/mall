@@ -17,6 +17,8 @@ let FileTree = {
 	path: "",
 };
 
+let storageConfig;
+
 /**
  * 根据文件大小返回适当的大小单位和数值
  * @param {number} size - 文件的大小，以字节为单位
@@ -63,13 +65,59 @@ function queryPurpose(index) {
 		}
 	})
 }
-function queryFile(path) {
+
+$(document).ready(function(){
+	isAdminUser();
+	queryMyUserInfo();
+	getDetailSetting();
+})
+
+function getDetailSetting() {
+    $.ajax({
+        url: '/file/admin/getDetailSetting',
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.code == 200) {
+                $("#fileTab").empty();
+                storageConfig=res.data;
+                let row=``;
+				res.data.forEach((list, index) => {
+					row+=`
+					<li class="nav-item">
+                         <a class="nav-link ${list.isDefault?'active':''}" aria-current="page" onclick="queryFileList(`+index+`)">${list.name}</a>
+                    </li>
+					`
+					if (list.isDefault){
+						queryFileList(index,"/");
+					}
+                });
+				$("#fileTab").append(row);
+            }
+        }
+    })
+}
+
+function queryFileList(index) {
+	if (storageConfig[index].type=="local"){
+		//取消隐藏
+		$("#directory-tree").style.display = 'none'
+		$("#s3-warn").style.display = 'block'
+		queryFile(index,"/");
+	}else if (storageConfig[index].type=="s3"){
+		$("#directory-tree").style.display = 'block'
+		$("#s3-warn").style.display = 'none'
+	}
+}
+function queryFile(indexes,path) {
+	const data = {
+		path: path,
+		storageName: storageConfig[indexes].name,
+	};
 	$.ajax({
 		type: "GET",
 		url: "/file/admin/getList",
-		data: {
-			path: path == "upload" ? "" : path,
-		},
+		data: data,
 		dataType: "json",
 		success: function (res) {
 			if (res.code == 200) {
@@ -85,7 +133,7 @@ function queryFile(path) {
 						<td id="directory_lastModified` + index + `">${directory.lastModified}</td>
 						<td>-</td>
 						<td>
-							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile('${ path == "upload" ? "":(path +"/")+directory.name}')">
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile(`+indexes+`,`+path+"/"+directory.name+"/"+`)">
 								<i class="fa fa-folder-open"></i>
 							</button>
 						</td>
@@ -113,13 +161,6 @@ function queryFile(path) {
 					$('#directory-tree tbody').append(row);
 				});
 			}
-
 		}
 	})
 }
-
-$(document).ready(function(){
-	isAdminUser();
-	queryMyUserInfo();
-    queryFile("upload");
-})
