@@ -46,4 +46,18 @@ public class S3Setting {
 	 * 是否为默认存储
 	 */
 	private boolean isDefault;
+
+	public S3Setting() {
+	}
+
+	public S3Setting(String name, String accessKey, String secretKey, String bucket, String endpoint, String region,
+			boolean isDefault) {
+		this.name = name;
+		this.accessKey = accessKey;
+		this.secretKey = secretKey;
+		this.bucket = bucket;
+		this.endpoint = endpoint;
+		this.region = region;
+		this.isDefault = isDefault;
+	}
 }

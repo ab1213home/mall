@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.LocalSetting;
@@ -264,66 +265,48 @@ public class FileAdminController {
         if (storageConfigVo.getName()==null||storageConfigVo.getName().isEmpty()){
             return ResponseResult.failResult("非法的存储名称");
         }
-
         // 根据存储类型处理不同的配置
         if (storageConfigVo.getType().equals(StorageType.LOCAL.getKey())){
-            // 当存储类型为本地存储时
-            if (storageConfigVo.getConfig() instanceof LocalSetting localSetting){
-                // 进一步验证本地存储配置的合法性
-                if (localSetting.getName()==null||localSetting.getName().isEmpty()){
-                    return ResponseResult.failResult("非法的存储名称");
-                }
-                if (localSetting.getPath()==null||localSetting.getPath().isEmpty()){
-                    return ResponseResult.failResult("非法的存储路径");
-                }
-                if (localSetting.getMaxSize()<0&&localSetting.getMaxSize()!=-1){
-                    return ResponseResult.failResult("非法的文件大小");
-                }
-                // 将验证通过的配置转换并保存
-                StorageConfig storageConfig = BeanCopyUtils.copyBean(storageConfigVo,StorageConfig.class);
-                if (storageConfig != null) {
-                    FileConfig.updateStorageConfig(storageConfig);
-                    return ResponseResult.okResult();
-                }
-                return ResponseResult.failResult("非法的存储配置");
-            }else {
-                return ResponseResult.failResult("非法的存储配置");
+            // 进一步验证本地存储配置的合法性
+            if (storageConfigVo.getPath()==null||storageConfigVo.getPath().isEmpty()){
+                return ResponseResult.failResult("非法的存储路径");
             }
+            if (storageConfigVo.getMaxSize()<0&&storageConfigVo.getMaxSize()!=-1){
+                return ResponseResult.failResult("非法的文件大小");
+            }
+            // 将验证通过的配置转换并保存
+            StorageConfig storageConfig = new StorageConfig();
+            storageConfig.setName(storageConfigVo.getName());
+            LocalSetting localSetting = new LocalSetting(storageConfigVo.getName(),storageConfigVo.getPath(),storageConfigVo.isDefault(),storageConfigVo.getMaxSize());
+            storageConfig.setConfig(localSetting);
+            FileConfig.updateStorageConfig(storageConfig);
+            return ResponseResult.okResult();
         }else if (storageConfigVo.getType().equals(StorageType.S3.getKey())){
-            // 当存储类型为S3存储时
-            if (storageConfigVo.getConfig() instanceof S3Setting s3Setting){
-                // 进一步验证S3存储配置的合法性
-                if (s3Setting.getName()==null||s3Setting.getName().isEmpty()){
-                    return ResponseResult.failResult("非法的存储名称");
-                }
-                if (s3Setting.getAccessKey()==null||s3Setting.getAccessKey().isEmpty()){
-                    return ResponseResult.failResult("非法的访问密钥");
-                }
-                if (s3Setting.getSecretKey()==null||s3Setting.getSecretKey().isEmpty()){
-                    return ResponseResult.failResult("非法的密钥");
-                }
-                if (s3Setting.getBucket()==null||s3Setting.getBucket().isEmpty()){
-                    return ResponseResult.failResult("非法的存储桶");
-                }
-                if (s3Setting.getEndpoint()==null||s3Setting.getEndpoint().isEmpty()){
-                    return ResponseResult.failResult("非法的终端节点");
-                }
-                if (s3Setting.getRegion()==null||s3Setting.getRegion().isEmpty()){
-                    return ResponseResult.failResult("非法的区域");
-                }
-                // 将验证通过的配置转换并保存
-                StorageConfig storageConfig = BeanCopyUtils.copyBean(storageConfigVo,StorageConfig.class);
-                if (storageConfig != null) {
-                    FileConfig.updateStorageConfig(storageConfig);
-                    return ResponseResult.okResult();
-                }
-                return ResponseResult.failResult("非法的存储配置");
-            }else {
-                return ResponseResult.failResult("非法的存储配置");
+            // 进一步验证S3存储配置的合法性
+            if (storageConfigVo.getAccessKey()==null||storageConfigVo.getAccessKey().isEmpty()){
+                return ResponseResult.failResult("非法的访问密钥");
             }
+            if (storageConfigVo.getSecretKey()==null||storageConfigVo.getSecretKey().isEmpty()){
+                return ResponseResult.failResult("非法的密钥");
+            }
+            if (storageConfigVo.getBucket()==null||storageConfigVo.getBucket().isEmpty()){
+                return ResponseResult.failResult("非法的存储桶");
+            }
+            if (storageConfigVo.getEndpoint()==null||storageConfigVo.getEndpoint().isEmpty()){
+                return ResponseResult.failResult("非法的终端节点");
+            }
+            if (storageConfigVo.getRegion()==null||storageConfigVo.getRegion().isEmpty()){
+                return ResponseResult.failResult("非法的区域");
+            }
+            // 将验证通过的配置转换并保存
+            StorageConfig storageConfig = new StorageConfig();
+            storageConfig.setName(storageConfigVo.getName());
+            S3Setting s3Setting = new S3Setting(storageConfigVo.getName(),storageConfigVo.getAccessKey(),storageConfigVo.getSecretKey(),storageConfigVo.getBucket(),storageConfigVo.getEndpoint(),storageConfigVo.getRegion(),storageConfigVo.isDefault());
+            storageConfig.setConfig(s3Setting);
+            FileConfig.updateStorageConfig(storageConfig);
+            return ResponseResult.okResult();
         }else {
-            // 当存储类型不合法时
-            return ResponseResult.failResult("非法的存储类型");
+            return ResponseResult.failResult("非法的存储配置");
         }
     }
 

@@ -171,6 +171,7 @@ function insertCategory() {
         success: function (response) {
             if (response.code == 200) {
                 show_success("添加成功");
+                $('#categoryModal').modal('hide');
                 queryCategory(currentPageNum_category, 10);
             } else {
                 show_error("添加失败："+response.message)
@@ -195,6 +196,7 @@ function updateCategory(id) {
         success: function (response) {
             if (response.code == 200) {
                 show_success("修改成功");
+                $('#categoryModal').modal('hide');
                 queryCategory(currentPageNum_category, 10);
             }else {
                 show_error("修改失败："+response.message)
@@ -212,6 +214,7 @@ function deleteCategory(id) {
         success: function (response) {
             if (response.code == 200) {
                 show_success("删除成功");
+                $('#categoryModal').modal('hide');
                 queryCategory(currentPageNum_category, 10);
             }else {
                 show_error("删除失败："+response.message)

@@ -55,7 +55,7 @@ function saveMainSetting() {
         success: function(res) {
             if (res.code == 200) {
                 show_success("保存成功");
-                getFileSetting();
+                getMainSetting();
             }else{
                 show_error("保存失败："+res.message);
             }
@@ -88,7 +88,7 @@ function getDetailSetting() {
         dataType: 'json',
         success: function(res) {
             if (res.code == 200) {
-                $("#storage-config").empty();
+                $("#file-config").empty();
                 storageConfig=res.data;
                 let row=``;
                 res.data.forEach((list, index) => {
@@ -192,9 +192,15 @@ function insertDetailSetting() {
         }
         data = {
             name: name,
+            type: type,
             path: path,
             maxSize: maxSize,
-            isDefault: isDefault
+            isDefault: isDefault,
+            accessKey: "accessKey",
+            secretKey: "secretKey",
+            bucket: "bucket",
+            endpoint: "endpoint",
+            region: "region",
         }
     }else if (type=="s3"){
         const accessKey = $('#access-key').val();
@@ -204,6 +210,9 @@ function insertDetailSetting() {
         const region = $('#region').val();
         data = {
             name: name,
+            type: type,
+            path: "path",
+            maxSize: -1,
             accessKey: accessKey,
             secretKey: secretKey,
             bucket: bucket,
@@ -212,11 +221,6 @@ function insertDetailSetting() {
             isDefault: isDefault
         }
     }
-    data={
-            name: name,
-            type: type,
-            config:data
-            }
     $.ajax({
         url: '/file/admin/saveDetailSetting',
         type: 'POST',
@@ -246,13 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
         $('form').on('submit', function(event) {
 			event.preventDefault(); // 阻止默认提交行为
             insertDetailSetting();
-			// if (type === 'add') {
-			// 	insertDetailSetting(); // 自定义提交处理
-			// }else if (type === 'edit'){
-			// 	// let id = button.getAttribute('data-bs-prod-id');
-			// 	// updateDetailSetting(id); // 自定义提交处理
-            //     insertDetailSetting();
-			// }
 		});
         if (type === 'add') {
             modalTitle.textContent = '添加储存配置';

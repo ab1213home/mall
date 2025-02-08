@@ -22,7 +22,40 @@ public class StorageConfigVo {
 
 	private String name;
 
-	private Object config;
+	/*
+	 * 存储路径
+	 */
+	private String path;
+	/*
+	 * 是否为默认存储
+	 */
+	private boolean isDefault;
+
+	/*
+	 * 最大存储大小（-1表示无限制）
+	 */
+	private long maxSize;
+
+	/*
+	 * S3存储访问密钥
+	 */
+	private String accessKey;
+	/*
+	 * S3存储秘密密钥
+	 */
+	private String secretKey;
+	/*
+	 * S3存储桶名
+	 */
+	private String bucket;
+	/*
+	 * S3存储访问地址
+	 */
+	private String endpoint;
+	/*
+	 * S3存储区域
+	 */
+	private String region;
 
 	public StorageConfigVo() {
 
