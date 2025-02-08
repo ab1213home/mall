@@ -82,17 +82,19 @@ function getDetailSetting() {
                 $("#fileTab").empty();
                 storageConfig=res.data;
                 let row=``;
+				let default_index=0;
 				res.data.forEach((list, index) => {
 					row+=`
 					<li class="nav-item">
                          <a class="nav-link ${list.isDefault?'active':''}" aria-current="page" onclick="queryFileList(`+index+`)">${list.name}</a>
                     </li>
 					`
-					if (list.isDefault){
-						queryFileList(index,"/");
+					if (list.isDefault==true){
+						default_index=index;
 					}
                 });
 				$("#fileTab").append(row);
+				queryFileList(default_index);
             }
         }
     })
@@ -101,12 +103,12 @@ function getDetailSetting() {
 function queryFileList(index) {
 	if (storageConfig[index].type=="local"){
 		//取消隐藏
-		$("#directory-tree").style.display = 'none'
-		$("#s3-warn").style.display = 'block'
-		queryFile(index,"/");
+		$("#directory-tree").css("display", "block");
+		$("#s3-warn").css("display", "none");
+		queryFile(index,'/');
 	}else if (storageConfig[index].type=="s3"){
-		$("#directory-tree").style.display = 'block'
-		$("#s3-warn").style.display = 'none'
+		$("#directory-tree").css("display", "none");
+		$("#s3-warn").css("display", "block")
 	}
 }
 function queryFile(indexes,path) {
@@ -126,6 +128,7 @@ function queryFile(indexes,path) {
 				FileTree.subDirectories = {};
 				res.data.subDirectories.forEach((directory, index) => {
 					FileTree.subDirectories[index] = directory;
+					const directory_path = path+"/"+directory.name+"/";
 					let row = `<tr id="directory` + index + `">
 						<td id="directory_name` + index + `"><i class="bi bi-folder2"></i>${directory.name}</td>
 						<td>-</td>
@@ -133,7 +136,7 @@ function queryFile(indexes,path) {
 						<td id="directory_lastModified` + index + `">${directory.lastModified}</td>
 						<td>-</td>
 						<td>
-							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile(`+indexes+`,`+path+"/"+directory.name+"/"+`)">
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile(${index}, '${directory_path}')">
 								<i class="fa fa-folder-open"></i>
 							</button>
 						</td>
@@ -160,6 +163,14 @@ function queryFile(indexes,path) {
 					</tr>`;
 					$('#directory-tree tbody').append(row);
 				});
+			}else{
+				const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">暂无文件</td>
+						</tr>
+						`;
+				$('#directory-tree tbody').append(row);
 			}
 		}
 	})

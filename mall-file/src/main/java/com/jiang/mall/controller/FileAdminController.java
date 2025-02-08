@@ -106,14 +106,13 @@ public class FileAdminController {
     }
 
     @GetMapping("/getList")
-    public ResponseResult<Object> getList(@RequestParam(required = false,defaultValue = "") String path,
-                                          @RequestParam(required = false) String storageName
+    public ResponseResult<Object> getList(@RequestParam String path,
+                                          @RequestParam String storageName
                                           ){
-        if (storageName==null||storageName.isEmpty()){
-            storageName=FileConfig.defaultStorageConfig.getName();
-        }
         DirectoryVo directoryList = fileOperation.getFileList(path,storageName);
-
+        if (directoryList==null){
+            return ResponseResult.notLoggedResult(storageName+"下不存在文件！");
+        }
         return ResponseResult.okResult(directoryList);
     }
 
