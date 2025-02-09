@@ -16,9 +16,7 @@ package com.jiang.mall.util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Scanner;
 
 public class CpuUtils {
@@ -127,4 +125,36 @@ public class CpuUtils {
         // 返回第二行，即ProcessorId的值
         return sc.next();
     }
+
+	/**
+	 * 判断当前程序是否在Docker容器中运行
+	 * <p>
+	 * 本方法通过检查特定文件和系统信息来判断程序是否在Docker容器内运行
+	 * 首先，它会检查是否存在一个只有在Docker容器中才有的文件
+	 * 如果该文件存在，则可以确定程序正在Docker容器中运行
+	 * 如果该文件不存在，方法将进一步检查系统中的cgroup信息，
+	 * 寻找与Docker或Kubernetes相关的标识，如果找到，则表明程序在Docker容器中运行
+	 *
+	 * @return 如果程序在Docker容器中运行，则返回true；否则返回false
+	 */
+	public static boolean isRunningInDocker() {
+	    // 检查 .dockerenv 文件
+	    File dockerEnvFile = new File("/.dockerenv");
+	    if (dockerEnvFile.exists()) {
+	        return true;
+	    }
+
+	    // 检查 /proc/self/cgroup 内容
+	    try (BufferedReader reader = new BufferedReader(new FileReader("/proc/self/cgroup"))) {
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            if (line.contains("docker") || line.contains("kubepods")) {
+	                return true;
+	            }
+	        }
+	    } catch (IOException e) {
+	        // 忽略异常
+	    }
+	    return false;
+	}
 }

@@ -40,15 +40,15 @@ function changeFileSize(size) {
     }
 }
 function downloadFile(path) {
-	window.open("/"+path);
+	let url = "/upload/"+storageConfig[index].name+"/"+path;
+	window.open(url.replace(/\/+/g, '/'));
 }
-function queryPurpose(index) {
-	let file = FileTree.files[index];
+function queryPurpose(index,path) {
 	$.ajax({
 		type: "GET",
 		url: "/file/admin/getPurpose",
 		data: {
-			path: "/"+FileTree.path+"/"+file.name,
+			path: path,
 		},
 		beforeSend: function () {
 			openLoadingModal();
@@ -58,7 +58,7 @@ function queryPurpose(index) {
 			closeLoadingModal();
 			if (res.code == 200) {
 				FileTree.files[index].purpose = res.data;
-				$('#file_purpose'+index).text(file.purpose);
+				$('#file_purpose'+index).text(res.data);
 			}else{
 				show_error(res.message)
 			}
@@ -102,19 +102,22 @@ function getDetailSetting() {
 
 function queryFileList(index) {
 	if (storageConfig[index].type=="local"){
-		//取消隐藏
-		$("#directory-tree").css("display", "block");
-		$("#s3-warn").css("display", "none");
 		queryFile(index,'/');
 	}else if (storageConfig[index].type=="s3"){
-		$("#directory-tree").css("display", "none");
-		$("#s3-warn").css("display", "block")
+		$('#directory-tree tbody').empty();
+		const row =
+						`
+						<tr>
+							<td colspan="11" style="text-align: center">提示：当前使用的是对象存储服务。请登录到对象存储提供商的管理控制台进行文件的浏览、上传和下载等操作。</td>
+						</tr>
+						`;
+		$('#directory-tree tbody').append(row);
 	}
 }
-function queryFile(indexes,path) {
+function queryFile(index_storage,path) {
 	const data = {
 		path: path,
-		storageName: storageConfig[indexes].name,
+		storageName: storageConfig[index_storage].name,
 	};
 	$.ajax({
 		type: "GET",
@@ -128,7 +131,8 @@ function queryFile(indexes,path) {
 				FileTree.subDirectories = {};
 				res.data.subDirectories.forEach((directory, index) => {
 					FileTree.subDirectories[index] = directory;
-					const directory_path = path+"/"+directory.name+"/";
+					let directory_path = "/"+path+"/"+directory.name+"/";
+					directory_path = directory_path.replace(/\/+/g, '/');
 					let row = `<tr id="directory` + index + `">
 						<td id="directory_name` + index + `"><i class="bi bi-folder2"></i>${directory.name}</td>
 						<td>-</td>
@@ -136,7 +140,7 @@ function queryFile(indexes,path) {
 						<td id="directory_lastModified` + index + `">${directory.lastModified}</td>
 						<td>-</td>
 						<td>
-							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile(${index}, '${directory_path}')">
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryFile(${index_storage}, '${directory_path}')">
 								<i class="fa fa-folder-open"></i>
 							</button>
 						</td>
@@ -146,6 +150,15 @@ function queryFile(indexes,path) {
 				FileTree.files = {};
 				res.data.files.forEach((file, index) => {
 					FileTree.files[index] = file;
+					let file_path
+					if (FileTree.path = "/"){
+						file_path = "/upload/"+storageConfig[index_storage].name+"/"+file.name;
+					}else if (FileTree.path = "/faces/"){
+						file_path = "/faces/"+storageConfig[index_storage].name+"/"+file.name;
+					}else{
+						file_path = "/upload/"+storageConfig[index_storage].name+"/"+path+"/"+file.name;
+						file_path=file_path.replace(/\/+/g, '/');
+					}
 					let row = `<tr id="file` + index + `">
 						<td id="file_name` + index + `"><i class="bi bi-card-image"></i>${file.name}</td>
 						<td id="file_size` + index + `">${changeFileSize(file.size)}</td>
@@ -156,7 +169,7 @@ function queryFile(indexes,path) {
 							<button type="button" class="btn btn-primary btn-sm" onclick="downloadFile('${ path + "/" + file.name }')">
 								<i class="fa fa-download"></i>
 							</button>
-							<button type="button" class="btn btn-primary btn-sm" onclick="queryPurpose('${ index }')">
+							<button type="button" class="btn btn-primary btn-sm" onclick="queryPurpose(${index},'${file_path}')">
 								获取用途
 							</button>
 						</td>

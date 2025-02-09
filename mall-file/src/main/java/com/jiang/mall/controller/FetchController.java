@@ -16,7 +16,9 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.service.IFileOperation;
 import io.minio.errors.MinioException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,10 +39,6 @@ public class FetchController {
 
     /**
      * 获取上传的文件
-     *
-     * @param filename 文件名，包括扩展名
-     * @return 返回包含文件的 ResponseEntity 对象
-     * @throws IOException 如果文件不存在或不可读，则抛出 IOException
      */
     @GetMapping("/upload/{storageName}/{filename}")
     public ResponseEntity<Object> getFile(@PathVariable String filename, @PathVariable String storageName) throws IOException, MinioException {
@@ -48,6 +46,31 @@ public class FetchController {
             return ResponseEntity.badRequest().build();
         }
         return fileOperation.FileRead(storageName,filename);
+    }
+
+    @GetMapping("/upload/{storageName}/**")
+    public ResponseEntity<Object> getFile(HttpServletRequest request, @PathVariable String storageName) throws IOException {
+        // 获取请求 URI（例如：/upload/text/dir1/dir2/file.txt）
+        String requestURI = request.getRequestURI();
+
+        // 定位 storageName 后的起始位置
+        String prefix = "/upload/" + storageName + "/";
+        int startIndex = requestURI.indexOf(prefix) + prefix.length();
+
+        // 截取文件路径（结果为：dir1/dir2/file.txt）
+        String filePath = requestURI.substring(startIndex);
+        // 安全校验
+        if (filePath.contains("..")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("路径包含非法跳转");
+        }
+
+        // 字符集校验
+        if (filePath.matches(".*[\u0000-\u001F<>:\"|?*].*")) {
+            return ResponseEntity.badRequest()
+                .body("文件名含非法字符");
+        }
+        return fileOperation.FileRead(storageName,filePath);
     }
 
     @GetMapping("/faces/{storageName}/{filename}")
