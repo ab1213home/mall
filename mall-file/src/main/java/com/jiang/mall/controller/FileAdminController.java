@@ -45,13 +45,6 @@ import java.util.stream.Stream;
 @RequestMapping("/file/admin")
 public class FileAdminController {
 
-    private IUserService userService;
-
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
-    }
-
     private IFileService fileService;
 
     @Autowired
@@ -77,32 +70,6 @@ public class FileAdminController {
         Map<String, Object> data = fileOperation.getFolderStats(FileConfig.defaultStorageConfig.getName());
         // 返回包含数据Map的成功响应结果
         return ResponseResult.okResult(data);
-    }
-
-    @GetMapping("/getAllList")
-    public ResponseResult<Object> getAllList(@RequestParam(required = false) String path,
-                                  HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
-//        // 创建一个File对象，对应于要检查的文件夹路径
-//        if (path==null|| path.isEmpty()){
-//            path=FILE_UPLOAD_PATH;
-//        }
-//        File folder = new File(path);
-//
-//        // 确认所创建的File对象确实代表一个文件夹
-//        if (!folder.exists() || !folder.isDirectory()) {
-//            // 如果给定路径不是一个有效的文件夹，则返回错误信息
-//            return ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-//        }
-//
-//        DirectoryBo directoryList = fileService.getAllFileList(folder);
-
-        return ResponseResult.okResult();
     }
 
     @GetMapping("/getList")
@@ -319,13 +286,6 @@ public class FileAdminController {
     @GetMapping("/getPurpose")
     public ResponseResult<Object> getPurpose(@RequestParam("path") String path,
                                      HttpSession session){
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录，则直接返回
-        if (!result.isSuccess()) {
-            return result;
-        }
-
         // 调用服务层方法，获取文件的用途
         String purpose = fileService.getPurpose(path);
         // 返回文件用途信息

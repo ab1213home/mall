@@ -20,7 +20,7 @@ public enum FilePurpose {
 	USER_AVATAR("用户头像", "avatar/", "image", "faces"),
 	USER_FACE("用户人脸","faces/","image", "faces"),
 	PRODUCT_IMAGE("商品图片","/","image", "upload"),
-	BANNER("轮播图","","image", "upload"),
+	BANNER("轮播图","/","image", "upload"),
 	ADVERTISEMENT("广告","/","image", "upload"),
 	NOTICE_IMAGE("公告图片","/","image", "upload"),
 	NOTICE_VIDEO("公告视频","/","video", "upload"),

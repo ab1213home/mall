@@ -13,20 +13,6 @@
 
 package com.jiang.mall.service;
 
-import com.jiang.mall.domain.bo.DirectoryBo;
-import com.jiang.mall.domain.vo.DirectoryVo;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 public interface IFileService {
-	DirectoryBo getAllFileList(File folder);
-
-	List<String> getFaceTemplateList(File folder);
-
 	String getPurpose(String folder);
 }

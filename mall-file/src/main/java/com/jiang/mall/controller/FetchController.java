@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.service.IFileOperation;
 import io.minio.errors.MinioException;
@@ -41,7 +42,7 @@ public class FetchController {
      * 获取上传的文件
      */
     @GetMapping("/upload/{storageName}/{filename}")
-    public ResponseEntity<Object> getFile(@PathVariable String filename, @PathVariable String storageName) throws IOException, MinioException {
+    public ResponseEntity<Object> getFile(@PathVariable String filename, @PathVariable String storageName) throws IOException {
         if (filename.matches("[^\\x00-\\xFF]")) {
             return ResponseEntity.badRequest().build();
         }
@@ -50,6 +51,7 @@ public class FetchController {
 
     @GetMapping("/upload/{storageName}/**")
     public ResponseEntity<Object> getFile(HttpServletRequest request, @PathVariable String storageName) throws IOException {
+
         // 获取请求 URI（例如：/upload/text/dir1/dir2/file.txt）
         String requestURI = request.getRequestURI();
 

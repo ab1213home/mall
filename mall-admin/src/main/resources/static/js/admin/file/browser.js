@@ -151,9 +151,9 @@ function queryFile(index_storage,path) {
 				res.data.files.forEach((file, index) => {
 					FileTree.files[index] = file;
 					let file_path
-					if (FileTree.path = "/"){
+					if (FileTree.path = '/'){
 						file_path = "/upload/"+storageConfig[index_storage].name+"/"+file.name;
-					}else if (FileTree.path = "/faces/"){
+					}else if (FileTree.path = '/faces/'){
 						file_path = "/faces/"+storageConfig[index_storage].name+"/"+file.name;
 					}else{
 						file_path = "/upload/"+storageConfig[index_storage].name+"/"+path+"/"+file.name;

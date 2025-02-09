@@ -18,30 +18,15 @@ import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.dao.UserMapper;
-import com.jiang.mall.domain.bo.DirectoryBo;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.enums.FileType;
-import com.jiang.mall.domain.vo.DirectoryVo;
-import com.jiang.mall.domain.vo.FilePlusVo;
-import com.jiang.mall.domain.vo.FileVo;
 import com.jiang.mall.service.IFileService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
@@ -69,44 +54,6 @@ public class FileServiceImpl implements IFileService {
 		this.productMapper = productMapper;
 	}
 
-	/**
-	 * 递归获取指定目录及其子目录下的所有文件和子目录信息，并以DirectoryVo形式返回
-	 * @param folder 不为null的目录对象
-	 * @return 包含指定目录及其子目录下所有文件和子目录信息的DirectoryVo对象
-	 * @throws IllegalArgumentException 如果提供的文件不是目录或不存在
-	 */
-	@Override
-	public DirectoryBo getAllFileList(@NotNull File folder) {
-	    // 检查提供的文件是否为目录且存在，否则抛出异常
-	    if (!folder.exists() || !folder.isDirectory()) {
-	        throw new IllegalArgumentException("提供的文件不是目录或不存在。");
-	    }
-	    // 初始化DirectoryVo列表
-	    DirectoryBo directoryBo = new DirectoryBo(folder.getName(), folder.getAbsolutePath(), new ArrayList<>(), new ArrayList<>(), new Date(folder.lastModified()));
-
-	    // 获取目录下的所有文件和子目录
-	    File[] files = folder.listFiles();
-	    if (files != null) {
-	        for (File file : files) {
-	            // 如果是目录，则递归获取其文件和子目录信息
-	            if (file.isDirectory()) {
-	                DirectoryBo directory = getAllFileList(file);
-	                directoryBo.getSubDirectories().add(directory);
-	            } else {
-	                // 如果是文件，则将其转换为FileVo
-	                FilePlusVo filePlusVo = new FilePlusVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
-	                String path = "/" + folder.getName() + "/" + file.getName();
-					filePlusVo.setPurpose(getPurpose(path));
-
-	                // 将文件Vo添加到当前目录的文件列表中
-	                directoryBo.getFiles().add(filePlusVo);
-	            }
-	        }
-	    }
-	    // 返回包含目录及其下的文件和子目录信息的DirectoryVo对象
-	    return directoryBo;
-	}
-
      /**
      * 从文件名获取文件类型
      *
@@ -121,24 +68,6 @@ public class FileServiceImpl implements IFileService {
         }
         return "未知";
     }
-
-	@Override
-	public List<String> getFaceTemplateList(@NotNull File folder) {
-		List<String> fileList = new ArrayList<>();
-		for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.isFile()) {
-                int dotIndex = file.getName().lastIndexOf('.');
-                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
-                if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
-                    // 只添加图片文件
-                    if (file.getName().matches("^face.*") ){
-                        fileList.add("/faces/" +file.getName());
-                    }
-                }
-            }
-        }
-		return fileList;
-	}
 
 	@Override
 	public String getPurpose(String folder) {

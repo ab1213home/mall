@@ -14,6 +14,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,13 @@ public class FaceTemplateController {
         this.fileService = fileService;
     }
 
+	private IFileOperation fileOperation;
+
+	@Autowired
+	public void setFileOperation(IFileOperation fileOperation) {
+		this.fileOperation = fileOperation;
+	}
+
 	@GetMapping("/getFaceTemplateList")
     public ResponseResult<Object> getFaceTemplateList(HttpSession session){
 
@@ -43,12 +51,11 @@ public class FaceTemplateController {
 //    	if (!folder.exists() || !folder.isDirectory()) {
 //            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
 //        }
-//        List<String> fileList = fileService.getFaceTemplateList(folder);
-//
-//        if (fileList.isEmpty()) {
-//            return ResponseResult.notFoundResourceResult("未找到任何文件！");
-//        }
-//        return ResponseResult.okResult(fileList);
-		return ResponseResult.okResult();
+        List<String> fileList = fileOperation.getFaceTemplateList();
+
+        if (fileList.isEmpty()) {
+            return ResponseResult.notFoundResourceResult("未找到任何文件！");
+        }
+        return ResponseResult.okResult(fileList);
     }
 }

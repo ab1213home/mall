@@ -27,6 +27,7 @@ import com.jiang.mall.service.IFileOperation;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -298,6 +299,77 @@ public class FileOperationImpl implements IFileOperation {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<String> getFaceTemplateList() {
+        if (FileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
+            return getLocalFaceTemplateList(localSetting);
+        }else if (FileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
+            return getS3FaceTemplateList(s3Setting);
+        }
+        return List.of();
+    }
+
+    private @NotNull List<String> getS3FaceTemplateList(@NotNull S3Setting s3Setting) {
+         MinioClient minioClient = MinioClient.builder()
+                    .endpoint(s3Setting.getEndpoint())
+                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
+                    .build();
+         Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(s3Setting.getBucket())
+                        .prefix(FilePurpose.USER_FACE.getPath()) // 限定前缀目录
+                        .recursive(false) // 不递归子目录
+                        .build()
+         );
+         List<String> fileList = new ArrayList<>();
+         for (Result<Item> result : results) {
+	         Item item;
+	         try {
+		         item = result.get();
+	         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+	                  IOException | NoSuchAlgorithmException | InvalidResponseException | ServerException |
+	                  XmlParserException e) {
+		         throw new RuntimeException(e);
+	         }
+	         // 跳过目录
+             if (item.isDir()) continue;
+
+             String objectName = item.objectName(); // 例如："user-face/face_123.jpg"
+             String fileName = objectName.substring(objectName.lastIndexOf('/') + 1);
+
+             // 过滤文件名规则
+             if (!fileName.matches("^face.*")) continue; // 以 face 开头的文件名
+
+             // 过滤文件后缀
+             int dotIndex = fileName.lastIndexOf('.');
+             if (dotIndex == -1) continue; // 无后缀文件跳过
+             String extension = fileName.substring(dotIndex + 1).toLowerCase();
+             if (!FileConfig.getImageSuffix().contains(extension)) continue;
+
+             // 构造访问路径（保留完整相对路径）
+             fileList.add("/" + objectName); // 例如："/user-face/face_123.jpg"
+         }
+         return fileList;
+    }
+
+    private @NotNull List<String> getLocalFaceTemplateList(@NotNull LocalSetting localSetting) {
+        File folder = new File(localSetting.getPath()+File.separator+FilePurpose.USER_FACE.getPath());
+        List<String> fileList = new ArrayList<>();
+		for (File file : Objects.requireNonNull(folder.listFiles())) {
+            if (file.isFile()) {
+                int dotIndex = file.getName().lastIndexOf('.');
+                String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
+                if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
+                    // 只添加图片文件
+                    if (file.getName().matches("^face.*") ){
+                        fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/" +file.getName());
+                    }
+                }
+            }
+        }
+		return fileList;
     }
 
     private @Nullable DirectoryVo getLocalList(@NotNull LocalSetting localSetting, String path) {
