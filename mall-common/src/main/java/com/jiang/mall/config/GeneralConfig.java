@@ -134,7 +134,7 @@ public class GeneralConfig {
     }
 
     public static String getPhone() {
-        return properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
+        return properties.getProperty(GeneralConfigItems.MALL_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
     }
 
     public static String getEmail() {
