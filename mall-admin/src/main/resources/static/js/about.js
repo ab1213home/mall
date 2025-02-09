@@ -12,6 +12,31 @@
  */
 
 $(document).ready(function() {
-    isAdminUser();
-	queryMyUserInfo();
+    let flag=isLogin();
+	getFooterInfo();
+    queryGitInfo();
 });
+// {
+//   "code": 200,
+//   "message": "默认成功消息提示",
+//   "data": {
+//     "git.build.version": "2.0.1",
+//     "git.commit.id.full": "6131f91429a467494ea70a13030cc4ccca34eacc",
+//     "git.commit.id.abbrev": "6131f91",
+//     "git.build.time": "2025-02-06T23:44:24+08:00"
+//   },
+//   "timestamp": 1739116236882,
+//   "success": true
+// }
+function queryGitInfo() {
+    $.ajax({
+        type: "GET",
+        url: "/common/getGit",
+        dataType: "json",
+        success: function(res) {
+            $("#version").text(res.data["git.build.version"]);
+            $("#buildTime").text(res.data["git.build.time"]);
+            $("#gitCommit").text(res.data["git.commit.id.abbrev"]);
+        },
+    });
+}
