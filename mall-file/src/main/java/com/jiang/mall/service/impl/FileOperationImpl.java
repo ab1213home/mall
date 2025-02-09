@@ -349,7 +349,7 @@ public class FileOperationImpl implements IFileOperation {
              if (!FileConfig.getImageSuffix().contains(extension)) continue;
 
              // 构造访问路径（保留完整相对路径）
-             fileList.add("/" + objectName); // 例如："/user-face/face_123.jpg"
+             fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/"+s3Setting.getName() +"/" +fileName);
          }
          return fileList;
     }
@@ -364,7 +364,7 @@ public class FileOperationImpl implements IFileOperation {
                 if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
                     // 只添加图片文件
                     if (file.getName().matches("^face.*") ){
-                        fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/" +file.getName());
+                        fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/"+localSetting.getName() +"/"+file.getName());
                     }
                 }
             }

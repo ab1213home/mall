@@ -15,26 +15,16 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IFileOperation;
-import com.jiang.mall.service.IFileService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
 import java.util.List;
 
 @RestController
 @RequestMapping("/file")
 public class FaceTemplateController {
-
-	private IFileService fileService;
-
-    @Autowired
-    public void setFileService(IFileService fileService) {
-        this.fileService = fileService;
-    }
 
 	private IFileOperation fileOperation;
 
