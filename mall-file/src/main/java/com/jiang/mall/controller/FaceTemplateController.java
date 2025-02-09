@@ -44,13 +44,8 @@ public class FaceTemplateController {
 	}
 
 	@GetMapping("/getFaceTemplateList")
-    public ResponseResult<Object> getFaceTemplateList(HttpSession session){
+    public ResponseResult<Object> getFaceTemplateList(){
 
-//    	File folder = new File(FILE_UPLOAD_PATH+"faces/");
-//
-//    	if (!folder.exists() || !folder.isDirectory()) {
-//            ResponseResult.failResult("给定路径不是一个有效的文件夹！");
-//        }
         List<String> fileList = fileOperation.getFaceTemplateList();
 
         if (fileList.isEmpty()) {
