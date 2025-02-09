@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.vo.CollectionVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICollectionService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -65,12 +66,12 @@ public class CollectionController {
 	public ResponseResult<Object> insertCollection(@RequestParam("productId") Long productId,
 	                                               HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 
         // 校验商品ID是否为空
         if (productId == null|| productId <= 0) {
@@ -80,7 +81,7 @@ public class CollectionController {
 			return ResponseResult.failResult("商品ID为空");
 		}
         // 调用购物车服务添加商品
-        if (collectionService.addCollection(productId, userId)){
+        if (collectionService.addCollection(productId, user.getId())){
             return ResponseResult.okResult("添加成功");
         }else {
             return ResponseResult.serverErrorResult("添加失败");
@@ -91,23 +92,23 @@ public class CollectionController {
 	public ResponseResult<Object> deleteCollection(@RequestParam("productId") Long productId,
                                            HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
         }
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-        Long userId = (Long) result.getData();
-		Collection collection =collectionService.queryByProductIdByUserId(productId, userId);
+		Collection collection =collectionService.queryByProductIdByUserId(productId, user.getId());
 		if (collection == null) {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
-		if (collectionService.deleteCollection(productId, userId)) {
+		if (collectionService.deleteCollection(productId, user.getId())) {
 			return ResponseResult.okResult("删除成功");
 		} else {
 			return ResponseResult.serverErrorResult("删除失败");
@@ -128,13 +129,13 @@ public class CollectionController {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}
 		// 检查会话中是否设置表示用户已登录的标志
-		ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-		Long userId = (Long) result.getData();
-		if (!Objects.equals(collection.getUserId(), userId)){
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
+		if (!Objects.equals(collection.getUserId(), user.getId())){
 			return ResponseResult.failResult("您没有权限删除该收藏");
 		}
 		if (collectionService.deleteById(collection.getId())) {
@@ -149,13 +150,13 @@ public class CollectionController {
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             HttpSession session){
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Long userId = (Long) result.getData();
-		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize,userId);
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
+		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize,user.getId());
 		if (collections.isEmpty()) {
 			return ResponseResult.okResult(collections,"没有收藏记录");
 		}
@@ -165,31 +166,31 @@ public class CollectionController {
 	@GetMapping("/getNum")
 	public ResponseResult<Object> getCollectionNum(HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Long userId = (Long) result.getData();
-		return ResponseResult.okResult(collectionService.getCollectionNum(userId));
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
+		return ResponseResult.okResult(collectionService.getCollectionNum(user.getId()));
 	}
 
 	@GetMapping("/isCollected")
 	public ResponseResult<Object> isCollected(@RequestParam("productId") Long productId,
 	                                  HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
         }
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-        Long userId = (Long) result.getData();
-		return ResponseResult.okResult(collectionService.isCollect(productId, userId));
+		return ResponseResult.okResult(collectionService.isCollect(productId, user.getId()));
 	}
 }

@@ -17,6 +17,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
@@ -44,12 +45,10 @@ public class ProductController {
      * 注入IUserService实例，用于处理用户相关的业务逻辑。
      *
      * @param userService IUserService实例，用于处理用户相关的业务逻辑
-     * @return 返回注入后的IUserService实例
      */
     @Autowired
-    public IUserService setUserService(IUserService userService) {
+    public void setUserService(IUserService userService) {
         this.userService = userService;
-        return userService;
     }
 
     IProductService productService;
@@ -58,20 +57,17 @@ public class ProductController {
      * 注入IProductService实例，用于处理产品相关的业务逻辑。
      *
      * @param productService IProductService实例，用于处理产品相关的业务逻辑
-     * @return 返回注入后的IProductService实例
      */
     @Autowired
-    public IProductService productService(IProductService productService) {
+    public void productService(IProductService productService) {
         this.productService = productService;
-        return productService;
     }
 
     private IProductSnapshotService productSnapshotService;
 
     @Autowired
-    public IProductSnapshotService productSnapshotService(IProductSnapshotService productSnapshotService) {
+    public void productSnapshotService(IProductSnapshotService productSnapshotService) {
         this.productSnapshotService = productSnapshotService;
-        return productSnapshotService;
     }
 
     @GetMapping("/getSnapshotInfo")
@@ -84,13 +80,14 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            return result;
-        }
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,userId);
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,user.getId());
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");

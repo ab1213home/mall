@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -81,8 +82,8 @@ public class CartController {
 	        // 如果未登录，则直接返回
 	        return result;
 	    }
-	    Long userId = (Long) result.getData();
-		List<CartVo> cartList = cartService.getCartList(userId, pageNum, pageSize);
+	    UserVo user = (UserVo) result.getData();
+		List<CartVo> cartList = cartService.getCartList(user.getId(), pageNum, pageSize);
         return ResponseResult.okResult(cartList);
     }
 
@@ -95,15 +96,14 @@ public class CartController {
     @GetMapping("/getNum")
     public ResponseResult<Object> getCartNum(HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        // 获取已登录用户的ID
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
         // 调用服务方法获取购物车商品数量，并返回结果
-        return ResponseResult.okResult(cartService.getCartNum(userId));
+        return ResponseResult.okResult(cartService.getCartNum(user.getId()));
     }
 
     /**
@@ -119,12 +119,12 @@ public class CartController {
                                   @RequestParam("num") Integer num,
                                   HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 
         if (productId == null|| num == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
@@ -140,7 +140,7 @@ public class CartController {
         }
 
         // 调用购物车服务添加商品
-        if (cartService.addCart(productId, num, userId)){
+        if (cartService.addCart(productId, num, user.getId())){
             return ResponseResult.okResult("添加成功");
         }else {
             return ResponseResult.serverErrorResult("添加失败");
@@ -160,13 +160,12 @@ public class CartController {
                                      @RequestParam("num") Integer num,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        // 获取已登录用户的ID
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 
         if (id == null|| num == null||id <= 0){
             return ResponseResult.failResult("参数错误");
@@ -183,7 +182,7 @@ public class CartController {
         }
 
         // 创建一个Cart对象，仅包含ID、用户ID和数量，用于更新操作
-        Cart cart = new Cart(id, null, num, userId);
+        Cart cart = new Cart(id, null, num, user.getId());
 
         // 尝试更新购物车项的数量
         if (cartService.updateCart(cart)) {
@@ -207,13 +206,12 @@ public class CartController {
     public ResponseResult<Object> deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        // 获取已登录用户的ID
-        Long userId = (Long) result.getData();
+	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
+	    if (!result.isSuccess()) {
+	        // 如果未登录，则直接返回
+	        return result;
+	    }
+	    UserVo user = (UserVo) result.getData();
 
         if (id == null||id <= 0){
             return ResponseResult.failResult("参数错误");
@@ -224,7 +222,7 @@ public class CartController {
         }
 
         // 尝试删除指定的购物车项
-        if (cartService.deleteCart(id, userId)) {
+        if (cartService.deleteCart(id, user.getId())) {
             // 删除成功
             return ResponseResult.okResult("删除成功");
         } else {
