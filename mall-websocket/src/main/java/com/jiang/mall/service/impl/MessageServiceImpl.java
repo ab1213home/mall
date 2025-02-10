@@ -57,12 +57,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         messageMapper.insert(message);
 
         // 缓存未读消息到 Redis（示例：按用户缓存未读消息数）
-        String key = "user:unread:" + message.getUserId();
+        String key = "user:unread:" + message.getReceiverId();
         temporaryRedisTemplate.opsForValue().increment(key, 1);
 
         // WebSocket 实时推送
         messagingTemplate.convertAndSendToUser(
-            message.getUserId().toString(),
+            message.getReceiverId().toString(),
             "/topic/messages",
             Collections.singletonMap("content", message.getContent())
         );

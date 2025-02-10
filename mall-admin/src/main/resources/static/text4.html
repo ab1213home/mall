@@ -17,8 +17,8 @@
     <meta charset="UTF-8">
     <title>站内信客户端</title>
     <!-- 引入 SockJS 和 STOMP -->
-<!--    <script src="/public/sockjs-client-1.6.1/sockjs.min.js"></script>-->
-<!--&lt;!&ndash;    <script src="/public/stompjs-6.1.2/bundles/stomp.umd.js"></script>&ndash;&gt;-->
+    <script src="/public/sockjs-client-1.6.1/sockjs.min.js"></script>
+    <script src="/public/stompjs-6.1.2/bundles/stomp.umd.js"></script>
 <!--&lt;!&ndash;    <script src="/public/stompjs-6.1.2/esm6/"></script>&ndash;&gt;-->
 </head>
 <body>
@@ -28,23 +28,23 @@
     <button onclick="sendMessage()">Send</button>
 
     <script>
-        const ws = new WebSocket('ws://localhost:8080');
+        var sock = new SockJS('http://localhost:8080/ws');
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('messageInput');
 
-        ws.onopen = () => {
+        sock.onopen = () => {
             appendMessage('WebSocket connection established.');
         };
 
-        ws.onmessage = (event) => {
+        sock.onmessage = (event) => {
             appendMessage(`Received from server: ${event.data}`);
         };
 
-        ws.onclose = () => {
+        sock.onclose = () => {
             appendMessage('WebSocket connection closed.');
         };
 
-        ws.onerror = (error) => {
+        sock.onerror = (error) => {
             appendMessage(`WebSocket error: ${error.message}`);
         };
 
@@ -58,7 +58,7 @@
         function sendMessage() {
             const message = messageInput.value;
             if (message) {
-                ws.send(message);
+                sock.send(message);
                 appendMessage(`Sent to server: ${message}`);
                 messageInput.value = ''; // Clear input field
             }

@@ -26,12 +26,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(@NotNull StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS(); // 前端连接端点
+        // 配置客户端尝试连接地址
+        registry.addEndpoint("/ws").withSockJS();
     }
 
     @Override
     public void configureMessageBroker(@NotNull MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic"); // 消息代理前缀
-        registry.setApplicationDestinationPrefixes("/mall"); // 应用路由前缀
+        // 设置广播节点
+        registry.enableSimpleBroker("/topic", "/user");
+        // 客户端向服务端发送消息需有/app 前缀
+        registry.setApplicationDestinationPrefixes("/app");
+        // 指定用户发送（一对一）的前缀 /user/
+        registry.setUserDestinationPrefix("/user/");
     }
 }

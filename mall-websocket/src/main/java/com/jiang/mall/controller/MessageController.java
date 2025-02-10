@@ -17,6 +17,11 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Message;
 import com.jiang.mall.service.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +29,9 @@ import org.springframework.web.bind.annotation.*;
 public class MessageController {
     @Autowired
     private IMessageService messageService;
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping
     public ResponseResult<Object> sendMessage(@RequestBody Message message) {
@@ -34,5 +42,27 @@ public class MessageController {
     @GetMapping("/unread")
     public ResponseResult<Object> getUnreadCount(@RequestParam Long userId) {
         return ResponseResult.okResult(messageService.getUnreadCount(userId));
+    }
+
+    // 处理广播消息
+    @MessageMapping("/broadcast")
+    @SendTo("/topic/all")
+    public Message broadcast(Message message) {
+        return message;
+    }
+
+    // 处理一对一消息
+    @MessageMapping("/private")
+    public void sendPrivateMessage(@Payload Message message,
+                                  SimpMessageHeaderAccessor headerAccessor) {
+//        Long senderId = (Long) headerAccessor.getSessionAttributes().get("userId");
+        Long senderId = 1L;
+        message.setSenderId(senderId);
+
+        simpMessagingTemplate.convertAndSendToUser(
+            message.getReceiverId().toString(),
+            "/queue/private",
+            message
+        );
     }
 }

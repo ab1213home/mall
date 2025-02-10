@@ -33,7 +33,8 @@ public class Message implements Serializable {
 
 	@TableId(type = IdType.AUTO)
     private Long id;
-    private Long userId;
+    private Long senderId;
+	private Long receiverId;
     private String content;
     private Boolean isRead;
     private LocalDateTime createTime;
