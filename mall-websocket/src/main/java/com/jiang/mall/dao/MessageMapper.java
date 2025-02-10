@@ -14,27 +14,15 @@
 package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.entity.Message;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Banner的映射接口，继承自BaseMapper<Banner>
- * 本接口用于定义与数据库中tb_banners表进行交互的方法，专门用于处理Banner实体的CRUD操作
- *
- * @author jiang
- * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
- * @apiNote Banner的映射接口
- * @version 1.0
- * @since 2024年9月8日
- */
 @Mapper
-public interface BannerMapper extends BaseMapper<Banner> {
+public interface MessageMapper extends BaseMapper<Message> {
 
-	@Select("SELECT * FROM tb_banners WHERE is_del=0 AND start_time <= #{now} AND end_time >= #{now}")
-	List<Banner> geTeffectiveBannerList(LocalDateTime now);
+	@Select("SELECT * FROM tb_messages WHERE user_id = #{userId} AND is_read = 0")
+	List<Message> selectUnreadMessages(Long userId);
 }

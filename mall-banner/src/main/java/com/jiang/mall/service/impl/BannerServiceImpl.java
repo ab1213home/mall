@@ -85,12 +85,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
 	@Override
 	public List<BannerVo> getBannerList() {
-		LocalDateTime now = LocalDateTime.now();
-		QueryWrapper<Banner> queryWrapper = new QueryWrapper<>();
-		// banner的开始时间小于等于当前时间，结束时间大于等于当前时间
-		queryWrapper.le("start_time", now);
-		queryWrapper.ge("end_time", now);
-        List<Banner> banners = bannerMapper.selectList(queryWrapper);
+        List<Banner> banners = bannerMapper.geTeffectiveBannerList(LocalDateTime.now());
 	    return BeanCopyUtils.copyBeanList(banners, BannerVo.class);
 	}
 

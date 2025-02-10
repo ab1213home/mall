@@ -67,6 +67,12 @@
                 <version>3.4.1</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-messaging</artifactId>
+                <version>6.2.2</version>
+            </dependency>
+
             <!--mysql驱动-->
             <dependency>
                 <groupId>com.mysql</groupId>

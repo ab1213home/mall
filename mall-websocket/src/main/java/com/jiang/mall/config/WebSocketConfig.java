@@ -16,16 +16,22 @@ package com.jiang.mall.config;
 import com.jiang.mall.handler.CustomWebSocketHandler;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
 @EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void registerWebSocketHandlers(@NotNull WebSocketHandlerRegistry registry) {
-        registry.addHandler(new CustomWebSocketHandler(), "/ws").setAllowedOrigins("*");
+    public void registerStompEndpoints(@NotNull StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").withSockJS(); // 前端连接端点
+    }
+
+    @Override
+    public void configureMessageBroker(@NotNull MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic"); // 消息代理前缀
+        registry.setApplicationDestinationPrefixes("/mall"); // 应用路由前缀
     }
 }

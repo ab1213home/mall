@@ -1,0 +1,68 @@
+<!--
+  ~ Copyright (c) 2024 Jiang RongJun
+  ~ Jiang Mall is licensed under Mulan PSL v2.
+  ~ You can use this software according to the terms and conditions of the Mulan
+  ~ PSL v2.
+  ~ You may obtain a copy of Mulan PSL v2 at:
+  ~          http://license.coscl.org.cn/MulanPSL2
+  ~ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+  ~ KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+  ~ See the Mulan PSL v2 for more details.
+  -->
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>站内信客户端</title>
+    <!-- 引入 SockJS 和 STOMP -->
+<!--    <script src="/public/sockjs-client-1.6.1/sockjs.min.js"></script>-->
+<!--&lt;!&ndash;    <script src="/public/stompjs-6.1.2/bundles/stomp.umd.js"></script>&ndash;&gt;-->
+<!--&lt;!&ndash;    <script src="/public/stompjs-6.1.2/esm6/"></script>&ndash;&gt;-->
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+
+        ws.onopen = () => {
+            appendMessage('WebSocket connection established.');
+        };
+
+        ws.onmessage = (event) => {
+            appendMessage(`Received from server: ${event.data}`);
+        };
+
+        ws.onclose = () => {
+            appendMessage('WebSocket connection closed.');
+        };
+
+        ws.onerror = (error) => {
+            appendMessage(`WebSocket error: ${error.message}`);
+        };
+
+        function appendMessage(message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
+        }
+
+        function sendMessage() {
+            const message = messageInput.value;
+            if (message) {
+                ws.send(message);
+                appendMessage(`Sent to server: ${message}`);
+                messageInput.value = ''; // Clear input field
+            }
+        }
+    </script>
+</body>
+</html>

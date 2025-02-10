@@ -46,6 +46,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+        </dependency>
 
         <!--mysql驱动-->
         <dependency>
@@ -136,6 +140,10 @@
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-common</artifactId>
         </dependency>
 
     </dependencies>

@@ -172,6 +172,10 @@
             <groupId>com.jiang</groupId>
 			<artifactId>mall-seo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jiang</groupId>
+			<artifactId>mall-websocket</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
