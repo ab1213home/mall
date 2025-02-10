@@ -57,16 +57,21 @@
     // 连接WebSocket
     function connect() {
         currentUserId = document.getElementById('userId').value;
-        var socket = new SockJS('http://localhost:8080/ws');
         stompClient = new StompJs.Client({
-                sockJS: socket
-            });
-
-        stompClient.activate({}, (frame) => {
+        webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+        connectHeaders: {
+            login: 'guest',
+            passcode: 'guest'
+        },
+        debug: function (str) {
+            console.log('STOMP: ' + str);
+        },
+        reconnectDelay: 200,
+        onConnect: (frame) => {
             updateStatus('已连接', '#4CAF50');
 
             // 订阅个人消息频道
-            stompClient.subscribe(`/user/${currentUserId}/topic/messages`, (message) => {
+            stompClient.subscribe(`/topic/chat`, (message) => {
                 showMessage('收到消息', JSON.parse(message.body));
             });
 
@@ -74,12 +79,16 @@
             document.getElementById('connectBtn').disabled = true;
             document.getElementById('disconnectBtn').disabled = false;
             document.getElementById('userId').disabled = true;
-        }, (error) => {
-            updateStatus('连接失败: ' + error, '#f44336');
-        });
+        },
+        onStompError: (frame) => {
+            updateStatus('连接失败: ' + frame.headers['message'], '#f44336');
+        }
+    });
+
+    stompClient.activate();
     }
 
-    // 断开连接
+    // 断开连接(错误)
     function disconnect() {
         if (stompClient !== null) {
             stompClient.disconnect(() => {
@@ -94,17 +103,23 @@
     // 发送消息
     function sendMessage() {
         const content = document.getElementById('messageInput').value;
-        if (!content || !stompClient || !currentUserId) return;
-
-        // 发送到服务端端点
-        stompClient.send("/app/messages", {}, JSON.stringify({
+        if (!stompClient.connected) {
+            alert("代理已断开连接，无法发送消息。");
+            return;
+        }
+        const payLoad = {
             userId: currentUserId,
             content: content
-        }));
+        };
+        if (content.length > 0) {
+            // 您还可以另外传递头部信息
+            stompClient.publish({destination: '/topic/chat', body: JSON.stringify(payLoad)});
+        }
 
         // 清空输入框
         document.getElementById('messageInput').value = '';
     }
+
 
     // 显示消息
     function showMessage(type, data) {
