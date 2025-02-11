@@ -90,13 +90,12 @@
 
     // 断开连接(错误)
     function disconnect() {
-        if (stompClient !== null) {
-            stompClient.disconnect(() => {
-                updateStatus('已断开', '#666');
-                document.getElementById('connectBtn').disabled = false;
-                document.getElementById('disconnectBtn').disabled = true;
-                document.getElementById('userId').disabled = false;
-            });
+        if (stompClient.connected) {
+            stompClient.deactivate();
+            updateStatus('已断开', '#666');
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            document.getElementById('userId').disabled = false;
         }
     }
 

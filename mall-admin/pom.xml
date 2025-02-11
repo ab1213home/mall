@@ -186,6 +186,10 @@
                 <includes>
                     <include>**</include>
                 </includes>
+                <excludes>
+                    <exclude>static/text/**</exclude>
+                </excludes>
+
             </resource>
             <resource>
                 <directory>..</directory>
