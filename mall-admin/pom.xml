@@ -172,10 +172,10 @@
             <groupId>com.jiang</groupId>
 			<artifactId>mall-seo</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.jiang</groupId>
-			<artifactId>mall-websocket</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.jiang</groupId>-->
+<!--			<artifactId>mall-websocket</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -189,7 +189,6 @@
                 <excludes>
                     <exclude>static/text/**</exclude>
                 </excludes>
-
             </resource>
             <resource>
                 <directory>..</directory>

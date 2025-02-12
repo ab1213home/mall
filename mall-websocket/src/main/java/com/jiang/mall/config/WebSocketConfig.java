@@ -14,8 +14,10 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.handler.CustomWebSocketHandler;
+import com.jiang.mall.intercepter.ClientSendInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
@@ -39,4 +41,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 指定用户发送（一对一）的前缀 /user/
         registry.setUserDestinationPrefix("/user/");
     }
+
+    @Override
+    public void configureClientInboundChannel(@NotNull ChannelRegistration registration) {
+        registration.interceptors(new ClientSendInterceptor());
+    }
+
 }
