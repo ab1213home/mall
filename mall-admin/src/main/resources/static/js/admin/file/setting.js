@@ -143,7 +143,9 @@ $(document).ready(function () {
 })
 
 function getDetailSettingById(id) {
-    $('#name').val(storageConfig[id].name);
+    $('#name_show').html(storageConfig[id].name);
+    $('#name_show').css('display', 'block');
+    $('#name').css('display', 'none');
     $('#isDefault').prop('checked', storageConfig[id].isDefault);
     const local = document.querySelectorAll('.local');
     const s3 = document.querySelectorAll('.s3');
@@ -272,6 +274,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function clearModal() {
     $('#name').val('');
+    $('#name').css('display', 'block');
+    $('#name_show').css('display', 'none');
+    $('#name_show').html('');
     const local = document.querySelectorAll('.local');
     local.forEach(element => {
         element.style.display = 'block';
