@@ -2,6 +2,7 @@ package com.jiang.mall.intercepter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ApiRequestCounterInterceptor implements HandlerInterceptor {
 
     private static final ConcurrentHashMap<String, Integer> requestCounts = new ConcurrentHashMap<>();
+
+    @Getter
+    private static Long count = 0L;
 
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
@@ -30,10 +34,12 @@ public class ApiRequestCounterInterceptor implements HandlerInterceptor {
 
         // 更新计数
         requestCounts.put(requestURI, requestCounts.getOrDefault(requestURI, 0) + 1);
+        count++;
         return true;
     }
 
     public static int getRequestCount(String uri) {
         return requestCounts.getOrDefault(uri, 0);
     }
+
 }

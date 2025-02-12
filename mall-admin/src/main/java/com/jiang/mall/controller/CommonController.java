@@ -19,14 +19,20 @@ import com.alibaba.fastjson2.TypeReference;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,6 +70,49 @@ public class CommonController {
             return ResponseResult.failResult();
         }
         return ResponseResult.okResult(map);
+    }
+
+    @GetMapping("/system-info")
+    public ResponseResult<Object> getSystemInfo() {
+        Map<String, Object> info = new HashMap<>();
+
+        // Java Info
+        Map<String, String> javaInfo = new HashMap<>();
+        javaInfo.put("version", System.getProperty("java.version"));
+        javaInfo.put("vendor", System.getProperty("java.vendor"));
+        javaInfo.put("runtime.name", System.getProperty("java.runtime.name"));
+        javaInfo.put("runtime.version", System.getProperty("java.runtime.version"));
+        javaInfo.put("jvm.name", System.getProperty("java.vm.name"));
+        javaInfo.put("jvm.vendor", System.getProperty("java.vm.vendor"));
+        javaInfo.put("jvm.version", System.getProperty("java.vm.version"));
+        info.put("java", javaInfo);
+
+        // OS Info
+        Map<String, String> osInfo = new HashMap<>();
+        osInfo.put("name", System.getProperty("os.name"));
+        osInfo.put("version", System.getProperty("os.version"));
+        osInfo.put("arch", System.getProperty("os.arch"));
+        info.put("os", osInfo);
+
+        return ResponseResult.okResult(info);
+    }
+
+    @Autowired
+    private DataSource dataSource;
+
+    @GetMapping("/data-info")
+    public ResponseResult<Object> getDatabaseInfo() {
+        Map<String, Object> info = new HashMap<>();
+        try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
+	        DatabaseMetaData metaData = connection.getMetaData();
+	        String dbProductName = metaData.getDatabaseProductName(); // 数据库名称
+	        String dbProductVersion = metaData.getDatabaseProductVersion(); // 数据库版本
+	        info.put("database", dbProductName);
+	        info.put("version", dbProductVersion);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ResponseResult.okResult(info);
     }
 
 }

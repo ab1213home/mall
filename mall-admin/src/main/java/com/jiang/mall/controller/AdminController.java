@@ -14,6 +14,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.intercepter.ApiRequestCounterInterceptor;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,6 @@ public class AdminController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
-		return ResponseResult.okResult(1000);
+		return ResponseResult.okResult(ApiRequestCounterInterceptor.getCount());
 	}
 }

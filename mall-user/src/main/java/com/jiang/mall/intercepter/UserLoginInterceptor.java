@@ -63,6 +63,8 @@ public class UserLoginInterceptor implements HandlerInterceptor {
         if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             return true;
         }else {
+            //判断是网页请求还是API请求
+            //TODO:后续应该会改为前后端分离，因此推迟更改
             redirectToLogin(request, response, requestURI);
             return false;
         }
