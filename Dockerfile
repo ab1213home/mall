@@ -21,6 +21,8 @@ COPY /mall-admin/target/mall-2.0.1.jar  mall.jar
 
 VOLUME /home
 
+VOLUME /application.properties
+
 # 声明运行时容器提供服务时使用的端口
 EXPOSE 8080
 

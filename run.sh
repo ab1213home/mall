@@ -22,15 +22,6 @@ else
     echo "未找到现有的mall-core容器。"
 fi
 
-# 检查是否存在名为 mall 的容器，并停止和删除它
-if docker container ls -a | grep -q mall; then
-    echo "正在停止并删除现有的 mall 容器..."
-    docker stop mall
-    docker rm mall
-else
-    echo "未找到现有的mall容器。"
-fi
-
 # 检查是否存在名为 mall-redis 的容器，并停止和删除它
 if docker container ls -a | grep -q mall-redis; then
     echo "正在停止并删除现有的 mall-redis 容器..."
@@ -38,6 +29,28 @@ if docker container ls -a | grep -q mall-redis; then
     docker rm mall-redis
 else
     echo "未找到现有的 mall-redis 容器。"
+fi
+
+# 检查是否存在名为 mall-mysql 的容器，并停止和删除它
+if docker container ls -a | grep -q mall-mysql; then
+    echo "正在停止并删除现有的 mall-mysql 容器..."
+    docker stop mall-mysql
+    docker rm mall-mysql
+else
+    echo "未找到现有的mall-mysql容器。"
+fi
+
+# 编译jar包
+echo "正在编译jar包..."
+mvn clean package -DskipTests
+
+# 检查编译是否成功
+# shellcheck disable=SC2181
+if [ $? -eq 0 ]; then
+    echo "jar包编译成功。"
+else
+    echo "jar包编译时出错。"
+    exit 1
 fi
 
 # 构建 Docker 镜像
@@ -53,57 +66,27 @@ else
     exit 1
 fi
 
-if [ ! -d "home" ]; then
-    echo "home目录不存在，正在创建数据目录..."
-    mkdir -p home
+if [ ! -d "data" ]; then
+    echo "data目录不存在，正在创建数据目录..."
+    mkdir -p data
     echo "数据目录创建成功。"
 else
-    echo "home目录已存在。"
+    echo "data目录已存在。"
 fi
 
-if [ ! -d "logs" ]; then
-    echo "logs目录不存在，正在创建日志目录..."
-    mkdir -p logs
-    echo "日志目录创建成功。"
+if [ ! -f "data/config.properties" ]; then
+    touch data/config.properties
+    echo "mall配置文件创建成功"
 else
-    echo "logs目录已存在。"
-fi
-
-if [ ! -d "redis" ]; then
-    echo "redis目录不存在，正在创建数据目录..."
-    mkdir -p redis
-    echo "数据目录创建成功。"
-else
-    echo "redis目录已存在。"
-fi
-
-if [ ! -f "config.properties" ]; then
-    touch config.properties
-    echo "mall-core配置文件创建成功"
-else
-    echo "mall-core配置文件已存在。"
+    echo "mall配置文件已存在。"
 fi
 
 if [ ! -f "application.properties" ]; then
     cp application-template.properties application.properties
-    echo "请把在mysql创建的数据库信息填入application.properties中，然后按任意键继续..."
-    # shellcheck disable=SC2162
-    read -n 1
+    echo "mall-core配置文件创建成功。"
 else
     echo "mall-core配置文件已存在。"
 fi
-
-echo "请把data目录下sql文件导入到mysql中，然后按任意键继续..."
-# shellcheck disable=SC2162
-read -n 1
-
-# 检查是否存在名为 mall-network 的网络，如果不存在则创建
-#if ! docker network ls | grep -q mall-network; then
-#    echo "正在创建 mall-network ..."
-#    docker network create mall-network
-#else
-#    echo "mall-network 已存在。"
-#fi
 
 # 启动 Docker Compose 服务
 echo "正在启动 Docker Compose 服务..."
