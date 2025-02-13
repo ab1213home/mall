@@ -13,24 +13,24 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.handler.AuthHandshakeInterceptor;
 import com.jiang.mall.handler.CustomWebSocketHandler;
+import com.jiang.mall.handler.SubscribePermissionInterceptor;
 import com.jiang.mall.intercepter.ClientSendInterceptor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
-@EnableWebSocket
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(@NotNull StompEndpointRegistry registry) {
         // 配置客户端尝试连接地址
-        registry.addEndpoint("/ws").withSockJS();
+        registry.addEndpoint("/ws").addInterceptors(new AuthHandshakeInterceptor()).withSockJS();
     }
 
     @Override
@@ -45,7 +45,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(@NotNull ChannelRegistration registration) {
-        registration.interceptors(new ClientSendInterceptor());
+        registration.interceptors(new SubscribePermissionInterceptor(),
+                                  new ClientSendInterceptor());
     }
 
 }

@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mall-core:
     image: registry.cn-hangzhou.aliyuncs.com/jianrongjun/mall:latest
@@ -11,8 +10,7 @@ services:
     depends_on:
       - mall-redis
     volumes:
-      - ./data:/data
-      - ./config.properties:/config.properties
+      - ./data:/home
       - ./application.properties:/application.properties
   mall-redis:
     image: redis:6.2.16
