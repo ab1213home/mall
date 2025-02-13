@@ -16,6 +16,7 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * User的映射接口，继承自BaseMapper<User>
@@ -30,5 +31,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
-
+    @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = true LIMIT 1")
+    User selectUserByIdAndActive(Long userId);
 }

@@ -17,6 +17,7 @@ import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import com.jiang.mall.service.II18nService;
@@ -94,8 +95,9 @@ public class AddressController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
+	    UserVo user = (UserVo) result.getData();
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
-        List<AddressVo> address_List = addressService.getAddressList((Long) result.getData(), pageNum, pageSize);
+        List<AddressVo> address_List = addressService.getAddressList(user.getId(), pageNum, pageSize);
         // 如果获取的地址列表为空，则返回失败结果
         if (address_List==null) {
 	        return ResponseResult.failResult();
@@ -122,8 +124,9 @@ public class AddressController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
+		UserVo user = (UserVo) result.getData();
 	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
-	    return ResponseResult.okResult(addressService.getAddressNum((Long) result.getData()));
+	    return ResponseResult.okResult(addressService.getAddressNum(user.getId()));
 	}
 
 	/**
@@ -153,7 +156,7 @@ public class AddressController {
 		if (!result.isSuccess()) {
 		    return result; // 如果未登录，则直接返回
 		}
-	    Long userId = (Long) result.getData();
+	    UserVo user = (UserVo) result.getData();
 		if (firstName==null||lastName==null||addressDetail==null||postalCode==null||phone==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -183,8 +186,7 @@ public class AddressController {
 			return ResponseResult.failResult("地区代码不正确");
 		}
 	    // 创建新的地址对象
-	    Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
-		address.setUserId(userId);
+	    Address address = new Address(user.getId(),firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 	    // 尝试插入地址信息
 	    if (addressService.insertAddress(address,isDefault)){
 			// 插入地址成功
@@ -225,7 +227,7 @@ public class AddressController {
 			// 如果未登录，则直接返回
 		    return result;
 		}
-	    Long userId = (Long) result.getData();
+	    UserVo user = (UserVo) result.getData();
 		if (id==null||id<=0||firstName==null||lastName==null||phone==null||areaCode==null||addressDetail==null||postalCode==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -250,11 +252,11 @@ public class AddressController {
 		}
 		// 创建新的地址对象
 //	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
-		Address address = new Address(userId,firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
+		Address address = new Address(user.getId(),firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setId(id);
 	    // 验证用户是否有权修改该地址
 	    Address oldaddress = addressService.getById(id);
-	    if (!oldaddress.getUserId().equals(userId)) {
+	    if (!oldaddress.getUserId().equals(user.getId())) {
 	        return ResponseResult.failResult("您没有权限修改此地址");
 	    }
 	    // 尝试更新地址
@@ -287,15 +289,15 @@ public class AddressController {
 		if (!StringUtils.hasText(id.toString())){
 			return ResponseResult.failResult("地址ID不能为空");
 		}
-	    Long userId = (Long) result.getData();
+	    UserVo user = (UserVo) result.getData();
 	    // 通过ID获取地址信息
 	    Address address = addressService.getById(id);
 	    // 检查当前用户是否有权删除该地址
-	    if (!address.getUserId().equals(userId)) {
+	    if (!address.getUserId().equals(user.getId())) {
 		    return ResponseResult.failResult("您没有权限删除此地址");
 	    }
 	    // 尝试删除地址
-	    if (!addressService.deleteAddress(id, userId)) {
+	    if (!addressService.deleteAddress(id, user.getId())) {
 		    return ResponseResult.serverErrorResult("删除失败");
 	    }
 	    // 删除成功，返回成功结果
