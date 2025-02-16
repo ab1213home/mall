@@ -42,6 +42,7 @@ fi
 
 # 编译jar包
 echo "正在编译jar包..."
+mvn dependency:resolve
 mvn clean package -DskipTests
 
 # 检查编译是否成功
@@ -90,4 +91,4 @@ fi
 
 # 启动 Docker Compose 服务
 echo "正在启动 Docker Compose 服务..."
-docker-compose up
+docker-compose -f docker-compose-local.yml up -d

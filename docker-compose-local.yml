@@ -1,0 +1,41 @@
+services:
+  mall-core:
+    image: mall:latest
+    container_name: mall-core
+    restart: always
+    networks:
+      - mall
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mall-redis
+      - mall-mysql
+    volumes:
+      - ./data:/home
+      - ./application.properties:/application.properties
+  mall-redis:
+    image: redis:6.2.16
+    restart: always
+    container_name: mall-redis
+    networks:
+      - mall
+    volumes:
+      - ./redis:/data
+      - ./redis_6.2.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+  mall-mysql:
+    image: mysql:8.0.36
+    container_name: mall-mysql
+    restart: always
+    networks:
+      - mall
+    volumes:
+      - ./mysql/conf:/etc/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/log:/var/log/mysql
+      - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: mall
+networks:
+  mall:
+    external: false
