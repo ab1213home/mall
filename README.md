@@ -91,12 +91,11 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 1. 一键部署（直接拉起公共镜像部署，**注意：公共镜像可能不是最新版本**）
    ```shell
-   wget  https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh 
-   sh run.sh -mod=one-touch
+   wget -qO- https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh | sh -mod=one-touch
    ```
 2. 编译部署（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）
    ```shell
-   wget -qO- https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh | sh
+   wget -qO- https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh | sh -mod=compile
    ```
 3. 编译部署（使用Jar包部署）
    
