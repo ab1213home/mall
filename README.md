@@ -54,7 +54,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成seo地图
 
 5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "v8.3.0")实现数据库连接
-[manager.sh](../../Downloads/manager.sh)
+
 6. 使用[jakarta-mail](https://github.com/jakartaee/mail-api "v2.0.1")实现邮件发送
 
 7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
