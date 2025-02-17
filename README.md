@@ -54,7 +54,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成seo地图
 
 5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "v8.3.0")实现数据库连接
-
+[manager.sh](../../Downloads/manager.sh)
 6. 使用[jakarta-mail](https://github.com/jakartaee/mail-api "v2.0.1")实现邮件发送
 
 7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
@@ -89,26 +89,18 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 ## 安装教程
 
-1. 下载源码
-    ```shell
-    git clone https://github.com/ab1213home/mall.git
-    ```
-2. 进入项目目录
-    ```shell
-    cd mall
-    ```
-3. 部署项目
-   1. 一键部署（直接拉起公共镜像部署，**注意：公共镜像可能不是最新版本**）
-      ```shell
-      docker-compose up -d
-      ```
-   2. 编译部署（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）
-      ```shell
-      sh run.sh
-      ```
-   3. 编译部署（使用Jar包部署）
+1. 一键部署（直接拉起公共镜像部署，**注意：公共镜像可能不是最新版本**）
+   ```shell
+   wget  https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh 
+   sh run.sh -mod=one-touch
+   ```
+2. 编译部署（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）
+   ```shell
+   wget -qO- https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop/run.sh | sh
+   ```
+3. 编译部署（使用Jar包部署）
    
-      详情请查看[部署文档](/doc/DeploymentManual.md)
+   详情请查看[部署文档](/doc/DeploymentManual.md)
 ## 测试环境
 
 1. 操作系统：CentOS Stream 9 x86_64
