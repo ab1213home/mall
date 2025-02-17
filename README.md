@@ -102,62 +102,13 @@ Navicat Premium Lite 版本17.1.5(简体中文)
       ```shell
       docker-compose up -d
       ```
-   2. 编译部署（使用Docker部署）
+   2. 编译部署（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）
       ```shell
       sh run.sh
       ```
    3. 编译部署（使用Jar包部署）
-      1. 安装依赖
-         ```shell
-         mvn dependency:resolve
-         ```
-      2. 编译Jar包
-         ```shell
-         mvn clean package -DskipTests
-         ```
-      3. 复制配置文件
-         ```shell
-         cp application-template.properties application.properties
-         ```
-      4. 创建数据库（可以使用数据库工具，如Navicat Premium Lite创建数据库）
-         1. 登录数据库
-            ```shell
-            mysql -u root -p
-            ```
-         2. 创建数据库
-            ```sql
-            CREATE DATABASE mall CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-            ```
-         3. 创建用户（如果数据库和目标服务器在同一个服务器，可以使用'mall'@'localhost'）
-            ```sql
-            CREATE USER 'mall'@'%' IDENTIFIED BY 'mall';
-            ```
-         4. 授予权限
-            ```sql
-            GRANT ALL PRIVILEGES ON mall.* TO 'mall'@'%';
-            FLUSH PRIVILEGES;
-            ```
-      5. 编辑配置文件（可用用你熟悉的文本编辑器，以nano编辑器为例）
-         1. 使用nano编辑器编辑application.properties文件
-            ```shell
-            nano application.properties
-            ```
-         2. 修改mysql数据库配置
-            ```properties
-            spring.datasource.username= mall
-            spring.datasource.password= mall
-            spring.datasource.url= jdbc:mysql://localhost:3306/mall?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
-            ```
-         3. 修改redis配置
-            ```properties
-            spring.data.redis.host=localhost
-            spring.data.redis.port=6379
-            spring.data.redis.password=mall
-            ```
-      6. 运行jar包
-      ```shell
-      java -jar /mall-admin/target/mall-2.0.1.jar --spring.config.location=classpath:application.properties
-      ```
+   
+      详情请查看[部署文档](/doc/DeploymentManual.md)
 ## 测试环境
 
 1. 操作系统：CentOS Stream 9 x86_64
