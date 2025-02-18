@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 #
 # Copyright (c) 2024 Jiang RongJun
 # Jiang Mall is licensed under Mulan PSL v2.
@@ -13,19 +13,45 @@ set -e
 # See the Mulan PSL v2 for more details.
 #
 
-DownloadUrl="https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop"
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # 重置颜色
 
+# 配置参数
+DOCKER_COMPOSE_VERSION="v2.29.7"
+DOWNLOAD_URL="https://raw.githubusercontent.com/ab1213home/mall/develop"
+
+# Docker 安装
 install_docker() {
-    echo "正在安装 Docker..."
-    wget -qO- https://get.docker.com | bash -s docker --mirror Aliyun
-    echo "Docker 安装完成。"
+    echo -e "${BLUE}正在安装 Docker...${NC}"
+    if ! curl -fsSL https://get.docker.com | sh; then
+        echo -e "${RED}Docker 自动安装失败，请参考官方文档手动安装。${NC}"
+        exit 1
+    fi
+    systemctl enable --now docker
+    echo -e "${GREEN}Docker 安装完成。${NC}"
 }
 
+# Docker Compose 安装
 install_docker_compose() {
-    echo "正在安装 Docker-Compose..."
-    wget "https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-$(uname -s)-$(uname -m)" -O /usr/local/bin/docker-compose
+    local compose_url
+    compose_url="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
+
+    echo -e "${BLUE}正在安装 Docker-Compose...${NC}"
+    if ! curl -L "${compose_url}" -o /usr/local/bin/docker-compose; then
+        echo -e "${RED}下载 Docker-Compose 失败，请检查网络连接。${NC}"
+        exit 1
+    fi
+
     chmod +x /usr/local/bin/docker-compose
-    echo "Docker-Compose 安装完成。"
+    if ! docker-compose --version &>/dev/null; then
+        echo -e "${RED}Docker-Compose 安装验证失败。${NC}"
+        exit 1
+    fi
+    echo -e "${GREEN}Docker-Compose 安装完成。${NC}"
 }
 
 # 检查是否为root用户
@@ -34,20 +60,17 @@ if [ "$(id -u)" != "0" ]; then
     exit 1
 fi
 
-# 检查是否有Docker
+# Docker 环境检查
 if ! command -v docker &>/dev/null; then
-    echo "Docker 未安装，尝试自动安装..."
     install_docker
 else
-    echo "Docker 已安装，继续执行后续操作..."
+    echo -e "${GREEN}Docker 已安装 (版本: $(docker --version | awk '{print $3}'))${NC}"
 fi
 
-# 检查是否有Docker-Compose
 if ! command -v docker-compose &>/dev/null; then
-    echo "Docker-Compose 未安装，尝试自动安装..."
     install_docker_compose
 else
-    echo "Docker-Compose 已安装，继续执行后续操作..."
+    echo -e "${GREEN}Docker-Compose 已安装 (版本: $(docker-compose --version | awk '{print $4}'))${NC}"
 fi
 
 # 清理旧容器函数
@@ -67,21 +90,25 @@ clean_container "mall-core"
 clean_container "mall-redis"
 clean_container "mall-mysql"
 
-if [ ! -f "application.properties" ]; then
-    wget ${DownloadUrl}/application-template.properties -O application.properties
-    echo "mall-core配置文件创建成功。"
-else
-    echo "mall-core配置文件已存在。"
+# 配置文件处理
+CONFIG_FILE="application.properties"
+if [[ ! -f "${CONFIG_FILE}" ]]; then
+    if ! wget -q "${DOWNLOAD_URL}/application-template.properties" -O "${CONFIG_FILE}"; then
+        echo -e "${YELLOW}配置文件下载失败，使用空白模板...${NC}"
+        touch "${CONFIG_FILE}"
+    fi
 fi
 
-# 下载 Docker Compose 配置文件
-wget ${DownloadUrl}/docker-compose.yml -O docker-compose.yml
+# Docker Compose 配置
+if ! wget -q "${DOWNLOAD_URL}/docker-compose.yml" -O docker-compose.yml; then
+    echo -e "${RED}Docker Compose 配置文件下载失败！${NC}"
+    exit 1
+fi
 
-# 启动 Docker Compose 服务
-echo "正在启动 Docker Compose 服务..."
+# 启动服务
+echo -e "${BLUE}正在启动服务...${NC}"
 docker-compose up -d
 
-echo "Docker Compose 服务启动完成。"
-echo "请访问 http://localhost:8080 查看 Jiang Mall。"
-
+echo -e "\n${GREEN}部署成功！请访问 http://localhost:8080 访问系统。${NC}"
+echo -e "${YELLOW}可以使用以下命令查看服务状态：docker-compose ps${NC}"
 exit 0

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 #
 # Copyright (c) 2024 Jiang RongJun
 # Jiang Mall is licensed under Mulan PSL v2.
@@ -13,226 +13,170 @@ set -e
 # See the Mulan PSL v2 for more details.
 #
 
-DownloadUrl="https://raw.githubusercontent.com/ab1213home/mall/refs/heads/develop"
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # 重置颜色
 
+# 配置参数
+DOCKER_COMPOSE_VERSION="v2.29.7"
+DOWNLOAD_URL="https://raw.githubusercontent.com/ab1213home/mall/develop"
+PROJECT_DIR="mall"
+
+# 通用安装函数
+package_install() {
+    local pkg_name=$1
+    local install_cmd=$2
+    local validate_cmd=$3
+
+    echo -e "${BLUE}正在尝试安装 ${pkg_name}...${NC}"
+
+    if eval "${validate_cmd}" &>/dev/null; then
+        echo -e "${GREEN}${pkg_name} 已安装，跳过安装。${NC}"
+        return 0
+    fi
+
+    if ! eval "${install_cmd}"; then
+        echo -e "${RED}自动安装 ${pkg_name} 失败，请手动执行以下命令安装：${NC}"
+        echo -e "${YELLOW}${install_cmd}${NC}"
+        exit 1
+    fi
+
+    if ! eval "${validate_cmd}" &>/dev/null; then
+        echo -e "${RED}${pkg_name} 安装后验证失败，请检查依赖关系。${NC}"
+        exit 1
+    fi
+}
+
+# Docker 安装
 install_docker() {
-    echo "正在安装 Docker..."
-    wget -qO- https://get.docker.com | bash -s docker --mirror Aliyun
-    echo "Docker 安装完成。"
+    echo -e "${BLUE}正在安装 Docker...${NC}"
+    if ! curl -fsSL https://get.docker.com | sh; then
+        echo -e "${RED}Docker 自动安装失败，请参考官方文档手动安装。${NC}"
+        exit 1
+    fi
+    systemctl enable --now docker
+    echo -e "${GREEN}Docker 安装完成。${NC}"
 }
 
+# Docker Compose 安装
 install_docker_compose() {
-    echo "正在安装 Docker-Compose..."
-    wget "https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-$(uname -s)-$(uname -m)" -O /usr/local/bin/docker-compose
+    local compose_url
+    compose_url="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
+
+    echo -e "${BLUE}正在安装 Docker-Compose...${NC}"
+    if ! curl -L "${compose_url}" -o /usr/local/bin/docker-compose; then
+        echo -e "${RED}下载 Docker-Compose 失败，请检查网络连接。${NC}"
+        exit 1
+    fi
+
     chmod +x /usr/local/bin/docker-compose
-    echo "Docker-Compose 安装完成。"
-}
-
-# 自动安装 Git 的函数
-install_git() {
-    echo "正在尝试自动安装 Git..."
-
-    # 根据包管理器类型安装 git
-    if command -v apt-get &>/dev/null; then
-        echo "检测到 apt-get 包管理器（如 Ubuntu/Debian）。"
-        sudo apt-get update && sudo apt-get install -y git
-    elif command -v yum &>/dev/null; then
-        echo "检测到 yum 包管理器（如 CentOS/RHEL 6/7）。"
-        sudo yum install -y git
-    elif command -v dnf &>/dev/null; then
-        echo "检测到 dnf 包管理器（如 Fedora/CentOS 8+）。"
-        sudo dnf install -y git
-    elif command -v zypper &>/dev/null; then
-        echo "检测到 zypper 包管理器（如 openSUSE）。"
-        sudo zypper install -y git
-    elif command -v pacman &>/dev/null; then
-        echo "检测到 pacman 包管理器（如 Arch Linux/Manjaro）。"
-        sudo pacman -Syu --noconfirm git
-    else
-        echo "无法识别的包管理器，请手动安装 git。"
+    if ! docker-compose --version &>/dev/null; then
+        echo -e "${RED}Docker-Compose 安装验证失败。${NC}"
         exit 1
     fi
-
-    # 检查安装是否成功
-    if command -v git &>/dev/null; then
-        echo "Git 安装成功！"
-    else
-        echo "Git 安装失败，请手动安装。"
-        exit 1
-    fi
-}
-
-# 自动安装 Maven 的函数
-install_mvn() {
-    echo "正在尝试自动安装 Maven..."
-
-    # 根据包管理器类型安装 Maven
-    if command -v apt-get &>/dev/null; then
-        echo "检测到 apt-get 包管理器（如 Ubuntu/Debian）。"
-        sudo apt-get update && sudo apt-get install -y mvn
-    elif command -v yum &>/dev/null; then
-        echo "检测到 yum 包管理器（如 CentOS/RHEL 6/7）。"
-        sudo yum install -y mvn
-    elif command -v dnf &>/dev/null; then
-        echo "检测到 dnf 包管理器（如 Fedora/CentOS 8+）。"
-        sudo dnf install -y mvn
-    elif command -v zypper &>/dev/null; then
-        echo "检测到 zypper 包管理器（如 openSUSE）。"
-        sudo zypper install -y mvn
-    elif command -v pacman &>/dev/null; then
-        echo "检测到 pacman 包管理器（如 Arch Linux/Manjaro）。"
-        sudo pacman -Syu --noconfirm mvn
-    else
-        echo "无法识别的包管理器，请手动安装 mvn。"
-        exit 1
-    fi
-
-    # 检查安装是否成功
-    if command -v mvn &>/dev/null; then
-        echo "Maven 安装成功！"
-    else
-        echo "Maven 安装失败，请手动安装。"
-        exit 1
-    fi
-}
-
-# 自动安装 Java 的函数
-install_java() {
-    echo "正在尝试自动安装 Java 环境..."
-    if command -v apt-get &>/dev/null; then
-        echo "检测到 apt-get 包管理器（如 Ubuntu/Debian）。"
-        sudo apt-get update && sudo apt-get install -y openjdk-17-jdk
-    elif command -v yum &>/dev/null; then
-        echo "检测到 yum 包管理器（如 CentOS/RHEL 6/7）。"
-        sudo yum install -y java-17-openjdk
-    elif command -v dnf &>/dev/null; then
-        echo "检测到dnf 包管理器（如 Fedora/CentOS 8+）。"
-        sudo dnf install -y java-17-openjdk
-    elif command -v zypper &>/dev/null; then
-        echo "检测到 zypper 包管理器（如 openSUSE）。"
-        sudo zypper install -y java-17-openjdk
-    elif command -v pacman &>/dev/null; then
-        echo "检测到 pacman 包管理器（如 Arch Linux/Manjaro）。"
-        sudo pacman -Syu --noconfirm java-17-openjdk
-    else
-        echo "无法识别的包管理器，请手动安装 Java 环境。"
-        exit 1
-    fi
-
-    if command -v java &>/dev/null; then
-        echo "Java 环境安装成功！"
-    else
-        echo "Java 环境安装失败，请手动安装。"
-        exit 1
-    fi
-
-}
-
-# 检查是否为root用户
-if [ "$(id -u)" != "0" ]; then
-    echo "请使用root用户运行此脚本。"
-    exit 1
-fi
-
-# 检查是否有Docker
-if ! command -v docker &>/dev/null; then
-    echo "Docker 未安装，尝试自动安装..."
-    install_docker
-else
-    echo "Docker 已安装，继续执行后续操作..."
-fi
-
-# 检查是否有Docker-Compose
-if ! command -v docker-compose &>/dev/null; then
-    echo "Docker-Compose 未安装，尝试自动安装..."
-    install_docker_compose
-else
-    echo "Docker-Compose 已安装，继续执行后续操作..."
-fi
-
-# 清理旧容器函数
-clean_container() {
-    local container_name=$1
-    if docker ps -a --format '{{.Names}}' | grep -qw "$container_name"; then
-        echo "正在停止并删除现有的 $container_name 容器..."
-        docker stop "$container_name" >/dev/null
-        docker rm "$container_name" >/dev/null
-    else
-        echo "未找到现有的 $container_name 容器。"
-    fi
+    echo -e "${GREEN}Docker-Compose 安装完成。${NC}"
 }
 
 # 清理旧容器
+clean_container() {
+    local container_name=$1
+    if docker ps -a --format '{{.Names}}' | grep -qw "${container_name}"; then
+        echo -e "${YELLOW}正在清理容器 ${container_name}...${NC}"
+        docker stop "${container_name}" >/dev/null || true
+        docker rm "${container_name}" >/dev/null || true
+    fi
+}
+
+# 检查 root 权限
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}错误：此脚本必须由 root 用户执行。${NC}" >&2
+    exit 1
+fi
+
+# 依赖安装检查
+declare -A packages=(
+    ["git"]="command -v git"
+    ["maven"]="command -v mvn"
+    ["java"]="command -v java"
+)
+
+for pkg in "${!packages[@]}"; do
+    case $pkg in
+        "git")      install_cmd="apt-get install -y git || yum install -y git || dnf install -y git || zypper install -y git || pacman -Syu --noconfirm git" ;;
+        "maven")    install_cmd="apt-get install -y maven || yum install -y maven || dnf install -y maven || zypper install -y maven || pacman -Syu --noconfirm maven" ;;
+        "java")     install_cmd="apt-get install -y openjdk-17-jdk || yum install -y java-17-openjdk || dnf install -y java-17-openjdk || zypper install -y java-17-openjdk || pacman -Syu --noconfirm jdk-openjdk" ;;
+    esac
+
+    package_install "$pkg" "eval ${install_cmd}" "${packages[$pkg]}"
+done
+
+# Docker 环境检查
+if ! command -v docker &>/dev/null; then
+    install_docker
+else
+    echo -e "${GREEN}Docker 已安装 (版本: $(docker --version | awk '{print $3}'))${NC}"
+fi
+
+if ! command -v docker-compose &>/dev/null; then
+    install_docker_compose
+else
+    echo -e "${GREEN}Docker-Compose 已安装 (版本: $(docker-compose --version | awk '{print $4}'))${NC}"
+fi
+
+# 清理旧环境
 clean_container "mall-core"
 clean_container "mall-redis"
 clean_container "mall-mysql"
 
-# 检查是否有git
-if ! command -v git &>/dev/null; then
-    echo "Git 未安装，尝试自动安装..."
-    install_git
-fi
-
-# 检查是否有maven
-if ! command -v mvn &>/dev/null; then
-    echo "Maven 未安装，尝试自动安装..."
-    install_mvn
-fi
-
-# 检查是否有Java
-if ! command -v java &>/dev/null; then
-    echo "Java 未安装，尝试自动安装..."
-    install_java
-fi
-
-# 克隆仓库
-echo "正在克隆仓库..."
-rm -rf mall
-git clone https://github.com/ab1213home/mall.git
-cd mall
-
-# 编译jar包
-echo "正在编译jar包..."
-mvn dependency:resolve
-mvn clean package -DskipTests
-
-# 检查编译是否成功
-# shellcheck disable=SC2181
-if [ $? -eq 0 ]; then
-    echo "jar包编译成功。"
+# 项目部署
+echo -e "${BLUE}正在准备项目代码...${NC}"
+if [[ -d "${PROJECT_DIR}" ]]; then
+    echo -e "${YELLOW}检测到已有项目目录，尝试更新代码...${NC}"
+    cd "${PROJECT_DIR}"
+    git reset --hard
+    git pull origin develop || { echo -e "${RED}代码更新失败，请手动处理。${NC}"; exit 1; }
 else
-    echo "jar包编译时出错。"
+    git clone https://github.com/ab1213home/mall.git "${PROJECT_DIR}" || exit 1
+    cd "${PROJECT_DIR}"
+fi
+
+# 编译项目
+echo -e "${BLUE}正在编译项目...${NC}"
+mvn dependency:resolve || exit 1
+if ! mvn clean package -DskipTests; then
+    echo -e "${RED}项目编译失败，请检查 Maven 输出日志。${NC}"
     exit 1
 fi
 
-# 构建 Docker 镜像
-echo "正在构建 Docker 镜像..."
-docker build -t mall .
-
-# 检查构建是否成功
-# shellcheck disable=SC2181
-if [ $? -eq 0 ]; then
-    echo " Docker 镜像构建成功。"
-else
-    echo "构建 Docker 映像时出错。"
+# 构建镜像
+echo -e "${BLUE}正在构建 Docker 镜像...${NC}"
+if ! docker build -t mall .; then
+    echo -e "${RED}镜像构建失败，请检查 Dockerfile。${NC}"
     exit 1
 fi
 
-if [ ! -f "application.properties" ]; then
-    wget ${DownloadUrl}/application-template.properties -O application.properties
-    echo "mall-core配置文件创建成功。"
-else
-    echo "mall-core配置文件已存在。"
+# 配置文件处理
+CONFIG_FILE="application.properties"
+if [[ ! -f "${CONFIG_FILE}" ]]; then
+    if ! wget -q "${DOWNLOAD_URL}/application-template.properties" -O "${CONFIG_FILE}"; then
+        echo -e "${YELLOW}配置文件下载失败，使用空白模板...${NC}"
+        touch "${CONFIG_FILE}"
+    fi
 fi
 
-# 下载 Docker Compose 配置文件
-wget ${DownloadUrl}/docker-compose-local.yml -O docker-compose.yml
+# Docker Compose 配置
+if ! wget -q "${DOWNLOAD_URL}/docker-compose-local.yml" -O docker-compose.yml; then
+    echo -e "${RED}Docker Compose 配置文件下载失败！${NC}"
+    exit 1
+fi
 
-# 启动 Docker Compose 服务
-echo "正在启动 Docker Compose 服务..."
+# 启动服务
+echo -e "${BLUE}正在启动服务...${NC}"
 docker-compose up -d
 
-echo "Docker Compose 服务启动完成。"
-echo "请访问 http://localhost:8080 查看 Jiang Mall。"
-
+echo -e "\n${GREEN}部署成功！请访问 http://localhost:8080 访问系统。${NC}"
+echo -e "${YELLOW}可以使用以下命令查看服务状态：docker-compose ps${NC}"
 exit 0
