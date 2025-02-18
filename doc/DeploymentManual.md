@@ -1,6 +1,7 @@
 # 应用部署手册（基于Linux的Jar包部署）
 
 ---
+
 ## 目录
 1. [环境准备](#环境准备)
 2. [克隆项目](#克隆项目)
@@ -10,6 +11,7 @@
 6. [启动与验证](#启动与验证)
 7. [服务自启动（可选）](#服务自启动)
 8. [注意事项与FAQ](#注意事项与faq)
+
 ---
 
 ## 环境准备
@@ -51,6 +53,7 @@
    ```shell
    sudo apt-get install mysql-server
    ```
+   
 ## 克隆项目
 1. 下载源码
     ```shell
@@ -60,6 +63,7 @@
     ```shell
     cd mall
     ```
+   
 ## 项目编译
 
 在项目根目录执行以下命令（跳过测试）：
@@ -72,6 +76,7 @@
 ```shell
    mvn dependency:resolve
 ```
+
 ## 数据库配置
 1. 登录MySQL（按需替换用户名和密码）
    ```shell
@@ -93,6 +98,7 @@
 注意事项：
 - 生产环境中，建议将 IP 限制为应用服务器地址（如 192.168.1.100），避免使用 %。
 - 建议为应用创建专用账号，仅授予最小必要权限。
+
 ## 应用配置
 1. 配置文件准备
    ```shell
@@ -162,7 +168,8 @@
    sudo systemctl enable mall
    sudo systemctl start mall
    ```
-### 注意事项与FAQ
+   
+## 注意事项与FAQ
 1. 路径问题
 
    确保 spring.config.location 使用绝对路径（如 file:/opt/app/application.properties）。
