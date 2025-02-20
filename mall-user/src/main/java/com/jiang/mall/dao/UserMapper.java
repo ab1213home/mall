@@ -33,4 +33,17 @@ import org.apache.ibatis.annotations.Select;
 public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = true LIMIT 1")
     User selectUserByIdAndActive(Long userId);
+
+    @Select("SELECT * FROM tb_users WHERE username = #{username} AND is_active = true LIMIT 1")
+    User selectByUsernameAndIsActive(String username);
+
+    @Select("SELECT * FROM tb_users WHERE email = #{email} AND is_active = true LIMIT 1")
+    User selectByEmailAndIsActive(String email);
+
+    @Select("SELECT * FROM tb_users WHERE username = #{username} LIMIT 1")
+    User selectByUsername(String username);
+
+    @Select("SELECT * FROM tb_users WHERE email = #{email} LIMIT 1")
+    User selectByEmail(String email);
+
 }

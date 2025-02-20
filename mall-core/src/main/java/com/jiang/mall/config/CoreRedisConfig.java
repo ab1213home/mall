@@ -76,6 +76,7 @@ public class CoreRedisConfig {
 
 	@Value("${spring.data.redis.password:}")
 	private String password;
+
 	@Bean(name = "ProductRedisTemplate")
     public StringRedisTemplate ProductRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
@@ -107,27 +108,6 @@ public class CoreRedisConfig {
         template.setConnectionFactory(redisConnectionFactory(search));
         return template;
     }
-//	@Bean(name = "EmailRedisTemplate")
-//    public RedisTemplate<String, EmailCode> EmailRedisTemplate() {
-//        RedisTemplate<String, EmailCode> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory(email));
-//		// 创建自定义的ObjectMapper实例
-//	    ObjectMapper objectMapper = new ObjectMapper();
-//	    // 配置ObjectMapper，例如设置日期格式
-//	    objectMapper.setDateFormat(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-//
-//	    // 使用自定义的ObjectMapper创建Jackson2JsonRedisSerializer
-//	    GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-//
-//	    // 设置键序列化器，使用StringRedisSerializer以确保键以字符串形式存储和读取
-//	    template.setKeySerializer(new StringRedisSerializer());
-//	    // 设置值序列化器，使用自定义的Jackson2JsonRedisSerializer
-//	    template.setValueSerializer(jackson2JsonRedisSerializer);
-//
-//	    // 返回配置好的RedisTemplate实例
-//        return template;
-//    }
-
 
 	private @NotNull RedisConnectionFactory redisConnectionFactory(int database) {
 		RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();

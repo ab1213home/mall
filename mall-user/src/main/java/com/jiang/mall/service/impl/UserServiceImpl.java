@@ -160,7 +160,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session  当前用户的会话
 	 * @return  包含权限检查结果的响应对象，如果用户无权修改，则返回相应的错误信息
 	 */
-	public ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session){
+	public ResponseResult<Object> hasPermission(Long oldUserId, @NotNull HttpSession session){
 	    // 检查会话中是否设置表示用户已登录的标志
 	    ResponseResult<Object> result = checkAdminUser(session.getId());
 	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
@@ -214,21 +214,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	public User getUserByUserNameOrEmail(String username, String password) {
-		// 创建查询条件，指定用户名和账号激活状态
-	    QueryWrapper<User> queryWrapper_username = new QueryWrapper<>();
-	    queryWrapper_username.eq("username", username);
-	    queryWrapper_username.eq("is_active", true);
-
 	    // 根据查询条件尝试获取用户信息
-	    User user_username = userMapper.selectOne(queryWrapper_username);
+	    User user_username = userMapper.selectByUsernameAndIsActive(username);
 
 	    // 根据邮箱格式匹配用户
 	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
-	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
-	        queryWrapper_email.eq("email", username);
-	        queryWrapper_email.eq("is_active", true);
-	        User user_email = userMapper.selectOne(queryWrapper_email);
+	        User user_email = userMapper.selectByEmailAndIsActive(username);
 			//encryptToSHA256(password,AES_SALT)
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
@@ -298,18 +290,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public User getUserByUserNameOrEmail(String username) {
 	    // 创建查询条件，指定用户名
-	    QueryWrapper<User> queryWrapper_username = new QueryWrapper<>();
-	    queryWrapper_username.eq("username", username);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user_username = userMapper.selectOne(queryWrapper_username);
+	    User user_username = userMapper.selectByUsername(username);
 
 	    // 根据邮箱格式匹配用户
 	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
-	        QueryWrapper<User> queryWrapper_email = new QueryWrapper<>();
-	        queryWrapper_email.eq("email", username);
-	        User user_email = userMapper.selectOne(queryWrapper_email);
+	        User user_email = userMapper.selectByEmail(username);
 
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {

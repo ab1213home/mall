@@ -13,39 +13,47 @@
 
 package com.jiang.mall.service;
 
-import java.util.concurrent.TimeUnit;
+import com.jiang.mall.domain.vo.BannerVo;
+
+import java.util.List;
 
 public interface IBannerRedisService {
 
-	/**
-     * 设置一个键值对
+    /**
+     * 设置轮播图信息到缓存中
+     * <p>
+     * 本方法接收一个轮播图信息列表，并将其转换为JSON字符串后存储到Redis缓存中
+     * 这样做可以快速地从缓存中读取轮播图信息，提高系统性能
      *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
+     * @param bannerList 轮播图信息列表，包含多个轮播图对象
      */
-    void setKey(String key, String value);
+    void setBanner(List<BannerVo> bannerList);
 
     /**
-     * 根据键获取对应的字符串值
+     * 从Redis中获取Banner列表信息
+     * <p>
+     * 此方法从Redis中获取存储的Banner列表信息的JSON字符串，
+     * 然后将其解析为BannerVo对象的列表使用Redis存储Banner列表信息可以提高访问速度
      *
-     * @param key 字符串的键，用于唯一标识一个字符串值
-     * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
+     * @return List<BannerVo> 返回解析后的BannerVo对象列表如果Redis中没有对应的值，或者解析失败，返回空列表或null
      */
-    String getKey(String key);
-    /**
-     * 检查给定的键是否存在于当前数据结构中
-     *
-     * @param key 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
-     */
-    Boolean hasKey(String key);
+    List<BannerVo> getBanner();
 
     /**
-     * 删除指定键对应的数据
+     * 判断是否存在Banner信息
+     * <p>
+     * 此方法用于检查Redis中是否存在与Banner信息相关的键
+     * 它通过检查预定义的键前缀来确定是否存在相应的Banner信息
      *
-     * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
+     * @return Boolean 表示是否有Banner信息的布尔值存在则返回True，否则返回False
      */
-    @SuppressWarnings("UnusedReturnValue")
-    Boolean deleteKey(String key);
+    Boolean hasBanner();
+
+    /**
+     * 删除轮播图的缓存信息
+     * <p>
+     * 本方法旨在从Redis缓存中删除轮播图信息
+     * 这对于移除过时或不再需要的轮播图信息非常有用
+     */
+    void deleteBanner();
 }

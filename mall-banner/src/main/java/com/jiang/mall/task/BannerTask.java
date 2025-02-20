@@ -59,15 +59,14 @@ public class BannerTask {
 				List<BannerVo> bannerList = bannerService.getBannerList();
 				if (bannerList == null || bannerList.isEmpty()) {
 					logger.info("No banners found.");
-					redisService.deleteKey("banner");
+					redisService.deleteBanner();
 					return;
 				}
-				String bannerListJson = JSON.toJSONString(bannerList);
 				// 添加保护措施防止大Key
-				if(bannerListJson.getBytes().length > 1024 * 1024){ // 超过1MB报警
-					logger.warn("Large banner data detected: {} bytes", bannerListJson.length());
+				if(JSON.toJSONString(bannerList).getBytes().length > 1024 * 1024){ // 超过1MB报警
+					logger.warn("Large banner data detected: {} bytes", JSON.toJSONString(bannerList).length());
 				}
-				redisService.setKey("banner", bannerListJson);
+				redisService.setBanner(bannerList);
 				logger.info("Banner data updated.");
 			}
 		}else{

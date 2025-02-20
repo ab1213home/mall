@@ -13,8 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import com.alibaba.fastjson2.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.BannerConfig;
@@ -25,8 +23,10 @@ import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
+import com.jiang.mall.task.BannerTask;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,6 +58,13 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.redisService = redisService;
 	}
 
+	private BannerTask bannerTask;
+
+	@Autowired
+	public void setBannerTask(@Lazy BannerTask bannerTask) {
+		this.bannerTask = bannerTask;
+	}
+
     @Override
     public List<BannerAdminVo> getBannerList(Integer pageNum, Integer pageSize) {
         Page<Banner> bannerPage = new Page<>(pageNum, pageSize);
@@ -80,7 +87,12 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
     @Override
     public Boolean deleteBanner(Integer id) {
-	    return bannerMapper.deleteById(id) == 1;
+		if (bannerMapper.deleteById(id) == 1){
+			bannerTask.checkBanner();
+			return true;
+		}else{
+			return false;
+		}
     }
 
 	@Override
@@ -92,9 +104,8 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	@Override
 	public List<BannerVo> getBannerListFromRedis() {
 		if (BannerConfig.isBannerCacheEnabled()){
-			if (redisService.hasKey("banner")) {
-				String bannerListJson = redisService.getKey("banner");
-				return JSON.parseArray(bannerListJson, BannerVo.class);
+			if (redisService.hasBanner()) {
+				return redisService.getBanner();
 			}else {
 				return getBannerList();
 			}
@@ -105,12 +116,22 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
 	@Override
     public Boolean insertBanner(Banner banner) {
-	    return bannerMapper.insert(banner) == 1;
+		if (bannerMapper.insert(banner) == 1){
+			bannerTask.checkBanner();
+			return true;
+		}else{
+			return false;
+		}
     }
 
     @Override
     public Boolean updateBanner(Banner banner) {
-	    return bannerMapper.updateById(banner) == 1;
+		if (bannerMapper.updateById(banner) == 1){
+			bannerTask.checkBanner();
+			return true;
+		}else{
+			return false;
+		}
     }
 
 }
