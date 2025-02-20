@@ -18,6 +18,7 @@ import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.TypeReference;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.IRedisMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.util.StreamUtils;
@@ -45,6 +46,13 @@ import java.util.Map;
 @RequestMapping("/common")
 public class CommonController {
 
+    private IRedisMetricsService redisMetricsService;
+
+    @Autowired
+    public void setRedisMetricsService(IRedisMetricsService redisMetricsService) {
+        this.redisMetricsService = redisMetricsService;
+    }
+
     @GetMapping("/getFooter")
     public ResponseResult<Object> getFooter() {
         Map<String, Object> map = new HashMap<>();
@@ -70,6 +78,12 @@ public class CommonController {
         }
         return ResponseResult.okResult(map);
     }
+
+    @GetMapping("/getRedis")
+    public ResponseResult<Object> getRedis() {
+        return ResponseResult.okResult(redisMetricsService.getMetrics());
+    }
+
 
     @GetMapping("/system-info")
     public ResponseResult<Object> getSystemInfo() {

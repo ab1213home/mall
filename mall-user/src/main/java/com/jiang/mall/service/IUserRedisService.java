@@ -27,7 +27,7 @@ public interface IUserRedisService {
      * @param timeout 缓存项在缓存中保持有效的时间长度，到达过期时间后，缓存项将被视为无效
      * @param unit 指定timeout参数的时间单位，用于明确过期时间的度量标准
      */
-    void setKey(String key, UserVo value, long timeout, TimeUnit unit);
+    void setUser(String key, UserVo value, long timeout, TimeUnit unit);
 
     /**
      * 根据键获取对应的字符串值
@@ -35,14 +35,14 @@ public interface IUserRedisService {
      * @param key 字符串的键，用于唯一标识一个字符串值
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
-    UserVo getKey(String key);
+    UserVo getUser(String key);
     /**
      * 检查给定的键是否存在于当前数据结构中
      *
      * @param key 要检查的键
      * @return 如果键存在，则返回true；否则返回false
      */
-    Boolean hasKey(String key);
+    Boolean hasUser(String key);
 
     /**
      * 设置指定键的过期时间
@@ -72,5 +72,5 @@ public interface IUserRedisService {
      * @return 如果删除成功，返回true；否则返回false
      */
     @SuppressWarnings("UnusedReturnValue")
-    Boolean deleteKey(String key);
+    Boolean deleteUser(String key);
 }

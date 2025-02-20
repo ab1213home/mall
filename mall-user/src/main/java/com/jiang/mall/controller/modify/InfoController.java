@@ -221,7 +221,7 @@ public class InfoController {
                 user.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setKey(session.getId(), user,4, TimeUnit.HOURS);
+			redisService.setUser(session.getId(), user,4, TimeUnit.HOURS);
             // 返回操作成功的结果，告知用户信息更新成功
             return ResponseResult.okResult(i18nService.getMessage("user.modify.info.success"));
         }

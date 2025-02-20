@@ -103,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
-		UserVo user = redisService.getKey(sessionId);
+		UserVo user = redisService.getUser(sessionId);
 		if (user == null){
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}else{
@@ -206,7 +206,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setKey(sessionId, userVo,4, TimeUnit.HOURS);
+			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginRecord(user, clientIp, fingerprint);
 			return true;
@@ -348,8 +348,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean logout(String sessionId) {
-		if (redisService.hasKey(sessionId)){
-			return redisService.deleteKey(sessionId);
+		if (redisService.hasUser(sessionId)){
+			return redisService.deleteUser(sessionId);
 		}
 		return true;
 	}
@@ -625,7 +625,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			user.setIsActive(true);
 			user.setRoleId(1);
 	        // 更新用户信息，若成功则返回用户ID，否则返回0
-		    redisService.deleteKey(sessionId);
+		    redisService.deleteUser(sessionId);
 	        return userMapper.updateById(user)>0?user.getId():0;
 	    }
 	}

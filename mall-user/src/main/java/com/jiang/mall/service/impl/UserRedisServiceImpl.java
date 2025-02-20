@@ -48,7 +48,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
      * @param unit 时间单位，用于指定过期时间
      */
     @Override
-    public void setKey(String key, UserVo value, long timeout, TimeUnit unit) {
+    public void setUser(String key, UserVo value, long timeout, TimeUnit unit) {
         stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
     }
 
@@ -59,7 +59,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public UserVo getKey(String key) {
+    public UserVo getUser(String key) {
         String value = stringRedisTemplate.opsForValue().get(key(key));
         return value == null ? null : JSON.parseObject(value, UserVo.class);
     }
@@ -71,7 +71,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
      * @return 如果键存在，则返回true；否则返回false
      */
     @Override
-    public Boolean hasKey(String key) {
+    public Boolean hasUser(String key) {
         return stringRedisTemplate.hasKey(key(key));
     }
 
@@ -108,7 +108,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
      * @return 如果删除成功，返回true；否则返回false
      */
     @Override
-    public Boolean deleteKey(String key) {
+    public Boolean deleteUser(String key) {
         return stringRedisTemplate.delete(key(key));
     }
 }
