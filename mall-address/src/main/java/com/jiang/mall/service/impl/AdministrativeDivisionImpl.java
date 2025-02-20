@@ -63,10 +63,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 */
 	@Override
 	public Boolean isTure(Long areaCode) {
-	    // 使用新的查询方法检查是否存在该地区代码
-	    int count = administrativeDivisionMapper.countByAreaCode(areaCode);
-	    // 如果计数为0，则表示该地区代码不存在于数据库中
-	    return count == 0;
+	    return administrativeDivisionMapper.countByAreaCode(areaCode) == 0;
 	}
 
 }

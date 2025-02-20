@@ -20,13 +20,8 @@ import com.jiang.mall.domain.vo.VerificationCodeVo;
 import java.util.List;
 
 public interface IVerificationCodeService extends IService<VerificationCode> {
+
 	Boolean inspectByEmail(String email);
-
-	Boolean queryByEmail(String email);
-
-	Boolean checkingByUserId(Long id);
-
-	VerificationCode queryCodeByEmail(String email);
 
 	@SuppressWarnings("UnusedReturnValue")
 	Boolean useCode(Long userId, VerificationCode verificationCode);

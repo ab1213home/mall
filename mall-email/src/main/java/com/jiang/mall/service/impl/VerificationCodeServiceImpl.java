@@ -57,19 +57,11 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	public Boolean inspectByEmail(String email) {
 	    // 当前时间
 	    Date now = new Date();
-	    // 一天前的时间selectCount
+	    // 一天前的时间
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-	    // 构建查询条件
-		QueryWrapper<VerificationCode> queryWrapper_list = new QueryWrapper<>();
-		queryWrapper_list.eq("email", email);
-		queryWrapper_list.between("trigger_time", yesterday, now);
-		long listCount = verificationCodeMapper.selectCount(queryWrapper_list);
-		QueryWrapper<VerificationCode> queryWrapper_fail = new QueryWrapper<>();
-		queryWrapper_fail.eq("email", email);
-		queryWrapper_fail.eq("status", EmailStatus.FAILED.getValue());
-		queryWrapper_fail.between("trigger_time", yesterday, now);
-		long failCount = verificationCodeMapper.selectCount(queryWrapper_fail);
+		long listCount = verificationCodeMapper.selectCountByEmailAndTimeRange(email,yesterday,now);
+		long failCount = verificationCodeMapper.selectFailCountByEmailAndStatusAndTimeRange(email, EmailStatus.FAILED.getValue(), yesterday, now);
 
 	    // 检查请求数量是否小于等于最小请求数量
 	    if (listCount <= EmailConfig.getEmailMinRequestNum()) {
@@ -84,104 +76,9 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	}
 
 	/**
-	 * 根据邮箱查询验证码是否存在且未过期
-	 * <p>
-	 * 该方法主要用于验证一个邮箱地址是否有对应的未过期的验证码它首先计算出
-	 * 从当前时间向前推expiration_time分钟的时间点，然后查询这个时间点之后，
-	 * 当前时间之前，且邮箱地址匹配的验证码记录如果存在这样的记录，则返回true，
-	 * 表示验证码存在且在有效期内；否则返回false
-	 *
-	 * @param email 邮箱地址，用于查询验证码记录
-	 * @return 如果存在未过期的验证码则返回true，否则返回false
-	 */
-	@Override
-	public Boolean queryByEmail(String email) {
-	    // 当前时间
-	    Date now = new Date();
-	    // expiration_time前的时间
-	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
-
-	    // 构建查询条件
-	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email", email);
-	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
-
-	    // 查询并返回结果数量
-	    return verificationCodeMapper.selectCount(queryWrapper)>0;
-	}
-
-
-	/**
-	 * 根据用户ID检查是否存在有效的用户代码
-	 *
-	 * @param id 用户ID
-	 * @return 如果存在有效的用户代码，则返回true；否则返回false
-	 */
-	@Override
-	public Boolean checkingByUserId(Long id) {
-	    // 当前时间
-	    Date now = new Date();
-	    // 计算expiration_time前的时间
-	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
-
-	    // 构建查询条件
-	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("user_id", id);
-	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", EmailStatus.EXPIRED.getValue());
-
-	    // 查询并返回结果数量
-	    return verificationCodeMapper.selectCount(queryWrapper)>0;
-	}
-
-	/**
-	 * 根据邮箱查询验证码
-	 * <p>
-	 * 本方法主要用于查询一个邮箱在有效期内的最新验证码
-	 * 它首先计算出expiration_time分钟前的时间，然后根据邮箱、创建时间范围和状态来查询验证码记录
-	 * 如果找到符合条件的记录，则返回最新的验证码对象，否则返回null
-	 *
-	 * @param email 需要查询的邮箱地址
-	 * @return 返回查询到的验证码对象，如果没有找到则返回null
-	 */
-	@Override
-	public VerificationCode queryCodeByEmail(String email) {
-	    // 获取当前时间
-	    Date now = new Date();
-	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
-	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
-
-	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
-	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
-
-	    // 执行查询
-	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
-		// 如果列表为空，则返回null
-		if (list.isEmpty()) {
-	        return null;
-	    }
-		// 按照创建时间降序排序
-	    list.sort((a, b) -> b.getTriggerTime().compareTo(a.getTriggerTime()));
-	    // 只保留最后一条记录为有效状态，其余设置为失效状态
-	    for (int i = 1; i < list.size(); i++) {
-	        VerificationCode verificationCode = list.get(i);
-	        verificationCode.setStatus(EmailStatus.EXPIRED.getValue());
-	        // 更新数据库中的状态
-	        verificationCodeMapper.updateById(verificationCode);
-	    }
-
-	    // 返回最后一条记录，即最新的有效验证码
-	    return list.get(0);//getFirst()
-	}
-
-	/**
 	 * 使用验证码
 	 * <p>
-	 * 本方法主要用于将验证码的状态从未使用（0）更改为已使用（2），并更新数据库中的记录。
+	 * 本方法主要用于将验证码的状态从未使用更改为已使用，并更新数据库中的记录。
 	 * 它首先根据用户ID和验证码对象更新数据库中的记录，如果更新成功则返回true，否则返回false。
 	 *
 	 * @param userId           用户ID
@@ -241,13 +138,8 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-	    QueryWrapper<VerificationCode> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("email", email); // 邮箱必须匹配参数email
-	    queryWrapper.between("trigger_time", yesterday, now);
-	    queryWrapper.eq("status", EmailStatus.SUCCESS.getValue()); // 验证码发送状态为成功
+	    List<VerificationCode> list = verificationCodeMapper.selectByEmailAndTimeRangeAndStatus(email,EmailStatus.SUCCESS.getValue(),yesterday,now);
 
-	    // 执行查询
-	    List<VerificationCode> list = verificationCodeMapper.selectList(queryWrapper);
 		// 如果列表为空，则返回null
 		if (list.isEmpty()) {
 	        return;

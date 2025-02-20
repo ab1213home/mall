@@ -16,6 +16,10 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.VerificationCode;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Code的映射接口，继承自BaseMapper<VerificationCode>
@@ -30,4 +34,14 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface VerificationCodeMapper extends BaseMapper<VerificationCode> {
+
+	@Select("SELECT COUNT(*) FROM tb_verification_codes WHERE email = #{email} AND status = #{status} AND trigger_time BETWEEN #{yesterday} AND #{now}")
+    long selectFailCountByEmailAndStatusAndTimeRange(String email, int status, Date yesterday, Date now);
+
+	@Select("SELECT COUNT(*) FROM tb_verification_codes WHERE email = #{email} AND trigger_time BETWEEN #{yesterday} AND #{now}")
+	long selectCountByEmailAndTimeRange(String email, Date yesterday, Date now);
+
+	@Select("SELECT * FROM tb_verification_codes WHERE email = #{email} AND status = #{status} AND trigger_time BETWEEN #{yesterday} AND #{now}")
+	List<VerificationCode> selectByEmailAndTimeRangeAndStatus(String email, int status ,Date yesterday, Date now);
+
 }
