@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.AdministrativeDivisionMapper;
 import com.jiang.mall.domain.entity.AdministrativeDivision;
@@ -42,14 +41,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 */
 	@Override
 	public List<AdministrativeDivision> getList(Integer level, Long parentCode) {
-	    // 创建查询包装器，用于指定查询条件
-	    QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
-	    // 设置查询条件：行政区划级别等于指定级别
-	    queryWrapper.eq("level", level);
-	    // 设置查询条件：父行政区划代码等于指定代码
-	    queryWrapper.eq("parent_code", parentCode);
-	    // 执行查询并返回结果列表
-	    return administrativeDivisionMapper.selectList(queryWrapper);
+	    return administrativeDivisionMapper.selectByLevelAndParentCode(level,parentCode);
 	}
 
 	/**
@@ -60,14 +52,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 */
 	@Override
 	public Integer getPostalCode(Long areaCode) {
-		// 创建查询条件封装类
-	    QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
-		// 设置查询条件：地区代码等于给定的areaCode
-	    queryWrapper.eq("area_code", areaCode);
-		// 使用查询条件执行查询，获取第一个匹配的结果
-	    AdministrativeDivision administrativeDivision = administrativeDivisionMapper.selectOne(queryWrapper);
-		// 返回邮政编码
-	    return administrativeDivision.getZipCode();
+	    return administrativeDivisionMapper.selectZipCodeByAreaCode(areaCode);
 	}
 
 	/**
@@ -78,13 +63,10 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 */
 	@Override
 	public Boolean isTure(Long areaCode) {
-	    // 创建查询条件封装类
-	    QueryWrapper<AdministrativeDivision> queryWrapper = new QueryWrapper<>();
-	    // 设置查询条件：地区代码等于给定的areaCode
-	    queryWrapper.eq("area_code", areaCode);
-	    // 使用查询条件执行查询，获取第一个匹配的结果
-	    AdministrativeDivision administrativeDivision = administrativeDivisionMapper.selectOne(queryWrapper);
-	    // 检查查询结果是否非空，非空则表示该地区代码存在于数据库中
-	    return administrativeDivision == null;
+	    // 使用新的查询方法检查是否存在该地区代码
+	    int count = administrativeDivisionMapper.countByAreaCode(areaCode);
+	    // 如果计数为0，则表示该地区代码不存在于数据库中
+	    return count == 0;
 	}
+
 }

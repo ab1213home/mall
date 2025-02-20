@@ -117,41 +117,27 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	public AddressVo getAddress(Address address) {
 		AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
 		assert addressVo != null;
-		QueryWrapper<AdministrativeDivision> queryWrapper_township = new QueryWrapper<>();
-		queryWrapper_township.eq("area_code", address.getAreaCode());
-		AdministrativeDivision township = divisionMapper.selectOne(queryWrapper_township);
+		AdministrativeDivision township = divisionMapper.selectByAreaCode(address.getAreaCode());
 		if (township.getLevel() == 4){
 			addressVo.setTownship(township.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_county = new QueryWrapper<>();
-			queryWrapper_county.eq("area_code", township.getParentCode());
-			AdministrativeDivision county = divisionMapper.selectOne(queryWrapper_county);
+			AdministrativeDivision county = divisionMapper.selectByAreaCode(township.getParentCode());
 			addressVo.setCounty(county.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
-			queryWrapper_city.eq("area_code", county.getParentCode());
-			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+			AdministrativeDivision city = divisionMapper.selectByAreaCode(county.getParentCode());
 			addressVo.setCity(city.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-			queryWrapper_province.eq("area_code", city.getParentCode());
-			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			AdministrativeDivision province = divisionMapper.selectByAreaCode(city.getParentCode());
 			addressVo.setProvince(province.getName());
 		}else if (township.getLevel() == 3){
 			addressVo.setTownship("");
 			addressVo.setCounty(township.getShortName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_city = new QueryWrapper<>();
-			queryWrapper_city.eq("area_code", township.getParentCode());
-			AdministrativeDivision city = divisionMapper.selectOne(queryWrapper_city);
+			AdministrativeDivision city = divisionMapper.selectByAreaCode(township.getParentCode());
 			addressVo.setCity(city.getName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-			queryWrapper_province.eq("area_code", city.getParentCode());
-			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			AdministrativeDivision province = divisionMapper.selectByAreaCode(city.getParentCode());
 			addressVo.setProvince(province.getName());
 		}else if (township.getLevel() == 2){
 			addressVo.setCounty("");
 			addressVo.setTownship("");
 			addressVo.setCity(township.getShortName());
-			QueryWrapper<AdministrativeDivision> queryWrapper_province = new QueryWrapper<>();
-			queryWrapper_province.eq("area_code", township.getParentCode());
-			AdministrativeDivision province = divisionMapper.selectOne(queryWrapper_province);
+			AdministrativeDivision province = divisionMapper.selectByAreaCode(township.getParentCode());
 			addressVo.setProvince(province.getName());
 		}else if (township.getLevel() == 1){
 			addressVo.setCity("");

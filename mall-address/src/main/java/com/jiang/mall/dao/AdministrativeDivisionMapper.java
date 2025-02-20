@@ -16,6 +16,9 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.AdministrativeDivision;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * AdministrativeDivision的映射接口，继承自BaseMapper<AdministrativeDivision>
@@ -23,11 +26,23 @@ import org.apache.ibatis.annotations.Mapper;
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
  * @apiNote AdministrativeDivision的映射接口
  * @version 1.0
  * @since 2024年10月13日
  */
 @Mapper
 public interface AdministrativeDivisionMapper extends BaseMapper<AdministrativeDivision> {
+
+	@Select("SELECT * FROM tb_china_administrative_divisions WHERE level = #{level} AND parent_code = #{parentCode}")
+	List<AdministrativeDivision> selectByLevelAndParentCode(int level, Long parentCode);
+
+	@Select("SELECT zip_code FROM tb_china_administrative_divisions WHERE area_code = #{areaCode}")
+	Integer selectZipCodeByAreaCode(Long areaCode);
+
+	@Select("SELECT COUNT(*) FROM tb_china_administrative_divisions WHERE area_code = #{areaCode}")
+	int countByAreaCode(Long areaCode);
+
+	@Select("SELECT * FROM tb_china_administrative_divisions WHERE area_code = #{areaCode}")
+	AdministrativeDivision selectByAreaCode(Long areaCode);
 }

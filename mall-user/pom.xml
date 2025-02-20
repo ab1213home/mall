@@ -25,7 +25,7 @@
             <name>jiangrongjun</name>
             <email>jiangrongjun2004@163.com</email>
             <organization>jiangrongjun</organization>
-            <organizationUrl>https://gitee.com/jiangrongjun/mall</organizationUrl>
+            <organizationUrl>https://github.com/ab1213home/mall</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
@@ -161,6 +161,11 @@
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-captcha</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-address</artifactId>
         </dependency>
 
     </dependencies>

@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
  * @apiNote 邮箱验证码实体类
  * @version 1.0
  * @since 2024年9月20日

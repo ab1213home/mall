@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
- * @link <a href="https://gitee.com/jiangrongjun/mall">https://gitee.com/jiangrongjun/mall</a>
+ * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
  * @apiNote 行政区划实体类，只读
  * @version 1.0
  * @since 2024年10月13日
@@ -37,7 +37,7 @@ public class AdministrativeDivision {
 	/**
      * 地区编码,主键
      */
-	@TableId(value = "area_code", type = IdType.AUTO)
+	@TableId(value = "area_code")
     private Long areaCode;
 
 	/**
