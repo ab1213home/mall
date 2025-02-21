@@ -13,12 +13,15 @@
 
 package com.jiang.mall.config;
 
+import io.lettuce.core.resource.DefaultClientResources;
+import jakarta.annotation.PreDestroy;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -109,19 +112,42 @@ public class CoreRedisConfig {
         return template;
     }
 
-	private @NotNull RedisConnectionFactory redisConnectionFactory(int database) {
-		RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();
-		standaloneConfig.setHostName(host);
-		standaloneConfig.setPort(port);
-		if (password != null && !password.isEmpty()) {
-			standaloneConfig.setPassword(password);
-		}
-		standaloneConfig.setDatabase(database);
+	private final DefaultClientResources clientResources = DefaultClientResources.create();
+	/**
+     * 创建 Redis 连接工厂
+     */
+//    @Contract("_ -> new")
+    private @NotNull LettuceConnectionFactory redisConnectionFactory(int database) {
+	    RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();
+	    standaloneConfig.setHostName(host);
+	    standaloneConfig.setPort(port);
+	    if (!password.isEmpty()) {
+	        standaloneConfig.setPassword(password);
+	    }
+	    standaloneConfig.setDatabase(database);
 
-		LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(standaloneConfig);
-		lettuceConnectionFactory.afterPropertiesSet(); // 初始化连接工厂
+	    LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+	            .clientResources(clientResources)
+	            .build();
 
-		return lettuceConnectionFactory;
+	    LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(standaloneConfig, clientConfig);
+	    lettuceConnectionFactory.afterPropertiesSet(); // 确保连接工厂被正确初始化
+	    return lettuceConnectionFactory;
 	}
+
+//	@Bean(destroyMethod = "shutdown")
+//    public ClientResources clientResources() {
+//        return DefaultClientResources.create();
+//    }
+
+	/**
+     * 应用关闭时释放资源
+     */
+    @PreDestroy
+    public void destroy() {
+        if (clientResources != null) {
+            clientResources.shutdown(); // 确保正确关闭资源
+        }
+    }
 
 }
