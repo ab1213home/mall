@@ -41,7 +41,7 @@ public class StorageHealthCheckerTask {
     public void checkAndRecover() {
 		boolean defaultHealth = checkStorageHealth(FileConfig.defaultStorageConfig);
 		if (!defaultHealth){
-			logger.error("Default storage is not healthy, try to recover...");
+			logger.error("默认存储运行状况不佳，请尝试恢复...");
 			for (StorageConfig storageConfig : FileConfig.storageConfig) {
 				if (checkStorageHealth(storageConfig)){
 					FileConfig.defaultStorageConfig=storageConfig;
@@ -49,12 +49,12 @@ public class StorageHealthCheckerTask {
 				}
 			}
 		}else{
-			logger.info("Default storage is healthy");
+			logger.info("默认存储运行状况良好");
 		}
 		for (StorageConfig storageConfig : FileConfig.storageConfig) {
 			checkStorageHealth(storageConfig);
 		}
-		logger.info("All storage is check");
+		logger.info("所有存储都经过检查");
     }
 
 	private @NotNull Boolean checkStorageHealth(@NotNull StorageConfig storageConfig){
@@ -62,24 +62,24 @@ public class StorageHealthCheckerTask {
 			boolean health = storageHealthChecker.checkLocalStorageHealth(localSetting);
 			storageConfig.setHealth(health);
 			if (!health){
-				logger.error("Local storage is not healthy, try to recover...");
+				logger.error("{}(本地存储)不正常，请尝试恢复...", storageConfig.getName());
 				return false;
 			}else{
-				logger.info("Local storage is healthy");
+				logger.info("{}(本地存储)运行状况良好", storageConfig.getName());
 				return true;
 			}
 		}else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
 			boolean health = storageHealthChecker.checkS3StorageHealth(s3Setting);
 			storageConfig.setHealth(health);
 			if (!health){
-				logger.error("S3 storage is not healthy, try to recover...");
+				logger.error("{}(S3存储)运行状况不佳，请尝试恢复...", storageConfig.getName());
 				return false;
 			}else{
-				logger.info("S3 storage is healthy");
+				logger.info("{}(S3存储)运行状况良好", storageConfig.getName());
 				return true;
 			}
 		}else{
-			logger.error("Unknown storage config type");
+			logger.error("未知的存储配置类型");
 			return false;
 		}
 	}

@@ -60,50 +60,89 @@ public class FileOperationImpl implements IFileOperation {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileOperationImpl.class);
 
-	// 写入字符串到文件
-    public boolean TestLocalFileWrite(String content, String filePath) {
+    /**
+     * 将字符串内容写入本地文件
+     *
+     * @param content 要写入文件的内容
+     * @param filePath 文件的路径
+     * @return 如果文件写入成功，则返回true；否则返回false
+     */
+    @Override
+    public boolean WriteStringToLocalFile(String content, String filePath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // 将指定的内容写入文件
             writer.write(content);
+            // 如果执行到这一步，说明文件写入成功，返回true
             return true;
         } catch (IOException e) {
-	        logger.error("写入文件时发生错误: {}", e.getMessage());
+            // 记录文件写入过程中发生的错误
+            logger.error("写入 {} 文件时发生错误: {}", filePath, e.getMessage());
+            // 如果发生异常，说明文件写入失败，返回false
             return false;
         }
     }
 
-    // 从文件读取字符串
-    public @Nullable String TestLocalFileRead(String filePath) {
+    /**
+     * 该方法尝试从指定的文件路径读取内容，并以字符串形式返回
+     * 如果文件不存在或读取过程中发生错误，方法将返回null
+     *
+     * @param filePath 文件路径
+     * @return 文件内容的字符串表示，如果文件不存在或读取失败则返回null
+     */
+    @Override
+    public @Nullable String ReadStringToLocalFile(String filePath) {
+        // 检查文件是否存在
         if (!Files.exists(Paths.get(filePath))) {
-			logger.error("文件不存在");
+            logger.error(" {} 文件不存在", filePath);
             return null;
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             StringBuilder content = new StringBuilder();
             String line;
+            // 逐行读取文件内容并构建字符串
             while ((line = reader.readLine()) != null) {
                 content.append(line).append("\n");
             }
-            return content.toString().trim(); // 去除末尾多余的换行符
+            // 返回文件内容的字符串表示，去除末尾多余的换行符
+            return content.toString().trim();
         } catch (IOException e) {
-			logger.error("读取文件时发生错误: {}", e.getMessage());
+            logger.error("读取 {} 文件时发生错误: {}", filePath, e.getMessage());
             return null;
         }
     }
 
-    // 删除文件
-    public void TestLocalFileDelete(String filePath) {
+    /**
+     * 用于删除指定路径的本地文件
+     *
+     * @param filePath 要删除的文件的路径
+     */
+    @Override
+    public void DeleteStringToLocalFile(String filePath) {
         try {
+            // 使用NIO文件通道方式删除文件，若文件不存在则不执行任何操作
             Files.deleteIfExists(Paths.get(filePath));
-			logger.info("文件删除成功");
+            // 记录删除成功的日志信息
+            logger.info(" {} 文件删除成功", filePath);
         } catch (IOException e) {
-			logger.error("删除文件时发生错误: {}", e.getMessage());
+            // 捕获IOException，记录删除文件时发生的错误
+            logger.error("删除文件时发生错误: {}", e.getMessage());
         }
     }
 
+    /**
+     * 将字符串内容写入S3文件中
+     *
+     * @param minioClient Minio客户端，用于与S3存储进行交互
+     * @param content 要写入S3文件的字符串内容
+     * @param bucket 存储桶名称，指定文件存储的位置
+     * @param fileName 文件名，包括文件路径和名称
+     * @return 写入操作的成功与否，成功返回true，失败返回false
+     */
     @Override
-    public boolean TestS3FileWrite(@NotNull MinioClient minioClient, @NotNull String content, String bucket, String fileName) {
+    public boolean WriteStringToS3File(@NotNull MinioClient minioClient, @NotNull String content, String bucket, String fileName) {
         try (InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            // 使用Minio客户端将字符串内容作为对象上传到S3存储中
             minioClient.putObject(PutObjectArgs.builder()
                             .bucket(bucket)
                             .object(fileName)
@@ -113,46 +152,77 @@ public class FileOperationImpl implements IFileOperation {
             );
             return true;
         } catch (MinioException | IOException e) {
+            // 处理与S3存储上传对象相关的错误
             logger.error("在S3存储上传对象时发生错误: {}", e.getMessage());
             return false;
         } catch ( InvalidKeyException | NoSuchAlgorithmException e) {
-	        logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
+            // 处理与S3存储操作相关的其他错误
+            logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
             return false;
         }
     }
 
+    /**
+     * 从S3存储中读取一个文件并将其内容转换为字符串
+     * 此方法使用Minio客户端从指定的桶中获取一个对象（文件），并将该对象的内容读取为一个字符串
+     * 主要解决了如何将S3存储中的文件内容便捷地读取为字符串的问题
+     *
+     * @param minioClient Minio客户端，用于与S3存储进行交互
+     * @param bucket 桶名称，指定文件所在的桶
+     * @param fileName 文件名，指定要读取的文件
+     * @return 文件内容的字符串表示如果读取过程中发生任何错误，则返回null
+     */
     @Override
-    public String TestS3FileRead(MinioClient minioClient, String bucket, String fileName) {
+    public String ReadStringToS3File(MinioClient minioClient, String bucket, String fileName) {
         try (InputStream inputStream = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucket)
                         .object(fileName)
                         .build()
         )) {
+            // 读取输入流中的所有字节，并将其转换为字符串
             byte[] buffer = inputStream.readAllBytes();
             return new String(buffer, StandardCharsets.UTF_8);
         } catch (MinioException | IOException e) {
+            // 处理在与S3存储交互过程中发生的错误
             logger.error("在S3存储下载对象时发生错误: {}", e.getMessage());
             return null;
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-	        logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
+            // 处理在进行S3存储操作时遇到的加密或密钥相关错误
+            logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
             return null;
         }
     }
 
+    /**
+     * 从S3存储中删除指定文件
+     *
+     * @param minioClient Minio客户端，用于与S3存储进行交互
+     * @param bucket 存储桶名称，指定文件所在的存储桶
+     * @param fileName 文件名，指定需要删除的文件
+     */
     @Override
-    public void TestS3FileDelete(@NotNull MinioClient minioClient, String bucket, String fileName) {
+    public void DeleteStringToS3File(@NotNull MinioClient minioClient, String bucket, String fileName) {
         try {
+            // 构建删除对象的参数，并执行删除操作
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
             logger.info("文件删除成功");
         } catch (MinioException e) {
+            // 处理Minio异常，通常表示删除对象时遇到的问题
             logger.error("在S3存储删除对象时发生错误: {}", e.getMessage());
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
-	        logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
+            // 处理其他可能的异常，包括IO错误、不存在的算法错误或无效的密钥错误
+            logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
         }
     }
 
-    //检查文件是否为图片
+    /**
+     * 检查上传的文件是否为图像文件
+     *
+     * @param file 上传的文件，不能为空
+     * @return 如果文件是图像文件，则返回true；否则返回false
+     * @throws IOException 如果在处理文件时发生I/O错误
+     */
     public boolean isImageFile(@NotNull MultipartFile file) throws IOException {
         // 获取系统中的临时目录
         Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
@@ -209,24 +279,23 @@ public class FileOperationImpl implements IFileOperation {
         }
 
         // 生成文件名，防止重名文件被覆盖
-        String newName;
+        String name;
         if (type==FilePurpose.USER_AVATAR||type==FilePurpose.USER_FACE){
             String extension = index > 0 ? oldFileName.substring(index) : "";
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss_" + user.getId()+"_"+user.getUsername());
-            newName = sdf.format(new Date()) + extension;
+            name = sdf.format(new Date()) + extension;
         }else{
-
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-            newName = sdf.format(new Date()) + "_" + file.getOriginalFilename();
+            name = sdf.format(new Date()) + "_" + file.getOriginalFilename();
         }
 
         boolean res;
         String storageName;
         if (FileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
-            res=LocalFileWrite(localSetting,file,type.getPath()+"/"+newName);
+            res=LocalFileWrite(localSetting,file,type.getPath()+"/"+name);
             storageName = localSetting.getName();
         }else if (FileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
-            res=S3FileWrite(s3Setting,file,type.getPath()+"/"+newName);
+            res=S3FileWrite(s3Setting,file,type.getPath()+"/"+name);
             storageName = s3Setting.getName();
         }else{
             return ResponseResult.failResult("文件上传配置错误："+FileConfig.defaultStorageConfig.getConfig().toString());
@@ -234,7 +303,7 @@ public class FileOperationImpl implements IFileOperation {
         if (!res){
             return ResponseResult.failResult("非法的文件类型");
         }else{
-            return ResponseResult.okResult("/"+type.getPrefix()+"/"+storageName+"/" + newName,"上传成功");
+            return ResponseResult.okResult("/"+type.getPrefix()+"/"+storageName+"/" + name,"上传成功");
         }
     }
 
