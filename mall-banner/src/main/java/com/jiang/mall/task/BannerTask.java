@@ -12,6 +12,7 @@
  */
 
 package com.jiang.mall.task;
+
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.domain.vo.BannerVo;
@@ -25,6 +26,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * Banner定时任务
+ *
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
+ * @apiNote Banner定时任务
+ * @version 1.0
+ * @author jiang
+ * @since 2024年9月11日
+ */
 @Component
 public class BannerTask {
 

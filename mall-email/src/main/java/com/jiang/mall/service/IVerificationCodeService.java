@@ -23,8 +23,7 @@ public interface IVerificationCodeService extends IService<VerificationCode> {
 
 	Boolean inspectByEmail(String email);
 
-	@SuppressWarnings("UnusedReturnValue")
-	Boolean useCode(Long userId, VerificationCode verificationCode);
+	void useCode(Long userId, VerificationCode verificationCode);
 
 	Boolean insert(VerificationCode userVerificationCode);
 

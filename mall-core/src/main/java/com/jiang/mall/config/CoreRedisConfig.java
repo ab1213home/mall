@@ -14,6 +14,7 @@
 package com.jiang.mall.config;
 
 import io.lettuce.core.resource.DefaultClientResources;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,8 +113,12 @@ public class CoreRedisConfig {
         return template;
     }
 
-	private final DefaultClientResources clientResources = DefaultClientResources.create();
+	private DefaultClientResources clientResources = null;
 
+	@PostConstruct
+    public void init() {
+        clientResources = DefaultClientResources.create();
+    }
 	/**
      * 创建 Redis 连接工厂
      */

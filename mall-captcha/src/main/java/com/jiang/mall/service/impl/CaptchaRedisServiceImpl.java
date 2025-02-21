@@ -65,10 +65,9 @@ public class CaptchaRedisServiceImpl implements ICaptchaRedisService {
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
      */
     @Override
-    public Boolean deleteKey(String key) {
-        return stringRedisTemplate.delete(key(key));
+    public void deleteKey(String key) {
+	    stringRedisTemplate.delete(key(key));
     }
 }

@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.EmailConfig;
@@ -31,8 +30,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static com.jiang.mall.config.EmailConfig.*;
 
 @Service
 public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMapper, VerificationCode> implements IVerificationCodeService {
@@ -83,16 +80,15 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 	 *
 	 * @param userId           用户ID
 	 * @param verificationCode 验证码对象
-	 * @return 如果更新成功则返回true，否则返回false
 	 */
 	@Override
-	public Boolean useCode(Long userId, @NotNull VerificationCode verificationCode) {
+	public void useCode(Long userId, @NotNull VerificationCode verificationCode) {
 	    // 设置用户ID，以便确定哪位用户的验证码将被更新
 	    verificationCode.setUserId(userId);
 	    // 将验证码状态更改为“已使用”
 	    verificationCode.setStatus(EmailStatus.USED.getValue());
 	    // 更新数据库中的验证码记录，并返回更新结果
-	    return verificationCodeMapper.updateById(verificationCode) > 0;
+		verificationCodeMapper.updateById(verificationCode);
 	}
 
 	@Override

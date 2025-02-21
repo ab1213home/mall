@@ -73,6 +73,8 @@ public class SeoController {
         writer.append("Disallow:/api/").append(lineSeparator);
         // 禁止搜索引擎爬取 /user/ 目录下的内容
         writer.append("Disallow:/user/").append(lineSeparator);
+        // 禁止搜索引擎爬取 /admin/ 目录下的内容
+        writer.append("Disallow:/admin/").append(lineSeparator);
         // 建议搜索引擎爬虫的爬取间隔时间为 5 秒，以减少服务器负担
         writer.append("Crawl-delay: 5").append(lineSeparator);
         // 告知搜索引擎该站点的 sitemap.xml 文件的 URL，有助于提高爬取效率

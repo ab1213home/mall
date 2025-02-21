@@ -24,6 +24,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * BannerRedisServiceImpl类实现了IBannerRedisService接口，提供了一系列操作Redis缓存中轮播图（Banner）信息的方法
+ * 主要功能包括设置、获取、检查和删除Redis中的轮播图信息
+ *
+ * @email  jiangrongjun2004@163.com
+ * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
+ * @apiNote Banner Redis服务实现类
+ * @version 1.0
+ * @author jiang
+ * @since 2024年9月11日
+ */
 @Service
 public class BannerRedisServiceImpl implements IBannerRedisService {
 
