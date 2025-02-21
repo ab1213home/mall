@@ -113,10 +113,10 @@ public class CoreRedisConfig {
     }
 
 	private final DefaultClientResources clientResources = DefaultClientResources.create();
+
 	/**
      * 创建 Redis 连接工厂
      */
-//    @Contract("_ -> new")
     private @NotNull LettuceConnectionFactory redisConnectionFactory(int database) {
 	    RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();
 	    standaloneConfig.setHostName(host);
@@ -131,14 +131,9 @@ public class CoreRedisConfig {
 	            .build();
 
 	    LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(standaloneConfig, clientConfig);
-	    lettuceConnectionFactory.afterPropertiesSet(); // 确保连接工厂被正确初始化
+	    lettuceConnectionFactory.afterPropertiesSet();
 	    return lettuceConnectionFactory;
 	}
-
-//	@Bean(destroyMethod = "shutdown")
-//    public ClientResources clientResources() {
-//        return DefaultClientResources.create();
-//    }
 
 	/**
      * 应用关闭时释放资源
@@ -146,7 +141,7 @@ public class CoreRedisConfig {
     @PreDestroy
     public void destroy() {
         if (clientResources != null) {
-            clientResources.shutdown(); // 确保正确关闭资源
+            clientResources.shutdown();
         }
     }
 
