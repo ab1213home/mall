@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.LocaleResolver;
 
@@ -30,6 +31,17 @@ import java.util.Locale;
 public class MyLocaleResolverConfig implements LocaleResolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(MyLocaleResolverConfig.class);
+
+	private HttpServletRequest request;
+
+	@Autowired
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
+	public Locale getLocal() {
+        return resolveLocale(request);
+    }
 
 	/**
 	 * 解析请求以确定当前用户的语言环境

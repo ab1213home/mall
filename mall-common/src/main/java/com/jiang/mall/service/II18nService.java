@@ -45,6 +45,15 @@ public interface II18nService {
 	String getMessage(String key, String defaultMessage, HttpServletRequest request);
 
 	/**
+	 * 根据请求和消息键获取本地化消息
+	 *
+	 * @param key          消息的唯一键
+	 * @param request      HTTP请求，用于确定用户所在的区域
+	 * @return             根据用户区域返回本地化消息，如果未找到则返回默认消息
+	 */
+	String getMessage(String key, HttpServletRequest request);
+
+	/**
 	 * 校验传入id是否合法
 	 * @param id 待校验的id
 	 * @return true or false

@@ -42,7 +42,7 @@ public class I18nServiceImpl implements II18nService {
 		this.messageSource = messageSource;
 	}
 
-	private LocaleResolver localeResolver;
+	private MyLocaleResolverConfig localeResolver;
 
 	@Autowired
 	public void setLocaleResolver(MyLocaleResolverConfig localeResolver) {
@@ -61,17 +61,17 @@ public class I18nServiceImpl implements II18nService {
 	public @NotNull String getMessage(String key) {
 	    try {
 	        // 获取当前请求的 HttpServletRequest 对象
-	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+//	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
 	        // 解析请求的 Locale
-	        Locale locale = localeResolver.resolveLocale(request);
+	        Locale locale = localeResolver.getLocal();
 
 	        // 尝试从 messageSource 获取消息
 	        return messageSource.getMessage(key, null, locale);
-	    } catch (IllegalStateException e) {
-	        // 处理当前线程中没有绑定请求属性的情况
-	        logger.error("当前线程未与请求关联", e);
-	        return "[" + key + "]";
+//	    } catch (IllegalStateException e) {
+//	        // 处理当前线程中没有绑定请求属性的情况
+//	        logger.error("当前线程未与请求关联", e);
+//	        return "[" + key + "]";
 	    } catch (NoSuchMessageException e) {
 	        // 处理未找到消息的情况，并记录日志
 	        logger.warn("找不到对应的消息：{}", key, e);
@@ -89,20 +89,20 @@ public class I18nServiceImpl implements II18nService {
 	 */
 	@Override
 	public String getMessage(String key, String defaultMessage) {
-	    try {
+//	    try {
 	        // 获取当前请求的 HttpServletRequest 对象
-	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+//	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
 	        // 解析请求的 Locale
-	        Locale locale = localeResolver.resolveLocale(request);
+	        Locale locale = localeResolver.getLocal();
 
 	        // 尝试从 messageSource 获取消息
 	        return messageSource.getMessage(key, null, defaultMessage, locale);
-	    } catch (IllegalStateException e) {
-	        // 处理当前线程中没有绑定请求属性的情况
-	        logger.error("当前线程未与请求关联", e);
-	        return "[" + key + "]";
-	    }
+//	    } catch (IllegalStateException e) {
+//	        // 处理当前线程中没有绑定请求属性的情况
+//	        logger.error("当前线程未与请求关联", e);
+//	        return "[" + key + "]";
+//	    }
 	}
 
 	/**
@@ -119,6 +119,28 @@ public class I18nServiceImpl implements II18nService {
 	    Locale locale = localeResolver.resolveLocale(request);
 	    // 使用消息源根据键和区域获取消息，如果没有找到则使用默认消息
 	    return messageSource.getMessage(key, null, defaultMessage, locale);
+	}
+
+	/**
+	 * 根据请求和消息键获取本地化消息
+	 *
+	 * @param key     消息的唯一键
+	 * @param request HTTP请求，用于确定用户所在的区域
+	 * @return 根据用户区域返回本地化消息，如果未找到则返回默认消息
+	 */
+	@Override
+	public String getMessage(String key, HttpServletRequest request) {
+		try {
+	        // 解析请求的 Locale
+	        Locale locale = localeResolver.resolveLocale(request);
+
+	        // 尝试从 messageSource 获取消息
+	        return messageSource.getMessage(key, null, locale);
+	    } catch (NoSuchMessageException e) {
+	        // 处理未找到消息的情况，并记录日志
+	        logger.warn("找不到对应的消息：{}", key, e);
+	        return "[" + key + "]";
+	    }
 	}
 
 	@Override
