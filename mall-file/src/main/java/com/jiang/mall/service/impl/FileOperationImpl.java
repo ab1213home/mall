@@ -123,7 +123,7 @@ public class FileOperationImpl implements IFileOperation {
             // 使用NIO文件通道方式删除文件，若文件不存在则不执行任何操作
             Files.deleteIfExists(Paths.get(filePath));
             // 记录删除成功的日志信息
-            logger.info(" {} 文件删除成功", filePath);
+            logger.debug(" {} 文件删除成功", filePath);
         } catch (IOException e) {
             // 捕获IOException，记录删除文件时发生的错误
             logger.error("删除文件时发生错误: {}", e.getMessage());

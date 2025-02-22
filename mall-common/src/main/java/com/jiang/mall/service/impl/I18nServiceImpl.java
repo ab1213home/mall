@@ -105,6 +105,22 @@ public class I18nServiceImpl implements II18nService {
 	    }
 	}
 
+	/**
+	 * 根据请求和消息键获取本地化消息
+	 *
+	 * @param key          消息的唯一键
+	 * @param defaultMessage 未找到消息时的默认消息
+	 * @param request      HTTP请求，用于确定用户所在的区域
+	 * @return             根据用户区域返回本地化消息，如果未找到则返回默认消息
+	 */
+	@Override
+	public String getMessage(String key, String defaultMessage, HttpServletRequest request) {
+	    // 解析请求以确定用户所在的区域
+	    Locale locale = localeResolver.resolveLocale(request);
+	    // 使用消息源根据键和区域获取消息，如果没有找到则使用默认消息
+	    return messageSource.getMessage(key, null, defaultMessage, locale);
+	}
+
 	@Override
 	public Boolean checkId(Long id) {
 		if (id==null){

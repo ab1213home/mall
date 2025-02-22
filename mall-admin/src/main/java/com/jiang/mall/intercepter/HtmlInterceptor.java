@@ -48,12 +48,6 @@ public class HtmlInterceptor implements HandlerInterceptor {
 //			return false; // 表示该请求已经被处理，不再继续后续处理链
 //		}
 
-        // 添加语言参数调试日志
-//        logger.debug("2拦截器检测到语言参数: {}", request.getParameter("lang"));
-//        System.out.println("2拦截器检测到语言参数:"+ request.getParameter("lang"));
-//        logger.debug("2请求头Accept-Language: {}", request.getHeader("Accept-Language"));
-//        System.out.println("2请求头Accept-Language: "+ request.getHeader("Accept-Language"));
-
         return true;
     }
 }

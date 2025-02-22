@@ -13,6 +13,8 @@
 
 package com.jiang.mall.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 public interface II18nService {
 
 	/**
@@ -31,6 +33,16 @@ public interface II18nService {
 	 * @return 根据当前请求的 Locale 获取的国际化消息，如果找不到则返回默认消息
 	 */
 	String getMessage(String key,String defaultMessage);
+
+	/**
+	 * 根据请求和消息键获取本地化消息
+	 *
+	 * @param key          消息的唯一键
+	 * @param defaultMessage 未找到消息时的默认消息
+	 * @param request      HTTP请求，用于确定用户所在的区域
+	 * @return             根据用户区域返回本地化消息，如果未找到则返回默认消息
+	 */
+	String getMessage(String key, String defaultMessage, HttpServletRequest request);
 
 	/**
 	 * 校验传入id是否合法

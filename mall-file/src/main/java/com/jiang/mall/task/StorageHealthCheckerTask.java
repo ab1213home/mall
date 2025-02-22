@@ -54,7 +54,7 @@ public class StorageHealthCheckerTask {
 		for (StorageConfig storageConfig : FileConfig.storageConfig) {
 			checkStorageHealth(storageConfig);
 		}
-		logger.info("所有存储都经过检查");
+		logger.debug("所有存储都经过检查");
     }
 
 	private @NotNull Boolean checkStorageHealth(@NotNull StorageConfig storageConfig){
@@ -65,7 +65,7 @@ public class StorageHealthCheckerTask {
 				logger.error("{}(本地存储)不正常，请尝试恢复...", storageConfig.getName());
 				return false;
 			}else{
-				logger.info("{}(本地存储)运行状况良好", storageConfig.getName());
+				logger.debug("{}(本地存储)运行状况良好", storageConfig.getName());
 				return true;
 			}
 		}else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
@@ -75,7 +75,7 @@ public class StorageHealthCheckerTask {
 				logger.error("{}(S3存储)运行状况不佳，请尝试恢复...", storageConfig.getName());
 				return false;
 			}else{
-				logger.info("{}(S3存储)运行状况良好", storageConfig.getName());
+				logger.debug("{}(S3存储)运行状况良好", storageConfig.getName());
 				return true;
 			}
 		}else{

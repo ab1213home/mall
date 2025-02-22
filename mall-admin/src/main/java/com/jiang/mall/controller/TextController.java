@@ -145,7 +145,7 @@ public class TextController {
     }
 
     @GetMapping("/i18n")
-    public ResponseResult<Object> i18n(){
-        return ResponseResult.okResult(i18nService.getMessage("text"));
+    public ResponseResult<Object> i18n(HttpServletRequest request){
+        return ResponseResult.okResult(i18nService.getMessage("text", "",request));
     }
 }

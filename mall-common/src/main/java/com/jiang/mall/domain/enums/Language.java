@@ -14,17 +14,17 @@
 package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
-
 import java.util.Locale;
 
 @Getter
 public enum Language{
-	Chinese("zh", new Locale("zh_cn")),
-	English("en",new Locale("en_us")),
-	Japanese("jp",new Locale("ja_jp"));
+	Chinese("zh", new Locale("zh_CN")),
+	English("en",new Locale("en_US")),
+	Japanese("jp",new Locale("ja_JP"));
 
 	private final Locale locale;
 	private final String name;
+
 	Language(String name,Locale locale) {
 		this.locale = locale;
 		this.name = name;

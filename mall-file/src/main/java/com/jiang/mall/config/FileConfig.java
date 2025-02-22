@@ -130,7 +130,7 @@ public class FileConfig {
                         first = 0;
                     }
                 }
-                logger.info("配置文件加载成功: {}", CONFIG_FILE_PATH);
+                logger.debug("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
                 // 尝试创建默认配置文件（可选）
@@ -156,7 +156,7 @@ public class FileConfig {
 
         try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
             properties.store(output, "Updated by application");
-            logger.info("配置文件保存成功: {}", CONFIG_FILE_PATH);
+            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
         } catch (IOException e) {
             logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
         }
@@ -176,7 +176,7 @@ public class FileConfig {
                 LocalSetting localSetting = new LocalSetting("default",defaultUploadPath,true,-1);
                 createLocalConfig(localSetting);
                 saveProperties();
-                logger.info("已创建默认配置文件: {}", CONFIG_FILE_PATH);
+                logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
             }
         } catch (IOException e) {
             logger.error("创建默认配置文件失败！", e);

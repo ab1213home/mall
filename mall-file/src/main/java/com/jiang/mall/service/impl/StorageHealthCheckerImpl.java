@@ -78,7 +78,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	        return false;
 	    } else {
 	        // 如果读取成功且内容匹配，记录信息日志，删除文件并返回true
-	        logger.info("读取文件成功且内容匹配，{}(本地存储)健康", localSetting.getName());
+	        logger.debug("读取文件成功且内容匹配，{}(本地存储)健康", localSetting.getName());
 	        // 删除文件
 	        fileOperation.DeleteStringToLocalFile(FILE_PATH);
 	        return true;
@@ -109,7 +109,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	        // 确保存储桶存在
 	        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(s3Setting.getBucket()).build())) {
 	            minioClient.makeBucket(MakeBucketArgs.builder().bucket(s3Setting.getBucket()).build());
-	            logger.info("创建存储桶: {}", s3Setting.getBucket());
+	            logger.debug("创建存储桶: {}", s3Setting.getBucket());
 	        }
 
 	        // 测试写入文件
@@ -127,7 +127,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	            fileOperation.DeleteStringToS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return false;
 	        } else {
-	            logger.info("读取文件成功且内容匹配，{}(S3存储)健康", s3Setting.getName());
+	            logger.debug("读取文件成功且内容匹配，{}(S3存储)健康", s3Setting.getName());
 	            // 删除文件
 	            fileOperation.DeleteStringToS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return true;
