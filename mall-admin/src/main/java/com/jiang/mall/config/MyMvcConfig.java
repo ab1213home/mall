@@ -16,10 +16,17 @@ package com.jiang.mall.config;
 import com.jiang.mall.intercepter.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@Order(Ordered.HIGHEST_PRECEDENCE+10)
 @Configuration
 public class MyMvcConfig implements WebMvcConfigurer {
 
@@ -49,6 +56,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
     public void setApiLoginInterceptor(ApiLoginInterceptor apiLoginInterceptor) {
         this.apiLoginInterceptor = apiLoginInterceptor;
     }
+
+	private HtmlInterceptor htmlInterceptor;
+
+	@Autowired
+	public void setHtmlInterceptor(HtmlInterceptor htmlInterceptor) {
+		this.htmlInterceptor = htmlInterceptor;
+	}
 
     /**
      * 重写addInterceptors方法，用于添加拦截器
@@ -83,6 +97,31 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		// API登录拦截器
 		registry.addInterceptor(apiLoginInterceptor)
                 .addPathPatterns("/api/**");
+		// HTML拦截器
+		registry.addInterceptor(htmlInterceptor)
+				.addPathPatterns("/**");
+    }
+
+    /**
+     * 添加跨域请求的映射
+     * 此方法用于配置允许跨域请求的规则，对所有请求开放跨域支持
+     *
+     * @param registry CorsRegistry对象，用于注册跨域请求的映射
+     */
+    @Override
+    public void addCorsMappings(@NotNull CorsRegistry registry) {
+        //所有请求都允许跨域
+        registry.addMapping("/api/**")
+		        .allowedMethods("GET", "POST")
+                .maxAge(3600)
+                .allowedOrigins("*")
+                .allowedHeaders("*");
+    }
+
+    @Bean
+    @Primary
+    public LocaleResolver localeResolver() {
+        return new MyLocaleResolverConfig();
     }
 
 }

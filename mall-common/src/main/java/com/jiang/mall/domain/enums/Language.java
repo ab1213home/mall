@@ -19,9 +19,9 @@ import java.util.Locale;
 
 @Getter
 public enum Language{
-	Chinese("zh", new Locale("zh_CN")),
-	English("en",new Locale("en_US")),
-	Japanese("jp",new Locale("ja_JP"));
+	Chinese("zh", new Locale("zh_cn")),
+	English("en",new Locale("en_us")),
+	Japanese("jp",new Locale("ja_jp"));
 
 	private final Locale locale;
 	private final String name;

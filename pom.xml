@@ -327,7 +327,7 @@
 		<module>mall-email</module>
         <module>mall-seo</module>
         <module>mall-captcha</module>
-        <module>mall-websocket</module>
+<!--        <module>mall-websocket</module>-->
         <module>mall-banner</module>
         <module>mall-core</module>
         <module>mall-address</module>

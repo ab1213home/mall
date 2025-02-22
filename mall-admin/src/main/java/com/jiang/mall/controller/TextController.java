@@ -14,10 +14,12 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.service.impl.I18nServiceImpl;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +32,9 @@ public class TextController {
 
 //	@Autowired
 //	private IRedisService redisService;
+
+    @Autowired
+    private I18nServiceImpl i18nService;
 
 	@GetMapping("/time")
 	public ResponseResult<Object> time(@RequestParam(defaultValue = "1") Double time) {
@@ -137,5 +142,10 @@ public class TextController {
         }
 
         return "Client IP address: " + ipAddress;
+    }
+
+    @GetMapping("/i18n")
+    public ResponseResult<Object> i18n(){
+        return ResponseResult.okResult(i18nService.getMessage("text"));
     }
 }

@@ -13,17 +13,24 @@
 
 package com.jiang.mall.service;
 
-import java.util.concurrent.TimeUnit;
-
 public interface II18nService {
 
 	/**
 	 * 根据键获取对应的国际化消息
 	 *
 	 * @param key 消息的键，用于唯一标识一条消息
-	 * @return 返回与键对应的国际化消息字符串如果键不存在，返回null或空字符串
+	 * @return 返回与键对应的国际化消息字符串如果键不存在，返回Key
 	 */
 	String getMessage(String key);
+
+	/**
+	 * 根据键获取对应的国际化消息
+	 *
+	 * @param key          消息的键
+	 * @param defaultMessage   默认消息，当未找到对应键的消息时返回
+	 * @return 根据当前请求的 Locale 获取的国际化消息，如果找不到则返回默认消息
+	 */
+	String getMessage(String key,String defaultMessage);
 
 	/**
 	 * 校验传入id是否合法

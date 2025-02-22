@@ -17,9 +17,12 @@ import com.jiang.mall.intercepter.*;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@Order(Ordered.HIGHEST_PRECEDENCE+5)
 @Configuration
 public class UserMvcConfig implements WebMvcConfigurer {
 

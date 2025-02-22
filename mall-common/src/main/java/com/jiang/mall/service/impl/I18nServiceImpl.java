@@ -16,10 +16,17 @@ package com.jiang.mall.service.impl;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.MyLocaleResolverConfig;
 import com.jiang.mall.service.II18nService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
 
@@ -35,17 +42,68 @@ public class I18nServiceImpl implements II18nService {
 		this.messageSource = messageSource;
 	}
 
-	private MyLocaleResolverConfig myLocaleResolverConfig;
+	private LocaleResolver localeResolver;
 
 	@Autowired
-	public void setMyLocaleResolverConfig(MyLocaleResolverConfig myLocaleResolverConfig) {
-		this.myLocaleResolverConfig = myLocaleResolverConfig;
+	public void setLocaleResolver(MyLocaleResolverConfig localeResolver) {
+		this.localeResolver = localeResolver;
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(I18nServiceImpl.class);
+
+	/**
+	 * 根据键获取对应的国际化消息
+	 *
+	 * @param key 消息的键，用于唯一标识一条消息
+	 * @return 返回与键对应的国际化消息字符串如果键不存在，返回Key
+	 */
+	@Override
 	public @NotNull String getMessage(String key) {
-		Locale locale = myLocaleResolverConfig.getLocal();
-		return messageSource.getMessage(key, null, locale);
-    }
+	    try {
+	        // 获取当前请求的 HttpServletRequest 对象
+	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+	        // 解析请求的 Locale
+	        Locale locale = localeResolver.resolveLocale(request);
+
+	        // 尝试从 messageSource 获取消息
+	        return messageSource.getMessage(key, null, locale);
+	    } catch (IllegalStateException e) {
+	        // 处理当前线程中没有绑定请求属性的情况
+	        logger.error("当前线程未与请求关联", e);
+	        return "[" + key + "]";
+	    } catch (NoSuchMessageException e) {
+	        // 处理未找到消息的情况，并记录日志
+	        logger.warn("找不到对应的消息：{}", key, e);
+	        return "[" + key + "]";
+	    }
+	}
+
+
+	/**
+	 * 根据键获取对应的国际化消息
+	 *
+	 * @param key          消息的键
+	 * @param defaultMessage   默认消息，当未找到对应键的消息时返回
+	 * @return 根据当前请求的 Locale 获取的国际化消息，如果找不到则返回默认消息
+	 */
+	@Override
+	public String getMessage(String key, String defaultMessage) {
+	    try {
+	        // 获取当前请求的 HttpServletRequest 对象
+	        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+	        // 解析请求的 Locale
+	        Locale locale = localeResolver.resolveLocale(request);
+
+	        // 尝试从 messageSource 获取消息
+	        return messageSource.getMessage(key, null, defaultMessage, locale);
+	    } catch (IllegalStateException e) {
+	        // 处理当前线程中没有绑定请求属性的情况
+	        logger.error("当前线程未与请求关联", e);
+	        return "[" + key + "]";
+	    }
+	}
 
 	@Override
 	public Boolean checkId(Long id) {

@@ -16,9 +16,15 @@ package com.jiang.mall.intercepter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+@Component
 public class HtmlInterceptor implements HandlerInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(HtmlInterceptor.class);
 
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
@@ -41,6 +47,13 @@ public class HtmlInterceptor implements HandlerInterceptor {
 //			response.sendRedirect(requestURI + ".html");
 //			return false; // 表示该请求已经被处理，不再继续后续处理链
 //		}
+
+        // 添加语言参数调试日志
+//        logger.debug("2拦截器检测到语言参数: {}", request.getParameter("lang"));
+//        System.out.println("2拦截器检测到语言参数:"+ request.getParameter("lang"));
+//        logger.debug("2请求头Accept-Language: {}", request.getHeader("Accept-Language"));
+//        System.out.println("2请求头Accept-Language: "+ request.getHeader("Accept-Language"));
+
         return true;
     }
 }
