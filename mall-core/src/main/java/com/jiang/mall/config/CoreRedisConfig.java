@@ -13,16 +13,10 @@
 
 package com.jiang.mall.config;
 
-import io.lettuce.core.resource.DefaultClientResources;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
@@ -72,82 +66,68 @@ public class CoreRedisConfig {
 	@Value("${redis.database.search:6}")
 	private int search;
 
-	@Value("${spring.data.redis.host:localhost}")
-	private String host;
+	private GeneralRedisConfig generalRedisConfig;
 
-	@Value("${spring.data.redis.port:6379}")
-	private int port;
+	@Autowired
+	public void setRedisConfig(GeneralRedisConfig generalRedisConfig) {
+		this.generalRedisConfig = generalRedisConfig;
+	}
 
-	@Value("${spring.data.redis.password:}")
-	private String password;
+	@Bean
+    public LettuceConnectionFactory productConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(product);
+    }
+
+    @Bean
+    public LettuceConnectionFactory cartConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(cart);
+    }
+
+	@Bean
+    public LettuceConnectionFactory orderConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(order);
+    }
+
+    @Bean
+    public LettuceConnectionFactory seckillConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(seckill);
+    }
+
+	@Bean
+    public LettuceConnectionFactory searchConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(search);
+    }
 
 	@Bean(name = "ProductRedisTemplate")
     public StringRedisTemplate ProductRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(product));
+        template.setConnectionFactory(productConnectionFactory());
         return template;
     }
 
 	@Bean(name = "CartRedisTemplate")
     public StringRedisTemplate CartRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(cart));
+        template.setConnectionFactory(cartConnectionFactory());
         return template;
     }
 	@Bean(name = "OrderRedisTemplate")
     public StringRedisTemplate OrderRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(order));
+        template.setConnectionFactory(orderConnectionFactory());
         return template;
     }
 	@Bean(name = "SeckillRedisTemplate")
     public StringRedisTemplate SeckillRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(seckill));
+        template.setConnectionFactory(seckillConnectionFactory());
         return template;
     }
 	@Bean(name = "SearchRedisTemplate")
 	public StringRedisTemplate SearchRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(search));
+        template.setConnectionFactory(searchConnectionFactory());
         return template;
-    }
-
-	private DefaultClientResources clientResources = null;
-
-	@PostConstruct
-    public void init() {
-        clientResources = DefaultClientResources.create();
-    }
-	/**
-     * 创建 Redis 连接工厂
-     */
-    private @NotNull LettuceConnectionFactory redisConnectionFactory(int database) {
-	    RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();
-	    standaloneConfig.setHostName(host);
-	    standaloneConfig.setPort(port);
-	    if (!password.isEmpty()) {
-	        standaloneConfig.setPassword(password);
-	    }
-	    standaloneConfig.setDatabase(database);
-
-	    LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-	            .clientResources(clientResources)
-	            .build();
-
-	    LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(standaloneConfig, clientConfig);
-	    lettuceConnectionFactory.afterPropertiesSet();
-	    return lettuceConnectionFactory;
-	}
-
-	/**
-     * 应用关闭时释放资源
-     */
-    @PreDestroy
-    public void destroy() {
-        if (clientResources != null) {
-            clientResources.shutdown();
-        }
     }
 
 }

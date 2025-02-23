@@ -33,20 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminController {
 
-	private IUserService userService;
-
-	@Autowired
-	public void setUserService(IUserService userService) {
-		this.userService = userService;
-	}
-
 	@GetMapping("/getRequestNum")
 	public ResponseResult<Object> getRequestNum(HttpSession session) {
-		ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
 		return ResponseResult.okResult(ApiRequestCounterInterceptor.getCount());
 	}
 }

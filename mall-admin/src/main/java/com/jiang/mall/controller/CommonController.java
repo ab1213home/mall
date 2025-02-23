@@ -13,26 +13,14 @@
 
 package com.jiang.mall.controller;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONException;
-import com.alibaba.fastjson2.TypeReference;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.service.IRedisMetricsService;
+import com.jiang.mall.service.IMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,11 +34,11 @@ import java.util.Map;
 @RequestMapping("/common")
 public class CommonController {
 
-    private IRedisMetricsService redisMetricsService;
+    private IMetricsService metricsService;
 
     @Autowired
-    public void setRedisMetricsService(IRedisMetricsService redisMetricsService) {
-        this.redisMetricsService = redisMetricsService;
+    public void setMetricsService(IMetricsService metricsService) {
+        this.metricsService = metricsService;
     }
 
     @GetMapping("/getFooter")
@@ -63,69 +51,25 @@ public class CommonController {
 
     @GetMapping("/getGit")
     public ResponseResult<Object> getGit() {
-        Map<String,String> map;
-	    try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("git.json")) {
-            // 检查资源是否存在
-            if (inputStream == null) {
-                throw new IllegalStateException("文件未找到: git.json");
-            }
-            // 读取输入流为字符串
-            String jsonContent = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-            // 使用 Fastjson2 解析为 Map<String, String>
-            map= JSON.parseObject(jsonContent, new TypeReference<>() {});
-        } catch (JSONException | IOException e) {
-            return ResponseResult.failResult();
-        }
-        return ResponseResult.okResult(map);
+        return ResponseResult.okResult(metricsService.getGitMetrics());
     }
 
-    @GetMapping("/getRedis")
+    @GetMapping("/admin/getRedis")
     public ResponseResult<Object> getRedis() {
-        return ResponseResult.okResult(redisMetricsService.getMetrics());
+        return ResponseResult.okResult(metricsService.getRedisMetrics());
     }
 
-
-    @GetMapping("/system-info")
+    @GetMapping("/admin/system-info")
     public ResponseResult<Object> getSystemInfo() {
         Map<String, Object> info = new HashMap<>();
-
-        // Java Info
-        Map<String, String> javaInfo = new HashMap<>();
-        javaInfo.put("version", System.getProperty("java.version"));
-        javaInfo.put("vendor", System.getProperty("java.vendor"));
-        javaInfo.put("runtime.name", System.getProperty("java.runtime.name"));
-        javaInfo.put("runtime.version", System.getProperty("java.runtime.version"));
-        javaInfo.put("jvm.name", System.getProperty("java.vm.name"));
-        javaInfo.put("jvm.vendor", System.getProperty("java.vm.vendor"));
-        javaInfo.put("jvm.version", System.getProperty("java.vm.version"));
-        info.put("java", javaInfo);
-
-        // OS Info
-        Map<String, String> osInfo = new HashMap<>();
-        osInfo.put("name", System.getProperty("os.name"));
-        osInfo.put("version", System.getProperty("os.version"));
-        osInfo.put("arch", System.getProperty("os.arch"));
-        info.put("os", osInfo);
-
+        info.put("java", metricsService.getJavaMetrics());
+        info.put("os", metricsService.getOsMetrics());
         return ResponseResult.okResult(info);
     }
 
-    @Autowired
-    private DataSource dataSource;
-
-    @GetMapping("/data-info")
+    @GetMapping("/admin/data-info")
     public ResponseResult<Object> getDatabaseInfo() {
-        Map<String, Object> info = new HashMap<>();
-        try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
-	        DatabaseMetaData metaData = connection.getMetaData();
-	        String dbProductName = metaData.getDatabaseProductName(); // 数据库名称
-	        String dbProductVersion = metaData.getDatabaseProductVersion(); // 数据库版本
-	        info.put("database", dbProductName);
-	        info.put("version", dbProductVersion);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ResponseResult.okResult(info);
+        return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }
 
 }

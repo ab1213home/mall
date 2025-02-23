@@ -19,9 +19,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
@@ -51,25 +53,34 @@ public class RedisConfig {
 	@Value("${redis.database.temporary:1}")
 	private int temporary;
 
-	@Value("${spring.data.redis.host:localhost}")
-	private String host;
+	private GeneralRedisConfig generalRedisConfig;
 
-	@Value("${spring.data.redis.port:6379}")
-	private int port;
+	@Autowired
+	public void setRedisConfig(GeneralRedisConfig generalRedisConfig) {
+		this.generalRedisConfig = generalRedisConfig;
+	}
 
-	@Value("${spring.data.redis.password:}")
-	private String password;
+    @Bean
+    @Primary
+    public LettuceConnectionFactory homeConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(home);
+    }
+
+    @Bean
+    public LettuceConnectionFactory temporaryConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(temporary);
+    }
 
 	@Bean(name = "HomeRedisTemplate")
 	public StringRedisTemplate HomeRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(home));
+        template.setConnectionFactory(homeConnectionFactory());
         return template;
     }
 	@Bean(name = "TemporaryRedisTemplate")
 	public StringRedisTemplate TemporaryRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(redisConnectionFactory(temporary));
+        template.setConnectionFactory(temporaryConnectionFactory());
         return template;
     }
 
@@ -93,43 +104,5 @@ public class RedisConfig {
 //	    // 返回配置好的RedisTemplate实例
 //        return template;
 //    }
-
-	private DefaultClientResources clientResources = null;
-
-	@PostConstruct
-    public void init() {
-        clientResources = DefaultClientResources.create();
-    }
-
-	/**
-     * 创建 Redis 连接工厂
-     */
-    private @NotNull LettuceConnectionFactory redisConnectionFactory(int database) {
-	    RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration();
-	    standaloneConfig.setHostName(host);
-	    standaloneConfig.setPort(port);
-	    if (!password.isEmpty()) {
-	        standaloneConfig.setPassword(password);
-	    }
-	    standaloneConfig.setDatabase(database);
-
-	    LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-	            .clientResources(clientResources)
-	            .build();
-
-	    LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(standaloneConfig, clientConfig);
-	    lettuceConnectionFactory.afterPropertiesSet();
-	    return lettuceConnectionFactory;
-	}
-
-	/**
-     * 应用关闭时释放资源
-     */
-    @PreDestroy
-    public void destroy() {
-        if (clientResources != null) {
-            clientResources.shutdown(); // 确保正确关闭资源
-        }
-    }
 
 }

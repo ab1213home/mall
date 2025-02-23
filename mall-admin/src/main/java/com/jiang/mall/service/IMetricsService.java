@@ -13,10 +13,17 @@
 
 package com.jiang.mall.service;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Map;
 
-public interface IRedisMetricsService {
-	Map<String, Object> getMetrics();
+public interface IMetricsService {
+
+	Map<String,String> getRedisMetrics();
+
+	Map<String,String> getGitMetrics();
+
+	Map<String,String> getJavaMetrics();
+
+	Map<String,String> getOsMetrics();
+
+	Map<String,String> getDatabaseMetrics();
 }
