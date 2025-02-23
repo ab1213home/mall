@@ -15,6 +15,9 @@ package com.jiang.mall.service;
 
 import com.wf.captcha.SpecCaptcha;
 
+import java.awt.*;
+import java.io.IOException;
+
 public interface ICaptchaService {
 
 	/**
@@ -23,7 +26,9 @@ public interface ICaptchaService {
      * @param sessionId 用户会话ID
      * @return 验证码
      */
-	SpecCaptcha generateCaptcha(String sessionId);
+	SpecCaptcha generateCaptcha(String sessionId) throws IOException, FontFormatException;
+
+	SpecCaptcha generateCaptcha(String sessionId,int width, int height) throws IOException, FontFormatException;
 
 	/**
      * 验证用户输入的验证码是否正确

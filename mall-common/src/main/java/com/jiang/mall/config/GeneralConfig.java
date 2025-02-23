@@ -36,7 +36,7 @@ public class GeneralConfig {
     @Value("${mall.config.mode:single}")
     private  String configMode;
 
-    private @NotNull String getConfigFilePath(String configName) {
+    public @NotNull String getConfigFilePath(String configName) {
         if (Objects.equals(configMode, "files")){
             //如果末尾有"/"则去掉"/"
             configFilePath = Objects.requireNonNull(configFilePath).replaceAll("/$","");

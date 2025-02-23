@@ -25,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -34,7 +35,6 @@ public class CaptchaController {
 
     private static final Logger logger = LoggerFactory.getLogger(CaptchaController.class);
 
-    @Qualifier("CaptchaRedis")
     private ICaptchaService captchaService;
 
     @Autowired
@@ -52,7 +52,7 @@ public class CaptchaController {
      * @throws IOException 如果在写入响应体过程中发生I/O错误
      */
     @RequestMapping("/captcha")
-    public void generateCaptcha(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+    public void generateCaptcha(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws FontFormatException, IOException {
         // 禁止缓存响应数据，确保不同浏览器或缓存服务器下验证码图像不会被缓存
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
@@ -63,11 +63,11 @@ public class CaptchaController {
         SpecCaptcha captcha = captchaService.generateCaptcha(request.getSession().getId());
         // 将验证码图像输出到HTTP响应中，实现浏览器展示验证码图像
         try (OutputStream out = response.getOutputStream()) {
-        captcha.out(out);
+            captcha.out(out);
         } catch (IOException e) {
             // 处理异常情况
-            logger.error("Failed to generate captcha image", e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to generate captcha image");
+            logger.error("无法生成验证码图像", e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "无法生成验证码图像");
         }
     }
 }

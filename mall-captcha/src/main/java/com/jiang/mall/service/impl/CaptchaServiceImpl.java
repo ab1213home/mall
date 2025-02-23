@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.CaptchaConfig;
 import com.jiang.mall.service.ICaptchaRedisService;
 import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
@@ -20,6 +21,8 @@ import com.wf.captcha.base.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -39,15 +42,29 @@ public class CaptchaServiceImpl implements ICaptchaService {
 	 * @return 验证码
 	 */
 	@Override
-	public SpecCaptcha generateCaptcha(String sessionId) {
+	public SpecCaptcha generateCaptcha(String sessionId) throws IOException, FontFormatException {
 		// 创建一个自定义的验证码对象，参数分别为宽度、高度和字符数
-        SpecCaptcha captcha = new SpecCaptcha(160, 40, 4);
+        SpecCaptcha captcha = new SpecCaptcha(160, 40, CaptchaConfig.getCaptchaNum());
         // 设置验证码字符类型为纯数字，增加用户辨识的易用性
-        captcha.setCharType(Captcha.TYPE_ONLY_NUMBER);
+        captcha.setCharType(CaptchaConfig.getCaptchaType());
         // 以下代码行被注释掉，因此没有设置自定义字体
-        // captcha.setFont(Captcha.FONT_8, 40);
+        captcha.setFont(CaptchaConfig.getCaptchaFont());
         // 将生成的验证码文本存储在session中，以便后续表单提交时验证
-        redisService.setKey(sessionId , captcha.text().toLowerCase(),5, TimeUnit.MINUTES);
+        redisService.setKey(sessionId , captcha.text().toLowerCase(),CaptchaConfig.getCaptchaExpireTime(), TimeUnit.MINUTES);
+		// 返回生成的验证码对象
+		return captcha;
+	}
+
+	@Override
+	public SpecCaptcha generateCaptcha(String sessionId, int width, int height) throws IOException, FontFormatException {
+		// 创建一个自定义的验证码对象，参数分别为宽度、高度和字符数
+        SpecCaptcha captcha = new SpecCaptcha(width, height, CaptchaConfig.getCaptchaNum());
+        // 设置验证码字符类型为纯数字，增加用户辨识的易用性
+        captcha.setCharType(CaptchaConfig.getCaptchaType());
+        // 以下代码行被注释掉，因此没有设置自定义字体
+        captcha.setFont(CaptchaConfig.getCaptchaFont());
+        // 将生成的验证码文本存储在session中，以便后续表单提交时验证
+        redisService.setKey(sessionId , captcha.text().toLowerCase(),CaptchaConfig.getCaptchaExpireTime(), TimeUnit.MINUTES);
 		// 返回生成的验证码对象
 		return captcha;
 	}

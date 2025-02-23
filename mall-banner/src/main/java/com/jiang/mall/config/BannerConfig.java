@@ -14,15 +14,14 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.BannerConfigItems;
+import com.jiang.mall.domain.enums.CaptchaConfigItems;
 import jakarta.annotation.PostConstruct;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.Properties;
 
 @Component
@@ -30,20 +29,11 @@ public class BannerConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(BannerConfig.class);
 
-    @Value("${mall.config.location:./}")
-    private  String configFilePath;
+    private GeneralConfig generalConfig;
 
-    @Value("${mall.config.mode:single}")
-    private  String configMode;
-
-    private @NotNull String getConfigFilePath(String configName) {
-        if (Objects.equals(configMode, "files")){
-            //如果末尾有"/"则去掉"/"
-            configFilePath = Objects.requireNonNull(configFilePath).replaceAll("/$","");
-            return configFilePath + "/" + configName+".properties";
-        } else {
-            return configFilePath + "config.properties";
-        }
+    @Autowired
+    public void setGeneralConfig(GeneralConfig generalConfig) {
+        this.generalConfig = generalConfig;
     }
 
     // 指向外部配置文件
@@ -53,7 +43,7 @@ public class BannerConfig {
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = getConfigFilePath("banner");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("banner");
         loadProperties();
     }
 
@@ -65,7 +55,7 @@ public class BannerConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-                for (BannerConfigItems item : BannerConfigItems.values()){
+                for (CaptchaConfigItems item : CaptchaConfigItems.values()){
                     String keyToCheck = item.getKey();
                     if (!properties.containsKey(keyToCheck)) {
                         properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
@@ -111,7 +101,7 @@ public class BannerConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (BannerConfigItems item : BannerConfigItems.values()){
+                for (CaptchaConfigItems item : CaptchaConfigItems.values()){
                     properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                 }
                 saveProperties();

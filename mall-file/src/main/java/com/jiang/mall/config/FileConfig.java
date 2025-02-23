@@ -24,6 +24,7 @@ import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -37,20 +38,11 @@ public class FileConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(FileConfig.class);
 
-    @Value("${mall.config.location:./}")
-    private  String configFilePath;
+    private GeneralConfig generalConfig;
 
-    @Value("${mall.config.mode:single}")
-    private  String configMode;
-
-    private @NotNull String getConfigFilePath(String configName) {
-        if (Objects.equals(configMode, "files")){
-            //如果末尾有"/"则去掉"/"
-            configFilePath = Objects.requireNonNull(configFilePath).replaceAll("/$","");
-            return configFilePath + "/" + configName+".properties";
-        } else {
-            return configFilePath + "config.properties";
-        }
+    @Autowired
+    public void setGeneralConfig(GeneralConfig generalConfig) {
+        this.generalConfig = generalConfig;
     }
 
     // 指向外部配置文件
@@ -60,7 +52,7 @@ public class FileConfig {
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = getConfigFilePath("file");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("file");
         loadProperties();
         storageConfig=getStorageConfig();
         defaultStorageConfig=storageConfig.get(0);
@@ -70,6 +62,7 @@ public class FileConfig {
 
     //默认存储配置
     public static StorageConfig defaultStorageConfig = new StorageConfig();
+
     /**
      * 加载配置文件
      */
