@@ -159,11 +159,7 @@ public class ForgotController {
         if (!i18nService.isValidPassword(password)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
-//        if (!password.equals(confirmPassword)){
-//            return ResponseResult.failResult(i18nService.getMessage("user.password.error.confirm"));
-//        }
         EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
-
         if (emailCodeState.getState() == null){
             // 验证码正确性及有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));

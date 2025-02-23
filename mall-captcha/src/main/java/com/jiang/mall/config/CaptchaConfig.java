@@ -247,26 +247,4 @@ public class CaptchaConfig {
         // 重新加载属性配置，以在当前运行环境中应用更改
         loadProperties();
     }
-
-//	// 验证码文本类型
-////    public static final int TYPE_DEFAULT = 1;  // 字母数字混合
-////    public static final int TYPE_ONLY_NUMBER = 2;  // 纯数字
-////    public static final int TYPE_ONLY_CHAR = 3;  // 纯字母
-////    public static final int TYPE_ONLY_UPPER = 4;  // 纯大写字母
-////    public static final int TYPE_ONLY_LOWER = 5;  // 纯小写字母
-////    public static final int TYPE_NUM_AND_UPPER = 6;  // 数字大写字母
-//	// 验证码字体
-////	public static final int FONT_1 = 0;
-////    public static final int FONT_2 = 1;
-////    public static final int FONT_3 = 2;
-////    public static final int FONT_4 = 3;
-////    public static final int FONT_5 = 4;
-////    public static final int FONT_6 = 5;
-////    public static final int FONT_7 = 6;
-////    public static final int FONT_8 = 7;
-////    public static final int FONT_9 = 8;
-////    public static final int FONT_10 = 9;
-
-
-
 }
