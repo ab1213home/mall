@@ -74,7 +74,7 @@
       </SHUTDOWN>
     </ConfigurationWrapper>
     <method v="2">
-      <option name="Make" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="mall[package]" run_configuration_type="MavenRunConfiguration" />
     </method>
   </configuration>
 </component>
