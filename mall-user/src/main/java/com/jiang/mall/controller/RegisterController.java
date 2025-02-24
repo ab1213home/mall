@@ -183,8 +183,8 @@ public class RegisterController {
 
         if (emailCodeState.getState() == null){
             // 验证码正确性及有效期检查
-//            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+//            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }else if (!emailCodeState.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
