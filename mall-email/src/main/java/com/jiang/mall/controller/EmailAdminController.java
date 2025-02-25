@@ -36,11 +36,6 @@ public class EmailAdminController {
 
     private IVerificationCodeService verificationCodeService;
 
-    /**
-     * 注入CodeService
-     * 用于处理验证码相关操作
-     * @param verificationCodeService 验证码服务实例
-     */
     @Autowired
     public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
         this.verificationCodeService = verificationCodeService;
@@ -54,19 +49,7 @@ public class EmailAdminController {
      */
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
-        EmailSettingVo emailSettingVo = new EmailSettingVo();
-        emailSettingVo.setAllowSendEmail(EmailConfig.isSendEmailEnabled());
-        emailSettingVo.setHost(EmailConfig.getEmailHost());
-        emailSettingVo.setPort(EmailConfig.getEmailPort());
-        emailSettingVo.setUsername(EmailConfig.getEmailUsername());
-        emailSettingVo.setSender_end(EmailConfig.getEmailSenderEnd());
-        emailSettingVo.setNickname(EmailConfig.getEmailNickname());
-        emailSettingVo.setPassword("******");
-        emailSettingVo.setExpiration_time(EmailConfig.getEmailExpirationTime());
-        emailSettingVo.setMax_request_num(EmailConfig.getEmailMaxRequestNum());
-        emailSettingVo.setMin_request_num(EmailConfig.getEmailMinRequestNum());
-        emailSettingVo.setMax_fail_rate(EmailConfig.getEmailMaxFailRate());
-        return ResponseResult.okResult(emailSettingVo);
+        return ResponseResult.okResult(EmailConfig.getSetting());
     }
 
     /**
@@ -78,17 +61,7 @@ public class EmailAdminController {
     @PostMapping("/setSetting")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo) {
         // 更新配置文件
-        EmailConfig.updateEmailHost(emailSettingVo.getHost());
-        EmailConfig.updateEmailPort(emailSettingVo.getPort());
-        EmailConfig.updateEmailUsername(emailSettingVo.getUsername());
-        EmailConfig.updateEmailSenderEnd(emailSettingVo.getSender_end());
-        EmailConfig.updateEmailNickname(emailSettingVo.getNickname());
-        EmailConfig.updateEmailPassword(emailSettingVo.getPassword());
-        EmailConfig.updateEmailExpirationTime(emailSettingVo.getExpiration_time());
-        EmailConfig.updateEmailMaxRequestNum(emailSettingVo.getMax_request_num());
-        EmailConfig.updateEmailMinRequestNum(emailSettingVo.getMin_request_num());
-        EmailConfig.updateEmailMaxFailRate(emailSettingVo.getMax_fail_rate());
-        EmailConfig.updateSendEmailEnabled(emailSettingVo.isAllowSendEmail());
+        EmailConfig.updateSetting(emailSettingVo);
         return ResponseResult.okResult();
     }
 

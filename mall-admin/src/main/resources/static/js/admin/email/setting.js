@@ -29,6 +29,8 @@ function getEmailSetting() {
 				$("#email-max-request-num").val(res.data.max_request_num);
 				$("#email-min-request-num").val(res.data.min_request_num);
 				$("#email-max-fail-rate").val(res.data.max_fail_rate);
+				$("#email-auth").val(res.data.auth);
+				$("#email-tls").val(res.data.tls);
             }
         }
     })
@@ -46,6 +48,8 @@ function saveEmailSetting() {
 		password: $("#email-password").val(),
 		expiration_time: $("#email-expiration-time").val(),
 		max_request_num: $("#email-max-request-num").val(),
+		auth:$("#email-auth").val(),
+	    tls:$("#email-tls").val(),
 	}
 	$.ajax({
         url: '/email/admin/setSetting',
@@ -67,3 +71,26 @@ $(document).ready(function(){
 	queryMyUserInfo();
 	getEmailSetting();
 })
+
+document.addEventListener("DOMContentLoaded", function () {
+        // 获取相关元素
+        const emailAuthCheckbox = document.getElementById("email-auth");
+        const emailPasswordInput = document.getElementById("email-password-div");
+
+        // 初始状态检查
+        togglePasswordField(emailAuthCheckbox.checked);
+
+        // 添加事件监听器
+        emailAuthCheckbox.addEventListener("change", function () {
+            togglePasswordField(this.checked);
+        });
+
+        // 切换密码输入框的显示/隐藏
+        function togglePasswordField(isChecked) {
+            if (isChecked) {
+                emailPasswordInput.style.display = "block"; // 显示
+            } else {
+                emailPasswordInput.style.display = "none"; // 隐藏
+            }
+        }
+    });

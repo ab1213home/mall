@@ -14,16 +14,15 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.EmailConfigItems;
+import com.jiang.mall.domain.vo.EmailSettingVo;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.Properties;
 
 @Component
@@ -124,6 +123,30 @@ public class EmailConfig {
      */
     public static String getEmailHost() {
         return properties.getProperty(EmailConfigItems.EMAIL_HOST.getKey(), EmailConfigItems.EMAIL_HOST.getDefaultValue());
+    }
+
+    /**
+     * 检查是否启用了电子邮件认证
+     * <p>
+     * 此方法通过从配置属性中获取电子邮件认证的设置来判断是否启用了电子邮件认证
+     * 如果配置文件中未定义电子邮件认证设置，则使用默认值
+     *
+     * @return Boolean 表示电子邮件认证是否已启用
+     */
+    public static @NotNull Boolean isEmailAuth() {
+        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.EMAIL_AUTH.getKey(), EmailConfigItems.EMAIL_AUTH.getDefaultValue()));
+    }
+
+    /**
+     * 获取邮件传输层安全协议(TLS)的启用状态
+     * <p>
+     * 此方法用于从配置属性中读取是否启用了TLS协议进行邮件传输
+     * 如果配置文件中没有设置相应的属性，或者属性值为空，则返回默认值
+     *
+     * @return Boolean 启用TLS协议进行邮件传输的配置状态，如果配置未设置或为空，则返回默认值
+     */
+    public static @NotNull Boolean isEmailTls() {
+        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.EMAIL_TLS.getKey(), EmailConfigItems.EMAIL_TLS.getDefaultValue()));
     }
 
     /**
@@ -247,6 +270,50 @@ public class EmailConfig {
     }
 
     /**
+     * 获取邮件设置信息
+     * <p>
+     * 本方法用于初始化并返回一个EmailSettingVo对象，该对象包含了邮件发送系统的相关配置信息
+     * 这些配置信息包括是否允许发送邮件、邮件服务器主机名、端口号、登录用户名和密码、发件人昵称和结尾、
+     * 邮件密码、邮件发送时间限制、最大请求次数、最小请求次数、最大失败率，以及是否需要身份验证和TLS加密
+     *
+     * @return EmailSettingVo 一个包含了所有邮件设置信息的对象
+     */
+    public static @NotNull EmailSettingVo getSetting() {
+        // 创建一个EmailSettingVo对象实例
+        EmailSettingVo emailSettingVo = new EmailSettingVo();
+
+        // 设置是否允许发送邮件
+        emailSettingVo.setAllowSendEmail(isSendEmailEnabled());
+        // 设置邮件服务器主机名
+        emailSettingVo.setHost(getEmailHost());
+        // 设置邮件服务器端口号
+        emailSettingVo.setPort(getEmailPort());
+        // 设置邮件服务器登录用户名
+        emailSettingVo.setUsername(getEmailUsername());
+        // 设置发件人邮箱结尾
+        emailSettingVo.setSender_end(getEmailSenderEnd());
+        // 设置发件人昵称
+        emailSettingVo.setNickname(getEmailNickname());
+        // 设置邮件服务器登录密码
+        emailSettingVo.setPassword(getEmailPassword());
+        // 设置邮件验证码有效期
+        emailSettingVo.setExpiration_time(getEmailExpirationTime());
+        // 设置邮件最大请求次数
+        emailSettingVo.setMax_request_num(getEmailMaxRequestNum());
+        // 设置邮件最小请求次数
+        emailSettingVo.setMin_request_num(getEmailMinRequestNum());
+        // 设置邮件最大失败率
+        emailSettingVo.setMax_fail_rate(getEmailMaxFailRate());
+        // 设置是否需要身份验证
+        emailSettingVo.setAuth(isEmailAuth());
+        // 设置是否使用TLS加密
+        emailSettingVo.setTls(isEmailTls());
+
+        // 返回初始化完毕的EmailSettingVo对象
+        return emailSettingVo;
+    }
+
+    /**
      * 更新邮件服务主机地址
      * 此方法用于修改邮件服务的主机地址，确保邮件发送能够连接到正确的服务器
      *
@@ -255,9 +322,6 @@ public class EmailConfig {
     public static void updateEmailHost(String host) {
         // 设置新的邮件服务主机地址到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_HOST.getKey(), host);
-        // 保存更新后的属性文件
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -271,9 +335,30 @@ public class EmailConfig {
     public static void updateEmailPort(String port) {
         // 设置新的邮件端口号到配置属性中
         properties.setProperty(EmailConfigItems.EMAIL_PORT.getKey(), port);
-        // 调用方法保存更新后的配置
-        saveProperties();
-        loadProperties();
+    }
+
+    /**
+     * 更新邮件认证状态
+     * 此方法用于设置邮件服务器认证是否启用它通过更新配置属性来实现这一点
+     * 这里没有返回值，因为该方法的主要目的是更新内部状态，而不是向调用者提供信息
+     *
+     * @param auth 一个布尔值，指示是否启用邮件认证true表示启用，false表示禁用
+     */
+    public static void updateEmailAuth(Boolean auth) {
+        // 设置邮件认证状态的属性，将其转换为字符串以存储
+        properties.setProperty(EmailConfigItems.EMAIL_AUTH.getKey(), String.valueOf(auth));
+    }
+
+    /**
+     * 更新邮件服务的TLS设置
+     * 此方法用于更新邮件服务的传输层安全性(TLS)配置根据输入的tls参数
+     * 它将TLS设置的属性更新，并保存和加载这些属性以应用新的设置
+     *
+     * @param tls 一个布尔值，指示是否启用TLS设置true表示启用，false表示禁用
+     */
+    public static void updateEmailTls(Boolean tls) {
+        // 更新邮件配置中的TLS设置
+        properties.setProperty(EmailConfigItems.EMAIL_TLS.getKey(), String.valueOf(tls));
     }
 
     /**
@@ -286,8 +371,6 @@ public class EmailConfig {
      */
     public static void updateEmailUsername(String username) {
         properties.setProperty(EmailConfigItems.EMAIL_USERNAME.getKey(), username);
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -301,9 +384,6 @@ public class EmailConfig {
     public static void updateEmailSenderEnd(String senderEnd) {
         // 设置新的邮件发送者结束语到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_SENDER_END.getKey(), senderEnd);
-        // 保存更新后的属性到文件中
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -315,9 +395,6 @@ public class EmailConfig {
     public static void updateEmailNickname(String nickname) {
         // 设置新的邮件昵称到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), nickname);
-        // 保存对属性文件的修改
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -328,9 +405,6 @@ public class EmailConfig {
     public static void updateEmailPassword(String password) {
         // 设置新的邮件密码到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_PASSWORD.getKey(), password);
-        // 保存更新后的属性文件
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -344,9 +418,6 @@ public class EmailConfig {
     public static void updateEmailExpirationTime(int milliseconds) {
         // 设置邮件过期时间系统属性
         properties.setProperty(EmailConfigItems.EMAIL_EXPIRATION_TIME.getKey(), String.valueOf(milliseconds));
-        // 保存更新后的系统属性
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -358,9 +429,6 @@ public class EmailConfig {
     public static void updateEmailMaxRequestNum(int num) {
         // 设置新的邮件最大请求数量到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_MAX_REQUEST_NUM.getKey(), String.valueOf(num));
-        // 保存更新后的属性配置
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -372,9 +440,6 @@ public class EmailConfig {
     public static void updateEmailMinRequestNum(int num) {
         // 将新的最小请求次数转换为字符串并保存到属性中
         properties.setProperty(EmailConfigItems.EMAIL_MIN_REQUEST_NUM.getKey(), String.valueOf(num));
-        // 调用方法保存更新后的属性到文件中
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -386,9 +451,6 @@ public class EmailConfig {
     public static void updateEmailMaxFailRate(double rate) {
         // 将新的邮件发送最大失败率保存到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_MAX_FAIL_RATE.getKey(), String.valueOf(rate));
-        // 保存更新后的属性到文件中
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -399,7 +461,22 @@ public class EmailConfig {
     public static void updateSendEmailEnabled(boolean enabled) {
         // 设置属性"allow.send.email"的值为传入的enabled布尔值的字符串表示
         properties.setProperty(EmailConfigItems.ALLOW_SEND_EMAIL.getKey(), String.valueOf(enabled));
-        // 保存属性配置
+    }
+
+    public static void updateSetting(@NotNull EmailSettingVo emailSettingVo) {
+        updateEmailHost(emailSettingVo.getHost());
+        updateEmailPort(emailSettingVo.getPort());
+        updateEmailUsername(emailSettingVo.getUsername());
+        updateEmailSenderEnd(emailSettingVo.getSender_end());
+        updateEmailNickname(emailSettingVo.getNickname());
+        updateEmailPassword(emailSettingVo.getPassword());
+        updateEmailExpirationTime(emailSettingVo.getExpiration_time());
+        updateEmailMaxRequestNum(emailSettingVo.getMax_request_num());
+        updateEmailMinRequestNum(emailSettingVo.getMin_request_num());
+        updateEmailMaxFailRate(emailSettingVo.getMax_fail_rate());
+        updateSendEmailEnabled(emailSettingVo.isAllowSendEmail());
+        updateEmailAuth(emailSettingVo.isAuth());
+        updateEmailTls(emailSettingVo.isTls());
         saveProperties();
         loadProperties();
     }

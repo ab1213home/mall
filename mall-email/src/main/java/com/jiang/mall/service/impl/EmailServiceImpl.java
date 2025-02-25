@@ -75,9 +75,9 @@ public class EmailServiceImpl implements IEmailService {
 	    // 设置邮件服务器端口号
 		properties.put("mail.smtp.port", EmailConfig.getEmailPort());
 	    // 启用身份验证
-		properties.put("mail.smtp.auth", "true");
+		properties.put("mail.smtp.auth", EmailConfig.isEmailAuth());
 	    // 启用 TLS
-		properties.put("mail.smtp.starttls.enable", "true");
+		properties.put("mail.smtp.starttls.enable", EmailConfig.isEmailTls());
 	    // 设置 SSL 端口
 		properties.put("mail.smtp.socketFactory.port", EmailConfig.getEmailPort());
 	    // 设置 SSL Socket Factory
@@ -106,7 +106,7 @@ public class EmailServiceImpl implements IEmailService {
 	        // 发送邮件
 	        Transport.send(message);
 
-		    logger.info("邮件发送成功，收件人：{}", to);
+		    logger.debug("邮件发送成功，收件人：{}", to);
 	        return true;
 
 	    } catch (MessagingException e) {

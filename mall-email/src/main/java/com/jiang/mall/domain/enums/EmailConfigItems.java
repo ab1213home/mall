@@ -19,6 +19,8 @@ import lombok.Getter;
 public enum EmailConfigItems {
 	EMAIL_HOST("email.host", "邮件服务器地址", "smtp.example.com"),
 	EMAIL_PORT("email.port", "邮件服务器端口", "465"),
+	EMAIL_AUTH("email.auth", "邮件服务器是否需要验证", "true"),
+	EMAIL_TLS("email.tls", "邮件服务器是否需要开启TLS", "true"),
 	EMAIL_USERNAME("email.username", "邮件服务器用户名", "example@example.com"),
 	EMAIL_SENDER_END("email.sender.end", "发件人邮箱后缀", "mall.jiangrongjun.top"),
 	EMAIL_NICKNAME("email.nickname", "发件人昵称", "example"),

@@ -19,6 +19,8 @@ import lombok.Data;
 public class EmailSettingVo {
 	private String host;
 	private String port;
+	private boolean auth;
+	private boolean tls;
 	private String username;
 	private String sender_end;
 	private String nickname;
