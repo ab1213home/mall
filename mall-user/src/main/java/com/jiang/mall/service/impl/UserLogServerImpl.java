@@ -15,11 +15,11 @@ package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.UserRecordMapper;
-import com.jiang.mall.domain.entity.UserRecord;
+import com.jiang.mall.dao.UserLogMapper;
+import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.enums.RecordStatus;
-import com.jiang.mall.service.IUserRecordService;
+import com.jiang.mall.domain.enums.LogStatus;
+import com.jiang.mall.service.IUserLogService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserRecord> implements IUserRecordService {
+public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> implements IUserLogService {
 
-	private UserRecordMapper loginRecordMapper;
+	private UserLogMapper loginRecordMapper;
 
 	@Autowired
-	public void setLoginRecordMapper(UserRecordMapper loginRecordMapper) {
+	public void setLoginRecordMapper(UserLogMapper loginRecordMapper) {
 		this.loginRecordMapper = loginRecordMapper;
 	}
 
@@ -56,24 +56,24 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
 	    // 查询过去24小时内，用户名匹配且登录失败的记录
-	    QueryWrapper<UserRecord> queryWrapper_username = new QueryWrapper<>();
+	    QueryWrapper<UserLog> queryWrapper_username = new QueryWrapper<>();
 	    queryWrapper_username.eq("username",username);
 	    queryWrapper_username.between("trigger_time", yesterday, now);
-	    queryWrapper_username.eq("state", RecordStatus.FAIL_LOGIN.getValue());
-	    List<UserRecord> list_username = loginRecordMapper.selectList(queryWrapper_username);
+	    queryWrapper_username.eq("state", LogStatus.FAIL_LOGIN.getValue());
+	    List<UserLog> list_username = loginRecordMapper.selectList(queryWrapper_username);
 
 	    // 查询过去24小时内，IP地址匹配且登录失败的记录数量
-	    QueryWrapper<UserRecord> queryWrapper_ip = new QueryWrapper<>();
+	    QueryWrapper<UserLog> queryWrapper_ip = new QueryWrapper<>();
 	    queryWrapper_ip.eq("ip",clientIp);
 	    queryWrapper_ip.between("trigger_time", yesterday, now);
-	    queryWrapper_ip.eq("state", RecordStatus.FAIL_LOGIN.getValue());
+	    queryWrapper_ip.eq("state", LogStatus.FAIL_LOGIN.getValue());
 	    Long list_ip = loginRecordMapper.selectCount(queryWrapper_ip);
 
 	    // 查询过去24小时内，设备指纹匹配且登录失败的记录数量
-	    QueryWrapper<UserRecord> queryWrapper_fingerprint = new QueryWrapper<>();
+	    QueryWrapper<UserLog> queryWrapper_fingerprint = new QueryWrapper<>();
 	    queryWrapper_fingerprint.eq("fingerprint",fingerprint);
 	    queryWrapper_fingerprint.between("trigger_time", yesterday, now);
-	    queryWrapper_fingerprint.eq("state", RecordStatus.FAIL_LOGIN.getValue());
+	    queryWrapper_fingerprint.eq("state", LogStatus.FAIL_LOGIN.getValue());
 	    Long list_fingerprint = loginRecordMapper.selectCount(queryWrapper_fingerprint);
 
 	    // 如果设备指纹匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
@@ -91,17 +91,17 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 
 	    // 计算加权失败次数
 	    double count = 0;
-	    for (UserRecord userRecord : list_username) {
+	    for (UserLog userLog : list_username) {
 	        // 如果设备指纹和IP地址都匹配，失败次数加1
-	        if (Objects.equals(userRecord.getFingerprint(), fingerprint) && Objects.equals(userRecord.getIp(), clientIp)){
+	        if (Objects.equals(userLog.getFingerprint(), fingerprint) && Objects.equals(userLog.getIp(), clientIp)){
 	            count=count+1;
 	        }
 	        // 如果仅IP地址匹配，失败次数加0.5
-	        else if (Objects.equals(userRecord.getIp(), clientIp)){
+	        else if (Objects.equals(userLog.getIp(), clientIp)){
 	            count=count+0.5;
 	        }
 	        // 如果仅设备指纹匹配，失败次数加0.3
-	        else if (Objects.equals(userRecord.getFingerprint(), fingerprint)){
+	        else if (Objects.equals(userLog.getFingerprint(), fingerprint)){
 	            count=count+0.3;
 	        }
 	    }
@@ -118,11 +118,11 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	 * @return 返回一个布尔值，表示登录记录是否成功插入到数据库中
 	 */
 	@Override
-	public Boolean successLoginRecord(@NotNull User user, String clientIp, String fingerprint) {
+	public Boolean successLoginLog(@NotNull User user, String clientIp, String fingerprint) {
 	    // 创建一个登录记录对象，包含用户ID、用户名、客户端IP、登录状态为成功和用户指纹
-	    UserRecord userRecord = new UserRecord(user.getId(), user.getUsername(), clientIp, RecordStatus.SUCCESS_LOGIN.getValue(),fingerprint);
+	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_LOGIN.getValue(),fingerprint);
 	    // 插入登录记录到数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	/**
@@ -138,11 +138,11 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	 *         如果返回true，则表示记录成功；如果返回false，则表示记录失败
 	 */
 	@Override
-	public Boolean failedLoginRecord(String username, String clientIp, String fingerprint) {
+	public Boolean failedLoginLog(String username, String clientIp, String fingerprint) {
 	    // 创建一个UserRecord对象，表示登录失败的用户记录
-	    UserRecord userRecord = new UserRecord(username,clientIp,fingerprint, RecordStatus.FAIL_LOGIN.getValue());
+	    UserLog userLog = new UserLog(username,clientIp,fingerprint, LogStatus.FAIL_LOGIN.getValue());
 	    // 将登录失败记录插入数据库，并判断插入操作是否成功
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	/**
@@ -158,61 +158,61 @@ public class UserRecordServerImpl extends ServiceImpl<UserRecordMapper, UserReco
 	 * @return 返回一个布尔值，表示记录是否成功插入数据库true表示成功，false表示失败
 	 */
 	@Override
-	public Boolean successRegisterRecord(@NotNull User user, String clientIp, String fingerprint) {
+	public Boolean successRegisterLog(@NotNull User user, String clientIp, String fingerprint) {
 	    // 创建用户记录对象，包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹
-	    UserRecord userRecord = new UserRecord(user.getId(), user.getUsername(), clientIp, RecordStatus.SUCCESS_REGISTER.getValue(),fingerprint);
+	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_REGISTER.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successModifyEmailRecord(@NotNull User user, String email, String clientIp, String fingerprint) {
+	public Boolean successModifyEmailLog(@NotNull User user, String email, String clientIp, String fingerprint) {
 		// 创建用户记录对象，包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹
-	    UserRecord userRecord = new UserRecord(user.getId(), user.getUsername(), clientIp, RecordStatus.SUCCESS_MODIFY_EMAIL.getValue(),fingerprint);
+	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_MODIFY_EMAIL.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean failedModifyPasswordRecord(Long user, String clientIp, String fingerprint) {
-	    UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.FAIL_MODIFY_PASSWORD.getValue(),fingerprint);
+	public Boolean failedModifyPasswordLog(Long user, String clientIp, String fingerprint) {
+	    UserLog userLog = new UserLog(user, clientIp, LogStatus.FAIL_MODIFY_PASSWORD.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successForgotRecord(Long user, String clientIp, String fingerprint) {
-		UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.FORGET_PASSWORD.getValue(),fingerprint);
+	public Boolean successForgotLog(Long user, String clientIp, String fingerprint) {
+		UserLog userLog = new UserLog(user, clientIp, LogStatus.FORGET_PASSWORD.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successModifyPasswordRecord(Long user, String clientIp, String fingerprint) {
-		UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.SUCCESS_MODIFY_PASSWORD.getValue(),fingerprint);
+	public Boolean successModifyPasswordLog(Long user, String clientIp, String fingerprint) {
+		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_MODIFY_PASSWORD.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successLockRecord(Long user, String clientIp, String fingerprint) {
-		UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.SUCCESS_LOCK.getValue(),fingerprint);
+	public Boolean successLockLog(Long user, String clientIp, String fingerprint) {
+		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_LOCK.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successLockAdminRecord(Long user, String clientIp, String fingerprint) {
-		UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.SUCCESS_ADMIN_LOCK.getValue(),fingerprint);
+	public Boolean successLockAdminLog(Long user, String clientIp, String fingerprint) {
+		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_ADMIN_LOCK.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 	@Override
-	public Boolean successUnlockAdminRecord(Long user, String clientIp, String fingerprint) {
-		UserRecord userRecord = new UserRecord(user, clientIp, RecordStatus.SUCCESS_UNLOCK.getValue(),fingerprint);
+	public Boolean successUnlockAdminLog(Long user, String clientIp, String fingerprint) {
+		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_UNLOCK.getValue(),fingerprint);
 	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-	    return loginRecordMapper.insert(userRecord)>0;
+	    return loginRecordMapper.insert(userLog)>0;
 	}
 
 }

@@ -17,9 +17,6 @@ import lombok.Getter;
 
 @Getter
 public enum UserConfigItems {
-//	properties.setProperty("admin.role.id", "10");
-//                properties.setProperty("max.address.num", "50");
-//                properties.setProperty("allow.registration", "true");
 	ADMIN_ROLE_ID("admin.role.id", "管理员角色ID", "10"),
 	MAX_ADDRESS_NUM("max.address.num", "最大收货地址数量", "50"),
 	ALLOW_REGISTRATION("allow.registration", "是否允许注册", "true");

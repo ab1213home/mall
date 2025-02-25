@@ -168,16 +168,14 @@
             <groupId>com.jiang</groupId>
 			<artifactId>mall-seo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jiang</groupId>
+			<artifactId>mall-monitor</artifactId>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.jiang</groupId>-->
 <!--			<artifactId>mall-websocket</artifactId>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>com.github.oshi</groupId>
-            <artifactId>oshi-core</artifactId>
-            <version>6.4.2</version>
-<!--            <version>${oshi.version}</version>-->
-        </dependency>
     </dependencies>
 
     <build>

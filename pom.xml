@@ -334,6 +334,11 @@
                 <artifactId>mall-seo</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-monitor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -350,6 +355,7 @@
         <module>mall-banner</module>
         <module>mall-core</module>
         <module>mall-address</module>
+        <module>mall-monitor</module>
 <!--		<module>mall-pay</module>-->
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->

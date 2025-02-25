@@ -15,7 +15,6 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.service.IMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,42 +33,12 @@ import java.util.Map;
 @RequestMapping("/common")
 public class CommonController {
 
-    private IMetricsService metricsService;
-
-    @Autowired
-    public void setMetricsService(IMetricsService metricsService) {
-        this.metricsService = metricsService;
-    }
-
     @GetMapping("/getFooter")
     public ResponseResult<Object> getFooter() {
         Map<String, Object> map = new HashMap<>();
         map.put("phone", GeneralConfig.getPhone());
         map.put("email", GeneralConfig.getEmail());
         return ResponseResult.okResult(map);
-    }
-
-    @GetMapping("/getGit")
-    public ResponseResult<Object> getGit() {
-        return ResponseResult.okResult(metricsService.getGitMetrics());
-    }
-
-    @GetMapping("/admin/getRedis")
-    public ResponseResult<Object> getRedis() {
-        return ResponseResult.okResult(metricsService.getRedisMetrics());
-    }
-
-    @GetMapping("/admin/system-info")
-    public ResponseResult<Object> getSystemInfo() {
-        Map<String, Object> info = new HashMap<>();
-        info.put("java", metricsService.getJavaMetrics());
-        info.put("os", metricsService.getOsMetrics());
-        return ResponseResult.okResult(info);
-    }
-
-    @GetMapping("/admin/data-info")
-    public ResponseResult<Object> getDatabaseInfo() {
-        return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }
 
 }

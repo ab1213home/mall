@@ -14,40 +14,40 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.entity.UserRecord;
+import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.entity.User;
 
-public interface IUserRecordService extends IService<UserRecord> {
+public interface IUserLogService extends IService<UserLog> {
 
 	Integer countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successLoginRecord(User user, String clientIp, String fingerprint);
+	Boolean successLoginLog(User user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean failedLoginRecord(String username, String clientIp, String fingerprint);
+	Boolean failedLoginLog(String username, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successRegisterRecord(User user, String clientIp, String fingerprint);
+	Boolean successRegisterLog(User user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successModifyEmailRecord(User user, String email, String clientIp, String fingerprint);
+	Boolean successModifyEmailLog(User user, String email, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean failedModifyPasswordRecord(Long user , String clientIp, String fingerprint);
+	Boolean failedModifyPasswordLog(Long user , String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successForgotRecord(Long user, String clientIp, String fingerprint);
+	Boolean successForgotLog(Long user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successModifyPasswordRecord(Long user, String clientIp, String fingerprint);
+	Boolean successModifyPasswordLog(Long user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successLockRecord(Long user,String clientIp, String fingerprint);
+	Boolean successLockLog(Long user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successLockAdminRecord(Long user, String clientIp, String fingerprint);
+	Boolean successLockAdminLog(Long user, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean successUnlockAdminRecord(Long user, String clientIp, String fingerprint);
+	Boolean successUnlockAdminLog(Long user, String clientIp, String fingerprint);
 }

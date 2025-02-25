@@ -14,9 +14,9 @@
 package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.UserRecord;
+import com.jiang.mall.domain.entity.UserLog;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserRecordMapper extends BaseMapper<UserRecord> {
+public interface UserLogMapper extends BaseMapper<UserLog> {
 }

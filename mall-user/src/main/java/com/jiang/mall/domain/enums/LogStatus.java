@@ -16,7 +16,7 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum RecordStatus {
+public enum LogStatus {
 
 	SUCCESS_LOGIN((byte) 0, "登录成功"),
 	FAIL_LOGIN((byte) 1,"登录失败"),
@@ -33,15 +33,15 @@ public enum RecordStatus {
 	private final byte value;
 	private final String name;
 
-	RecordStatus(byte value, String name) {
+	LogStatus(byte value, String name) {
 		this.value = value;
 		this.name = name;
 	}
 
 	public static String getNameByValue(int value) {
-        for (RecordStatus recordStatus : RecordStatus.values()) {
-            if (recordStatus.getValue() == value) {
-                return recordStatus.getName();
+        for (LogStatus logStatus : LogStatus.values()) {
+            if (logStatus.getValue() == value) {
+                return logStatus.getName();
             }
         }
         throw new IllegalArgumentException("No States enum constant with value: " + value);

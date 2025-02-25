@@ -16,7 +16,6 @@ package com.jiang.mall.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.TypeReference;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IMetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

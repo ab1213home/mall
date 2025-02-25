@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user_records")
-public class UserRecord implements Serializable {
+@TableName("tb_user_logs")
+public class UserLog implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -73,11 +73,11 @@ public class UserRecord implements Serializable {
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private Long updater;
 
-	public UserRecord() {
+	public UserLog() {
 		this.triggerTime = LocalDateTime.now();
 	}
 
-	public UserRecord(Long userId, String username, String clientIp, byte value, String fingerprint) {
+	public UserLog(Long userId, String username, String clientIp, byte value, String fingerprint) {
 		this.userId = userId;
 		this.username = username;
 		this.ip = clientIp;
@@ -86,7 +86,7 @@ public class UserRecord implements Serializable {
 		this.triggerTime = LocalDateTime.now();
 	}
 
-	public UserRecord(String username, String clientIp, String fingerprint, byte value) {
+	public UserLog(String username, String clientIp, String fingerprint, byte value) {
 		this.username = username;
 		this.ip = clientIp;
 		this.state = value;
@@ -94,7 +94,7 @@ public class UserRecord implements Serializable {
 		this.triggerTime = LocalDateTime.now();
 	}
 
-	public UserRecord(Long userId, String clientIp, byte value, String fingerprint) {
+	public UserLog(Long userId, String clientIp, byte value, String fingerprint) {
 		this.userId = userId;
 		this.ip = clientIp;
 		this.state = value;

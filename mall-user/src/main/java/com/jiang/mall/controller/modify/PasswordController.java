@@ -51,10 +51,10 @@ public class PasswordController {
 		this.verificationCodeService = verificationCodeService;
 	}
 
-	private IUserRecordService userRecordService;
+	private IUserLogService userRecordService;
 
 	@Autowired
-	public void setLoginRecordService(IUserRecordService userRecordService) {
+	public void setLoginRecordService(IUserLogService userRecordService) {
 		this.userRecordService = userRecordService;
 	}
 

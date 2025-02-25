@@ -37,6 +37,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.userService = userService;
     }
 
+    private HttpServletRequest request;
+
+	@Autowired
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
     /**
      * 插入数据填充方法
      * 该方法在插入数据前自动填充创建者、创建时间和更新时间的字段
@@ -47,7 +54,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         // 获取当前的HTTP请求
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 从会话中获取当前用户的ID
             UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
@@ -74,7 +81,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         // 设置更新时间为当前时间
         this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
         // 获取当前的HTTP请求
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 从会话中获取当前用户的ID
             UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;

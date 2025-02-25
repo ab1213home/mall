@@ -16,7 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.IUserRecordService;
+import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +41,10 @@ public class LoginController {
         this.userService = userService;
     }
 
-    private IUserRecordService userRecordService;
+    private IUserLogService userRecordService;
 
     @Autowired
-    public void setLoginRecordService(IUserRecordService userRecordService) {
+    public void setLoginRecordService(IUserLogService userRecordService) {
         this.userRecordService = userRecordService;
     }
 

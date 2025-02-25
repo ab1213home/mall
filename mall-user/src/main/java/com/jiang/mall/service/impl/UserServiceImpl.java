@@ -58,10 +58,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    this.userMapper = userMapper;
 	}
 
-	private IUserRecordService userRecordService;
+	private IUserLogService userRecordService;
 
     @Autowired
-    public void setLoginRecordService(IUserRecordService userRecordService) {
+    public void setLoginRecordService(IUserLogService userRecordService) {
         this.userRecordService = userRecordService;
     }
 
@@ -195,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		User user = getUserByUserNameOrEmail(username, password);
 		if (user == null) {
 			// 登录失败，记录登录记录
-			userRecordService.failedLoginRecord(username, clientIp, fingerprint);
+			userRecordService.failedLoginLog(username, clientIp, fingerprint);
 			return false;
 		} else {
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
@@ -208,7 +208,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
 			// 登录成功，记录登录记录
-			userRecordService.successLoginRecord(user, clientIp, fingerprint);
+			userRecordService.successLoginLog(user, clientIp, fingerprint);
 			return true;
 		}
 	}
@@ -335,7 +335,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		    if (userMapper.updateById(user) > 0){
 				verificationCode.setPassword(newPassword);
 				verificationCodeService.useCode(userId, verificationCode);
-				userRecordService.successForgotRecord(userId,clientIp,fingerprint);
+				userRecordService.successForgotLog(userId,clientIp,fingerprint);
 				return true;
 		    }else {
 				return null;
@@ -379,7 +379,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 				// 验证码使用标记
 				verificationCodeService.useCode(userId, verificationCode);
 				// 记录邮箱修改成功日志
-				userRecordService.successModifyEmailRecord(user,email,clientIp,fingerprint);
+				userRecordService.successModifyEmailLog(user,email,clientIp,fingerprint);
 				return true;
 			}else {
 				logger.error("修改用户邮箱失败{}", userId);
@@ -406,7 +406,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setIsActive(false);
 	        // 更新数据库中的用户信息
 	        if(userMapper.updateById(user)>0) {
-				userRecordService.successLockAdminRecord(userId,clientIp,fingerprint);
+				userRecordService.successLockAdminLog(userId,clientIp,fingerprint);
 				return true;
 	        }else {
 				logger.error("管理员锁定用户失败{}", userId);
@@ -448,7 +448,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 通过ID更新用户信息。
 		    if (userMapper.updateById(user) > 0){
 				// 记录邮箱修改成功日志
-				userRecordService.successModifyPasswordRecord(userId,clientIp,fingerprint);
+				userRecordService.successModifyPasswordLog(userId,clientIp,fingerprint);
 				// 清除会话中的用户信息，因为密码已修改
                 logout(sessionId);
 				return true;
@@ -458,7 +458,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		    }
 	    }else {
 			// 如果用户不存在或旧密码验证失败，返回false
-		    userRecordService.failedModifyPasswordRecord(userId,clientIp,fingerprint);
+		    userRecordService.failedModifyPasswordLog(userId,clientIp,fingerprint);
 			return false;
 	    }
 	}
@@ -542,7 +542,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setIsActive(false);
 	        // 更新数据库中的用户信息
 	        if(userMapper.updateById(user)>0) {
-				userRecordService.successLockRecord(userId,clientIp,fingerprint);
+				userRecordService.successLockLog(userId,clientIp,fingerprint);
 				logout(sessionId);
 				return true;
 	        }else {
@@ -614,7 +614,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		    if (userMapper.insert(user) > 0){
 				temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
                 verificationCodeService.useCode(user.getId(), verificationCode);
-                userRecordService.successRegisterRecord(user, clientIp, fingerprint);
+                userRecordService.successRegisterLog(user, clientIp, fingerprint);
 		    }
 	        return userMapper.insert(user)>0?user.getId():0;
 	    }else{
@@ -716,7 +716,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setIsActive(true);
 	        // 更新数据库中的用户信息
 	        if (userMapper.updateById(user)>0){
-				userRecordService.successUnlockAdminRecord(userId, clientIp, fingerprint);
+				userRecordService.successUnlockAdminLog(userId, clientIp, fingerprint);
 				return true;
 	        }else{
 				return null;
