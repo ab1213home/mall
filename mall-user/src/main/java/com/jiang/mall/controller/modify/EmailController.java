@@ -14,7 +14,7 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.dto.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
@@ -167,16 +167,16 @@ public class EmailController {
 		// 检查用户是否已登录
 		UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
 
-		EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
+		EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
 
-        if (emailCodeState.getState() == null){
+        if (emailCodeDto.getState() == null){
             // 验证码正确性及有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeState.getState()){
+        }else if (!emailCodeDto.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-		Boolean flag = userService.modifyEmail(user.getId(), email, emailCodeState.getVerificationCode(), session.getId(), clientIp, fingerprint);
+		Boolean flag = userService.modifyEmail(user.getId(), email, emailCodeDto.getVerificationCode(), session.getId(), clientIp, fingerprint);
 		// 更新用户邮箱
 		if (flag==null) {
 			//TODO:无状态

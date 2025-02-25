@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @TableName("tb_user_groups")
-public class UserGroup implements Serializable {
+public class Group implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

@@ -11,16 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.dto;
+package com.jiang.mall.dao;
 
-import com.jiang.mall.domain.entity.VerificationCode;
-import lombok.Data;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jiang.mall.domain.entity.GroupPermissionRelation;
+import org.apache.ibatis.annotations.Mapper;
 
-@Data
-public class EmailCodeState {
-	private Boolean state;
-	private VerificationCode verificationCode;
-
-	public EmailCodeState() {
-	}
+@Mapper
+public interface GroupPermissionRelationMapper extends BaseMapper<GroupPermissionRelation> {
 }

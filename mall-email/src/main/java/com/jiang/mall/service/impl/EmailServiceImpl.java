@@ -17,8 +17,8 @@ import com.jiang.mall.config.EmailConfig;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.EmailPurpose;
 import com.jiang.mall.domain.enums.EmailStatus;
-import com.jiang.mall.domain.dto.EmailCode;
-import com.jiang.mall.domain.dto.EmailCodeState;
+import com.jiang.mall.domain.cache.EmailCodeCache;
+import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.service.IEmailRedisService;
 import com.jiang.mall.service.IEmailService;
 import com.jiang.mall.service.IVerificationCodeService;
@@ -133,19 +133,6 @@ public class EmailServiceImpl implements IEmailService {
     }
 
 	/*
-	 * 验证验证码
-	 *
-	 * @param code 验证码
-	 * @param sessionId 用户会话ID
-	 *
-	 * @return 验证结果，true表示验证成功，false表示验证失败，null表示验证码已过期
-	 */
-	@Override
-	public Boolean verifyCode(String code, String sessionId){
-		return null;
-	}
-
-	/*
 	 * 发送注册邮件
 	 *
 	 * @param email 邮箱
@@ -165,8 +152,8 @@ public class EmailServiceImpl implements IEmailService {
         if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
-                EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
+                EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
+                redisService.setKey(sessionId, emailCodeCache,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -197,8 +184,8 @@ public class EmailServiceImpl implements IEmailService {
         if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,userId);
             if (verificationCodeService.add(userVerificationCode)){
-                EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
+                EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
+                redisService.setKey(sessionId, emailCodeCache,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -229,8 +216,8 @@ public class EmailServiceImpl implements IEmailService {
         if (sendEmail(email, "【"+EmailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
             if (verificationCodeService.add(userVerificationCode)){
-                EmailCode emailCode = new EmailCode(userVerificationCode.getId(),code);
-                redisService.setKey(sessionId, emailCode,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
+                EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
+                redisService.setKey(sessionId, emailCodeCache,EmailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
             }else {
                 return null;
@@ -263,27 +250,27 @@ public class EmailServiceImpl implements IEmailService {
 	 * @return 验证结果，(state)true表示验证成功，false表示验证失败，null表示验证码已过期
 	 */
 	@Override
-	public EmailCodeState validateCaptcha(String code, String sessionId){
-		EmailCodeState emailCodeState = new EmailCodeState();
+	public EmailCodeDto validateCaptcha(String code, String sessionId){
+		EmailCodeDto emailCodeDto = new EmailCodeDto();
 		// 验证码正确性及有效期检查
-        EmailCode emailCode = redisService.getKey(sessionId);
-        if (emailCode == null){
-			emailCodeState.setState(null);
-            return emailCodeState;
+        EmailCodeCache emailCodeCache = redisService.getKey(sessionId);
+        if (emailCodeCache == null){
+			emailCodeDto.setState(null);
+            return emailCodeDto;
         }
 
         // 检查用户输入的验证码与发送的验证码是否一致
-        if (!Objects.equals(emailCode.getCode(),code)){
-			emailCodeState.setState(false);
-            return emailCodeState;
+        if (!Objects.equals(emailCodeCache.getCode(),code)){
+			emailCodeDto.setState(false);
+            return emailCodeDto;
         }
-		VerificationCode userVerificationCode = verificationCodeService.queryById(emailCode.getId());
+		VerificationCode userVerificationCode = verificationCodeService.queryById(emailCodeCache.getId());
         verificationCodeService.clean(userVerificationCode.getEmail(),userVerificationCode.getId());
 
 		redisService.deleteKey(sessionId);
-		emailCodeState.setState(true);
-		emailCodeState.setVerificationCode(userVerificationCode);
-		return emailCodeState;
+		emailCodeDto.setState(true);
+		emailCodeDto.setVerificationCode(userVerificationCode);
+		return emailCodeDto;
 	}
 
 }

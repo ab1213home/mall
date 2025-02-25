@@ -14,7 +14,7 @@
 package com.jiang.mall.service;
 
 
-import com.jiang.mall.domain.dto.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeDto;
 
 public interface IEmailService {
 
@@ -35,16 +35,6 @@ public interface IEmailService {
 	 * @return 验证码
 	 */
 	String generateRandomCode(int length);
-
-	/*
-	 * 验证验证码
-	 *
-	 * @param code 验证码
-	 * @param sessionId 用户会话ID
-	 *
-	 * @return 验证结果，true表示验证成功，false表示验证失败，null表示验证码已过期
-	 */
-	Boolean verifyCode(String code, String sessionId);
 
 	/*
 	 * 发送注册邮件
@@ -85,6 +75,6 @@ public interface IEmailService {
 	 *
 	 * @return 验证结果，(state)true表示验证成功，false表示验证失败，null表示验证码已过期
 	 */
-	EmailCodeState validateCaptcha(String code, String sessionId);
+	EmailCodeDto validateCaptcha(String code, String sessionId);
 
 }

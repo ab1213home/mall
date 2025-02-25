@@ -15,7 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.dto.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
@@ -176,19 +176,19 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
 
-        EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
+        EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
 
-        if (emailCodeState.getState() == null){
+        if (emailCodeDto.getState() == null){
             // 验证码正确性及有效期检查
 //            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeState.getState()){
+        }else if (!emailCodeDto.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
         // 创建并注册用户
-        User user = new User(emailCodeState.getVerificationCode().getUsername(),emailCodeState.getVerificationCode().getPassword(),emailCodeState.getVerificationCode().getEmail());
-        Long userId = userService.register(user, emailCodeState.getVerificationCode(),session.getId(), clientIp, fingerprint);
+        User user = new User(emailCodeDto.getVerificationCode().getUsername(), emailCodeDto.getVerificationCode().getPassword(), emailCodeDto.getVerificationCode().getEmail());
+        Long userId = userService.register(user, emailCodeDto.getVerificationCode(),session.getId(), clientIp, fingerprint);
         if (userId>0) {
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {

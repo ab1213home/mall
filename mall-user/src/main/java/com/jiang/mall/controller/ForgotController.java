@@ -15,7 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.dto.EmailCodeState;
+import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.service.*;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.IEmailService;
@@ -159,15 +159,15 @@ public class ForgotController {
         if (!i18nService.isValidPassword(password)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
-        EmailCodeState emailCodeState = emailService.validateCaptcha(code, session.getId());
-        if (emailCodeState.getState() == null){
+        EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
+        if (emailCodeDto.getState() == null){
             // 验证码正确性及有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeState.getState()){
+        }else if (!emailCodeDto.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-        Boolean flag = userService.modifyPassword(emailCodeState.getVerificationCode().getUserId(), password, emailCodeState.getVerificationCode(), clientIp, fingerprint);
+        Boolean flag = userService.modifyPassword(emailCodeDto.getVerificationCode().getUserId(), password, emailCodeDto.getVerificationCode(), clientIp, fingerprint);
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }else if (!flag){

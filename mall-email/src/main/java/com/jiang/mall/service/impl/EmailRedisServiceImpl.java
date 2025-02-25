@@ -14,7 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
-import com.jiang.mall.domain.dto.EmailCode;
+import com.jiang.mall.domain.cache.EmailCodeCache;
 import com.jiang.mall.service.IEmailRedisService;
 import com.jiang.mall.config.GeneralConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class EmailRedisServiceImpl implements IEmailRedisService {
      * @param unit 时间单位，用于指定过期时间
      */
     @Override
-    public void setKey(String key, EmailCode value, long timeout, TimeUnit unit) {
+    public void setKey(String key, EmailCodeCache value, long timeout, TimeUnit unit) {
         stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
     }
 
@@ -59,9 +59,9 @@ public class EmailRedisServiceImpl implements IEmailRedisService {
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public EmailCode getKey(String key) {
+    public EmailCodeCache getKey(String key) {
         String value = stringRedisTemplate.opsForValue().get(key(key));
-        return value == null ? null : JSON.parseObject(value, EmailCode.class);
+        return value == null ? null : JSON.parseObject(value, EmailCodeCache.class);
     }
 
     /**

@@ -13,18 +13,14 @@
 
 package com.jiang.mall.domain.dto;
 
+import com.jiang.mall.domain.entity.VerificationCode;
 import lombok.Data;
 
 @Data
-public class EmailCode {
-	private Long id;
-	private String code;
+public class EmailCodeDto {
+	private Boolean state;
+	private VerificationCode verificationCode;
 
-	public EmailCode(Long id, String code) {
-		this.id = id;
-		this.code = code;
-	}
-
-	public EmailCode() {
+	public EmailCodeDto() {
 	}
 }

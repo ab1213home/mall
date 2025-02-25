@@ -34,7 +34,6 @@ import java.util.List;
 @RequestMapping("/email/admin")
 public class EmailAdminController {
 
-    // 验证码服务接口，用于验证码的管理
     private IVerificationCodeService verificationCodeService;
 
     /**
@@ -46,7 +45,6 @@ public class EmailAdminController {
     public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
         this.verificationCodeService = verificationCodeService;
     }
-
 
     /**
      * 获取邮箱设置信息

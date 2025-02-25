@@ -13,7 +13,7 @@
 
 package com.jiang.mall.service;
 
-import com.jiang.mall.domain.dto.EmailCode;
+import com.jiang.mall.domain.cache.EmailCodeCache;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +27,7 @@ public interface IEmailRedisService {
      * @param timeout 缓存项在缓存中保持有效的时间长度，到达过期时间后，缓存项将被视为无效
      * @param unit 指定timeout参数的时间单位，用于明确过期时间的度量标准
      */
-    void setKey(String key, EmailCode value, long timeout, TimeUnit unit);
+    void setKey(String key, EmailCodeCache value, long timeout, TimeUnit unit);
 
     /**
      * 根据键获取对应的字符串值
@@ -35,7 +35,7 @@ public interface IEmailRedisService {
      * @param key 字符串的键，用于唯一标识一个字符串值
      * @return 与键关联的字符串值，如果键不存在，则返回null
      */
-    EmailCode getKey(String key);
+    EmailCodeCache getKey(String key);
 
     /**
      * 删除指定键对应的数据
