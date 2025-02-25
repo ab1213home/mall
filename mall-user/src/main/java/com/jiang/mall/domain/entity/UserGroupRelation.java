@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user_group_permissions")
-public class UserGroupPermission implements Serializable {
+@TableName("tb_user_group_relations")
+public class UserGroupRelation implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -22,14 +22,20 @@ public class UserGroupPermission implements Serializable {
     private Long id;
 
     /**
-     * 用户组ID
+     * 用户ID
      */
-    private Long userGroupId;
+    private Long userId;
 
     /**
-     * 权限ID
+     * 用户组ID
      */
-    private Long permissionId;
+    private Long groupId;
+
+    /**
+     * 创建人
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private Long creator;
 
     /**
      * 创建时间，自动填充
@@ -39,9 +45,18 @@ public class UserGroupPermission implements Serializable {
     private LocalDateTime createdAt;
 
     /**
+     * 更新人
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Long updater;
+
+    /**
      * 更新时间，自动填充
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime updatedAt;
+
+    @TableLogic
+    private Boolean isDel;
 }
