@@ -25,18 +25,18 @@
             <name>jiangrongjun</name>
             <email>jiangrongjun2004@163.com</email>
             <organization>jiangrongjun</organization>
-            <organizationUrl>https://github.com/ab1213home/mall</organizationUrl>
+            <organizationUrl>https://github.com/ab1213home</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
             <timezone>+8</timezone>
         </developer>
     </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+	<scm>
+        <connection>scm:git:https://github.com/ab1213home/mall/master.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:ab1213home/develop.git</developerConnection>
+        <tag>2.0.1</tag>
+        <url>https://github.com/ab1213home/mall</url>
     </scm>
     <properties>
         <java.version>17</java.version>

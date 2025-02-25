@@ -28,7 +28,7 @@
             <name>jiangrongjun</name>
             <email>jiangrongjun2004@163.com</email>
             <organization>jiangrongjun</organization>
-            <organizationUrl>https://github.com/ab1213home/mall</organizationUrl>
+            <organizationUrl>https://github.com/ab1213home</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
@@ -36,22 +36,31 @@
         </developer>
     </developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+        <connection>scm:git:https://github.com/ab1213home/mall/master.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:ab1213home/develop.git</developerConnection>
+        <tag>2.0.1</tag>
+        <url>https://github.com/ab1213home/mall</url>
+    </scm>
 	<properties>
 		<java.version>17</java.version>
-        <spring.version>3.4.1</spring.version>
+        <spring-boot.version>3.4.1</spring-boot.version>
         <mysql.version>9.1.0</mysql.version>
         <mybatis-plus.version>3.5.8</mybatis-plus.version>
+        <mybatis.version>3.0.3</mybatis.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <logback.version>1.18.36</logback.version>
         <annotations.version>26.0.0</annotations.version>
         <sitemap.version>1.1.1</sitemap.version>
         <modelmapper.version>2.4.4</modelmapper.version>
+        <fastjson2.version>2.0.54</fastjson2.version>
+        <minio.version>8.5.17</minio.version>
+        <flyway.version>9.20.0</flyway.version>
+        <mail.version>2.0.1</mail.version>
+        <servlet.version>4.0.1</servlet.version>
+        <spring-messaging.version>6.2.2</spring-messaging.version>
+        <git-commit.version>9.0.1</git-commit.version>
+        <pool2.version>2.12.1</pool2.version>
 	</properties>
 	<dependencies>
 
@@ -61,25 +70,25 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-websocket</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-messaging</artifactId>
-                <version>6.2.2</version>
+                <version>${spring-messaging.version}</version>
             </dependency>
 
             <!--mysql驱动-->
@@ -106,7 +115,7 @@
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis-spring</artifactId>
-                <version>3.0.3</version>
+                <version>${mybatis.version}</version>
             </dependency>
 
             <!--验证码-->
@@ -120,7 +129,7 @@
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>jakarta.mail</artifactId>
-                <version>2.0.1</version>
+                <version>${mail.version}</version>
             </dependency>
 
             <!-- Thymeleaf依赖 -->
@@ -133,7 +142,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>4.0.1</version>
+                <version>${servlet.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -184,7 +193,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <!--modelmapper对象映射库-->
@@ -198,20 +207,20 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-redis</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-pool2</artifactId>
-                <version>2.12.1</version>
+                <version>${pool2.version}</version>
             </dependency>
 
             <!-- 高性能的JSON库 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
-                <version>2.0.54</version>
+                <version>${fastjson2.version}</version>
             </dependency>
     <!--        <dependency>-->
     <!--            <groupId>org.springframework.session</groupId>-->
@@ -222,14 +231,14 @@
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
-                <version>8.5.17</version>
+                <version>${minio.version}</version>
             </dependency>
 
             <!-- git版本管理 -->
             <dependency>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>9.0.1</version>
+                <version>${git-commit.version}</version>
             </dependency>
 
         <!-- 解析客户端操作系统、浏览器等 -->
@@ -251,13 +260,13 @@
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
-                <version>9.20.0</version>
+                <version>${flyway.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-mysql</artifactId>
-                <version>9.20.0</version>
+                <version>${flyway.version}</version>
             </dependency>
 
             <dependency>
