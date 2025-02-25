@@ -61,7 +61,7 @@ public class UserVo {
     /**
      * 头像
      */
-    private String img;
+    private String avatar;
 
     /**
      * 出生日期

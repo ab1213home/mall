@@ -13,7 +13,6 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.dto.EmailCodeState;
@@ -31,8 +30,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
-
-import static com.jiang.mall.config.UserConfig.*;
 
 /**
  * 用户控制器
@@ -217,7 +214,7 @@ public class RegisterController {
                                                 @RequestParam("firstName") String firstName,
                                                 @RequestParam("lastName") String lastName,
                                                 @RequestParam("birthday") String birthDate,
-                                                @RequestParam("img") String img,
+                                                @RequestParam("avatar") String avatar,
                                                 HttpSession session) {
         // 检查会话中是否包含账号id，以确保用户已开始注册过程
         Long userId = Long.parseLong(temporaryRedisService.getKey(session.getId()));
@@ -227,13 +224,13 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.phone"));
         }
 
-        if (!i18nService.checkString(img,255)){
+        if (!i18nService.checkString(avatar,255)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.img"));
         }
 
         // 创建User对象以保存用户信息
         User user = new User(userId,firstName,lastName,phone);
-        user.setImg(img);
+        user.setAvatar(avatar);
 
         // 验证和转换生日日期格式
         try {

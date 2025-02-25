@@ -194,7 +194,7 @@ function updateUser(id) {
         birthday: birthday,
         isAdmin: isAdmin,
         roleId: roleId,
-        img: img
+        avatar: img
     }
     $.ajax({
         type: "POST",
@@ -232,7 +232,7 @@ function getUser(id) {
     $("#isAdmin").prop("checked",user.admin);
     $("#roleId").val(user.roleId);
     $("#imgPreview").src = user.img;
-    $("#img").val(user.img);
+    $("#img").val(user.avatar);
 }
 function lockUser(id) {
     $.ajax({

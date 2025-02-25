@@ -229,7 +229,7 @@ function submitRegisterStepFourForm() {
         firstName: firstName,
         lastName: lastName,
         birthday: birthday,
-        img: img
+        avatar: img
     };
 
     // 发送 AJAX 请求

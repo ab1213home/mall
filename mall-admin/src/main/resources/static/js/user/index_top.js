@@ -59,12 +59,12 @@ function queryMyUserInfo(){
 				birthday.forEach(element => {
 					element.textContent = res.data.birthDate;
 				});
-				const img = document.querySelectorAll('.profile-picture');
-				img.forEach(element => {
-					if (res.data.img==null){
+				const avatar = document.querySelectorAll('.profile-picture');
+				avatar.forEach(element => {
+					if (res.data.avatar==null){
 						element.src = '/faces/default.jpg';
 					}else {
-						element.src = res.data.img;
+						element.src = res.data.avatar;
 					}
 				});
 				if (document.getElementById('imgPreview')!= null){

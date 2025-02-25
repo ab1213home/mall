@@ -132,7 +132,7 @@ public class InfoController {
                                                  @RequestParam(required = false) String lastName,
                                                  @RequestParam(required = false) String birthDate,
                                                  @RequestParam(required = false) String email,
-                                                 @RequestParam(required = false) String img,
+                                                 @RequestParam(required = false) String avatar,
                                                  @RequestParam(required = false) boolean isAdmin,
                                                  @RequestParam(required = false) Integer roleId,
                                                  HttpSession session) {
@@ -145,7 +145,7 @@ public class InfoController {
         }
 
         // 设置用户ID到用户信息对象中
-        User userInfo = new User(user.getId(), firstName, lastName, phone,img);
+        User userInfo = new User(user.getId(), firstName, lastName, phone,avatar);
         // 验证和转换生日日期格式
         if (birthDate != null){
             try {
@@ -215,7 +215,7 @@ public class InfoController {
             user.setFirstName(userInfo.getFirstName());
             user.setLastName(userInfo.getLastName());
             user.setBirthDate(userInfo.getBirthDate());
-            user.setImg(userInfo.getImg());
+            user.setAvatar(userInfo.getAvatar());
 			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
                 user.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));

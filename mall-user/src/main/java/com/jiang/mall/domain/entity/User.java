@@ -86,7 +86,7 @@ public class User implements Serializable {
     /**
      * 头像
      */
-    private String img;
+    private String avatar;
 
     /**
      * 默认地址ID
@@ -140,12 +140,12 @@ public class User implements Serializable {
 
     }
 
-    public User(Long userId, String firstName, String lastName, String phone, String img) {
+    public User(Long userId, String firstName, String lastName, String phone, String avatar) {
         this.id = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
-        this.img = img;
+        this.avatar = avatar;
     }
 
     /**

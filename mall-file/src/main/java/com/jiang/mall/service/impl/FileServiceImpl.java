@@ -109,7 +109,7 @@ public class FileServiceImpl implements IFileService {
 
 	    // 查询该文件是否被用作用户头像
 		QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-		userQueryWrapper.eq("img", folder);
+		userQueryWrapper.eq("avatar", folder);
 	    List<User> users = userMapper.selectList(userQueryWrapper);
 		if (!users.isEmpty()) {
 			for (User user : users) {
