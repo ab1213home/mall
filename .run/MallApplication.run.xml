@@ -15,6 +15,13 @@
   </configuration>
   <configuration default="false" name="MallApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <option name="ACTIVE_PROFILES" value="application.properties" />
+    <additionalParameters>
+      <param>
+        <option name="enabled" value="true" />
+        <option name="name" value="management.endpoint.env.show-values" />
+        <option name="value" value="when_authorized" />
+      </param>
+    </additionalParameters>
     <module name="mall-admin" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.jiang.mall.MallApplication" />
     <extension name="coverage">

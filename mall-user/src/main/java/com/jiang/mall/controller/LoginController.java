@@ -20,11 +20,6 @@ import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -65,13 +60,6 @@ public class LoginController {
 	@Autowired
 	public void setCaptchaService(ICaptchaService captchaService) {
 		this.captchaService = captchaService;
-	}
-
-    private AuthenticationManager authenticationManager;
-
-	@Autowired
-	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
 	}
 
 	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -133,16 +121,7 @@ public class LoginController {
             // 登录失败，返回相应错误信息
             return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         }else {
-			try {
-	            Authentication authentication = authenticationManager.authenticate(
-	                new UsernamePasswordAuthenticationToken(username, password)
-	            );
-	            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-	            return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
-	        } catch (BadCredentialsException e) {
-	            return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
-	        }
+			return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
         }
     }
 
