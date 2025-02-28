@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/user/modify")
-public class LockController {
+public class LockModifyController {
 
 	private IUserService userService;
 

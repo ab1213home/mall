@@ -108,14 +108,23 @@ public class MyMvcConfig implements WebMvcConfigurer {
      *
      * @param registry CorsRegistry对象，用于注册跨域请求的映射
      */
-    @Override
+//    @Override
+//    public void addCorsMappings(@NotNull CorsRegistry registry) {
+//        //所有请求都允许跨域
+//        registry.addMapping("/api/**")
+//		        .allowedMethods("GET", "POST")
+//                .maxAge(3600)
+//                .allowedOrigins("*")
+//                .allowedHeaders("*");
+//    }
+
+	@Override
     public void addCorsMappings(@NotNull CorsRegistry registry) {
-        //所有请求都允许跨域
-        registry.addMapping("/api/**")
-		        .allowedMethods("GET", "POST")
-                .maxAge(3600)
-                .allowedOrigins("*")
-                .allowedHeaders("*");
+        registry.addMapping("/**") // 允许所有路径
+                .allowedOrigins("http://localhost:8080") // 允许的前端地址
+                .allowedMethods("GET", "POST") // 允许的方法
+                .allowedHeaders("*") // 允许的头部
+                .allowCredentials(true); // 允许携带凭据
     }
 
     @Bean

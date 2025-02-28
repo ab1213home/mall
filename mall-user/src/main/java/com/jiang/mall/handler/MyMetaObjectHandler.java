@@ -62,6 +62,11 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
             this.setFieldValByName("creator", userVo.getId(), metaObject);
             // 设置更新者ID为当前用户的ID
             this.setFieldValByName("updater", userVo.getId(), metaObject);
+        }else{
+            // 设置创建者ID为当前用户的ID
+            this.setFieldValByName("creator", -1, metaObject);
+            // 设置更新者ID为当前用户的ID
+            this.setFieldValByName("updater", -1, metaObject);
         }
         // 设置创建时间为当前时间
         this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
@@ -87,6 +92,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
             UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
             // 设置更新者ID为当前用户的ID
             this.setFieldValByName("updater", userVo.getId(), metaObject);
+        }else{
+            // 设置更新者ID为当前用户的ID
+            this.setFieldValByName("updater", -1, metaObject);
         }
     }
 

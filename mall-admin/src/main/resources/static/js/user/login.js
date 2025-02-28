@@ -21,12 +21,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+/**
+ * 获取 CSRF Token
+ * @returns {string} 返回 CSRF Token 和对应的头部名称
+ */
+function getCsrfToken(){
+    let token = "";
+    $.ajax({
+        url: '/common/csrf',
+        type: 'GET',
+        data: {},
+        dataType:"json",
+        // 设置为同步请求，以确保在继续执行之前得到响应
+        async: false,
+        success: function(res) {
+            // 处理成功响应
+            if (res.code == 200) {
+                token = res.data;
+            } else {
+                show_error('获取CSRF令牌失败:'+data.message);
+            }
+        }
+    })
+    return token;
+}
 // 登录表单提交处理函数
 function submitLoginForm() {
   // 获取表单数据
   const username = $('#username').val();
   const password = $('#password').val();
   const captcha = $('#captcha').val();
+  const token=getCsrfToken();
+  console.log(token);
 
   // 构建请求体
   const data = {
@@ -41,6 +67,7 @@ function submitLoginForm() {
     type: 'POST',
     data: data,
     headers: {
+        'X-CSRF-TOKEN': token,
         'X-Real-FINGERPRINT':fingerprint,
         'X-Real-IP':ip,
     },
@@ -57,19 +84,23 @@ function submitLoginForm() {
             }
         } else {
             show_error('登录失败:'+data.message);
-            let captchaImg = document.getElementById('captchaImg');
-            captchaImg.src = '/common/captcha';
+            refreshCaptcha()
         }
     },
     fail: function(xhr, status, error) {
       // 显示错误信息给用户
       show_error('登录失败，请联系管理员！'+error);
-      let captchaImg = document.getElementById('captchaImg');
-      captchaImg.src = '/common/captcha';
+      refreshCaptcha()
     }
   });
 }
-
+// 刷新验证码的函数
+function refreshCaptcha() {
+    const captchaImg = document.getElementById('captchaImg');
+    if (captchaImg) {
+        captchaImg.src = '/common/captcha?' + new Date().getTime(); // 添加时间戳避免缓存
+    }
+}
 // 绑定表单提交事件
 $(document).ready(function() {
   $('form').on('submit', function(event) {

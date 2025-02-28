@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter;
  */
 @RestController
 @RequestMapping("/user/modify")
-public class PasswordController {
+public class PasswordModifyController {
 
 	private IUserService userService;
 

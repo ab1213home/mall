@@ -193,9 +193,9 @@ public class EmailConfig {
      *
      * @return 邮件发送者的昵称，如果未设置则返回默认值"example"
      */
-    public static String getEmailNickname() {
-        return properties.getProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), EmailConfigItems.EMAIL_NICKNAME.getDefaultValue());
-    }
+//    public static String getEmailNickname() {
+//        return properties.getProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), EmailConfigItems.EMAIL_NICKNAME.getDefaultValue());
+//    }
 
     /**
      * 获取邮件密码
@@ -293,7 +293,7 @@ public class EmailConfig {
         // 设置发件人邮箱结尾
         emailSettingVo.setSender_end(getEmailSenderEnd());
         // 设置发件人昵称
-        emailSettingVo.setNickname(getEmailNickname());
+//        emailSettingVo.setNickname(getEmailNickname());
         // 设置邮件服务器登录密码
         emailSettingVo.setPassword(getEmailPassword());
         // 设置邮件验证码有效期
@@ -392,10 +392,10 @@ public class EmailConfig {
      *
      * @param nickname 新的邮件发送者昵称
      */
-    public static void updateEmailNickname(String nickname) {
-        // 设置新的邮件昵称到属性文件中
-        properties.setProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), nickname);
-    }
+//    public static void updateEmailNickname(String nickname) {
+//        // 设置新的邮件昵称到属性文件中
+//        properties.setProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), nickname);
+//    }
 
     /**
      * 更新邮件密码
@@ -468,7 +468,7 @@ public class EmailConfig {
         updateEmailPort(emailSettingVo.getPort());
         updateEmailUsername(emailSettingVo.getUsername());
         updateEmailSenderEnd(emailSettingVo.getSender_end());
-        updateEmailNickname(emailSettingVo.getNickname());
+//        updateEmailNickname(emailSettingVo.getNickname());
         updateEmailPassword(emailSettingVo.getPassword());
         updateEmailExpirationTime(emailSettingVo.getExpiration_time());
         updateEmailMaxRequestNum(emailSettingVo.getMax_request_num());

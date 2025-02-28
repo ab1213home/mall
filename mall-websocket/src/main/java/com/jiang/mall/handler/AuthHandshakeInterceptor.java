@@ -30,10 +30,10 @@ public class AuthHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
                                    @NotNull Map<String, Object> attributes) {
         // 从请求中提取用户信息（示例逻辑，需按实际鉴权方式实现）
         String userId = extractUserIdFromRequest(request);
-        Set<String> groupIds = extractUserGroupsFromRequest(request);
+//        Set<String> groupIds = extractUserGroupsFromRequest(request);
 
         // 将用户信息存入WebSocket Session属性
-        attributes.put("user", new SessionUser(userId, groupIds));
+//        attributes.put("user", new SessionUser(userId, groupIds));
         return true;
     }
 

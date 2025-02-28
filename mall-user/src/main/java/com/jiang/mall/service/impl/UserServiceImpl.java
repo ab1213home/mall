@@ -18,7 +18,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.UserConfig;
-import com.jiang.mall.dao.UserMapper;
+import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
@@ -32,8 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
@@ -91,6 +90,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Autowired
 	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
 		this.temporaryRedisService = temporaryRedisService;
+	}
+
+	private GroupMapper groupMapper;
+
+	@Autowired
+	public void setGroupMapper(GroupMapper groupMapper) {
+		this.groupMapper = groupMapper;
+	}
+
+	private PermissionMapper permissionMapper;
+
+	@Autowired
+	public void setPermissionMapper(PermissionMapper permissionMapper) {
+		this.permissionMapper = permissionMapper;
+	}
+
+	private GroupPermissionRelationMapper groupPermissionRelationMapper;
+
+	@Autowired
+	public void setGroupPermissionRelationMapper(GroupPermissionRelationMapper groupPermissionRelationMapper) {
+		this.groupPermissionRelationMapper = groupPermissionRelationMapper;
+	}
+
+	private UserGroupRelationMapper userGroupRelationMapper;
+
+	@Autowired
+	public void setUserGroupRelationMapper(UserGroupRelationMapper userGroupRelationMapper) {
+		this.userGroupRelationMapper = userGroupRelationMapper;
+	}
+
+	private UserPermissionRelationMapper userPermissionRelationMapper;
+
+	@Autowired
+	public void setUserPermissionRelationMapper(UserPermissionRelationMapper userPermissionRelationMapper) {
+		this.userPermissionRelationMapper = userPermissionRelationMapper;
 	}
 
 	/**
@@ -200,6 +234,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		} else {
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
+			Set<Long> groupIds = groupPermissionRelationMapper.selectGroupIdByUserId(user.getId());
+			userVo.setGroups(groupIds);
+//			Set<Long> permissionIds = userPermissionRelationMapper.selectPermissionIdByUserId(user.getId());
+//			permissionIds.addAll(permissionMapper.selectPermissionIdByGroupId(groupIds));
+			Set<Map<String,String>> permissions = new HashSet<>();
 	        userVo.setAdmin(user.getRoleId() >= UserConfig.getAdminRoleId());
 			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){

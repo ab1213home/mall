@@ -38,7 +38,7 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
  */
 @RestController
 @RequestMapping("/user/modify")
-public class EmailController {
+public class EmailModifyController {
 
 	private IUserService userService;
 

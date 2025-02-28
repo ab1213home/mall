@@ -18,23 +18,23 @@ import lombok.Getter;
 @Getter
 public enum LogStatus {
 
-	SUCCESS_LOGIN((byte) 0, "登录成功"),
-	FAIL_LOGIN((byte) 1,"登录失败"),
-	SUCCESS_REGISTER((byte) 2, "注册成功"),
-	FORGET_PASSWORD((byte) 3,"忘记密码"),
-	SUCCESS_MODIFY_PASSWORD((byte) 4, "修改密码成功"),
-	FAIL_MODIFY_PASSWORD((byte) 5,"修改密码失败"),
-	SUCCESS_MODIFY_EMAIL((byte) 6, "修改邮箱成功"),
-	FAIL_MODIFY_EMAIL((byte) 7, "修改邮箱失败"),
-	SUCCESS_LOCK((byte) 8, "用户自我锁定成功"),
-	SUCCESS_ADMIN_LOCK((byte) 9, "管理员锁定用户成功"),
-	SUCCESS_UNLOCK((byte) 10, "解锁用户成功");
+	SUCCESS_LOGIN( 0, "登录成功"),
+	FAIL_LOGIN( 1,"登录失败"),
+	SUCCESS_REGISTER( 2, "注册成功"),
+	FORGET_PASSWORD( 3,"忘记密码"),
+	SUCCESS_MODIFY_PASSWORD( 4, "修改密码成功"),
+	FAIL_MODIFY_PASSWORD( 5,"修改密码失败"),
+	SUCCESS_MODIFY_EMAIL( 6, "修改邮箱成功"),
+	FAIL_MODIFY_EMAIL( 7, "修改邮箱失败"),
+	SUCCESS_LOCK( 8, "用户自我锁定成功"),
+	SUCCESS_ADMIN_LOCK( 9, "管理员锁定用户成功"),
+	SUCCESS_UNLOCK( 10, "解锁用户成功");
 
 	private final byte value;
 	private final String name;
 
-	LogStatus(byte value, String name) {
-		this.value = value;
+	LogStatus(int value, String name) {
+		this.value = (byte)value;
 		this.name = name;
 	}
 

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 用户视图对象
@@ -93,6 +95,16 @@ public class UserVo {
      * 距离下次生日的天数
      */
     private Integer nextBirthday;
+
+    /**
+     * 权限set集合
+     */
+    private Set<Map<String,String>> permissions;
+
+    /**
+     * 用户组set集合
+     */
+    private Set<Long> groups;
 
 
     /**
