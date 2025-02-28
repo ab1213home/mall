@@ -94,6 +94,21 @@ public class User implements Serializable {
     private Long defaultAddressId;
 
     /**
+     * 权限
+     */
+    private String permission;
+
+    /**
+     * TOTP 状态，默认为 false
+     */
+    private boolean totpEnabled;
+
+    /**
+     * TOTP 密钥
+     */
+    private String totpSecret;
+
+    /**
      * 创建时间，自动填充
      */
     @TableField(fill = FieldFill.INSERT)

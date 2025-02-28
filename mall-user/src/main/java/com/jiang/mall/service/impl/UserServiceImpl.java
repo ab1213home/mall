@@ -99,19 +99,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.groupMapper = groupMapper;
 	}
 
-	private PermissionMapper permissionMapper;
-
-	@Autowired
-	public void setPermissionMapper(PermissionMapper permissionMapper) {
-		this.permissionMapper = permissionMapper;
-	}
-
-	private GroupPermissionRelationMapper groupPermissionRelationMapper;
-
-	@Autowired
-	public void setGroupPermissionRelationMapper(GroupPermissionRelationMapper groupPermissionRelationMapper) {
-		this.groupPermissionRelationMapper = groupPermissionRelationMapper;
-	}
 
 	private UserGroupRelationMapper userGroupRelationMapper;
 
@@ -120,12 +107,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.userGroupRelationMapper = userGroupRelationMapper;
 	}
 
-	private UserPermissionRelationMapper userPermissionRelationMapper;
-
-	@Autowired
-	public void setUserPermissionRelationMapper(UserPermissionRelationMapper userPermissionRelationMapper) {
-		this.userPermissionRelationMapper = userPermissionRelationMapper;
-	}
 
 	/**
 	 * 检查用户是否已登录
@@ -234,12 +215,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		} else {
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
-			Set<Long> groupIds = groupPermissionRelationMapper.selectGroupIdByUserId(user.getId());
+			Set<Long> groupIds = groupMapper.selectGroupIdByUserId(user.getId());
 			userVo.setGroups(groupIds);
-//			Set<Long> permissionIds = userPermissionRelationMapper.selectPermissionIdByUserId(user.getId());
-//			permissionIds.addAll(permissionMapper.selectPermissionIdByGroupId(groupIds));
-			Set<Map<String,String>> permissions = new HashSet<>();
-	        userVo.setAdmin(user.getRoleId() >= UserConfig.getAdminRoleId());
+			StringBuilder permissions_str = new StringBuilder();
+			for (Long groupId : groupIds) {
+				permissions_str.append(groupMapper.selectPermissionByGroupId(groupId)).append(",");
+			}
+			permissions_str.append(user.getPermission());
+
+			Set<String> permissions = new HashSet<>();
+			for (String permission : permissions_str.toString().split(",")) {
+				permissions.add(permission);
+			}
+			userVo.setPermissions(permissions);
+	        userVo.setAdmin(!permissions.isEmpty());
 			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));

@@ -32,6 +32,16 @@ public class Group implements Serializable {
     private String description;
 
     /**
+     * 权限
+     */
+    private String permission;
+
+    /**
+     * 是否强制TOTP，默认为 false
+     */
+    private Boolean totpEnabled;
+
+    /**
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)

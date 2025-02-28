@@ -99,7 +99,7 @@ public class UserVo {
     /**
      * 权限set集合
      */
-    private Set<Map<String,String>> permissions;
+    private Set<String> permissions;
 
     /**
      * 用户组set集合
