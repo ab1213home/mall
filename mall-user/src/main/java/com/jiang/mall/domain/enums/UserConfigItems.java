@@ -17,10 +17,10 @@ import lombok.Getter;
 
 @Getter
 public enum UserConfigItems {
-	MAX_TRY_NUMBER("max.try.number", "最大尝试登录次数", "5"),
-	MAX_ADDRESS_NUM("max.address.num", "最大收货地址数量", "50"),
-	//默认用户组
-	ALLOW_REGISTRATION("allow.registration", "是否允许注册", "true");
+	USER_MAX_TRY("user.max.try", "最大尝试登录次数", "5"),
+	USER_MAX_ADDRESS("user.max.address", "最大收货地址数量", "50"),
+	USER_DEFAULT_GROUP("user.default.group", "默认用户组", "1"),
+	ALLOW_USER_REGISTRATION("allow.user.registration", "是否允许注册", "true");
 
 	private final String key;
 	private final String description;

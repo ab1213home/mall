@@ -16,9 +16,9 @@ package com.jiang.mall.domain.vo;
 import lombok.Data;
 
 @Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private boolean allowRegistration;
+public class CaptchaSettingVo {
+	private Integer captchaNum;
+	private Integer captchaType;
+	private Integer captchaFont;
+	private Integer captchaExpireTime;
 }

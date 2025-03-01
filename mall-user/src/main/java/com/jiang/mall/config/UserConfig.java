@@ -14,16 +14,15 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.UserConfigItems;
+import com.jiang.mall.domain.vo.UserSettingVo;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.Objects;
 import java.util.Properties;
 
 @Component
@@ -114,28 +113,53 @@ public class UserConfig {
         }
     }
 
-    public static int getMaxTryNumber() {
-        return Integer.parseInt(properties.getProperty(UserConfigItems.MAX_TRY_NUMBER.getKey(), UserConfigItems.MAX_TRY_NUMBER.getDefaultValue()));
+    public static int getUserMaxTry() {
+        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_TRY.getKey(), UserConfigItems.USER_MAX_TRY.getDefaultValue()));
     }
 
-    public static int getMaxAddressNum() {
-        return Integer.parseInt(properties.getProperty(UserConfigItems.MAX_ADDRESS_NUM.getKey(), UserConfigItems.MAX_ADDRESS_NUM.getDefaultValue()));
+    public static int getUserMaxAddress() {
+        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), UserConfigItems.USER_MAX_ADDRESS.getDefaultValue()));
+    }
+
+    public static long getDefaultGroup() {
+        return Long.parseLong(properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
     }
 
     public static boolean isAllowRegistration() {
-        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), UserConfigItems.ALLOW_REGISTRATION.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), UserConfigItems.ALLOW_USER_REGISTRATION.getDefaultValue()));
     }
 
-    public static void updateMaxTryNumber(int num) {
-        properties.setProperty(UserConfigItems.MAX_TRY_NUMBER.getKey(), String.valueOf(num));
+    public static void updateUserMaxTry(int num) {
+        properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
     }
 
-    public static void updateMaxAddressNum(int num) {
-        properties.setProperty(UserConfigItems.MAX_ADDRESS_NUM.getKey(), String.valueOf(num));
+    public static void updateUserMaxAddress(int num) {
+        properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
     }
 
     public static void updateAllowRegistration(boolean allow) {
-        properties.setProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), String.valueOf(allow));
+        properties.setProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), String.valueOf(allow));
     }
 
+    public static void updateDefaultGroup(long group) {
+        properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
+    }
+
+    public static @NotNull UserSettingVo getSetting() {
+        UserSettingVo settingVo = new UserSettingVo();
+        settingVo.setMaxTryNumber(getUserMaxTry());
+        settingVo.setMaxAddressNum(getUserMaxAddress());
+        settingVo.setDefaultGroup(getDefaultGroup());
+        settingVo.setAllowRegistration(isAllowRegistration());
+        return settingVo;
+    }
+
+    public static void updateSetting(@NotNull UserSettingVo settingVo) {
+        updateUserMaxTry(settingVo.getMaxTryNumber());
+        updateUserMaxAddress(settingVo.getMaxAddressNum());
+        updateDefaultGroup(settingVo.getDefaultGroup());
+        updateAllowRegistration(settingVo.isAllowRegistration());
+        saveProperties();
+        loadProperties();
+    }
 }

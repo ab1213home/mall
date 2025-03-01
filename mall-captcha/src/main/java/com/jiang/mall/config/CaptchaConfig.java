@@ -14,7 +14,9 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.CaptchaConfigItems;
+import com.jiang.mall.domain.vo.CaptchaSettingVo;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,13 +183,9 @@ public class CaptchaConfig {
      *
      * @param num 验证码中字符的数量，此值将被存储并用于后续验证码的生成
      */
-    public void updateCaptchaNum(int num) {
+    public static void updateCaptchaNum(int num) {
         // 设置验证码字符数量的属性，将其转换为字符串以适应属性存储的要求
         properties.setProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), String.valueOf(num));
-        // 将更新后的属性保存到持久化存储中
-        saveProperties();
-        // 重新加载属性，以确保最新的配置能够在系统中立即生效
-        loadProperties();
     }
 
     /**
@@ -198,13 +196,9 @@ public class CaptchaConfig {
      *
      * @param time 新的验证码过期时间，单位为分钟
      */
-    public void updateCaptchaExpireTime(int time) {
+    public static void updateCaptchaExpireTime(int time) {
         // 设置字符过期时间到属性配置中
         properties.setProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), String.valueOf(time));
-        // 保存更新后的属性配置
-        saveProperties();
-        // 重新加载属性配置以应用更改
-        loadProperties();
     }
 
     /**
@@ -213,18 +207,13 @@ public class CaptchaConfig {
      *
      * @param font 字体的大小，这是一个整数值，用于设置字符的字体大小
      */
-    public void updateCaptchaFont(int font) {
+    public static void updateCaptchaFont(int font) {
 		if (font < 0 || font > 9) {
 			logger.warn("字体样式设置错误，不应该为: {}", font);
 			return;
 		}
         // 设置字符字体的属性，使用传入的字体大小值转换为字符串形式
         properties.setProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), String.valueOf(font));
-        // 保存更新后的属性配置
-        saveProperties();
-
-        // 重新加载属性配置，以应用更改
-        loadProperties();
     }
 
     /**
@@ -235,16 +224,30 @@ public class CaptchaConfig {
      *
      * @param type 代表字符类型的整数不同数值代表不同的字符类型
      */
-    public void updateCaptchaType(int type) {
+    public static void updateCaptchaType(int type) {
 		if (type < 1 || type > 6) {
 			logger.warn("字符类型设置错误，不应该为: {}", type);
 			return;
 		}
         // 设置字符类型属性
         properties.setProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), String.valueOf(type));
-        // 保存更新后的属性配置，确保更改被持久化
+    }
+
+    public static @NotNull CaptchaSettingVo getSetting() {
+        CaptchaSettingVo settingVo = new CaptchaSettingVo();
+        settingVo.setCaptchaNum(getCaptchaNum());
+        settingVo.setCaptchaExpireTime(getCaptchaExpireTime());
+        settingVo.setCaptchaFont(getCaptchaFont());
+        settingVo.setCaptchaType(getCaptchaType());
+        return settingVo;
+    }
+
+    public static void  updateSetting(@NotNull CaptchaSettingVo settingVo) {
+        updateCaptchaNum(settingVo.getCaptchaNum());
+        updateCaptchaExpireTime(settingVo.getCaptchaExpireTime());
+        updateCaptchaFont(settingVo.getCaptchaFont());
+        updateCaptchaType(settingVo.getCaptchaType());
         saveProperties();
-        // 重新加载属性配置，以在当前运行环境中应用更改
         loadProperties();
     }
 }

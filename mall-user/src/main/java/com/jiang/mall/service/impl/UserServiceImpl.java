@@ -241,6 +241,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
+			// 确保单例登录，同一用户在同一时间只能在一个地方登录。如果用户在另一个地方尝试登录，系统会自动将之前的登录状态注销
+			if (redisService.hasUser(String.valueOf(user.getId()))){
+				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
+				redisService.deleteUser(userKey);
+			}
 			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
 			// 登录成功，记录登录记录

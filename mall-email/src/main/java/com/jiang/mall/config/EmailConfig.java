@@ -187,17 +187,6 @@ public class EmailConfig {
     }
 
     /**
-     * 获取邮件发送者的昵称
-     * <p>
-     * 从配置属性中获取邮件发送者的昵称如果配置中未设置昵称，则默认使用"example"作为昵称
-     *
-     * @return 邮件发送者的昵称，如果未设置则返回默认值"example"
-     */
-//    public static String getEmailNickname() {
-//        return properties.getProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), EmailConfigItems.EMAIL_NICKNAME.getDefaultValue());
-//    }
-
-    /**
      * 获取邮件密码
      * <p>
      * 该方法尝试从属性文件中获取邮件密码如果属性文件中没有定义邮件密码，
@@ -292,8 +281,6 @@ public class EmailConfig {
         emailSettingVo.setUsername(getEmailUsername());
         // 设置发件人邮箱结尾
         emailSettingVo.setSender_end(getEmailSenderEnd());
-        // 设置发件人昵称
-//        emailSettingVo.setNickname(getEmailNickname());
         // 设置邮件服务器登录密码
         emailSettingVo.setPassword(getEmailPassword());
         // 设置邮件验证码有效期
@@ -385,17 +372,6 @@ public class EmailConfig {
         // 设置新的邮件发送者结束语到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_SENDER_END.getKey(), senderEnd);
     }
-
-    /**
-     * 更新邮件发送者昵称
-     * 此方法通过修改属性文件中的'mail.nickname'键值对来更新邮件发送者的昵称
-     *
-     * @param nickname 新的邮件发送者昵称
-     */
-//    public static void updateEmailNickname(String nickname) {
-//        // 设置新的邮件昵称到属性文件中
-//        properties.setProperty(EmailConfigItems.EMAIL_NICKNAME.getKey(), nickname);
-//    }
 
     /**
      * 更新邮件密码

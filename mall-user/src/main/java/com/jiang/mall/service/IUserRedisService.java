@@ -38,6 +38,8 @@ public interface IUserRedisService {
      */
     UserVo getUser(String key);
 
+    String getUserKey(String key);
+
     /**
      * 判断用户是否存在
      * <p>

@@ -54,7 +54,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
         // 将用户信息转换为JSON字符串并存储到Redis中，同时设置过期时间
         stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
         // 将用户ID与用户信息键的映射存储到Redis中，以便于后续通过用户ID快速获取用户信息键，同样设置过期时间
-        stringRedisTemplate.opsForValue().set(key(String.valueOf(value.getId())),key(key) , timeout, unit);
+        stringRedisTemplate.opsForValue().set(key(String.valueOf(value.getId())),key , timeout, unit);
     }
 
 
@@ -70,6 +70,12 @@ public class UserRedisServiceImpl implements IUserRedisService {
         String value = stringRedisTemplate.opsForValue().get(key(key));
         // 如果值为null，则返回null；否则将获取到的JSON字符串解析为UserVo对象并返回
         return value == null ? null : JSON.parseObject(value, UserVo.class);
+    }
+
+    @Override
+    public String getUserKey(String key) {
+        // 从Redis中获取指定键的值
+        return stringRedisTemplate.opsForValue().get(key(key));
     }
 
     /**

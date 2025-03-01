@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.*;
@@ -21,8 +22,6 @@ import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.format.DateTimeFormatter;
 
 /**
  * 用户控制器
@@ -61,8 +60,6 @@ public class LoginController {
 	public void setCaptchaService(ICaptchaService captchaService) {
 		this.captchaService = captchaService;
 	}
-
-	private final static int max_try_number = 5;
 
 	/**
      * 处理用户登录请求
@@ -106,7 +103,7 @@ public class LoginController {
 		}
 
         // 检查用户尝试登录失败次数
-        if (userRecordService.countTryNumber(username, clientIp, fingerprint,max_try_number)>=max_try_number){
+        if (userRecordService.countTryNumber(username, clientIp, fingerprint) >= UserConfig.getUserMaxTry()){
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 

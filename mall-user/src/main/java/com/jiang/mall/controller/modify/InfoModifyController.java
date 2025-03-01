@@ -180,15 +180,15 @@ public class InfoModifyController {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.email.exist"));
             }
             // 角色权限检查，确保权限的正确性
-            if (isAdmin) {
-                if (roleId < UserConfig.getAdminRoleId()) {
-                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.lack") + UserConfig.getAdminRoleId());
-                }
-            } else {
-                if (roleId >= UserConfig.getAdminRoleId()) {
-                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.overtop") + UserConfig.getAdminRoleId());
-                }
-            }
+//            if (isAdmin) {
+//                if (roleId < UserConfig.getAdminRoleId()) {
+//                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.lack") + UserConfig.getAdminRoleId());
+//                }
+//            } else {
+//                if (roleId >= UserConfig.getAdminRoleId()) {
+//                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.overtop") + UserConfig.getAdminRoleId());
+//                }
+//            }
             UserVo adminUser = (UserVo) session.getAttribute("User");
 //            if (roleId > adminUser.getRoleId()) {
 //                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.overtop"));

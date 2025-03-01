@@ -15,6 +15,7 @@ package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserLogMapper;
 import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.entity.User;
@@ -42,14 +43,13 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	 * 计算用户尝试登录的次数
 	 * 该方法用于计算给定用户在过去24小时内失败的登录尝试次数，以确定用户是否被锁定
 	 *
-	 * @param username     用户名，用于识别用户
-	 * @param clientIp     客户端IP地址，用于识别登录尝试的来源
-	 * @param fingerprint  设备指纹，用于进一步验证登录尝试的唯一性
-	 * @param maxTryNumber 最大尝试次数，超过这个次数用户将被锁定
+	 * @param username    用户名，用于识别用户
+	 * @param clientIp    客户端IP地址，用于识别登录尝试的来源
+	 * @param fingerprint 设备指纹，用于进一步验证登录尝试的唯一性
 	 * @return 返回用户的登录尝试次数如果超过最大尝试次数，返回最大尝试次数+1
 	 */
 	@Override
-	public Integer countTryNumber(String username, String clientIp, String fingerprint, int maxTryNumber) {
+	public Integer countTryNumber(String username, String clientIp, String fingerprint) {
 	    // 当前时间
 	    Date now = new Date();
 	    // 一天前的时间
@@ -77,16 +77,16 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    Long list_fingerprint = loginRecordMapper.selectCount(queryWrapper_fingerprint);
 
 	    // 如果设备指纹匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
-	    if (list_fingerprint> (long) maxTryNumber * maxTryNumber){
-	        return maxTryNumber+1;
+	    if (list_fingerprint> (long) UserConfig.getUserMaxTry() * UserConfig.getUserMaxTry()){
+	        return UserConfig.getUserMaxTry()+1;
 	    }
 	    // 如果IP地址匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
-	    if (list_ip> (long) maxTryNumber * maxTryNumber){
-	        return maxTryNumber+1;
+	    if (list_ip> (long) UserConfig.getUserMaxTry() * UserConfig.getUserMaxTry()){
+	        return UserConfig.getUserMaxTry()+1;
 	    }
 	    // 如果用户名匹配的失败登录次数超过最大尝试次数的两倍，返回最大尝试次数+1
-	    if (list_username.size()> maxTryNumber * 2){
-	        return maxTryNumber+1;
+	    if (list_username.size()> UserConfig.getUserMaxTry() * 2){
+	        return UserConfig.getUserMaxTry()+1;
 	    }
 
 	    // 计算加权失败次数

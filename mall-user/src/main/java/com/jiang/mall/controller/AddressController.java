@@ -179,8 +179,8 @@ public class AddressController {
 //		if (!StringUtils.hasText(postalCode) || !postalCode.matches(regex_postal)){
 //			return ResponseResult.failResult("邮政编码格式不正确");
 //		}
-		if ((Integer)getNum(session).getData()> UserConfig.getMaxAddressNum()){
-			return ResponseResult.failResult("最多只能添加"+UserConfig.getMaxAddressNum()+"个收货地址");
+		if ((Integer)getNum(session).getData()> UserConfig.getUserMaxAddress()){
+			return ResponseResult.failResult("最多只能添加"+UserConfig.getUserMaxAddress()+"个收货地址");
 		}
 		if (divisionService.isTure(areaCode)){
 			return ResponseResult.failResult("地区代码不正确");

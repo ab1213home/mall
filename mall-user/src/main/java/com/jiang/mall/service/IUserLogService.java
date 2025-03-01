@@ -19,7 +19,7 @@ import com.jiang.mall.domain.entity.User;
 
 public interface IUserLogService extends IService<UserLog> {
 
-	Integer countTryNumber(String username, String clientIp, String fingerprint,int maxTryNumber);
+	Integer countTryNumber(String username, String clientIp, String fingerprint);
 
 	@SuppressWarnings("UnusedReturnValue")
 	Boolean successLoginLog(User user, String clientIp, String fingerprint);
