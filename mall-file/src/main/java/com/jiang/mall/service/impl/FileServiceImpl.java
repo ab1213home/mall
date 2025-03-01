@@ -27,9 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
-import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FileServiceImpl implements IFileService {
@@ -47,11 +46,19 @@ public class FileServiceImpl implements IFileService {
 	public void setBannerMapper(BannerMapper bannerMapper) {
 		this.bannerMapper = bannerMapper;
 	}
+
 	private ProductMapper productMapper;
 
 	@Autowired
 	public void setProductMapper(ProductMapper productMapper) {
 		this.productMapper = productMapper;
+	}
+
+	private FileConfig fileConfig;
+
+	@Autowired
+	public void setFileConfig(FileConfig fileConfig) {
+		this.fileConfig = fileConfig;
 	}
 
      /**
@@ -77,7 +84,7 @@ public class FileServiceImpl implements IFileService {
 		List<String> purpose = new ArrayList<>();
 		int dotIndex = name.lastIndexOf('.');
 		String extension = dotIndex > 0 ? name.substring(dotIndex+1) : "";
-		if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
+		if (fileConfig.getImageSuffix().contains(extension.toLowerCase())) {
 			// 只添加图片文件
 			if (name.matches("^face.*") ){
 				purpose.add("用户头像模板");

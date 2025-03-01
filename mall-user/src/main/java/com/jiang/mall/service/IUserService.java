@@ -51,8 +51,6 @@ public interface IUserService extends IService<User> {
 
 	Boolean unlockUser(Long userId, String clientIp, String fingerprint);
 
-//    ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
-
     ResponseResult<Object> checkAdminUser(String sessionId);
 
     ResponseResult<Object> checkUserLogin(String sessionId);
@@ -74,4 +72,6 @@ public interface IUserService extends IService<User> {
     Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint);
 
     User getUserById(Long userId);
+
+    Long register(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 }

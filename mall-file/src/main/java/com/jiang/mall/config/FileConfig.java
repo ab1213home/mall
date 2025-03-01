@@ -25,10 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,8 +48,8 @@ public class FileConfig {
     }
 
     // 指向外部配置文件
-    private static  String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private  String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -58,15 +60,15 @@ public class FileConfig {
         defaultStorageConfig=storageConfig.get(0);
     }
     
-    public static List<StorageConfig> storageConfig = new ArrayList<>();
+    public List<StorageConfig> storageConfig = new ArrayList<>();
 
     //默认存储配置
-    public static StorageConfig defaultStorageConfig = new StorageConfig();
+    public StorageConfig defaultStorageConfig = new StorageConfig();
 
     /**
      * 加载配置文件
      */
-     public static void loadProperties() {
+     public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -138,27 +140,15 @@ public class FileConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
+    public void saveProperties() {
         // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
-        File parentDir = configFile.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
-            return;
-        }
-
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-        }
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
@@ -179,7 +169,7 @@ public class FileConfig {
     /**
      * 创建本地储存配置
      */
-    public static void createLocalConfig(@NotNull LocalSetting localSetting) {
+    public void createLocalConfig(@NotNull LocalSetting localSetting) {
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
         properties.setProperty(localSetting.getName()+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
         properties.setProperty(localSetting.getName()+ FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
@@ -189,7 +179,7 @@ public class FileConfig {
     /**
      * 创建对象储存配置
      */
-    public static void createS3Config(@NotNull S3Setting s3Setting) {
+    public void createS3Config(@NotNull S3Setting s3Setting) {
         properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
         properties.setProperty(s3Setting.getName()+ FileS3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
         properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
@@ -205,7 +195,7 @@ public class FileConfig {
      *
      * @param allow 如果允许上传文件，则设置为true；否则设置为false
      */
-    public static void updateAllowUploadFile(boolean allow) {
+    public void updateAllowUploadFile(boolean allow) {
         properties.setProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), String.valueOf(allow));
         saveProperties();
         loadProperties();
@@ -219,7 +209,7 @@ public class FileConfig {
      *
      * @return boolean 表示是否允许上传文件true表示允许，false表示不允许
      */
-    public static boolean getAllowUploadFile() {
+    public boolean getAllowUploadFile() {
         return Boolean.parseBoolean(properties.getProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), FileConfigItems.ALLOW_UPLOAD_FILE.getDefaultValue()));
     }
 
@@ -231,7 +221,7 @@ public class FileConfig {
      *
      * @return Set<String> 包含各种图片后缀的集合
      */
-    public static Set<String> getImageSuffix() {
+    public Set<String> getImageSuffix() {
         // 从配置属性中获取图片后缀字符串，如果没有设置，则使用默认值
         String imageSuffixStr = properties.getProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), FileConfigItems.IMAGE_SUFFIX.getDefaultValue());
         // 将后缀字符串按逗号分割，去除前后空格，然后收集到一个集合中
@@ -245,7 +235,7 @@ public class FileConfig {
      *
      * @param imageSuffix 一个包含多个图片后缀的字符串，后缀之间用逗号分隔
      */
-    public static void updateImageSuffix(@NotNull String imageSuffix) {
+    public void updateImageSuffix(@NotNull String imageSuffix) {
         // 将输入的图片后缀字符串按逗号分割，去除空格，并收集到一个集合中
         Set<String> imageSuffixSet = Stream.of(imageSuffix.split(",")).map(String::trim).collect(Collectors.toSet());
         StringBuilder sb = new StringBuilder();
@@ -270,7 +260,7 @@ public class FileConfig {
      *
      * @return 不为空的存储配置列表
      */
-    public static @NotNull List<StorageConfig> getStorageConfig() {
+    public @NotNull List<StorageConfig> getStorageConfig() {
         // 分割属性以获取存储名称数组
         String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
         // 初始化存储配置列表
@@ -346,7 +336,7 @@ public class FileConfig {
      *
      * @param storageConfig 要更新的存储配置对象，不能为空
      */
-    public static void updateStorageConfig(@NotNull StorageConfig storageConfig) {
+    public void updateStorageConfig(@NotNull StorageConfig storageConfig) {
         // 获取系统中已配置的存储名称列表
         String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
 

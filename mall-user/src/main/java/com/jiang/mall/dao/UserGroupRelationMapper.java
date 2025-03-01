@@ -16,7 +16,13 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Set;
 
 @Mapper
 public interface UserGroupRelationMapper extends BaseMapper<UserGroupRelation> {
+
+	@Select("SELECT group_id FROM tb_user_group_relations WHERE user_id = #{userId}")
+	Set<Long> selectGroupIdByUserId(Long userId);
 }

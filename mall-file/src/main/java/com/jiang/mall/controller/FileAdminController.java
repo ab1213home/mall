@@ -13,7 +13,6 @@
 
 package com.jiang.mall.controller;
 
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.LocalSetting;
@@ -22,12 +21,12 @@ import com.jiang.mall.domain.config.StorageConfig;
 import com.jiang.mall.domain.enums.FileConfigItems;
 import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.enums.StorageType;
-import com.jiang.mall.domain.vo.*;
+import com.jiang.mall.domain.vo.DirectoryVo;
+import com.jiang.mall.domain.vo.FileMainSettingVo;
+import com.jiang.mall.domain.vo.MapVo;
+import com.jiang.mall.domain.vo.StorageConfigVo;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
-import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +58,13 @@ public class FileAdminController {
         this.fileOperation = fileOperation;
     }
 
+    private FileConfig fileConfig;
+
+    @Autowired
+    public void setFileConfig(FileConfig fileConfig) {
+        this.fileConfig = fileConfig;
+    }
+
     /**
      * 获取文件夹大小和文件数量
      *
@@ -66,7 +72,7 @@ public class FileAdminController {
      */
     @GetMapping("/getFileSize")
     public ResponseResult<Object> getSize(){
-        Map<String, Object> data = fileOperation.getFolderStats(FileConfig.defaultStorageConfig.getName());
+        Map<String, Object> data = fileOperation.getFolderStats(fileConfig.defaultStorageConfig.getName());
         // 返回包含数据Map的成功响应结果
         return ResponseResult.okResult(data);
     }
@@ -93,7 +99,7 @@ public class FileAdminController {
         Map<String,Object> setting = new HashMap<>();
 
         // 将是否允许上传文件的配置添加到设置信息中
-        setting.put("AllowUploadFile", FileConfig.getAllowUploadFile());
+        setting.put("AllowUploadFile", fileConfig.getAllowUploadFile());
 
         // 初始化图片后缀列表，用于存储标准图片后缀及其是否被允许上传的状态
         List<MapVo> imageSuffix_with_parameters = new ArrayList<>();
@@ -104,7 +110,7 @@ public class FileAdminController {
                                                .collect(Collectors.toSet());
         // 遍历标准图片后缀，检查每个后缀是否被当前系统允许上传
         for (String suffix : standard_imageSuffix) {
-            if (FileConfig.getImageSuffix().contains(suffix)){
+            if (fileConfig.getImageSuffix().contains(suffix)){
                 // 如果允许上传，将后缀及其状态true添加到图片后缀列表中
                 imageSuffix_with_parameters.add(new MapVo(suffix,true));
             }else {
@@ -133,7 +139,7 @@ public class FileAdminController {
         // 创建一个列表，用于存储所有存储配置的详细信息
         List<Map<String,Object>> storageList = new ArrayList<>();
         // 遍历所有的存储配置
-        for (StorageConfig fileConfig : FileConfig.storageConfig) {
+        for (StorageConfig fileConfig : fileConfig.storageConfig) {
             // 创建一个映射，用于存储当前存储配置的详细信息
             Map<String,Object> setting = new HashMap<>();
             // 存储配置的名称
@@ -208,10 +214,10 @@ public class FileAdminController {
         }
 
         // 更新图片后缀配置
-        FileConfig.updateImageSuffix(imageSuffixStr.toString());
+        fileConfig.updateImageSuffix(imageSuffixStr.toString());
 
         // 更新是否允许上传文件的配置
-        FileConfig.updateAllowUploadFile(mainSettingVo.getAllowUploadFile());
+        fileConfig.updateAllowUploadFile(mainSettingVo.getAllowUploadFile());
 
         // 返回成功结果
         return ResponseResult.okResult();
@@ -244,7 +250,7 @@ public class FileAdminController {
             storageConfig.setName(storageConfigVo.getName());
             LocalSetting localSetting = new LocalSetting(storageConfigVo.getName(),storageConfigVo.getPath(),storageConfigVo.isDefault(),storageConfigVo.getMaxSize());
             storageConfig.setConfig(localSetting);
-            FileConfig.updateStorageConfig(storageConfig);
+            fileConfig.updateStorageConfig(storageConfig);
             return ResponseResult.okResult();
         }else if (storageConfigVo.getType().equals(StorageType.S3.getKey())){
             // 进一步验证S3存储配置的合法性
@@ -268,7 +274,7 @@ public class FileAdminController {
             storageConfig.setName(storageConfigVo.getName());
             S3Setting s3Setting = new S3Setting(storageConfigVo.getName(),storageConfigVo.getAccessKey(),storageConfigVo.getSecretKey(),storageConfigVo.getBucket(),storageConfigVo.getEndpoint(),storageConfigVo.getRegion(),storageConfigVo.isDefault());
             storageConfig.setConfig(s3Setting);
-            FileConfig.updateStorageConfig(storageConfig);
+            fileConfig.updateStorageConfig(storageConfig);
             return ResponseResult.okResult();
         }else {
             return ResponseResult.failResult("非法的存储配置");

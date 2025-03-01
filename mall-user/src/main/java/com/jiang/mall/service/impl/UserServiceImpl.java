@@ -16,7 +16,9 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.*;
+import com.jiang.mall.dao.GroupMapper;
+import com.jiang.mall.dao.UserGroupRelationMapper;
+import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
@@ -29,7 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
@@ -175,35 +180,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	/**
-	 * 检查用户是否具有修改特定资源的权限
-	 * 此方法主要用于确保用户有权修改特定的用户信息，如轮播图等
-	 * 它首先确认用户已登录并具有管理员权限，然后检查用户是否试图修改属于自己角色权限之下的资源
-	 *
-	 * @param oldUserId  需要修改的用户的ID
-	 * @param session  当前用户的会话
-	 * @return  包含权限检查结果的响应对象，如果用户无权修改，则返回相应的错误信息
-	 */
-//	public ResponseResult<Object> hasPermission(Long oldUserId, @NotNull HttpSession session){
-//	    // 检查会话中是否设置表示用户已登录的标志
-//	    ResponseResult<Object> result = checkAdminUser(session.getId());
-//	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
-//	    if (!result.isSuccess()) {
-//	        return result;
-//	    }
-//		UserVo user = (UserVo) result.getData();
-//	    // 获取创建修改用户的信息
-//		if (userMapper.selectById(oldUserId) == null) {
-//			return ResponseResult.okResult(result.getData());
-//		}
-//		User old_user = userMapper.selectById(oldUserId);
-//	    // 检查尝试修改用户的权限是否足够
-////	    if (old_user.getRoleId() >user.getRoleId()) {
-////	        return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkAdmin.noPermission"));
-////	    }
-//	    return ResponseResult.okResult(result.getData());
-//	}
-
-	/**
 	 * 用户登录方法
 	 * 通过用户名(邮箱)和密码尝试登录系统。用户密码是经过MD5加密的，以提高安全性。
 	 *
@@ -219,11 +195,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		if (user == null) {
 			// 登录失败，记录登录记录
 			userRecordService.failedLoginLog(username, clientIp, fingerprint);
+			logger.debug("用户名或密码错误");
 			return false;
 		} else {
 			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 	        assert userVo != null;
-			Set<Long> groupIds = groupMapper.selectGroupIdByUserId(user.getId());
+			Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
 			userVo.setGroups(groupIds);
 			StringBuilder permissions_str = new StringBuilder();
 			for (Long groupId : groupIds) {
@@ -244,12 +221,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 确保单例登录，同一用户在同一时间只能在一个地方登录。如果用户在另一个地方尝试登录，系统会自动将之前的登录状态注销
 			if (redisService.hasUser(String.valueOf(user.getId()))){
 				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
+				logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
 				redisService.deleteUser(userKey);
 			}
 			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
+			logger.debug("用户{}登录成功", user.getUsername());
 			return true;
 		}
 	}
@@ -465,6 +444,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		return userMapper.selectById(userId);
 	}
 
+	@Override
+	public Long register(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
+		User user = new User();
+		user.setUsername(verificationCode.getUsername());
+		user.setPassword(verificationCode.getPassword());
+		user.setEmail(verificationCode.getEmail());
+		user.setIsActive(true);
+		user.setTotpEnabled(false);
+		if (userMapper.insert(user) > 0){
+			temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
+			verificationCodeService.useCode(user.getId(), verificationCode);
+			userRecordService.successRegisterLog(user, clientIp, fingerprint);
+			return user.getId();
+		}else {
+			logger.error("注册用户失败{}", user);
+			return null;
+		}
+	}
+
 	/**
 	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
 	 *
@@ -597,13 +595,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	@Override
 	public Boolean queryByUserName(String userName) {
-	    // 创建一个查询包装器，用于构建查询条件
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    // 设置查询条件
-	    queryWrapper.eq("username", userName);
-
 	    // 根据查询条件尝试获取用户信息
-	    return userMapper.selectCount(queryWrapper)>0;
+	    return userMapper.selectCountByUsername(userName)>0;
 	}
 
 	/**
@@ -615,12 +608,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	@Override
 	public Boolean queryByEmail(String email) {
-		// 创建查询条件，匹配传入的邮箱
-		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("email", email);
-
 		// 根据查询条件尝试获取用户信息
-		return userMapper.selectCount(queryWrapper)>0;
+		return userMapper.selectCountByEmail(email) > 0;
 	}
 
 

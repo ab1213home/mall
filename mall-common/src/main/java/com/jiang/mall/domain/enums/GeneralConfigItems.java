@@ -17,6 +17,7 @@ import lombok.Getter;
 
 @Getter
 public enum GeneralConfigItems {
+	DATE_FORMAT_PATTERN("mall.date.format.pattern", "日期格式模式", "yyyy-MM-dd"),
 	DATE_FORMAT("mall.date.format", "日期格式", "yyyy-MM-dd hh:mm:ss"),
 	TIME_ZONE("mall.time.zone", "时区", "GMT+8"),
 	ALLOW_MODIFY("allow.modify", "是否允许修改", "true"),

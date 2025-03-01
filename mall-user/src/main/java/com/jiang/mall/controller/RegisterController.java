@@ -13,21 +13,17 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.ICaptchaService;
-import com.jiang.mall.service.IEmailService;
-import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
@@ -83,7 +79,12 @@ public class RegisterController {
         this.captchaService = captchaService;
     }
 
-    public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private GeneralConfig generalConfig;
+
+    @Autowired
+    public void setGeneralConfig(GeneralConfig generalConfig) {
+        this.generalConfig = generalConfig;
+    }
 
     /**
      * 处理用户注册第一步的请求
@@ -179,8 +180,7 @@ public class RegisterController {
         EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
 
         if (emailCodeDto.getState() == null){
-            // 验证码正确性及有效期检查
-//            return ResponseResult.failResult(i18nService.getMessage("user.register.error.previous"));
+            // 验证码有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }else if (!emailCodeDto.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
@@ -188,7 +188,7 @@ public class RegisterController {
         }
         // 创建并注册用户
         User user = new User(emailCodeDto.getVerificationCode().getUsername(), emailCodeDto.getVerificationCode().getPassword(), emailCodeDto.getVerificationCode().getEmail());
-        Long userId = userService.register(user, emailCodeDto.getVerificationCode(),session.getId(), clientIp, fingerprint);
+        Long userId = userService.register(emailCodeDto.getVerificationCode(),session.getId(), clientIp, fingerprint);
         if (userId>0) {
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {
@@ -234,7 +234,7 @@ public class RegisterController {
 
         // 验证和转换生日日期格式
         try {
-            LocalDate localDate = LocalDate.parse(birthDate, formatter);
+            LocalDate localDate = LocalDate.parse(birthDate, generalConfig.getDateFormatPattern());
             if (localDate.isAfter(LocalDate.now())) {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.future"));
             }

@@ -18,11 +18,11 @@ import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -53,6 +53,13 @@ public class BannerTask {
 		this.redisService = redisService;
 	}
 
+	private BannerConfig bannerConfig;
+
+	@Autowired
+	public void setBannerConfig(BannerConfig bannerConfig) {
+		this.bannerConfig = bannerConfig;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(BannerTask.class);
 
 	private long timer = 0;
@@ -63,9 +70,9 @@ public class BannerTask {
 	 */
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
     public void checkBannerTask() {
-		if (BannerConfig.isBannerCacheEnabled()){
+		if (bannerConfig.isBannerCacheEnabled()){
 			timer=timer+1000;
-			if (timer==1000||timer>=BannerConfig.getBannerSyncTime()){
+			if (timer==1000||timer>=bannerConfig.getBannerSyncTime()){
 				timer = 1;
 				checkBanner();
 			}

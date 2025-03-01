@@ -15,6 +15,7 @@ package com.jiang.mall.service.impl;
 
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.service.IProductRedisService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -30,7 +31,20 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.getRedisKeyPrefix()+"-product-";
+    private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
+	String prefix = "product-";
+
+	@PostConstruct
+	public void init() {
+	    prefix = generalConfig.getRedisKeyPrefix()+"-product-";
+	}
+
     String key(String key){
         return prefix+key;
     }

@@ -13,11 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.EmailConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.EmailSettingVo;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.config.EmailConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +41,13 @@ public class EmailAdminController {
         this.verificationCodeService = verificationCodeService;
     }
 
+    private EmailConfig emailConfig;
+
+	@Autowired
+	public void setEmailConfig(EmailConfig emailConfig) {
+		this.emailConfig = emailConfig;
+	}
+
     /**
      * 获取邮箱设置信息
      * 此方法首先检查用户是否已登录，然后创建并填充EmailSettingVo对象，用于展示邮箱设置信息
@@ -49,7 +56,7 @@ public class EmailAdminController {
      */
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
-        return ResponseResult.okResult(EmailConfig.getSetting());
+        return ResponseResult.okResult(emailConfig.getSetting());
     }
 
     /**
@@ -61,7 +68,7 @@ public class EmailAdminController {
     @PostMapping("/setSetting")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo) {
         // 更新配置文件
-        EmailConfig.updateSetting(emailSettingVo);
+        emailConfig.updateSetting(emailSettingVo);
         return ResponseResult.okResult();
     }
 

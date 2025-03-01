@@ -22,7 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 @Component
@@ -38,8 +41,8 @@ public class EmailConfig {
     }
 
     // 指向外部配置文件
-    private static String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -51,7 +54,7 @@ public class EmailConfig {
     /**
      * 加载配置文件
      */
-    public static void loadProperties() {
+    public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -78,27 +81,14 @@ public class EmailConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
-        // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
-        File parentDir = configFile.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
-            return;
-        }
-
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-        }
+    public void saveProperties() {
+        generalConfig.saveProperties(CONFIG_FILE_PATH,properties);
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
@@ -121,7 +111,7 @@ public class EmailConfig {
      *
      * @return String 邮件服务器主机名如果配置未定义，则返回默认值"smtp.example.com"
      */
-    public static String getEmailHost() {
+    public String getEmailHost() {
         return properties.getProperty(EmailConfigItems.EMAIL_HOST.getKey(), EmailConfigItems.EMAIL_HOST.getDefaultValue());
     }
 
@@ -133,7 +123,7 @@ public class EmailConfig {
      *
      * @return Boolean 表示电子邮件认证是否已启用
      */
-    public static @NotNull Boolean isEmailAuth() {
+    public @NotNull Boolean isEmailAuth() {
         return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.EMAIL_AUTH.getKey(), EmailConfigItems.EMAIL_AUTH.getDefaultValue()));
     }
 
@@ -145,7 +135,7 @@ public class EmailConfig {
      *
      * @return Boolean 启用TLS协议进行邮件传输的配置状态，如果配置未设置或为空，则返回默认值
      */
-    public static @NotNull Boolean isEmailTls() {
+    public @NotNull Boolean isEmailTls() {
         return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.EMAIL_TLS.getKey(), EmailConfigItems.EMAIL_TLS.getDefaultValue()));
     }
 
@@ -157,7 +147,7 @@ public class EmailConfig {
      *
      * @return 邮件服务的端口号，如果属性文件中未定义，则默认返回465
      */
-    public static String getEmailPort() {
+    public String getEmailPort() {
         return properties.getProperty(EmailConfigItems.EMAIL_PORT.getKey(), EmailConfigItems.EMAIL_PORT.getDefaultValue());
     }
 
@@ -170,7 +160,7 @@ public class EmailConfig {
      *
      * @return String 从属性文件中读取到的邮件用户名，或默认用户名"example@example.com"
      */
-    public static String getEmailUsername() {
+    public String getEmailUsername() {
         return properties.getProperty(EmailConfigItems.EMAIL_USERNAME.getKey(), EmailConfigItems.EMAIL_USERNAME.getDefaultValue());
     }
 
@@ -182,7 +172,7 @@ public class EmailConfig {
      *
      * @return 邮件发送方末尾域名
      */
-    public static String getEmailSenderEnd() {
+    public String getEmailSenderEnd() {
         return properties.getProperty(EmailConfigItems.EMAIL_SENDER_END.getKey(), EmailConfigItems.EMAIL_SENDER_END.getDefaultValue());
     }
 
@@ -195,7 +185,7 @@ public class EmailConfig {
      *
      * @return 邮件密码，如果未找到则返回默认值 "example"
      */
-    public static String getEmailPassword() {
+    public String getEmailPassword() {
         return properties.getProperty(EmailConfigItems.EMAIL_PASSWORD.getKey(), EmailConfigItems.EMAIL_PASSWORD.getDefaultValue());
     }
 
@@ -207,7 +197,7 @@ public class EmailConfig {
      *
      * @return 邮件过期时间（以分钟为单位）
      */
-    public static int getEmailExpirationTime() {
+    public int getEmailExpirationTime() {
         return Integer.parseInt(properties.getProperty(EmailConfigItems.EMAIL_EXPIRATION_TIME.getKey(), EmailConfigItems.EMAIL_EXPIRATION_TIME.getDefaultValue()));
     }
 
@@ -219,7 +209,7 @@ public class EmailConfig {
      *
      * @return 邮件最大请求数量，如果配置属性中没有设置，则返回默认值 10
      */
-    public static int getEmailMaxRequestNum() {
+    public int getEmailMaxRequestNum() {
         return Integer.parseInt(properties.getProperty(EmailConfigItems.EMAIL_MAX_REQUEST_NUM.getKey(), EmailConfigItems.EMAIL_MAX_REQUEST_NUM.getDefaultValue()));
     }
 
@@ -232,7 +222,7 @@ public class EmailConfig {
      *
      * @return 邮件服务的最小请求次数，如果配置中没有该属性，则返回默认值5
      */
-    public static int getEmailMinRequestNum() {
+    public int getEmailMinRequestNum() {
         return Integer.parseInt(properties.getProperty(EmailConfigItems.EMAIL_MIN_REQUEST_NUM.getKey(), EmailConfigItems.EMAIL_MIN_REQUEST_NUM.getDefaultValue()));
     }
 
@@ -242,7 +232,7 @@ public class EmailConfig {
      * 此方法从配置属性中获取邮件发送的最大失败率如果未配置该属性，
      * 则默认返回0.4这个方法主要用于确定邮件发送失败到何种程度时应触发警报或采取其他措施
      */
-    public static double getEmailMaxFailRate() {
+    public double getEmailMaxFailRate() {
         return Double.parseDouble(properties.getProperty(EmailConfigItems.EMAIL_MAX_FAIL_RATE.getKey(), EmailConfigItems.EMAIL_MAX_FAIL_RATE.getDefaultValue()));
     }
 
@@ -254,7 +244,7 @@ public class EmailConfig {
      *
      * @return 如果允许发送邮件，则返回true；否则返回false
      */
-    public static boolean isSendEmailEnabled() {
+    public boolean isSendEmailEnabled() {
         return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.ALLOW_SEND_EMAIL.getKey(), EmailConfigItems.ALLOW_SEND_EMAIL.getDefaultValue()));
     }
 
@@ -267,7 +257,7 @@ public class EmailConfig {
      *
      * @return EmailSettingVo 一个包含了所有邮件设置信息的对象
      */
-    public static @NotNull EmailSettingVo getSetting() {
+    public @NotNull EmailSettingVo getSetting() {
         // 创建一个EmailSettingVo对象实例
         EmailSettingVo emailSettingVo = new EmailSettingVo();
 
@@ -306,7 +296,7 @@ public class EmailConfig {
      *
      * @param host 新的邮件服务主机地址
      */
-    public static void updateEmailHost(String host) {
+    public void updateEmailHost(String host) {
         // 设置新的邮件服务主机地址到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_HOST.getKey(), host);
     }
@@ -319,7 +309,7 @@ public class EmailConfig {
      *
      * @param port 新的邮件端口号，用于更新配置
      */
-    public static void updateEmailPort(String port) {
+    public void updateEmailPort(String port) {
         // 设置新的邮件端口号到配置属性中
         properties.setProperty(EmailConfigItems.EMAIL_PORT.getKey(), port);
     }
@@ -331,7 +321,7 @@ public class EmailConfig {
      *
      * @param auth 一个布尔值，指示是否启用邮件认证true表示启用，false表示禁用
      */
-    public static void updateEmailAuth(Boolean auth) {
+    public void updateEmailAuth(Boolean auth) {
         // 设置邮件认证状态的属性，将其转换为字符串以存储
         properties.setProperty(EmailConfigItems.EMAIL_AUTH.getKey(), String.valueOf(auth));
     }
@@ -343,7 +333,7 @@ public class EmailConfig {
      *
      * @param tls 一个布尔值，指示是否启用TLS设置true表示启用，false表示禁用
      */
-    public static void updateEmailTls(Boolean tls) {
+    public void updateEmailTls(Boolean tls) {
         // 更新邮件配置中的TLS设置
         properties.setProperty(EmailConfigItems.EMAIL_TLS.getKey(), String.valueOf(tls));
     }
@@ -356,7 +346,7 @@ public class EmailConfig {
      *
      * @param username 新的邮件用户名
      */
-    public static void updateEmailUsername(String username) {
+    public void updateEmailUsername(String username) {
         properties.setProperty(EmailConfigItems.EMAIL_USERNAME.getKey(), username);
     }
 
@@ -368,7 +358,7 @@ public class EmailConfig {
      *
      * @param senderEnd 新的邮件发送者结束语
      */
-    public static void updateEmailSenderEnd(String senderEnd) {
+    public void updateEmailSenderEnd(String senderEnd) {
         // 设置新的邮件发送者结束语到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_SENDER_END.getKey(), senderEnd);
     }
@@ -378,7 +368,7 @@ public class EmailConfig {
      *
      * @param password 新的邮件密码
      */
-    public static void updateEmailPassword(String password) {
+    public void updateEmailPassword(String password) {
         // 设置新的邮件密码到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_PASSWORD.getKey(), password);
     }
@@ -391,7 +381,7 @@ public class EmailConfig {
      *
      * @param milliseconds 邮件过期时间，以毫秒为单位
      */
-    public static void updateEmailExpirationTime(int milliseconds) {
+    public void updateEmailExpirationTime(int milliseconds) {
         // 设置邮件过期时间系统属性
         properties.setProperty(EmailConfigItems.EMAIL_EXPIRATION_TIME.getKey(), String.valueOf(milliseconds));
     }
@@ -402,7 +392,7 @@ public class EmailConfig {
      *
      * @param num 新的邮件最大请求数量
      */
-    public static void updateEmailMaxRequestNum(int num) {
+    public void updateEmailMaxRequestNum(int num) {
         // 设置新的邮件最大请求数量到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_MAX_REQUEST_NUM.getKey(), String.valueOf(num));
     }
@@ -413,7 +403,7 @@ public class EmailConfig {
      *
      * @param num 新的邮箱请求次数最小值
      */
-    public static void updateEmailMinRequestNum(int num) {
+    public void updateEmailMinRequestNum(int num) {
         // 将新的最小请求次数转换为字符串并保存到属性中
         properties.setProperty(EmailConfigItems.EMAIL_MIN_REQUEST_NUM.getKey(), String.valueOf(num));
     }
@@ -424,7 +414,7 @@ public class EmailConfig {
      *
      * @param rate 新的邮件发送最大失败率
      */
-    public static void updateEmailMaxFailRate(double rate) {
+    public void updateEmailMaxFailRate(double rate) {
         // 将新的邮件发送最大失败率保存到属性文件中
         properties.setProperty(EmailConfigItems.EMAIL_MAX_FAIL_RATE.getKey(), String.valueOf(rate));
     }
@@ -434,17 +424,16 @@ public class EmailConfig {
      *
      * @param enabled 如果为true，则启用发送邮件功能；如果为false，则禁用发送邮件功能
      */
-    public static void updateSendEmailEnabled(boolean enabled) {
+    public void updateSendEmailEnabled(boolean enabled) {
         // 设置属性"allow.send.email"的值为传入的enabled布尔值的字符串表示
         properties.setProperty(EmailConfigItems.ALLOW_SEND_EMAIL.getKey(), String.valueOf(enabled));
     }
 
-    public static void updateSetting(@NotNull EmailSettingVo emailSettingVo) {
+    public void updateSetting(@NotNull EmailSettingVo emailSettingVo) {
         updateEmailHost(emailSettingVo.getHost());
         updateEmailPort(emailSettingVo.getPort());
         updateEmailUsername(emailSettingVo.getUsername());
         updateEmailSenderEnd(emailSettingVo.getSender_end());
-//        updateEmailNickname(emailSettingVo.getNickname());
         updateEmailPassword(emailSettingVo.getPassword());
         updateEmailExpirationTime(emailSettingVo.getExpiration_time());
         updateEmailMaxRequestNum(emailSettingVo.getMax_request_num());

@@ -36,6 +36,13 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
+    private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
+	}
+
     /**
      * 在请求处理之前进行预处理
      *
@@ -51,7 +58,7 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         // 检查用户登录状态
-        if (!UserConfig.isAllowRegistration()){
+        if (!userConfig.isAllowRegistration()){
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
             String jsonResponse = JSON.toJSONString(ResponseResult.failResult(403,i18nService.getMessage("user.register.error.allowed")));

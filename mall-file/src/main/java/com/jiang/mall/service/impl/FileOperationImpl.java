@@ -27,11 +27,11 @@ import com.jiang.mall.service.IFileOperation;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -59,6 +59,13 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
 public class FileOperationImpl implements IFileOperation {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileOperationImpl.class);
+
+    private FileConfig fileConfig;
+
+    @Autowired
+    public void setFileConfig(FileConfig fileConfig) {
+        this.fileConfig = fileConfig;
+    }
 
     /**
      * 将字符串内容写入本地文件
@@ -270,7 +277,7 @@ public class FileOperationImpl implements IFileOperation {
 
         //如果类型为图片，则判断是否为图片文件
         if (Objects.equals(type.getType(), "image")){
-            if (!FileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
+            if (!fileConfig.getImageSuffix().contains(suffix.trim().toLowerCase())) {
                 return ResponseResult.failResult("非法的文件类型");
             }
             if (!isImageFile(file)){
@@ -291,14 +298,14 @@ public class FileOperationImpl implements IFileOperation {
 
         boolean res;
         String storageName;
-        if (FileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
+        if (fileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
             res=LocalFileWrite(localSetting,file,type.getPath()+"/"+name);
             storageName = localSetting.getName();
-        }else if (FileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
+        }else if (fileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
             res=S3FileWrite(s3Setting,file,type.getPath()+"/"+name);
             storageName = s3Setting.getName();
         }else{
-            return ResponseResult.failResult("文件上传配置错误："+FileConfig.defaultStorageConfig.getConfig().toString());
+            return ResponseResult.failResult("文件上传配置错误："+fileConfig.defaultStorageConfig.getConfig().toString());
         }
         if (!res){
             return ResponseResult.failResult("非法的文件类型");
@@ -313,7 +320,7 @@ public class FileOperationImpl implements IFileOperation {
         HttpHeaders headers = new HttpHeaders();
         // 设置 Content-Disposition 头，指定文件以 inline 方式展示，并附带文件名
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName);
-        for (StorageConfig storageConfig : FileConfig.storageConfig) {
+        for (StorageConfig storageConfig : fileConfig.storageConfig) {
             if (Objects.equals(storageConfig.getName(), storageName)){
                 if (storageConfig.getConfig() instanceof S3Setting s3Setting){
                     InputStream inputStream = S3FileRead(s3Setting,fileName);
@@ -344,7 +351,7 @@ public class FileOperationImpl implements IFileOperation {
 
     @Override
     public Map<String, Object> getFolderStats(String storageName) {
-        for (StorageConfig storageConfig : FileConfig.storageConfig) {
+        for (StorageConfig storageConfig : fileConfig.storageConfig) {
             if (Objects.equals(storageConfig.getName(), storageName)){
                 if (storageConfig.getConfig() instanceof S3Setting s3Setting){
                     return getS3Stats(s3Setting);
@@ -358,7 +365,7 @@ public class FileOperationImpl implements IFileOperation {
 
     @Override
     public DirectoryVo getFileList(String path, String storageName) {
-        for (StorageConfig storageConfig : FileConfig.storageConfig) {
+        for (StorageConfig storageConfig : fileConfig.storageConfig) {
             if (Objects.equals(storageConfig.getName(), storageName)){
                  if (storageConfig.getConfig() instanceof S3Setting s3Setting){
                      return getS3List(s3Setting, path);
@@ -372,9 +379,9 @@ public class FileOperationImpl implements IFileOperation {
 
     @Override
     public List<String> getFaceTemplateList() {
-        if (FileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
+        if (fileConfig.defaultStorageConfig.getConfig() instanceof LocalSetting localSetting){
             return getLocalFaceTemplateList(localSetting);
-        }else if (FileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
+        }else if (fileConfig.defaultStorageConfig.getConfig() instanceof S3Setting s3Setting){
             return getS3FaceTemplateList(s3Setting);
         }
         return List.of();
@@ -415,7 +422,7 @@ public class FileOperationImpl implements IFileOperation {
              int dotIndex = fileName.lastIndexOf('.');
              if (dotIndex == -1) continue; // 无后缀文件跳过
              String extension = fileName.substring(dotIndex + 1).toLowerCase();
-             if (!FileConfig.getImageSuffix().contains(extension)) continue;
+             if (!fileConfig.getImageSuffix().contains(extension)) continue;
 
              // 构造访问路径（保留完整相对路径）
              fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/"+s3Setting.getName() +"/" +fileName);
@@ -430,7 +437,7 @@ public class FileOperationImpl implements IFileOperation {
             if (file.isFile()) {
                 int dotIndex = file.getName().lastIndexOf('.');
                 String extension = dotIndex > 0 ? file.getName().substring(dotIndex+1) : "";
-                if (FileConfig.getImageSuffix().contains(extension.toLowerCase())) {
+                if (fileConfig.getImageSuffix().contains(extension.toLowerCase())) {
                     // 只添加图片文件
                     if (file.getName().matches("^face.*") ){
                         fileList.add("/"+FilePurpose.USER_FACE.getPrefix()+"/"+localSetting.getName() +"/"+file.getName());

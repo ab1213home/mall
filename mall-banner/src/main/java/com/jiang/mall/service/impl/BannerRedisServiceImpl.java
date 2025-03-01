@@ -14,9 +14,10 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerRedisService;
-import com.jiang.mall.config.GeneralConfig;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -45,7 +46,19 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    private final String prefix = GeneralConfig.getRedisKeyPrefix()+"-banner";
+    private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
+	String prefix = "banner";
+
+	@PostConstruct
+	public void init() {
+	    prefix = generalConfig.getRedisKeyPrefix()+"-banner";
+	}
 
     /**
      * 设置轮播图信息到缓存中

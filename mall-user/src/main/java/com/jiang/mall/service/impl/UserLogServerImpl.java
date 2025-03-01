@@ -17,8 +17,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserLogMapper;
-import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.enums.LogStatus;
 import com.jiang.mall.service.IUserLogService;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +37,13 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	@Autowired
 	public void setLoginRecordMapper(UserLogMapper loginRecordMapper) {
 		this.loginRecordMapper = loginRecordMapper;
+	}
+
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 
 	/**
@@ -77,16 +84,16 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    Long list_fingerprint = loginRecordMapper.selectCount(queryWrapper_fingerprint);
 
 	    // 如果设备指纹匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
-	    if (list_fingerprint> (long) UserConfig.getUserMaxTry() * UserConfig.getUserMaxTry()){
-	        return UserConfig.getUserMaxTry()+1;
+	    if (list_fingerprint> (long) userConfig.getUserMaxTry() * userConfig.getUserMaxTry()){
+	        return userConfig.getUserMaxTry()+1;
 	    }
 	    // 如果IP地址匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
-	    if (list_ip> (long) UserConfig.getUserMaxTry() * UserConfig.getUserMaxTry()){
-	        return UserConfig.getUserMaxTry()+1;
+	    if (list_ip> (long) userConfig.getUserMaxTry() * userConfig.getUserMaxTry()){
+	        return userConfig.getUserMaxTry()+1;
 	    }
 	    // 如果用户名匹配的失败登录次数超过最大尝试次数的两倍，返回最大尝试次数+1
-	    if (list_username.size()> UserConfig.getUserMaxTry() * 2){
-	        return UserConfig.getUserMaxTry()+1;
+	    if (list_username.size()> userConfig.getUserMaxTry() * 2){
+	        return userConfig.getUserMaxTry()+1;
 	    }
 
 	    // 计算加权失败次数

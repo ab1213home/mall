@@ -14,9 +14,10 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.cache.EmailCodeCache;
 import com.jiang.mall.service.IEmailRedisService;
-import com.jiang.mall.config.GeneralConfig;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,7 +35,20 @@ public class EmailRedisServiceImpl implements IEmailRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.getRedisKeyPrefix()+"-email-";
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
+	String prefix = "email-";
+
+	@PostConstruct
+	public void init() {
+	    prefix = generalConfig.getRedisKeyPrefix()+"-email-";
+	}
+
     String key(String key){
         return prefix+key;
     }

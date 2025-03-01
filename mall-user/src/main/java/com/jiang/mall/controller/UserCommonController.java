@@ -19,7 +19,9 @@ import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 用户控制器
@@ -33,15 +35,18 @@ public class UserCommonController {
 
     private IUserService userService;
 
-    /**
-     * 设置用户服务实例
-     *
-     * @param userService 用户服务实例
-     */
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
     }
+
+    private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
 
     /**
      * 获取距离下一次生日的天数
@@ -56,7 +61,7 @@ public class UserCommonController {
     @GetMapping("/user/getDays")
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
         UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
-        // 检查session中是否设置了用户生日
+        // 检查是否设置了用户生日
         if (user.getBirthDate() == null){
             return ResponseResult.failResult("未设置生日！");
         }
@@ -78,7 +83,7 @@ public class UserCommonController {
      */
     @GetMapping("/common/getSalt")
     public ResponseResult<Object> getSalt(HttpSession session) {
-        return ResponseResult.okResult(GeneralConfig.getAesSalt(),"获取随机盐值");
+        return ResponseResult.okResult(generalConfig.getAesSalt(),"获取随机盐值");
     }
 
 }

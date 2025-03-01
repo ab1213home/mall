@@ -41,6 +41,13 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		this.verificationCodeMapper = verificationCodeMapper;
 	}
 
+	private EmailConfig emailConfig;
+
+	@Autowired
+	public void setEmailConfig(EmailConfig emailConfig) {
+		this.emailConfig = emailConfig;
+	}
+
 	/**
 	 * 根据邮箱检查发送状态
 	 * 本方法主要用于检查在过去24小时内，给定邮箱接收到的验证码的发送状态
@@ -61,15 +68,15 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		long failCount = verificationCodeMapper.selectFailCountByEmailAndStatusAndTimeRange(email, EmailStatus.FAILED.getValue(), yesterday, now);
 
 	    // 检查请求数量是否小于等于最小请求数量
-	    if (listCount <= EmailConfig.getEmailMinRequestNum()) {
+	    if (listCount <= emailConfig.getEmailMinRequestNum()) {
 	        return false;
 	    }
 	    // 检查请求数量是否大于最大请求数量
-	    if (listCount > EmailConfig.getEmailMaxRequestNum()) {
+	    if (listCount > emailConfig.getEmailMaxRequestNum()) {
 	        return true;
 	    }
 	    // 计算失败率并判断是否超过最大失败率阈值
-	    return failCount / (double) listCount > EmailConfig.getEmailMaxFailRate();
+	    return failCount / (double) listCount > emailConfig.getEmailMaxFailRate();
 	}
 
 	/**
@@ -131,7 +138,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		// 获取当前时间
 	    Date now = new Date();
 	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
-	    Date yesterday = new Date(now.getTime() - (long) EmailConfig.getEmailExpirationTime() * 60 * 1000);
+	    Date yesterday = new Date(now.getTime() - (long) emailConfig.getEmailExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
 	    List<VerificationCode> list = verificationCodeMapper.selectByEmailAndTimeRangeAndStatus(email,EmailStatus.SUCCESS.getValue(),yesterday,now);

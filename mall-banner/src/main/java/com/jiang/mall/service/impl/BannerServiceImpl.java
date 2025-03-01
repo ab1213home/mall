@@ -69,6 +69,13 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.bannerTask = bannerTask;
 	}
 
+	private BannerConfig bannerConfig;
+
+	@Autowired
+	public void setBannerConfig(BannerConfig bannerConfig) {
+		this.bannerConfig = bannerConfig;
+	}
+
 	/**
 	 * 获取横幅列表
 	 *
@@ -153,7 +160,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	@Override
 	public List<BannerVo> getBannerListFromRedis() {
 	    // 检查是否启用了轮播图缓存
-	    if (BannerConfig.isBannerCacheEnabled()){
+	    if (bannerConfig.isBannerCacheEnabled()){
 	        // 检查Redis中是否存在轮播图数据
 	        if (redisService.hasBanner()) {
 	            // 从Redis中获取轮播图数据

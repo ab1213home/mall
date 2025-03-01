@@ -24,9 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.LocaleResolver;
 
 import java.util.Locale;
 
@@ -47,6 +44,13 @@ public class I18nServiceImpl implements II18nService {
 	@Autowired
 	public void setLocaleResolver(MyLocaleResolverConfig localeResolver) {
 		this.localeResolver = localeResolver;
+	}
+
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(I18nServiceImpl.class);
@@ -196,7 +200,7 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidEmail(String email) {
-		return (checkString(email,255) && email.matches(GeneralConfig.getRegexEmail()));
+		return (checkString(email,255) && email.matches(generalConfig.getRegexEmail()));
 	}
 
 	@Override
@@ -206,7 +210,7 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidPhone(String phone) {
-		return (checkString(phone,255) && phone.matches(GeneralConfig.getRegexPhone()));
+		return (checkString(phone,255) && phone.matches(generalConfig.getRegexPhone()));
 	}
 
 	@Override
@@ -220,7 +224,7 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidUsername(@NotNull String username) {
-		return username.matches(GeneralConfig.getRegexUsername());
+		return username.matches(generalConfig.getRegexUsername());
 	}
 
 }

@@ -15,7 +15,6 @@ package com.jiang.mall.intercepter;
 
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.FileConfig;
-import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.II18nService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +36,13 @@ public class UploadAllowedInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
+    private FileConfig fileConfig;
+
+    @Autowired
+    public void setFileConfig(FileConfig fileConfig) {
+        this.fileConfig = fileConfig;
+    }
+
     /**
      * 在请求处理之前进行预处理
      *
@@ -52,7 +58,7 @@ public class UploadAllowedInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         // 检查是否允许上传文件
-        if (!FileConfig.getAllowUploadFile()){
+        if (!fileConfig.getAllowUploadFile()){
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
             String jsonResponse = JSON.toJSONString(ResponseResult.failResult(403,"上传文件被禁止"));

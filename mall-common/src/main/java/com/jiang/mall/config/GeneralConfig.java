@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -46,8 +47,8 @@ public class GeneralConfig {
         }
     }
 
-    private static String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -59,7 +60,7 @@ public class GeneralConfig {
     /**
      * 加载配置文件
      */
-    public static void loadProperties() {
+    public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -86,27 +87,31 @@ public class GeneralConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
+    public void saveProperties() {
+        saveProperties(CONFIG_FILE_PATH, properties);
+    }
+
+    public void saveProperties(String configFilePath, Properties properties) {
         // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
+        File configFile = new File(configFilePath);
         File parentDir = configFile.getParentFile();
         if (!parentDir.exists() && !parentDir.mkdirs()) {
             logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
             return;
         }
 
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
+        try (OutputStream output = new FileOutputStream(configFilePath)) {
             properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
+            logger.debug("配置文件保存成功: {}", configFilePath);
         } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
+            logger.error("保存配置文件失败！路径: {}", configFilePath, e);
         }
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
@@ -121,112 +126,119 @@ public class GeneralConfig {
         }
     }
 
-    public static String getDateFormat() {
+    public String getDateFormat() {
         return properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue());
     }
 
-    public static String getTimeZone() {
+    public String getTimeZone() {
         return properties.getProperty(GeneralConfigItems.TIME_ZONE.getKey(), GeneralConfigItems.TIME_ZONE.getDefaultValue());
     }
 
-    public static boolean isAllowModify() {
+    public boolean isAllowModify() {
         return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), GeneralConfigItems.ALLOW_MODIFY.getDefaultValue()));
     }
 
-    public static String getPhone() {
+    public String getPhone() {
         return properties.getProperty(GeneralConfigItems.MALL_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
     }
 
-    public static String getEmail() {
+    public String getEmail() {
         return properties.getProperty(GeneralConfigItems.MALL_EMAIL.getKey(), GeneralConfigItems.MALL_EMAIL.getDefaultValue());
     }
 
-    public static String getAesSalt() {
+    public String getAesSalt() {
         return properties.getProperty(GeneralConfigItems.AES_SALT.getKey(), GeneralConfigItems.AES_SALT.getDefaultValue());
     }
 
-    public static String getRegexEmail() {
+    public String getRegexEmail() {
         return properties.getProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), GeneralConfigItems.REGEX_EMAIL.getDefaultValue());
     }
 
-    public static String getRegexPhone() {
+    public String getRegexPhone() {
         return properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.REGEX_PHONE.getDefaultValue());
     }
 
-    public static String getRegexPassword() {
+    public String getRegexPassword() {
         return properties.getProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), GeneralConfigItems.REGEX_PASSWORD.getDefaultValue());
     }
 
-    public static String getRegexUsername() {
+    public String getRegexUsername() {
         return properties.getProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), GeneralConfigItems.REGEX_USERNAME.getDefaultValue());
     }
 
-    public static String getRedisKeyPrefix() {
+    public String getRedisKeyPrefix() {
         return properties.getProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), GeneralConfigItems.REDIS_KEY_PREFIX.getDefaultValue());
     }
 
-    public static void updateDateFormat(String format) {
+    public @NotNull DateTimeFormatter getDateFormatPattern() {
+        return DateTimeFormatter.ofPattern(properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue()));
+    }
+
+    public void updateDateFormat(String format) {
         properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
         saveProperties();
     }
 
-    public static void updateTimeZone(String zone) {
+    public void updateTimeZone(String zone) {
         properties.setProperty(GeneralConfigItems.TIME_ZONE.getKey(), zone);
         saveProperties();
     }
 
-    public static void updateAllowModify(boolean allow) {
+    public void updateAllowModify(boolean allow) {
         properties.setProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), String.valueOf(allow));
         saveProperties();
         loadProperties();
     }
 
-    public static void updatePhone(String phone) {
+    public void updatePhone(String phone) {
         properties.setProperty(GeneralConfigItems.MALL_PHONE.getKey(), phone);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateEmail(String email) {
+    public void updateEmail(String email) {
         properties.setProperty(GeneralConfigItems.MALL_EMAIL.getKey(), email);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateAesSalt(String salt) {
+    public void updateAesSalt(String salt) {
         properties.setProperty(GeneralConfigItems.AES_SALT.getKey(), salt);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateRegexEmail(String regex) {
+    public void updateRegexEmail(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateRegexPhone(String regex) {
+    public void updateRegexPhone(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_PHONE.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateRegexPassword(String regex) {
+    public void updateRegexPassword(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateRegexUsername(String regex) {
+    public void updateRegexUsername(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), regex);
         saveProperties();
         loadProperties();
     }
 
-    public static void updateRedisKeyPrefix(String prefix) {
+    public void updateRedisKeyPrefix(String prefix) {
         properties.setProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), prefix);
         saveProperties();
         loadProperties();
     }
 
+    public void  updateDateFormatPattern(String pattern) {
+        properties.setProperty(GeneralConfigItems.DATE_FORMAT_PATTERN.getKey(), pattern);
+    }
 }

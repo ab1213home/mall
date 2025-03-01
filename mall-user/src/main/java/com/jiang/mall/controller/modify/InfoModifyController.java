@@ -13,7 +13,7 @@
 
 package com.jiang.mall.controller.modify;
 
-import com.jiang.mall.config.UserConfig;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.vo.UserVo;
@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
@@ -105,7 +104,13 @@ public class InfoModifyController {
 		this.redisService = redisService;
 	}
 
-	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
 
 	/**
      * 修改用户信息
@@ -149,7 +154,7 @@ public class InfoModifyController {
         // 验证和转换生日日期格式
         if (birthDate != null){
             try {
-                LocalDate localDate = LocalDate.parse(birthDate, formatter);
+                LocalDate localDate = LocalDate.parse(birthDate, generalConfig.getDateFormatPattern());
                 // 检查生日是否在过去
                 if (localDate.isAfter(LocalDate.now())) {
                     return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.future"));
@@ -189,7 +194,7 @@ public class InfoModifyController {
 //                    return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.jurisdiction.overtop") + UserConfig.getAdminRoleId());
 //                }
 //            }
-            UserVo adminUser = (UserVo) session.getAttribute("User");
+//            UserVo adminUser = (UserVo) session.getAttribute("User");
 //            if (roleId > adminUser.getRoleId()) {
 //                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.overtop"));
 //            }

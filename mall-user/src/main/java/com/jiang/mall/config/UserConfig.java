@@ -13,6 +13,7 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.dao.GroupMapper;
 import com.jiang.mall.domain.enums.UserConfigItems;
 import com.jiang.mall.domain.vo.UserSettingVo;
 import jakarta.annotation.PostConstruct;
@@ -22,7 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 @Component
@@ -37,9 +41,16 @@ public class UserConfig {
         this.generalConfig = generalConfig;
     }
 
+    private GroupMapper groupMapper;
+
+    @Autowired
+    public void setGroupMapper(GroupMapper groupMapper) {
+        this.groupMapper = groupMapper;
+    }
+
     // 指向外部配置文件
-    private static String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -51,7 +62,7 @@ public class UserConfig {
     /**
      * 加载配置文件
      */
-    public static void loadProperties() {
+    public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -61,6 +72,15 @@ public class UserConfig {
                     if (!properties.containsKey(keyToCheck)) {
                         properties.setProperty(keyToCheck, item.getDefaultValue());
                         saveProperties();
+                    }
+                    if (item.getKey().equals(UserConfigItems.USER_DEFAULT_GROUP.getKey())) {
+                        // 获取默认用户组
+                        long defaultGroup = Long.parseLong(properties.getProperty(item.getKey(), item.getDefaultValue()));
+                        if (groupMapper.selectById(defaultGroup) == null) {
+                            logger.warn("默认用户组不存在，新用户不关联用户组");
+                            properties.setProperty(item.getKey(), "-1");
+                            saveProperties();
+                        }
                     }
                 }
                 logger.debug("配置文件加载成功: {}", CONFIG_FILE_PATH);
@@ -78,27 +98,15 @@ public class UserConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
+    public void saveProperties() {
         // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
-        File parentDir = configFile.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
-            return;
-        }
-
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-        }
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
@@ -113,39 +121,39 @@ public class UserConfig {
         }
     }
 
-    public static int getUserMaxTry() {
+    public int getUserMaxTry() {
         return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_TRY.getKey(), UserConfigItems.USER_MAX_TRY.getDefaultValue()));
     }
 
-    public static int getUserMaxAddress() {
+    public int getUserMaxAddress() {
         return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), UserConfigItems.USER_MAX_ADDRESS.getDefaultValue()));
     }
 
-    public static long getDefaultGroup() {
+    public long getDefaultGroup() {
         return Long.parseLong(properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
     }
 
-    public static boolean isAllowRegistration() {
+    public boolean isAllowRegistration() {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), UserConfigItems.ALLOW_USER_REGISTRATION.getDefaultValue()));
     }
 
-    public static void updateUserMaxTry(int num) {
+    public void updateUserMaxTry(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
     }
 
-    public static void updateUserMaxAddress(int num) {
+    public void updateUserMaxAddress(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
     }
 
-    public static void updateAllowRegistration(boolean allow) {
+    public void updateAllowRegistration(boolean allow) {
         properties.setProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), String.valueOf(allow));
     }
 
-    public static void updateDefaultGroup(long group) {
+    public void updateDefaultGroup(long group) {
         properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
     }
 
-    public static @NotNull UserSettingVo getSetting() {
+    public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();
         settingVo.setMaxTryNumber(getUserMaxTry());
         settingVo.setMaxAddressNum(getUserMaxAddress());
@@ -154,7 +162,7 @@ public class UserConfig {
         return settingVo;
     }
 
-    public static void updateSetting(@NotNull UserSettingVo settingVo) {
+    public void updateSetting(@NotNull UserSettingVo settingVo) {
         updateUserMaxTry(settingVo.getMaxTryNumber());
         updateUserMaxAddress(settingVo.getMaxAddressNum());
         updateDefaultGroup(settingVo.getDefaultGroup());

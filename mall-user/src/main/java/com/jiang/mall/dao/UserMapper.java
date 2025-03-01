@@ -31,6 +31,7 @@ import org.apache.ibatis.annotations.Select;
  */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
+
     @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = true LIMIT 1")
     User selectUserByIdAndActive(Long userId);
 
@@ -46,4 +47,9 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT * FROM tb_users WHERE email = #{email} LIMIT 1")
     User selectByEmail(String email);
 
+    @Select("SELECT COUNT(*) FROM tb_users WHERE email = #{email}")
+	int selectCountByEmail(String email);
+
+    @Select("SELECT COUNT(*) FROM tb_users WHERE username = #{username}")
+    int selectCountByUsername(String username);
 }

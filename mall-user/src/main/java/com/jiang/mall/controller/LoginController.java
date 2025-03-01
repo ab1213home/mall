@@ -16,7 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.ICaptchaService;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -61,6 +61,13 @@ public class LoginController {
 		this.captchaService = captchaService;
 	}
 
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
+	}
+
 	/**
      * 处理用户登录请求
      *
@@ -103,7 +110,7 @@ public class LoginController {
 		}
 
         // 检查用户尝试登录失败次数
-        if (userRecordService.countTryNumber(username, clientIp, fingerprint) >= UserConfig.getUserMaxTry()){
+        if (userRecordService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry()){
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 

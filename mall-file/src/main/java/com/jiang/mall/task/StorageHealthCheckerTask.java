@@ -37,21 +37,28 @@ public class StorageHealthCheckerTask {
 		this.storageHealthChecker = storageHealthChecker;
 	}
 
+	private FileConfig fileConfig;
+
+	@Autowired
+	public void setFileConfig(FileConfig fileConfig) {
+		this.fileConfig = fileConfig;
+	}
+
 	@Scheduled(fixedRate = 300000,initialDelay = 0) // 每 5 分钟检查一次
     public void checkAndRecover() {
-		boolean defaultHealth = checkStorageHealth(FileConfig.defaultStorageConfig);
+		boolean defaultHealth = checkStorageHealth(fileConfig.defaultStorageConfig);
 		if (!defaultHealth){
 			logger.error("默认存储运行状况不佳，请尝试恢复...");
-			for (StorageConfig storageConfig : FileConfig.storageConfig) {
+			for (StorageConfig storageConfig : fileConfig.storageConfig) {
 				if (checkStorageHealth(storageConfig)){
-					FileConfig.defaultStorageConfig=storageConfig;
+					fileConfig.defaultStorageConfig=storageConfig;
 					break;
 				}
 			}
 		}else{
 			logger.info("默认存储运行状况良好");
 		}
-		for (StorageConfig storageConfig : FileConfig.storageConfig) {
+		for (StorageConfig storageConfig : fileConfig.storageConfig) {
 			checkStorageHealth(storageConfig);
 		}
 		logger.debug("所有存储都经过检查");

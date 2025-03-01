@@ -13,7 +13,6 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.enums.BannerConfigItems;
 import com.jiang.mall.domain.enums.CaptchaConfigItems;
 import com.jiang.mall.domain.vo.BannerSettingVo;
@@ -24,7 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 @Component
@@ -40,8 +42,8 @@ public class BannerConfig {
     }
 
     // 指向外部配置文件
-    private static String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -53,7 +55,7 @@ public class BannerConfig {
     /**
      * 加载配置文件
      */
-    public static void loadProperties() {
+    public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -80,31 +82,19 @@ public class BannerConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
+    public void saveProperties() {
         // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
-        File parentDir = configFile.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
-            return;
-        }
-
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-        }
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (CaptchaConfigItems item : CaptchaConfigItems.values()){
+                for (BannerConfigItems item : BannerConfigItems.values()){
                     properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                 }
                 saveProperties();
@@ -120,7 +110,7 @@ public class BannerConfig {
      *
      * @return 如果轮播图缓存功能已启用，则返回true；否则返回false
      */
-    public static boolean isBannerCacheEnabled() {
+    public boolean isBannerCacheEnabled() {
         return Boolean.parseBoolean(properties.getProperty(BannerConfigItems.BANNER_CACHE.getKey(), BannerConfigItems.BANNER_CACHE.getDefaultValue()));
     }
 
@@ -132,7 +122,7 @@ public class BannerConfig {
      *
      * @return 轮播图同步时间，以毫秒为单位如果无法解析属性或属性不存在，则返回默认值60000毫秒
      */
-    public static int getBannerSyncTime() {
+    public int getBannerSyncTime() {
         return Integer.parseInt(properties.getProperty(BannerConfigItems.SYNC_TIME.getKey(), BannerConfigItems.SYNC_TIME.getDefaultValue()));
     }
 
@@ -142,7 +132,7 @@ public class BannerConfig {
      *
      * @param enabled 如果为true，则允许缓存Banner；如果为false，则不允许缓存
      */
-    public static void updateBannerCache(boolean enabled) {
+    public void updateBannerCache(boolean enabled) {
         // 设置是否允许缓存Banner的属性值
         properties.setProperty(BannerConfigItems.BANNER_CACHE.getKey(),String.valueOf(enabled));
     }
@@ -154,19 +144,19 @@ public class BannerConfig {
      *
      * @param milliseconds 毫秒数，表示横幅内容的同步时间
      */
-    public static void updateBannerSyncTime(int milliseconds) {
+    public void updateBannerSyncTime(int milliseconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
         properties.setProperty(BannerConfigItems.SYNC_TIME.getKey(), String.valueOf(milliseconds));
     }
 
-    public static @NotNull BannerSettingVo getBannerSetting() {
+    public @NotNull BannerSettingVo getBannerSetting() {
         BannerSettingVo bannerSettingVo = new BannerSettingVo();
         bannerSettingVo.setBannerCacheEnabled(isBannerCacheEnabled());
         bannerSettingVo.setSyncTime(getBannerSyncTime());
         return bannerSettingVo;
     }
 
-    public static void updateBannerSetting(@NotNull BannerSettingVo bannerSettingVo) {
+    public void updateBannerSetting(@NotNull BannerSettingVo bannerSettingVo) {
         updateBannerCache(bannerSettingVo.isBannerCacheEnabled());
         updateBannerSyncTime(bannerSettingVo.getSyncTime());
         loadProperties();

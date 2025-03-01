@@ -33,11 +33,19 @@ import java.util.Map;
 @RequestMapping("/common")
 public class CommonController {
 
+    private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
+
     @GetMapping("/getFooter")
     public ResponseResult<Object> getFooter() {
         Map<String, Object> map = new HashMap<>();
-        map.put("phone", GeneralConfig.getPhone());
-        map.put("email", GeneralConfig.getEmail());
+        map.put("phone", generalConfig.getPhone());
+        map.put("email", generalConfig.getEmail());
         return ResponseResult.okResult(map);
     }
 

@@ -18,9 +18,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerSettingVo;
-import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -51,16 +49,11 @@ public class BannerAdminController {
         this.bannerService = bannerService;
     }
 
-    private IUserService userService;
+    private BannerConfig bannerConfig;
 
-    /**
-     * 用户服务接口的依赖注入
-     *
-     * @param userService 用户服务接口
-     */
     @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
+    public void setBannerConfig(BannerConfig bannerConfig) {
+        this.bannerConfig = bannerConfig;
     }
 
     /**
@@ -206,12 +199,6 @@ public class BannerAdminController {
         if (banner == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
-        // 检查会话中是否设置表示用户已登录的标志
-//        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
-//        // 如果用户未登录或不是管理员，则返回错误信息
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
 
         // 尝试删除轮播图
         if (bannerService.deleteBanner(id)) {
@@ -225,12 +212,12 @@ public class BannerAdminController {
 
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
-        return ResponseResult.okResult(BannerConfig.getBannerSetting());
+        return ResponseResult.okResult(bannerConfig.getBannerSetting());
     }
 
     @PostMapping("/saveSetting")
     public ResponseResult<Object> saveSetting(@RequestBody BannerSettingVo bannerSettingVo) {
-        BannerConfig.updateBannerSetting(bannerSettingVo);
+        bannerConfig.updateBannerSetting(bannerSettingVo);
         return ResponseResult.okResult();
     }
 }

@@ -22,7 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 @Configuration
@@ -38,8 +41,8 @@ public class CaptchaConfig {
     }
 
     // 指向外部配置文件
-    private static String CONFIG_FILE_PATH;
-    private static final Properties properties = new Properties();
+    private String CONFIG_FILE_PATH;
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -51,7 +54,7 @@ public class CaptchaConfig {
     /**
      * 加载配置文件
      */
-    public static void loadProperties() {
+    public void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -96,26 +99,14 @@ public class CaptchaConfig {
     /**
      * 保存配置文件
      */
-    public static void saveProperties() {
-        // 确保目录存在
-        File configFile = new File(CONFIG_FILE_PATH);
-        File parentDir = configFile.getParentFile();
-        if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}", parentDir.getAbsolutePath());
-            return;
-        }
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE_PATH)) {
-            properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}", CONFIG_FILE_PATH);
-        } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
-        }
+    public void saveProperties() {
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
      * 创建默认配置文件
      */
-    private static void createDefaultConfig() {
+    private void createDefaultConfig() {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
@@ -138,7 +129,7 @@ public class CaptchaConfig {
      *
      * @return 验证码字符数量
      */
-    public static int getCaptchaNum() {
+    public int getCaptchaNum() {
         return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), CaptchaConfigItems.CAPTCHA_NUM.getDefaultValue()));
     }
 
@@ -149,7 +140,7 @@ public class CaptchaConfig {
      *
      * @return 字符过期时间，以秒为单位
      */
-    public static int getCaptchaExpireTime() {
+    public int getCaptchaExpireTime() {
         return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getDefaultValue()));
     }
 
@@ -161,7 +152,7 @@ public class CaptchaConfig {
      *
      * @return 验证码字符的字体类型作为整数返回
      */
-    public static int getCaptchaFont() {
+    public int getCaptchaFont() {
         return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), CaptchaConfigItems.CAPTCHA_FONT.getDefaultValue()));
     }
 
@@ -173,7 +164,7 @@ public class CaptchaConfig {
      *
      * @return 字符类型的整数值，表示验证码字符的类型
      */
-    public static int getCaptchaType() {
+    public int getCaptchaType() {
         return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), CaptchaConfigItems.CAPTCHA_TYPE.getDefaultValue()));
     }
 
@@ -183,7 +174,7 @@ public class CaptchaConfig {
      *
      * @param num 验证码中字符的数量，此值将被存储并用于后续验证码的生成
      */
-    public static void updateCaptchaNum(int num) {
+    public void updateCaptchaNum(int num) {
         // 设置验证码字符数量的属性，将其转换为字符串以适应属性存储的要求
         properties.setProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), String.valueOf(num));
     }
@@ -196,7 +187,7 @@ public class CaptchaConfig {
      *
      * @param time 新的验证码过期时间，单位为分钟
      */
-    public static void updateCaptchaExpireTime(int time) {
+    public void updateCaptchaExpireTime(int time) {
         // 设置字符过期时间到属性配置中
         properties.setProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), String.valueOf(time));
     }
@@ -207,7 +198,7 @@ public class CaptchaConfig {
      *
      * @param font 字体的大小，这是一个整数值，用于设置字符的字体大小
      */
-    public static void updateCaptchaFont(int font) {
+    public void updateCaptchaFont(int font) {
 		if (font < 0 || font > 9) {
 			logger.warn("字体样式设置错误，不应该为: {}", font);
 			return;
@@ -224,7 +215,7 @@ public class CaptchaConfig {
      *
      * @param type 代表字符类型的整数不同数值代表不同的字符类型
      */
-    public static void updateCaptchaType(int type) {
+    public void updateCaptchaType(int type) {
 		if (type < 1 || type > 6) {
 			logger.warn("字符类型设置错误，不应该为: {}", type);
 			return;
@@ -233,7 +224,7 @@ public class CaptchaConfig {
         properties.setProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), String.valueOf(type));
     }
 
-    public static @NotNull CaptchaSettingVo getSetting() {
+    public @NotNull CaptchaSettingVo getSetting() {
         CaptchaSettingVo settingVo = new CaptchaSettingVo();
         settingVo.setCaptchaNum(getCaptchaNum());
         settingVo.setCaptchaExpireTime(getCaptchaExpireTime());
@@ -242,7 +233,7 @@ public class CaptchaConfig {
         return settingVo;
     }
 
-    public static void  updateSetting(@NotNull CaptchaSettingVo settingVo) {
+    public void  updateSetting(@NotNull CaptchaSettingVo settingVo) {
         updateCaptchaNum(settingVo.getCaptchaNum());
         updateCaptchaExpireTime(settingVo.getCaptchaExpireTime());
         updateCaptchaFont(settingVo.getCaptchaFont());

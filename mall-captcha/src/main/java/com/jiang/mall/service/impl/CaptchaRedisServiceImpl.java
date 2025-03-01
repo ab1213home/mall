@@ -13,8 +13,9 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.service.ICaptchaRedisService;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.service.ICaptchaRedisService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -32,7 +33,20 @@ public class CaptchaRedisServiceImpl implements ICaptchaRedisService {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-    String prefix = GeneralConfig.getRedisKeyPrefix()+"-captcha-";
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+	    this.generalConfig = generalConfig;
+	}
+
+	String prefix = "captcha-";
+
+	@PostConstruct
+	public void init() {
+	    prefix = generalConfig.getRedisKeyPrefix()+"-captcha-";
+	}
+
     String key(String key){
         return prefix+key;
     }
