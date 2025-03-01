@@ -20,42 +20,44 @@ import java.util.concurrent.TimeUnit;
 public interface IUserRedisService {
 
     /**
-     * 将给定的键值对存储在缓存中，并为该缓存项设置过期时间
+     * 将用户信息存储到Redis中，并为其设置过期时间
+     * 此方法会将用户信息以JSON字符串的形式存储，并同时存储一份用户ID与用户信息键的映射
      *
-     * @param key 缓存项的唯一标识符，用于后续检索缓存值
-     * @param value 要存储在缓存中的值，与给定的键关联
-     * @param timeout 缓存项在缓存中保持有效的时间长度，到达过期时间后，缓存项将被视为无效
-     * @param unit 指定timeout参数的时间单位，用于明确过期时间的度量标准
+     * @param key 用户信息的唯一键，用于标识用户
+     * @param value 用户信息对象，包含具体的用户数据
+     * @param timeout 数据的有效期，当超过这个时间后数据将自动过期
+     * @param unit 时间单位，用于解释timeout参数的时间单位
      */
     void setUser(String key, UserVo value, long timeout, TimeUnit unit);
 
     /**
-     * 根据键获取对应的字符串值
+     * 根据键获取用户信息
      *
-     * @param key 字符串的键，用于唯一标识一个字符串值
-     * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
+     * @param key Redis中存储用户信息的键
+     * @return 如果键不存在或值为null，则返回null；否则返回解析后的UserVo对象
      */
     UserVo getUser(String key);
+
     /**
-     * 检查给定的键是否存在于当前数据结构中
+     * 判断用户是否存在
+     * <p>
+     * 通过检查给定键是否存在于Redis中来判断用户是否存在
      *
-     * @param key 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
+     * @param key 用户键
+     * @return 如果键存在，则返回true，表示用户存在；否则返回false，表示用户不存在
      */
     Boolean hasUser(String key);
 
     /**
      * 设置指定键的过期时间
      * <p>
-     * 此方法用于为给定的键设置过期时间当键过期时，它将不再在数据库中可用此方法常用于缓存场景，
-     * 以确保数据不会永久存储，并且可以自动清除旧的或不再需要的数据
+     * 此方法用于为给定的键设置过期时间一旦过期时间到达，键将被删除
+     * 如果键不存在，则该操作将失败，且方法不执行任何操作
      *
      * @param key   要设置过期时间的键不能为空
-     * @param timeout  键的过期时间，以秒为单位如果值为0，键将被持久化，不会过期
-     * @return      如果操作成功，返回true；否则返回false可能的原因包括但不限于键不存在或者数据库执行操作失败
+     * @param timeout  键的过期时间，单位为秒如果值为非正值，则该操作将失败
      */
-    @SuppressWarnings("UnusedReturnValue")
-    Boolean expire(String key, long timeout);
+    void expire(String key, long timeout);
 
     /**
      * 获取指定键的剩余过期时间
@@ -69,8 +71,7 @@ public interface IUserRedisService {
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
+     *
      */
-    @SuppressWarnings("UnusedReturnValue")
     Boolean deleteUser(String key);
 }

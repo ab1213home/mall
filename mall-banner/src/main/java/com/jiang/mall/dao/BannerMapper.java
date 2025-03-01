@@ -35,6 +35,6 @@ import java.util.List;
 @Mapper
 public interface BannerMapper extends BaseMapper<Banner> {
 
-	@Select("SELECT * FROM tb_banners WHERE is_del=0 AND start_time <= #{now} AND end_time >= #{now}")
+	@Select("SELECT id, img, url, description, start_time, end_time, creator, created_at, updater, updated_at, is_del FROM tb_banners WHERE is_del=0 AND start_time <= #{now} AND end_time >= #{now}")
 	List<Banner> geTeffectiveBannerList(LocalDateTime now);
 }

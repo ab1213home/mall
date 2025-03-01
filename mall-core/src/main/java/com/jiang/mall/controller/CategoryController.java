@@ -180,10 +180,10 @@ public class CategoryController {
         }
 
         // 判断当前用户是否有权限进行更新操作
-        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 创建一个新的Category对象并设置其属性
         category = new Category(id, code, name);
@@ -219,11 +219,11 @@ public class CategoryController {
         }
 
         // 检查当前会话中用户是否已登录并有权限进行操作
-        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
-        // 如果用户没有权限（未登录或不是要求的管理员角色），返回错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
+//        // 如果用户没有权限（未登录或不是要求的管理员角色），返回错误信息
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 尝试从数据库中删除分类
         if (categoryService.deleteCategory(category)) {

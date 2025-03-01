@@ -169,13 +169,13 @@ public class InfoModifyController {
             if (!i18nService.isValidEmail(email)) {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.email.format"));
             }
-            ResponseResult<Object> result = userService.hasPermission(id,session);
+//            ResponseResult<Object> result = userService.hasPermission(id,session);
             // 如果用户未登录或不是管理员，则返回错误信息
-            if (!result.isSuccess()) {
-                return result;
-            }
+//            if (!result.isSuccess()) {
+//                return result;
+//            }
             // 检查邮箱是否已被其他用户使用
-            User oldUser = userService.getUserInfo(id);
+            User oldUser = userService.getUserById(id);
             if (!oldUser.getEmail().equals(email) && userService.queryByEmail(email)) {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.email.exist"));
             }
@@ -190,16 +190,16 @@ public class InfoModifyController {
                 }
             }
             UserVo adminUser = (UserVo) session.getAttribute("User");
-            if (roleId > adminUser.getRoleId()) {
-                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.overtop"));
-            }
-            if (oldUser.getRoleId() > adminUser.getRoleId()) {
-                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.lack"));
-            }
+//            if (roleId > adminUser.getRoleId()) {
+//                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.overtop"));
+//            }
+//            if (oldUser.getRoleId() > adminUser.getRoleId()) {
+//                return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.role.lack"));
+//            }
             // 设置用户ID
             userInfo.setId(id);
             // 设置角色ID
-            userInfo.setRoleId(roleId);
+//            userInfo.setRoleId(roleId);
             userInfo.setEmail(email);
             if (userService.updateUser(userInfo)) {
                 return ResponseResult.okResult(i18nService.getMessage("user.modify.info.success"));

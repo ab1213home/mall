@@ -133,11 +133,6 @@ public class User implements Serializable {
      */
     private Boolean isActive;
 
-    /**
-     * 角色ID
-     */
-    private Integer roleId;
-
     public User(String username, String password, String email) {
         this.username = username;
         this.password = password;
@@ -181,7 +176,6 @@ public class User implements Serializable {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", isActive=" + isActive +
-                ", roleId=" + roleId +
                 "]";
     }
 }

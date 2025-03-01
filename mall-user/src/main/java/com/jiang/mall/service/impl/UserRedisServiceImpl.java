@@ -39,55 +39,65 @@ public class UserRedisServiceImpl implements IUserRedisService {
         return prefix+key;
     }
 
+
     /**
-     * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
+     * 将用户信息存储到Redis中，并为其设置过期时间
+     * 此方法会将用户信息以JSON字符串的形式存储，并同时存储一份用户ID与用户信息键的映射
      *
-     * @param key 键，用于唯一标识存储的值
-     * @param value 值，与键关联存储的数据
-     * @param timeout 过期时间，单位毫秒，表示值将在多久之后过期
-     * @param unit 时间单位，用于指定过期时间
+     * @param key 用户信息的唯一键，用于标识用户
+     * @param value 用户信息对象，包含具体的用户数据
+     * @param timeout 数据的有效期，当超过这个时间后数据将自动过期
+     * @param unit 时间单位，用于解释timeout参数的时间单位
      */
     @Override
     public void setUser(String key, UserVo value, long timeout, TimeUnit unit) {
+        // 将用户信息转换为JSON字符串并存储到Redis中，同时设置过期时间
         stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
+        // 将用户ID与用户信息键的映射存储到Redis中，以便于后续通过用户ID快速获取用户信息键，同样设置过期时间
+        stringRedisTemplate.opsForValue().set(key(String.valueOf(value.getId())),key(key) , timeout, unit);
     }
 
+
     /**
-     * 根据键获取对应的字符串值
+     * 根据键获取用户信息
      *
-     * @param key 字符串的键，用于唯一标识一个字符串值
-     * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
+     * @param key Redis中存储用户信息的键
+     * @return 如果键不存在或值为null，则返回null；否则返回解析后的UserVo对象
      */
     @Override
     public UserVo getUser(String key) {
+        // 从Redis中获取指定键的值
         String value = stringRedisTemplate.opsForValue().get(key(key));
+        // 如果值为null，则返回null；否则将获取到的JSON字符串解析为UserVo对象并返回
         return value == null ? null : JSON.parseObject(value, UserVo.class);
     }
 
     /**
-     * 检查给定的键是否存在于当前数据结构中
+     * 判断用户是否存在
+     * <p>
+     * 通过检查给定键是否存在于Redis中来判断用户是否存在
      *
-     * @param key 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
+     * @param key 用户键
+     * @return 如果键存在，则返回true，表示用户存在；否则返回false，表示用户不存在
      */
     @Override
     public Boolean hasUser(String key) {
         return stringRedisTemplate.hasKey(key(key));
     }
 
+
     /**
      * 设置指定键的过期时间
      * <p>
-     * 此方法用于为给定的键设置过期时间当键过期时，它将不再在数据库中可用此方法常用于缓存场景，
-     * 以确保数据不会永久存储，并且可以自动清除旧的或不再需要的数据
+     * 此方法用于为给定的键设置过期时间一旦过期时间到达，键将被删除
+     * 如果键不存在，则该操作将失败，且方法不执行任何操作
      *
      * @param key   要设置过期时间的键不能为空
-     * @param timeout  键的过期时间，以秒为单位如果值为0，键将被持久化，不会过期
-     * @return      如果操作成功，返回true；否则返回false可能的原因包括但不限于键不存在或者数据库执行操作失败
+     * @param timeout  键的过期时间，单位为秒如果值为非正值，则该操作将失败
      */
     @Override
-    public Boolean expire(String key, long timeout) {
-        return stringRedisTemplate.expire(key(key), timeout, TimeUnit.SECONDS);
+    public void expire(String key, long timeout) {
+        stringRedisTemplate.expire(key(key), timeout, TimeUnit.SECONDS);
     }
 
     /**
@@ -105,7 +115,6 @@ public class UserRedisServiceImpl implements IUserRedisService {
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
      */
     @Override
     public Boolean deleteUser(String key) {

@@ -13,11 +13,9 @@
 
 package com.jiang.mall.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
@@ -25,7 +23,6 @@ import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtils;
-import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param sessionId 当前用户的会话Id
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
+	@Override
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
 		UserVo user = redisService.getUser(sessionId);
 		if (user == null){
@@ -127,6 +125,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			}else{
 				return ResponseResult.okResult(user);
 			}
+		}
+	}
+
+	@Override
+	public UserVo getUserFromRedis(String sessionId) {
+		if (redisService.hasUser(sessionId)){
+			return redisService.getUser(sessionId);
+		}else{
+			return null;
 		}
 	}
 
@@ -151,6 +158,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param sessionId 当前用户的会话Id
 	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
 	 */
+	@Override
 	public ResponseResult<Object> checkAdminUser(String sessionId) {
 	    // 检查用户是否已登录
 	    ResponseResult<Object> result = checkUserLogin(sessionId);
@@ -175,25 +183,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @param session  当前用户的会话
 	 * @return  包含权限检查结果的响应对象，如果用户无权修改，则返回相应的错误信息
 	 */
-	public ResponseResult<Object> hasPermission(Long oldUserId, @NotNull HttpSession session){
-	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = checkAdminUser(session.getId());
-	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
-	    if (!result.isSuccess()) {
-	        return result;
-	    }
-		UserVo user = (UserVo) result.getData();
-	    // 获取创建修改用户的信息
-		if (userMapper.selectById(oldUserId) == null) {
-			return ResponseResult.okResult(result.getData());
-		}
-		User old_user = userMapper.selectById(oldUserId);
-	    // 检查尝试修改用户的权限是否足够
-	    if (old_user.getRoleId() >user.getRoleId()) {
-	        return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkAdmin.noPermission"));
-	    }
-	    return ResponseResult.okResult(result.getData());
-	}
+//	public ResponseResult<Object> hasPermission(Long oldUserId, @NotNull HttpSession session){
+//	    // 检查会话中是否设置表示用户已登录的标志
+//	    ResponseResult<Object> result = checkAdminUser(session.getId());
+//	    // 如果用户未登录或没有管理员权限，则返回相应的错误信息
+//	    if (!result.isSuccess()) {
+//	        return result;
+//	    }
+//		UserVo user = (UserVo) result.getData();
+//	    // 获取创建修改用户的信息
+//		if (userMapper.selectById(oldUserId) == null) {
+//			return ResponseResult.okResult(result.getData());
+//		}
+//		User old_user = userMapper.selectById(oldUserId);
+//	    // 检查尝试修改用户的权限是否足够
+////	    if (old_user.getRoleId() >user.getRoleId()) {
+////	        return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkAdmin.noPermission"));
+////	    }
+//	    return ResponseResult.okResult(result.getData());
+//	}
 
 	/**
 	 * 用户登录方法
@@ -447,6 +455,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
 	}
 
+	@Override
+	public User getUserById(Long userId) {
+		return userMapper.selectById(userId);
+	}
+
 	/**
 	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
 	 *
@@ -492,20 +505,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	/**
-	 * 根据用户ID获取用户信息
-	 * 此方法覆盖了父类的抽象方法，用于根据用户ID获取相应的用户信息
-	 * 它委托给userMapper的selectById方法来实现数据库查询
-	 *
-	 * @param userId 用户ID，用于标识特定的用户
-	 * @return 返回查询到的用户信息对象，如果未找到则返回null
-	 */
-	@Override
-	public User getUserInfo(Long userId) {
-	    return userMapper.selectById(userId);
-	}
-
-
-	/**
 	 * 修改用户信息。
 	 * 此方法用于更新用户的信息。
 	 * 它首先检查用户是否存在于数据库中且当前状态为非激活状态。
@@ -532,7 +531,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			newUser.setUsername(user.getUsername());
 	        // 将用户状态设置为激活，确保用户不会因为信息修改而失去访问权限。
 	        newUser.setIsActive(user.getIsActive());
-			newUser.setRoleId(user.getRoleId());
+//			newUser.setRoleId(user.getRoleId());
 	        // 更新数据库中的用户信息。
 	        int result = userMapper.updateById(newUser);
 	        // 检查更新是否成功，并返回结果。
@@ -637,7 +636,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        // 设置用户账户为激活状态
 	        user.setIsActive(true);
 	        // 设置用户角色为普通用户
-	        user.setRoleId(1);
+//	        user.setRoleId(1);
 	        // 插入用户信息，若成功则返回用户ID，否则返回0
 		    if (userMapper.insert(user) > 0){
 				temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
@@ -651,7 +650,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setPassword(null);
 	        user.setEmail(null);
 			user.setIsActive(true);
-			user.setRoleId(1);
+//			user.setRoleId(1);
 	        // 更新用户信息，若成功则返回用户ID，否则返回0
 		    redisService.deleteUser(sessionId);
 	        return userMapper.updateById(user)>0?user.getId():0;
@@ -674,11 +673,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
     public List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId) {
         // 通过用户ID获取用户信息
-        User user = userMapper.selectById(userId);
+//        User user = userMapper.selectById(userId);
         // 创建分页对象
         Page<User> userPage = new Page<>(pageNum, pageSize);
         // 创建查询条件对象，并限制角色ID
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId()+0.1);
+//        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId()+0.1);
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         // 根据分页和查询条件获取用户列表
         List<User> users = userMapper.selectPage(userPage,queryWrapper).getRecords();
         // 将用户列表转换为Vo对象列表
@@ -689,7 +689,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			if (userVo.getBirthDate() != null) {
 				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
 			}
-            userVo.setAdmin(userVo.getRoleId() >= UserConfig.getAdminRoleId());
+            userVo.setAdmin(!userVo.getPermissions().isEmpty());
         }
         // 返回处理后的用户列表Vo对象
         return userVos;

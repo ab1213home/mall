@@ -62,11 +62,10 @@ public class FileAdminController {
     /**
      * 获取文件夹大小和文件数量
      *
-     * @param session HttpSession对象，用于检查用户登录状态
      * @return 包含文件夹总大小和文件数量的响应结果
      */
     @GetMapping("/getFileSize")
-    public ResponseResult<Object> getSize(HttpSession session){
+    public ResponseResult<Object> getSize(){
         Map<String, Object> data = fileOperation.getFolderStats(FileConfig.defaultStorageConfig.getName());
         // 返回包含数据Map的成功响应结果
         return ResponseResult.okResult(data);
@@ -78,7 +77,7 @@ public class FileAdminController {
                                           ){
         DirectoryVo directoryList = fileOperation.getFileList(path,storageName);
         if (directoryList==null){
-            return ResponseResult.notLoggedResult(storageName+"下不存在文件！");
+            return ResponseResult.notLoggedResult(storageName+"下"+path+"不存在文件！");
         }
         return ResponseResult.okResult(directoryList);
     }
@@ -280,12 +279,10 @@ public class FileAdminController {
      * 处理获取文件用途的GET请求
      *
      * @param path 文件路径，用于定位文件
-     * @param session HTTP会话，用于检查用户登录状态
      * @return ResponseResult 包含操作结果或文件用途信息
      */
     @GetMapping("/getPurpose")
-    public ResponseResult<Object> getPurpose(@RequestParam("path") String path,
-                                     HttpSession session){
+    public ResponseResult<Object> getPurpose(@RequestParam("path") String path){
         // 调用服务层方法，获取文件的用途
         String purpose = fileService.getPurpose(path);
         // 返回文件用途信息

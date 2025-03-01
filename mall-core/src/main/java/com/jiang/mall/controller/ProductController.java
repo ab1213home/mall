@@ -263,12 +263,12 @@ public class ProductController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
 
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
-        // 如果用户未登录或不是管理员，则返回错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        // 检查会话中是否设置表示用户已登录的标志
+//        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
+//        // 如果用户未登录或不是管理员，则返回错误信息
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
         if (productService.queryCode(product.getCode())&&!product.getCode().equals(code)) {
             return ResponseResult.failResult("产品编码已存在");
         }
@@ -307,11 +307,11 @@ public class ProductController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
-        // 验证用户权限，确保用户已登录并有权限进行删除操作
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
+//        // 验证用户权限，确保用户已登录并有权限进行删除操作
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 尝试删除产品
         if (productService.deleteProduct(id)) {

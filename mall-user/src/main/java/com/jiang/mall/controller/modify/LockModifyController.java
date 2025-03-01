@@ -89,20 +89,20 @@ public class LockModifyController {
         }
 
         // 根据userId获取用户信息
-        User user = userService.getUserInfo(userId);
+        User user = userService.getUserById(userId);
         // 如果用户不存在，则返回未找到资源的错误信息
         if (user == null) {
             return ResponseResult.notFoundResourceResult(i18nService.getMessage("user.modify.lock.error.notFound"));
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult<Object> result = userService.hasPermission(user.getId(), session);
+//        ResponseResult<Object> result = userService.hasPermission(user.getId(), session);
         // 如果用户未登录或权限不足，则返回相应的错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
-		UserVo userVo = (UserVo) result.getData();
+		UserVo userVo = userService.getUserFromRedis(session.getId());
 		if (Objects.equals(userVo.getId(), userId)){
 			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
 		}
@@ -138,18 +138,18 @@ public class LockModifyController {
             return ResponseResult.failResult(i18nService.getMessage("id.error"));
         }
         // 根据userId获取用户信息
-        User user = userService.getUserInfo(userId);
+        User user = userService.getUserById(userId);
         // 如果用户不存在，则返回未找到资源的错误信息
         if (user == null) {
             return ResponseResult.notFoundResourceResult(i18nService.getMessage("user.modify.lock.error.notFound"));
         }
 
         // 检查当前会话是否拥有操作权限
-        ResponseResult<Object> result = userService.hasPermission(user.getUpdater(), session);
-        // 如果用户未登录或权限不足，则返回相应的错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(user.getUpdater(), session);
+//        // 如果用户未登录或权限不足，则返回相应的错误信息
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 尝试解锁用户，如果失败则返回错误信息
         if (!userService.unlockUser(userId, clientIp, fingerprint)){

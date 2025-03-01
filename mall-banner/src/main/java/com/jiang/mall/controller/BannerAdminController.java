@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerAdminVo;
+import com.jiang.mall.domain.vo.BannerSettingVo;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
@@ -166,11 +168,11 @@ public class BannerAdminController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
-        // 如果用户未登录或不是管理员，则返回错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
+//        // 如果用户未登录或不是管理员，则返回错误信息
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 创建一个新的Banner对象并更新其信息
         banner = new Banner(id, img, url, description);
@@ -205,11 +207,11 @@ public class BannerAdminController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
         // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
-        // 如果用户未登录或不是管理员，则返回错误信息
-        if (!result.isSuccess()) {
-            return result;
-        }
+//        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
+//        // 如果用户未登录或不是管理员，则返回错误信息
+//        if (!result.isSuccess()) {
+//            return result;
+//        }
 
         // 尝试删除轮播图
         if (bannerService.deleteBanner(id)) {
@@ -219,5 +221,16 @@ public class BannerAdminController {
             // 如果删除失败，返回服务器错误结果
             return ResponseResult.serverErrorResult("删除失败");
         }
+    }
+
+    @GetMapping("/getSetting")
+    public ResponseResult<Object> getSetting() {
+        return ResponseResult.okResult(BannerConfig.getBannerSetting());
+    }
+
+    @PostMapping("/saveSetting")
+    public ResponseResult<Object> saveSetting(@RequestBody BannerSettingVo bannerSettingVo) {
+        BannerConfig.updateBannerSetting(bannerSettingVo);
+        return ResponseResult.okResult();
     }
 }

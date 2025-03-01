@@ -18,7 +18,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
-import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 
@@ -36,8 +35,6 @@ public interface IUserService extends IService<User> {
 
     Boolean modifyPassword(Long userId, String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint);
 
-    User getUserInfo(Long userId);
-
     Boolean modifyUserInfo(User newUser);
 
     Boolean lockUser(Long userId, String sessionId, String clientIp, String fingerprint);
@@ -54,11 +51,13 @@ public interface IUserService extends IService<User> {
 
 	Boolean unlockUser(Long userId, String clientIp, String fingerprint);
 
-    ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
+//    ResponseResult<Object> hasPermission(Long oldUserId, HttpSession session);
 
     ResponseResult<Object> checkAdminUser(String sessionId);
 
     ResponseResult<Object> checkUserLogin(String sessionId);
+
+    UserVo getUserFromRedis(String sessionId);
 
     Long getUserNum();
 
@@ -73,4 +72,6 @@ public interface IUserService extends IService<User> {
     Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 
     Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint);
+
+    User getUserById(Long userId);
 }

@@ -13,9 +13,12 @@
 
 package com.jiang.mall.config;
 
+import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.enums.BannerConfigItems;
 import com.jiang.mall.domain.enums.CaptchaConfigItems;
+import com.jiang.mall.domain.vo.BannerSettingVo;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,9 +145,6 @@ public class BannerConfig {
     public static void updateBannerCache(boolean enabled) {
         // 设置是否允许缓存Banner的属性值
         properties.setProperty(BannerConfigItems.BANNER_CACHE.getKey(),String.valueOf(enabled));
-        // 保存属性，以确保在应用程序重新启动后设置仍然有效
-        saveProperties();
-        loadProperties();
     }
 
     /**
@@ -157,8 +157,19 @@ public class BannerConfig {
     public static void updateBannerSyncTime(int milliseconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
         properties.setProperty(BannerConfigItems.SYNC_TIME.getKey(), String.valueOf(milliseconds));
-        // 保存更新后的属性文件
-        saveProperties();
+    }
+
+    public static @NotNull BannerSettingVo getBannerSetting() {
+        BannerSettingVo bannerSettingVo = new BannerSettingVo();
+        bannerSettingVo.setBannerCacheEnabled(isBannerCacheEnabled());
+        bannerSettingVo.setSyncTime(getBannerSyncTime());
+        return bannerSettingVo;
+    }
+
+    public static void updateBannerSetting(@NotNull BannerSettingVo bannerSettingVo) {
+        updateBannerCache(bannerSettingVo.isBannerCacheEnabled());
+        updateBannerSyncTime(bannerSettingVo.getSyncTime());
         loadProperties();
+        saveProperties();
     }
 }

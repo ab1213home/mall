@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -82,11 +81,6 @@ public class UserVo {
     private boolean isActive;
 
     /**
-     * 角色ID
-     */
-    private Integer roleId;
-
-    /**
      * 是否是管理员
      */
     private boolean isAdmin;
@@ -124,7 +118,7 @@ public class UserVo {
     public UserVo() {
     }
 
-    public UserVo(Long userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Long defaultAddressId, Integer roleId, boolean isAdmin, Integer daysUntilNextBirthday) {
+    public UserVo(Long userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Long defaultAddressId, boolean isAdmin, Integer daysUntilNextBirthday) {
         this.id = userId;
         this.username = username;
         this.email = email;
@@ -133,17 +127,15 @@ public class UserVo {
         this.lastName = lastName;
         this.birthDate = birthDate;
         this.defaultAddressId = defaultAddressId;
-        this.roleId = roleId;
         this.isAdmin = isAdmin;
         this.nextBirthday = daysUntilNextBirthday;
     }
 
-    public UserVo(Long userId, String username, String email, boolean isAdmin,Integer roleId) {
+    public UserVo(Long userId, String username, String email, boolean isAdmin) {
         this.id = userId;
         this.username = username;
         this.email = email;
         this.isAdmin = isAdmin;
-        this.roleId = roleId;
     }
 }
 
