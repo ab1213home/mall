@@ -17,7 +17,6 @@ import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import com.jiang.mall.service.II18nService;
@@ -96,22 +95,12 @@ public class AddressController {
     public ResponseResult<Object> getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                  @RequestParam(defaultValue = "10") Integer pageSize,
                                                  HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
-	    UserVo user = (UserVo) result.getData();
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
-        List<AddressVo> address_List = addressService.getAddressList(user.getId(), pageNum, pageSize);
-        // 如果获取的地址列表为空，则返回失败结果
-        if (address_List==null) {
-	        return ResponseResult.failResult();
-        }
+        List<AddressVo> address_List = addressService.getAddressList(session.getId(), pageNum, pageSize);
+
         // 如果地址列表为空，则返回失败结果并提示暂无收货地址
         if (address_List.isEmpty()) {
-	        return ResponseResult.okResult(address_List,"暂无收货地址");
+	        return ResponseResult.notFoundResourceResult("暂无收货地址");
         }
         // 如果成功获取到地址列表，则返回成功结果及地址列表数据
         return ResponseResult.okResult(address_List);
@@ -125,15 +114,8 @@ public class AddressController {
 	 */
 	@GetMapping("/getNum")
 	public ResponseResult<Object> getNum(HttpSession session){
-	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
-		UserVo user = (UserVo) result.getData();
-	    // 如果用户已登录，返回地址服务中与该用户相关的地址数据数量
-	    return ResponseResult.okResult(addressService.getAddressNum(user.getId()));
+	    // 返回地址服务中与该用户相关的地址数据数量
+	    return ResponseResult.okResult(addressService.getAddressNum(session.getId()));
 	}
 
 	/**
@@ -151,19 +133,13 @@ public class AddressController {
 	 */
 	@PostMapping("/add")
 	public ResponseResult<Object> insertAddress(@RequestParam("firstName") String firstName,
-	                                    @RequestParam("lastName") String lastName,
-	                                    @RequestParam("phone") String phone,
-										@RequestParam("areaCode") Long areaCode,
-	                                    @RequestParam("addressDetail") String addressDetail,
-										@RequestParam("postalCode") String postalCode,
-	                                    @RequestParam("isDefault") boolean isDefault,
-	                                    HttpSession session){
-	    // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-		    return result; // 如果未登录，则直接返回
-		}
-	    UserVo user = (UserVo) result.getData();
+	                                            @RequestParam("lastName") String lastName,
+	                                            @RequestParam("phone") String phone,
+												@RequestParam("areaCode") Long areaCode,
+	                                            @RequestParam("addressDetail") String addressDetail,
+												@RequestParam("postalCode") String postalCode,
+	                                            @RequestParam("isDefault") boolean isDefault,
+	                                            HttpSession session){
 		if (firstName==null||lastName==null||addressDetail==null||postalCode==null||phone==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -183,9 +159,6 @@ public class AddressController {
 		if (!StringUtils.hasText(postalCode)){
 			return ResponseResult.failResult("请输入邮政编码");
 		}
-//		if (!StringUtils.hasText(postalCode) || !postalCode.matches(regex_postal)){
-//			return ResponseResult.failResult("邮政编码格式不正确");
-//		}
 		if ((Integer)getNum(session).getData()> userConfig.getUserMaxAddress()){
 			return ResponseResult.failResult("最多只能添加"+userConfig.getUserMaxAddress()+"个收货地址");
 		}
@@ -193,9 +166,9 @@ public class AddressController {
 			return ResponseResult.failResult("地区代码不正确");
 		}
 	    // 创建新的地址对象
-	    Address address = new Address(user.getId(),firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
+	    Address address = new Address(firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 	    // 尝试插入地址信息
-	    if (addressService.insertAddress(address,isDefault)){
+	    if (addressService.insertAddress(address,isDefault,session.getId())){
 			// 插入地址成功
 			return ResponseResult.okResult("添加成功");
 	    }else{
@@ -228,13 +201,6 @@ public class AddressController {
 	                                    @RequestParam("postalCode") String postalCode,
 	                                    @RequestParam("isDefault") boolean isDefault,
 	                                    HttpSession session) {
-	    // 检查用户登录状态
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
-	    UserVo user = (UserVo) result.getData();
 		if (id==null||id<=0||firstName==null||lastName==null||phone==null||areaCode==null||addressDetail==null||postalCode==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -257,21 +223,19 @@ public class AddressController {
 		if (divisionService.isTure(areaCode)){
 			return ResponseResult.failResult("地区代码不正确");
 		}
-		// 创建新的地址对象
-//	    Address address = BeanCopyUtils.copyBean(addressVo, Address.class);
-		Address address = new Address(user.getId(),firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
+		Address address = new Address(firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setId(id);
-	    // 验证用户是否有权修改该地址
-	    Address oldaddress = addressService.getById(id);
-	    if (!oldaddress.getUserId().equals(user.getId())) {
-	        return ResponseResult.failResult("您没有权限修改此地址");
-	    }
-	    // 尝试更新地址
-	    if (addressService.updateAddress(address,isDefault)) {
-		    return ResponseResult.okResult("修改成功");
-	    } else {
-	        return ResponseResult.serverErrorResult("修改失败");
-	    }
+
+		Boolean update = addressService.updateAddress(address,isDefault,session.getId());
+
+		// 尝试更新地址
+		if (update==null){
+			return ResponseResult.failResult("您没有权限修改此地址");
+		}else if (update){
+			return ResponseResult.okResult("修改成功");
+		}else {
+			return ResponseResult.failResult("修改失败");
+		}
 	}
 
 	/**
@@ -284,30 +248,21 @@ public class AddressController {
 	@GetMapping("/delete")
 	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
 	                                    HttpSession session){
-		// 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
 		if (id==null||id<=0){
 			return ResponseResult.failResult("地址ID不能为空");
 		}
 		if (!StringUtils.hasText(id.toString())){
 			return ResponseResult.failResult("地址ID不能为空");
 		}
-	    UserVo user = (UserVo) result.getData();
-	    // 通过ID获取地址信息
-	    Address address = addressService.getById(id);
-	    // 检查当前用户是否有权删除该地址
-	    if (!address.getUserId().equals(user.getId())) {
-		    return ResponseResult.failResult("您没有权限删除此地址");
-	    }
-	    // 尝试删除地址
-	    if (!addressService.deleteAddress(id, user.getId())) {
-		    return ResponseResult.serverErrorResult("删除失败");
-	    }
-	    // 删除成功，返回成功结果
-	    return ResponseResult.okResult("删除成功");
+
+		Boolean delete = addressService.deleteAddress(id,session.getId());
+
+		if (delete==null){
+			return ResponseResult.failResult("您没有权限删除此地址");
+		}else if (delete){
+			return ResponseResult.okResult("删除成功");
+		}else {
+			return ResponseResult.failResult("删除失败");
+		}
 	}
 }

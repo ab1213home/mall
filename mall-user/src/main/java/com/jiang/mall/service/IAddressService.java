@@ -29,46 +29,56 @@ import java.util.List;
  * @since 2024年9月11日
  */
 public interface IAddressService extends IService<Address> {
-	/**
-	 * 根据用户ID分页查询地址列表
-	 *
-	 * @param userId 用户ID，用于标识哪个用户的相关地址列表
-	 * @param pageNum 页码，用于分页查询，从1开始计数
-	 * @param pageSize 每页大小，用于控制返回结果的数量
-	 * @return 返回一个分页的地址列表，包括该用户的所有地址
-	 */
-	List<AddressVo> getAddressList(Long userId, Integer pageNum, Integer pageSize);
-
-	/**
-	 * 根据用户ID获取地址数量
-	 *
-	 * @param userId 用户ID，用于标识用户的唯一性
-	 * @return 用户的地址数量
-	 */
-	Long getAddressNum(Long userId);
-
-
-	/**
-	 * 更新地址信息
-	 * <p>
-	 * 该方法用于在系统中更新一个地址对象 它提供了一种机制，来确保地址数据的最新和准确性
-	 *
-	 * @param address   要更新的地址对象 不能为空，包含所有必要的地址信息
-	 * @param isDefault 是否将此地址设置为默认地址
-	 * @return true 如果更新操作成功；否则返回 false
-	 */
-	Boolean updateAddress(Address address, boolean isDefault);
-
-	/**
-	 * 删除地址
-	 *
-	 * @param id     地址ID
-	 * @param userId 用户ID，用于确认有权删除该地址的用户
-	 * @return 删除成功返回true，否则返回false
-	 */
-	Boolean deleteAddress(Long id, Long userId);
-
-	Boolean insertAddress(Address address, boolean isDefault);
 
 	AddressVo getAddress(Address address);
+
+	/**
+	 * 根据会话ID获取用户的地址列表
+	 *
+	 * @param sessionId 会话ID，用于识别用户
+	 * @param pageNum 页码，表示请求的地址列表的页数
+	 * @param pageSize 页面大小，表示每页地址的数量
+	 * @return 返回一个包含地址信息的列表
+	 */
+	List<AddressVo> getAddressList(String sessionId, Integer pageNum, Integer pageSize);
+
+	/**
+	 * 获取用户的地址数量
+	 *
+	 * @param sessionId 会话ID，用于从Redis中获取用户信息
+	 * @return 返回用户的地址数量
+	 */
+	Long getAddressNum(String sessionId);
+
+	/**
+	 * 插入新地址
+	 * <p>
+	 * 此方法用于将一个新的地址对象插入到数据库中，并根据情况更新用户的默认地址
+	 * 如果插入成功且指定新地址为默认地址，则同时更新用户信息中的默认地址ID
+	 *
+	 * @param address 不可为空的地址对象，包含待插入的地址信息
+	 * @param isDefault 布尔值，指示新地址是否应设置为默认地址
+	 * @param sessionId 用户会话ID，用于从Redis中获取用户信息
+	 * @return 返回一个布尔值，表示地址插入操作是否成功
+	 */
+	Boolean insertAddress(Address address, boolean isDefault, String sessionId);
+
+	/**
+	 * 更新用户地址信息
+	 *
+	 * @param address 地址对象，包含要更新的地址信息，不能为空
+	 * @param isDefault 是否将此地址设置为默认地址
+	 * @param sessionId 用户会话ID，用于从Redis中获取用户信息
+	 * @return 返回一个布尔值，表示地址信息是否更新成功如果用户尝试更新非自己的地址，方法返回null
+	 */
+	Boolean updateAddress(Address address, boolean isDefault, String sessionId);
+
+	/**
+	 * 删除地址信息
+	 *
+	 * @param id 地址ID
+	 * @param sessionId 用户会话ID
+	 * @return 删除是否成功，成功返回true，否则返回false
+	 */
+	Boolean deleteAddress(Long id, String sessionId);
 }

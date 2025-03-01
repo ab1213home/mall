@@ -117,7 +117,6 @@ public class Address implements Serializable {
      * 国家地区、省份、城市、区县、详细地址及邮政编码。这些信息共同构成了一个完整的地址，
      * 用于例如物流配送、联系地址登记等场景。
      *
-     * @param userId 用户ID，唯一标识一个用户
      * @param firstName 收件人的名
      * @param lastName 收件人的姓
      * @param phone 联系电话，用于配送过程中与收件人联系
@@ -126,8 +125,7 @@ public class Address implements Serializable {
      * @param addressDetail 详细地址，包括街道、门牌号等具体信息
      * @param postalCode 邮政编码，与地址相关联的邮政编码信息
      */
-    public Address(Long userId, String firstName, String lastName, String phone, String country,Long areaCode, String addressDetail, String postalCode) {
-        this.userId=userId;
+    public Address(String firstName, String lastName, String phone, String country,Long areaCode, String addressDetail, String postalCode) {
         this.firstName=firstName;
         this.lastName = lastName;
         this.phone = phone;

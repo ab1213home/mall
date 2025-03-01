@@ -21,7 +21,7 @@ import java.util.List;
 
 public interface ICollectionService extends IService<Collection> {
 
-	Boolean addCollection(Long productId, Long userId);
+	Boolean insertCollection(Long productId, Long userId);
 
 	Collection queryByProductIdByUserId(Long productId, Long userId);
 

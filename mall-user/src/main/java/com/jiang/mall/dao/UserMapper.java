@@ -68,4 +68,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Update("UPDATE tb_users SET email = #{email} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
     int updateEmail(Long id, String email);
+
+    @Update("UPDATE tb_users SET default_address_id = #{addressId} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    void updateDefaultAddressId(Long id, Long addressId);
+
 }

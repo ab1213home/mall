@@ -140,7 +140,7 @@ public class CartController {
         }
 
         // 调用购物车服务添加商品
-        if (cartService.addCart(productId, num, user.getId())){
+        if (cartService.insertCart(productId, num, user.getId())){
             return ResponseResult.okResult("添加成功");
         }else {
             return ResponseResult.serverErrorResult("添加失败");

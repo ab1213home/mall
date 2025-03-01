@@ -89,6 +89,7 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/**/**.html")
                 .addPathPatterns("/user/**/**.html?*")
                 .addPathPatterns("/user/**")
+                .addPathPatterns("/address/**")
                 .addPathPatterns("/**/admin/**")
                 .addPathPatterns("/admin/**")
                 .addPathPatterns("/admin/**.html")

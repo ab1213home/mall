@@ -44,7 +44,7 @@ public interface ICartService extends IService<Cart> {
 	 * @param userId    用户ID，标识商品将被添加到哪个用户的购物车中
 	 * @return 如果添加成功，返回true；否则返回false
 	 */
-	Boolean addCart(Long productId, Integer num, Long userId);
+	Boolean insertCart(Long productId, Integer num, Long userId);
 
 	/**
 	 * 根据用户ID获取购物车数量

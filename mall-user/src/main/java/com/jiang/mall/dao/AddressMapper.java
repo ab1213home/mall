@@ -16,6 +16,9 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Address;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * Address的映射接口，继承自BaseMapper<Address>
@@ -30,4 +33,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface AddressMapper extends BaseMapper<Address> {
+
+	@Select("SELECT user_id FROM tb_addresses WHERE id = #{id} AND is_del = false")
+	Long selectUserIdById(Long id);
+
+	@Select("SELECT id,user_id,first_name,last_name,phone,country,area_code,address_detail,postal_code,created_at,updated_at,is_del FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
+	List<Address> selectListByUserId(Long userId);
+
+	@Select("SELECT id FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
+	List<Long> selectIdByUserId(Long userId);
 }

@@ -81,7 +81,7 @@ public class CollectionController {
 			return ResponseResult.failResult("商品ID为空");
 		}
         // 调用购物车服务添加商品
-        if (collectionService.addCollection(productId, user.getId())){
+        if (collectionService.insertCollection(productId, user.getId())){
             return ResponseResult.okResult("添加成功");
         }else {
             return ResponseResult.serverErrorResult("添加失败");

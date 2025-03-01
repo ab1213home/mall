@@ -52,18 +52,8 @@ function queryAddress(pn, pz) {
         },
         dataType: "json",
         success: function (response) {
+			$('#addresslist tbody').empty();
             if (response.code == 200) {
-				// 清空 tbody 中原有的内容
-				$('#addresslist tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#addresslist tbody').append(row);
-				}
 				addressArr = {};
 				for(let record of response.data){
 					record.ischecked = record.default;
@@ -111,6 +101,14 @@ function queryAddress(pn, pz) {
 				if (message!=null){
 					show_warning(message);
 				}
+            }else if (response.code == 404) {
+                const row =
+                    `
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+                $('#addresslist tbody').append(row);
             }
         }
     });

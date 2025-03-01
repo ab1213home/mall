@@ -122,7 +122,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 操作是否成功
      */
     @Override
-    public Boolean addCart(Long productId, Integer num, Long userId) {
+    public Boolean insertCart(Long productId, Integer num, Long userId) {
         // 根据商品ID和用户ID查询购物车记录
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("prod_id", productId);

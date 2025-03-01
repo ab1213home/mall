@@ -49,7 +49,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Boolean addCollection(Long productId, Long userId) {
+	public Boolean insertCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", userId);
