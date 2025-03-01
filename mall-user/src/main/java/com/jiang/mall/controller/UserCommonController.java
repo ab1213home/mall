@@ -60,7 +60,7 @@ public class UserCommonController {
      */
     @GetMapping("/user/getDays")
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
-        UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
+        UserVo user =userService.getUserFromRedis(session.getId());
         // 检查是否设置了用户生日
         if (user.getBirthDate() == null){
             return ResponseResult.failResult("未设置生日！");

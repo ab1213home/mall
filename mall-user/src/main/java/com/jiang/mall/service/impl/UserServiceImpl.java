@@ -16,11 +16,13 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.GroupMapper;
 import com.jiang.mall.dao.UserGroupRelationMapper;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
@@ -109,6 +111,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.userGroupRelationMapper = userGroupRelationMapper;
 	}
 
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
+	}
+
 
 	/**
 	 * 检查用户是否已登录
@@ -140,6 +149,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}else{
 			return null;
 		}
+	}
+
+	@Override
+	public void setUserToRedis(UserVo user, String sessionId) {
+		redisService.setUser(sessionId, user,4, TimeUnit.HOURS);
 	}
 
 	/**
@@ -349,43 +363,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean validatePassword(Long userId, String password) {
-		// 创建查询条件，指定用户ID和账号激活状态。
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id",userId);
-		queryWrapper.eq("password",password);
-
-	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper);
-
-		return user != null;
+		return userMapper.validatePassword(userId,password)>0;
 	}
 
 	@Override
-	public Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
-		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("id",userId);
-		queryWrapper.eq("is_active", true);
-		User user = userMapper.selectOne(queryWrapper);
-		if (user != null){
-			user.setEmail(email);
-			if (userMapper.updateById(user)>0){
-				// 验证码使用标记
-				verificationCodeService.useCode(userId, verificationCode);
-				// 记录邮箱修改成功日志
-				userRecordService.successModifyEmailLog(user,email,clientIp,fingerprint);
-				return true;
-			}else {
-				logger.error("修改用户邮箱失败{}", userId);
-				return null;
-			}
+	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
+		UserVo userVo = getUserFromRedis(sessionId);
+		User user = userMapper.selectUserByIdAndActive(userVo.getId());
+		if (userMapper.updateEmail(user.getId(),verificationCode.getEmail())>0){
+			// 验证码使用标记
+			verificationCodeService.useCode(getUserFromRedis(sessionId).getId(), verificationCode);
+			// 记录邮箱修改成功日志
+			userRecordService.successModifyEmailLog(user,verificationCode.getEmail(),clientIp,fingerprint);
+			userVo.setEmail(verificationCode.getEmail());
+			setUserToRedis(userVo,sessionId);
+			return true;
 		}else {
+			logger.error("修改{}用户邮箱失败", getUserFromRedis(sessionId).getId());
 			return false;
 		}
-	}
-
-	@Override
-	public User getUserById(Long userId) {
-		return userMapper.selectById(userId);
 	}
 
 	@Override
@@ -400,6 +396,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
 			verificationCodeService.useCode(user.getId(), verificationCode);
 			userRecordService.successRegisterLog(user, clientIp, fingerprint);
+			if (userConfig.getDefaultGroup()!=-1){
+				UserGroupRelation userGroupRelation = new UserGroupRelation();
+				userGroupRelation.setUserId(user.getId());
+				userGroupRelation.setGroupId(userConfig.getDefaultGroup());
+				userGroupRelationMapper.insert(userGroupRelation);
+			}
 			return user.getId();
 		}else {
 			logger.error("注册{}用户失败", user);
@@ -541,7 +543,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        }
 
 	        // 更新Redis中的用户信息
-	        redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
+	        setUserToRedis(userVo,sessionId);
 	        return true;
 	    }else {
 	        // 如果更新失败，记录错误日志
@@ -649,28 +651,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 返回处理后的用户列表Vo对象
         return userVos;
     }
-
-
-    @Override
-    public Boolean updateUser(@NotNull User newUser) {
-
-	    User user = userMapper.selectById(newUser.getId());
-
-	    // 如果用户存在且当前是非激活状态，则进行更新。
-	    if (user != null) {
-	        // 维持原密码不变，确保用户不会因为信息修改而失去访问权限。
-	        newUser.setPassword(user.getPassword());
-			newUser.setUsername(user.getUsername());
-	        newUser.setIsActive(user.getIsActive());
-	        // 更新数据库中的用户信息。
-	        int result = userMapper.updateById(newUser);
-	        // 检查更新是否成功，并返回结果。
-	        return result > 0;
-	    } else {
-	        // 如果用户不存在，则记录日志并返回false。
-	        logger.info("尝试更新不存在的用户信息，ID: {}", newUser.getId());
-	        return false;
-	    }
-    }
-
 }

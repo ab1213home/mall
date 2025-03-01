@@ -41,13 +41,13 @@ public interface IUserService extends IService<User> {
 
     List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId);
 
-    Boolean updateUser(User user);
-
     ResponseResult<Object> checkAdminUser(String sessionId);
 
     ResponseResult<Object> checkUserLogin(String sessionId);
 
     UserVo getUserFromRedis(String sessionId);
+
+    void setUserToRedis(UserVo user, String sessionId);
 
     Long getUserNum();
 
@@ -57,9 +57,7 @@ public interface IUserService extends IService<User> {
 
     Boolean validatePassword(Long userId, String password);
 
-    Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
-
-    User getUserById(Long userId);
+    Boolean modifyEmail(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 
     Long register(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 

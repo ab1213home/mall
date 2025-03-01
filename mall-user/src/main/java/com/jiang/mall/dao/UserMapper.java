@@ -54,12 +54,18 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT COUNT(*) FROM tb_users WHERE username = #{username}")
     int selectCountByUsername(String username);
 
-    @Update("UPDATE tb_users SET password = #{password} ,updater = #{id} ,updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE tb_users SET password = #{password} , updater = #{id} , updated_at = NOW() WHERE id = #{id}")
     int modifyPasswordById(Long id, String password);
 
-    @Update("UPDATE tb_users SET is_active = false,updater = #{updater} ,updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE tb_users SET is_active = false , updater = #{updater} , updated_at = NOW() WHERE id = #{id}")
     int lockById(Long id,Long updater);
 
-    @Update("UPDATE tb_users SET is_active = true,updater = #{updater} ,updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE tb_users SET is_active = true , updater = #{updater} , updated_at = NOW() WHERE id = #{id}")
     int unlockById(Long id, Long updater);
+
+    @Select("SELECT COUNT(*) FROM tb_users WHERE id = #{id} AND password = #{password} AND is_active = true")
+    int validatePassword(Long id, String password);
+
+    @Update("UPDATE tb_users SET email = #{email} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    int updateEmail(Long id, String email);
 }

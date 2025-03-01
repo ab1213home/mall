@@ -33,7 +33,7 @@ function getEmailCheck() {
     })
     return flag;
 }
-function submitChangeEmailStupOneForm() {
+function submitChangeEmailSetupOneForm() {
     const password = $("#password").val();
     const email = $("#email").val();
     const captcha = $("#captcha").val();
@@ -95,18 +95,16 @@ $(document).ready(function() {
   // 登录表单提交
   $('#step1').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    submitChangeEmailStupOneForm(); // 自定义提交处理
+    submitChangeEmailSetupOneForm(); // 自定义提交处理
   });
 });
 
-function submitChangeEmailStupTowForm() {
+function submitChangeEmailSetupTowForm() {
   const code = $("#code").val();
-  const email = $("#email").val();
 
   // 构建请求体
   const data = {
       code: code,
-      email: email,
   };
 
   // 发送 AJAX 请求
@@ -117,14 +115,6 @@ function submitChangeEmailStupTowForm() {
     dataType:"json",
     success: function (data) {
       if (data.code === 200) {
-         const step1 = document.querySelectorAll('.step1');
-         const step2 = document.querySelectorAll('.step2');
-         step1.forEach(element => {
-             element.style.display = 'none';
-         });
-         step2.forEach(element => {
-             element.style.display = 'block';
-         });
          show_success('用户邮箱已成功更新！');
          window.location.href = '/user/index.html';
       } else {
@@ -141,7 +131,7 @@ $(document).ready(function() {
   // 登录表单提交
   $('#step2').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
-    submitChangeEmailStupTowForm(); // 自定义提交处理
+    submitChangeEmailSetupTowForm(); // 自定义提交处理
   });
 });
 // if(response.code == 200){

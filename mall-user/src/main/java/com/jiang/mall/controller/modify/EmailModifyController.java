@@ -76,7 +76,7 @@ public class EmailModifyController {
 	                                         @RequestParam("email") String email,
 	                                         @RequestParam("captcha") String captcha,
 	                                         HttpSession session) {
-		UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
+		UserVo user = userService.getUserFromRedis(session.getId());
 
         if (password==null||captcha==null||email==null){
             return ResponseResult.failResult("非法请求");
@@ -96,6 +96,7 @@ public class EmailModifyController {
         }
 
         Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
+
 		if (flag==null){
 			// 检查验证码是否过期
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
@@ -106,9 +107,6 @@ public class EmailModifyController {
 
         if (!userService.validatePassword(user.getId(), password)) {
             return ResponseResult.failResult("密码错误");
-        }
-        if (!StringUtils.hasText(email)){
-            return ResponseResult.failResult("邮箱不能为空");
         }
 
         if (Objects.equals(user.getEmail(), email)){
@@ -138,27 +136,19 @@ public class EmailModifyController {
 	/**
 	 * 修改用户邮箱
 	 *
-	 * @param email   用户的新邮箱
 	 * @param code    验证码
 	 * @param session HTTP会话，用于获取用户登录信息
 	 * @return 返回修改结果
 	 */
 	@PostMapping("/emailStep2")
-	public ResponseResult<Object> emailStep2(@RequestParam("email") String email,
-	                                         @RequestParam("code") String code,
+	public ResponseResult<Object> emailStep2(@RequestParam("code") String code,
 	                                         @RequestHeader("X-Real-IP") String clientIp,
 	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 	                                         HttpSession session) {
-		// 验证邮箱格式是否正确
-		if (!i18nService.isValidEmail(email)) {
-			return ResponseResult.failResult(i18nService.getMessage("user.error.email.format"));
-		}
 		// 验证验证码是否为空
 		if (!i18nService.checkString(code)) {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-		// 检查用户是否已登录
-		UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
 
 		EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
 
@@ -169,7 +159,7 @@ public class EmailModifyController {
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-		Boolean flag = userService.modifyEmail(user.getId(), email, emailCodeDto.getVerificationCode(), session.getId(), clientIp, fingerprint);
+		Boolean flag = userService.modifyEmail(emailCodeDto.getVerificationCode(), session.getId(), clientIp, fingerprint);
 		// 更新用户邮箱
 		if (flag==null) {
 			//TODO:无状态

@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.jiang.mall.config.EmailConfig;
+import com.jiang.mall.dao.VerificationCodeMapper;
 import com.jiang.mall.domain.cache.EmailCodeCache;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.entity.VerificationCode;
@@ -53,6 +54,13 @@ public class EmailServiceImpl implements IEmailService {
 	@Autowired
 	public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
 		this.verificationCodeService = verificationCodeService;
+	}
+
+	private VerificationCodeMapper verificationCodeMapper;
+
+	@Autowired
+	public void setVerificationCodeMapper(VerificationCodeMapper verificationCodeMapper) {
+		this.verificationCodeMapper = verificationCodeMapper;
 	}
 
 	private EmailConfig emailConfig;
@@ -158,7 +166,7 @@ public class EmailServiceImpl implements IEmailService {
         // 发送邮件
         if (sendEmail(email, "【"+emailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.REGISTER, EmailStatus.SUCCESS);
-            if (verificationCodeService.add(userVerificationCode)){
+            if (verificationCodeMapper.insert(userVerificationCode)>0){
                 EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
                 redisService.setKey(sessionId, emailCodeCache,emailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
@@ -167,7 +175,7 @@ public class EmailServiceImpl implements IEmailService {
             }
         }else {
             VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, EmailPurpose.REGISTER, EmailStatus.FAILED);
-            verificationCodeService.add(userVerificationCode);
+            verificationCodeMapper.insert(userVerificationCode);
             return false;
         }
 	}
@@ -190,7 +198,7 @@ public class EmailServiceImpl implements IEmailService {
         // 发送邮件
         if (sendEmail(email, "【"+emailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.SUCCESS,userId);
-            if (verificationCodeService.add(userVerificationCode)){
+            if (verificationCodeMapper.insert(userVerificationCode)>0){
                 EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
                 redisService.setKey(sessionId, emailCodeCache,emailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
@@ -199,7 +207,7 @@ public class EmailServiceImpl implements IEmailService {
             }
         }else {
             VerificationCode userVerificationCode = new VerificationCode(username,email, code, EmailPurpose.RESET_PASSWORD, EmailStatus.FAILED,userId);
-            verificationCodeService.add(userVerificationCode);
+            verificationCodeMapper.insert(userVerificationCode);
             return false;
         }
 	}
@@ -222,7 +230,7 @@ public class EmailServiceImpl implements IEmailService {
         // 发送邮件
         if (sendEmail(email, "【"+emailConfig.getEmailSenderEnd()+"】验证码通知", htmlContent)){
             VerificationCode userVerificationCode = new VerificationCode(username,email, password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.SUCCESS);
-            if (verificationCodeService.add(userVerificationCode)){
+            if (verificationCodeMapper.insert(userVerificationCode)>0){
                 EmailCodeCache emailCodeCache = new EmailCodeCache(userVerificationCode.getId(),code);
                 redisService.setKey(sessionId, emailCodeCache,emailConfig.getEmailExpirationTime(), TimeUnit.MINUTES);
                 return true;
@@ -231,7 +239,7 @@ public class EmailServiceImpl implements IEmailService {
             }
         }else {
             VerificationCode userVerificationCode = new VerificationCode(username,email,password, code, EmailPurpose.CHANGE_EMAIL, EmailStatus.FAILED);
-            verificationCodeService.add(userVerificationCode);
+            verificationCodeMapper.insert(userVerificationCode);
             return false;
         }
 	}
