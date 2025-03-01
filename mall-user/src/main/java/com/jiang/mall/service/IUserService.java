@@ -33,23 +33,15 @@ public interface IUserService extends IService<User> {
 
     Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId);
 
-    Boolean modifyPassword(Long userId, String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint);
-
-    Boolean modifyUserInfo(User newUser);
-
-    Boolean lockUser(Long userId, String sessionId, String clientIp, String fingerprint);
+    Boolean modifyPassword(String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint);
 
     Boolean queryByUserName(String userName);
 
     Boolean queryByEmail(String email);
 
-    Long register(User user, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
-
     List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId);
 
     Boolean updateUser(User user);
-
-	Boolean unlockUser(Long userId, String clientIp, String fingerprint);
 
     ResponseResult<Object> checkAdminUser(String sessionId);
 
@@ -61,17 +53,25 @@ public interface IUserService extends IService<User> {
 
 	User getUserByUserNameOrEmail(String username);
 
-    Boolean modifyPassword(Long userId, String newPassword, VerificationCode verificationCode, String clientIp, String fingerprint);
-
     Boolean logout(String sessionId);
 
     Boolean validatePassword(Long userId, String password);
 
     Boolean modifyEmail(Long userId, String email, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 
-    Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint);
-
     User getUserById(Long userId);
 
     Long register(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
+
+    Boolean register(User user, String sessionId);
+
+    Boolean forgot(VerificationCode verificationCode, String password, String clientIp, String fingerprint);
+
+    Boolean lock(String sessionId, String clientIp, String fingerprint);
+
+    Boolean lock(Long userId,String sessionId, String clientIp, String fingerprint);
+
+    Boolean unlock(Long userId, String sessionId, String clientIp, String fingerprint);
+
+    Boolean modifyInfo(User user, String sessionId);
 }

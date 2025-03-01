@@ -21,11 +21,8 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
@@ -53,8 +50,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        // 获取当前的HTTP请求
-//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 从会话中获取当前用户的ID
             UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
@@ -85,8 +80,6 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         // 设置更新时间为当前时间
         this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
-        // 获取当前的HTTP请求
-//        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 从会话中获取当前用户的ID
             UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;

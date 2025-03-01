@@ -17,10 +17,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.ICaptchaService;
-import com.jiang.mall.service.IEmailService;
-import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -130,14 +126,11 @@ public class EmailModifyController {
         flag=emailService.sendChangeEmailEmail(email, user.getUsername(),password, session.getId());
 
         if (flag==null){
-//            return ResponseResult.serverErrorResult("未知原因重置密码失败");
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }else if (flag){
-//            return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
             return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
         }
         else {
-//            return ResponseResult.failResult("邮件发送失败，请重试");
             return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
         }
     }

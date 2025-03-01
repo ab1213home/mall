@@ -14,13 +14,11 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.format.DateTimeFormatter;
 
 /**
  * 用户控制器
@@ -39,33 +37,12 @@ public class PasswordModifyController {
 		this.userService = userService;
 	}
 
-	private IVerificationCodeService verificationCodeService;
-
-	/**
-	 * 设置验证码服务实例
-	 *
-	 * @param verificationCodeService 验证码服务实例
-	 */
-	@Autowired
-	public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-		this.verificationCodeService = verificationCodeService;
-	}
-
-	private IUserLogService userRecordService;
-
-	@Autowired
-	public void setLoginRecordService(IUserLogService userRecordService) {
-		this.userRecordService = userRecordService;
-	}
-
 	private II18nService i18nService;
 
 	@Autowired
 	public void setI18nService(II18nService i18nService) {
 		this.i18nService = i18nService;
 	}
-
-	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	/**
      * 修改密码的处理方法
@@ -75,14 +52,12 @@ public class PasswordModifyController {
      *
      * @param oldPassword 旧密码
      * @param newPassword 新密码
-//     * @param confirmPassword 确认密码
      * @param session HTTP会话，用于判断用户是否登录及存储用户信息
      * @return ResponseResult 修改密码结果的响应对象
      */
     @PostMapping("/password")
     public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
-//                                                 @RequestParam("confirmPassword")String confirmPassword,
                                                  @RequestHeader("X-Real-IP") String clientIp,
                                                  @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                                  HttpSession session) {
@@ -95,18 +70,12 @@ public class PasswordModifyController {
         if (!i18nService.isValidPassword(oldPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.password"));
         }
-        // 检查两次输入的密码是否一致
-//        if (!newPassword.equals(confirmPassword)){
-//            return ResponseResult.failResult(i18nService.getMessage("user.error.password.discrepancy"));
-//        }
         // 检查新旧密码是否相同
         if (newPassword.equals(oldPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.modify.password.error.identical"));
         }
-        // 检查会话中是否设置表示用户已登录的标志
-       UserVo user = (UserVo) userService.checkUserLogin(session.getId()).getData();
         // 尝试修改密码，如果失败则返回错误响应
-	    Boolean flag= userService.modifyPassword(user.getId(), oldPassword, newPassword,session.getId(),clientIp, fingerprint);
+	    Boolean flag= userService.modifyPassword(oldPassword, newPassword,session.getId(),clientIp, fingerprint);
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }else if (!flag){

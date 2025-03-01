@@ -186,8 +186,7 @@ public class RegisterController {
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-        // 创建并注册用户
-        User user = new User(emailCodeDto.getVerificationCode().getUsername(), emailCodeDto.getVerificationCode().getPassword(), emailCodeDto.getVerificationCode().getEmail());
+        // 注册用户
         Long userId = userService.register(emailCodeDto.getVerificationCode(),session.getId(), clientIp, fingerprint);
         if (userId>0) {
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
@@ -229,9 +228,12 @@ public class RegisterController {
         }
 
         // 创建User对象以保存用户信息
-        User user = new User(userId,firstName,lastName,phone);
+        User user = new User();
+        user.setId(userId);
+        user.setPhone(phone);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         user.setAvatar(avatar);
-
         // 验证和转换生日日期格式
         try {
             LocalDate localDate = LocalDate.parse(birthDate, generalConfig.getDateFormatPattern());
@@ -244,7 +246,7 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.format"));
         }
         // 调用服务层方法保存用户个人信息
-        if (userService.register(user, null,session.getId(),null,null)>0) {
+        if (userService.register(user,session.getId())) {
             // 注册成功后清除会话中的用户id
             return ResponseResult.okResult();
         }else {

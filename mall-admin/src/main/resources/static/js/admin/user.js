@@ -130,7 +130,7 @@ function queryUser(pn, pz) {
 function unlockUser(id) {
     $.ajax({
         type: "POST",
-        url: "/user/modify/admin/unlock",
+        url: "/user/admin/unlock",
         data: {
             userId: id
         },
@@ -198,7 +198,7 @@ function updateUser(id) {
     }
     $.ajax({
         type: "POST",
-        url: "/user/modify/info",
+        url: "/user/admin/update",
         // contentType: 'application/json',
         // data: JSON.stringify(data),
         data: data,
@@ -237,7 +237,7 @@ function getUser(id) {
 function lockUser(id) {
     $.ajax({
         type: "POST",
-        url: "/user/modify/admin/lock",
+        url: "/user/admin/lock",
         data: {
             userId: id
         },

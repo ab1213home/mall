@@ -14,16 +14,11 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.ICaptchaService;
-import com.jiang.mall.service.IEmailService;
-import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -84,12 +79,8 @@ public class ForgotController {
                                               @RequestParam("captcha") String captcha,
                                               HttpSession session) {
 
-        if (username==null||captcha==null){
-            return ResponseResult.failResult("非法请求");
-        }
-        // 检查验证码是否为空
-        if (!StringUtils.hasText(captcha)) {
-            return ResponseResult.failResult("验证码不能为空");
+        if (!i18nService.checkString(captcha)){
+            return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
 
         Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
@@ -102,7 +93,7 @@ public class ForgotController {
 		}
 
         // 检查用户名是否为空
-        if (!StringUtils.hasText(username)) {
+        if (!i18nService.checkString(username)) {
             return ResponseResult.failResult("用户名(邮箱)不能为空");
         }
 
@@ -120,14 +111,11 @@ public class ForgotController {
         // 发送邮件并处理结果
         flag=emailService.sendResetPasswordEmail(user.getEmail(),user.getUsername(),user.getId(),session.getId());
         if (flag==null){
-//            return ResponseResult.serverErrorResult("未知原因重置密码失败");
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }else if (flag){
-//            return ResponseResult.okResult(user.getEmail(),"发送验证码成功！");
             return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
         }
         else {
-//            return ResponseResult.failResult("邮件发送失败，请重试");
             return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
         }
     }
@@ -137,7 +125,6 @@ public class ForgotController {
      *
      * @param code 验证码，用于验证用户身份
      * @param password 新密码，用户希望设置的新密码
-//     * @param confirmPassword 确认密码，用于确认新密码输入无误
      * @param session HTTP会话，用于检查用户登录状态
      * @return 返回密码重置结果的响应对象
      */
@@ -159,15 +146,17 @@ public class ForgotController {
         if (!i18nService.isValidPassword(password)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
+
         EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
+
         if (emailCodeDto.getState() == null){
-            // 验证码正确性及有效期检查
+            // 验证码有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
         }else if (!emailCodeDto.getState()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-        Boolean flag = userService.modifyPassword(emailCodeDto.getVerificationCode().getUserId(), password, emailCodeDto.getVerificationCode(), clientIp, fingerprint);
+        Boolean flag = userService.forgot(emailCodeDto.getVerificationCode(), password, clientIp, fingerprint);
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }else if (!flag){

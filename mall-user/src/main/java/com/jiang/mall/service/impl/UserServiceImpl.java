@@ -338,37 +338,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public Boolean modifyPassword(Long userId, String newPassword, VerificationCode verificationCode, String clientIp, String fingerprint) {
-		// 创建查询条件，指定用户ID和账号激活状态。
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id",userId);
-
-	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 验证用户是否存在且旧密码是否正确。
-	    if (user != null) {
-	        // 如果验证成功，更新用户密码为新密码。
-	        user.setPassword(newPassword);
-			user.setIsActive(true);
-			// 通过ID更新用户信息。
-		    if (userMapper.updateById(user) > 0){
-				verificationCode.setPassword(newPassword);
-				verificationCodeService.useCode(userId, verificationCode);
-				userRecordService.successForgotLog(userId,clientIp,fingerprint);
-				return true;
-		    }else {
-				return null;
-		    }
-	    }else {
-			// 如果用户不存在或旧密码验证失败，返回false。
-			return false;
-	    }
-	}
-
-	@Override
 	public Boolean logout(String sessionId) {
 		if (redisService.hasUser(sessionId)){
+			UserVo user = redisService.getUser(sessionId);
+			redisService.deleteUser(String.valueOf(user.getId()));
 			return redisService.deleteUser(sessionId);
 		}
 		return true;
@@ -411,35 +384,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public Boolean lockUserByAdmin(Long userId, String clientIp, String fingerprint) {
-		// 创建查询条件，指定用户ID和当前为激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id", userId);
-	    queryWrapper.eq("is_active", true);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 如果用户存在
-	    if (user != null) {
-	        // 将用户活跃状态设置为false，即锁定用户
-	        user.setIsActive(false);
-	        // 更新数据库中的用户信息
-	        if(userMapper.updateById(user)>0) {
-				userRecordService.successLockAdminLog(userId,clientIp,fingerprint);
-				return true;
-	        }else {
-				logger.error("管理员锁定用户失败{}", userId);
-				return null;
-	        }
-	    } else {
-	        // 记录日志，提示尝试锁定不存在的用
-	        logger.info("管理员尝试锁定不存在的用户，ID: {}", userId);
-	        return false;
-	    }
-	}
-
-	@Override
 	public User getUserById(Long userId) {
 		return userMapper.selectById(userId);
 	}
@@ -458,131 +402,188 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			userRecordService.successRegisterLog(user, clientIp, fingerprint);
 			return user.getId();
 		}else {
-			logger.error("注册用户失败{}", user);
+			logger.error("注册{}用户失败", user);
 			return null;
 		}
 	}
 
+	@Override
+	public Boolean register(User user, String sessionId) {
+		if (userMapper.updateById(user)>0){
+			temporaryRedisService.deleteKey(sessionId);
+			return true;
+		}else {
+			logger.error("{}用户信息补充失败", user);
+			return false;
+		}
+	}
+
 	/**
-	 * 修改用户密码的方法。用户名密码是经过MD5加密的，以提高安全性。
+	 * 处理用户忘记密码的情况
 	 *
-	 * @param userId      用户ID，用于查询用户信息。
-	 * @param oldPassword 用户当前密码，用于验证身份。
-	 * @param newPassword 用户新密码，待验证通过后设置。
-	 * @param sessionId   用户会话ID，用于记录操作日志。
-	 * @param clientIp    ip
-	 * @param fingerprint  指纹
-	 * @return 如果密码修改成功，返回true；否则返回false。
+	 * @param verificationCode 验证码对象，用于验证用户身份
+	 * @param password 新密码，用户希望设置的新密码
+	 * @param clientIp 客户端IP地址，用于记录用户活动
+	 * @param fingerprint 用户设备指纹，用于增强安全性
+	 * @return 返回一个布尔值，表示密码重置是否成功
 	 */
-    @Override
-    public Boolean modifyPassword(Long userId, String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
-		// 创建查询条件，指定用户ID和账号激活状态。
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id",userId);
-		queryWrapper.eq("password",oldPassword);
-	    queryWrapper.eq("is_active", true);
-
+	@Override
+	public Boolean forgot(@NotNull VerificationCode verificationCode, String password, String clientIp, String fingerprint) {
 	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper);
+	    User user = userMapper.selectById(verificationCode.getUserId());
 
-	    // 验证用户是否存在且旧密码是否正确。
+	    // 验证用户是否存在
 	    if (user != null) {
 	        // 如果验证成功，更新用户密码为新密码。
-	        user.setPassword(newPassword);
-			// 通过ID更新用户信息。
-		    if (userMapper.updateById(user) > 0){
-				// 记录邮箱修改成功日志
-				userRecordService.successModifyPasswordLog(userId,clientIp,fingerprint);
-				// 清除会话中的用户信息，因为密码已修改
-                logout(sessionId);
-				return true;
-		    }else {
-				logger.error("修改用户密码失败{}", userId);
-				return null;
-		    }
-	    }else {
-			// 如果用户不存在或旧密码验证失败，返回false
-		    userRecordService.failedModifyPasswordLog(userId,clientIp,fingerprint);
-			return false;
-	    }
-	}
-
-	/**
-	 * 修改用户信息。
-	 * 此方法用于更新用户的信息。
-	 * 它首先检查用户是否存在于数据库中且当前状态为非激活状态。
-	 * 如果用户存在且满足条件，则更新用户的密码和激活状态。
-	 * 如果用户不存在，则记录日志并返回false。
-	 *
-	 * @param newUser 包含新用户信息的对象，其中ID用于查找用户，密码和激活状态用于更新用户信息。
-	 * @return 如果用户信息成功更新，则返回true；否则返回false。
-	 */
-    @Override
-    public Boolean modifyUserInfo(@NotNull User newUser) {
-	    // 创建查询条件，特定于用户的ID和非激活状态。
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id", newUser.getId());
-	    queryWrapper.eq("is_active", true);
-
-	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 如果用户存在且当前是非激活状态，则进行更新。
-	    if (user != null) {
-	        // 维持原密码不变，确保用户不会因为信息修改而失去访问权限。
-	        newUser.setPassword(user.getPassword());
-			newUser.setUsername(user.getUsername());
-	        // 将用户状态设置为激活，确保用户不会因为信息修改而失去访问权限。
-	        newUser.setIsActive(user.getIsActive());
-//			newUser.setRoleId(user.getRoleId());
-	        // 更新数据库中的用户信息。
-	        int result = userMapper.updateById(newUser);
-	        // 检查更新是否成功，并返回结果。
-	        return result > 0;
-	    } else {
-	        // 如果用户不存在，则记录日志并返回false。
-	        logger.info("尝试更新(modify)不存在的用户信息，ID: {}", newUser.getId());
-	        return false;
-	    }
-	}
-
-	/**
-	 * 锁定用户方法。
-	 * 通过设置用户的活跃状态为false来锁定用户账号。
-	 *
-	 * @param userId      用户ID，用于查询和锁定特定用户。
-	 * @param sessionId   会话ID，用于记录操作日志。
-	 * @param clientIp    ip
-	 * @param fingerprint  指纹
-	 * @return 如果用户成功被锁定，返回true；如果用户不存在或锁定失败，返回false。
-	 */
-    @Override
-    public Boolean lockUser(Long userId, String sessionId, String clientIp, String fingerprint) {
-	    // 创建查询条件，指定用户ID和当前为激活状态
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    queryWrapper.eq("id", userId);
-	    queryWrapper.eq("is_active", true);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 如果用户存在
-	    if (user != null) {
-	        // 将用户活跃状态设置为false，即锁定用户
-	        user.setIsActive(false);
-	        // 更新数据库中的用户信息
-	        if(userMapper.updateById(user)>0) {
-				userRecordService.successLockLog(userId,clientIp,fingerprint);
-				logout(sessionId);
-				return true;
+	        user.setPassword(password);
+	        // 激活用户账户
+	        user.setIsActive(true);
+	        // 通过ID更新用户信息。
+	        if (userMapper.updateById(user) > 0){
+	            // 更新验证码对象的密码信息
+	            verificationCode.setPassword(password);
+	            // 使用验证码，并记录使用信息
+	            verificationCodeService.useCode(user.getId(), verificationCode);
+	            // 记录用户成功找回密码的日志
+	            userRecordService.successForgotLog(user.getId(),clientIp,fingerprint);
+	            // 更新成功，返回true
+	            return true;
 	        }else {
-				logger.error("锁定用户失败{}", userId);
-				return null;
+	            // 更新失败，返回null
+	            return null;
 	        }
-	    } else {
-	        // 记录日志，提示尝试锁定不存在的用
-	        logger.info("尝试锁定不存在的用户，ID: {}", userId);
+	    }else {
+	        // 如果用户不存在，返回false。
 	        return false;
+	    }
+	}
+
+	@Override
+	public Boolean lock(String sessionId, String clientIp, String fingerprint) {
+		UserVo user = getUserFromRedis(sessionId);
+
+		if(userMapper.lockById(user.getId(),user.getId())>0) {
+			userRecordService.successLockLog(user.getId(),clientIp,fingerprint);
+			logout(sessionId);
+			return true;
+		}else {
+			logger.error("锁定{}用户失败", user.getId());
+			return false;
+		}
+	}
+
+	@Override
+	public Boolean lock(Long userId, String sessionId, String clientIp, String fingerprint) {
+		UserVo user = getUserFromRedis(sessionId);
+		if (userMapper.selectById(userId)==null){
+			logger.info("尝试锁定不存在的{}用户", userId);
+			return null;
+		}
+		if(userMapper.lockById(userId,user.getId())>0) {
+			userRecordService.successLockAdminLog(userId,clientIp,fingerprint);
+			if (redisService.hasUser(String.valueOf(userId))){
+				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
+				logger.debug("管理员锁定{}用户在一个地方登录，自动注销用户登录状态", user.getUsername());
+				redisService.deleteUser(userKey);
+				redisService.deleteUser(String.valueOf(userId));
+			}
+			return true;
+		}else {
+			logger.error("管理员锁定{}用户失败", userId);
+			return false;
+		}
+	}
+
+	@Override
+	public Boolean unlock(Long userId, String sessionId, String clientIp, String fingerprint) {
+		UserVo user = getUserFromRedis(sessionId);
+		if (userMapper.selectById(userId)==null){
+			logger.info("尝试解锁不存在的{}用户", userId);
+			return null;
+		}
+		if(userMapper.unlockById(userId,user.getId())>0) {
+			userRecordService.successUnlockAdminLog(userId, clientIp, fingerprint);
+			logger.debug("管理员解锁{}用户成功", userId);
+			return true;
+		}else {
+			logger.error("管理员解锁{}用户失败", userId);
+			return false;
+		}
+	}
+
+	/**
+	 * 修改用户信息
+	 *
+	 * @param user 用户对象，包含要修改的用户信息，不能为空
+	 * @param sessionId 用户会话ID，用于从Redis中获取当前用户信息
+	 * @return 如果用户信息修改成功，则返回true；否则返回false
+	 */
+	@Override
+	public Boolean modifyInfo(@NotNull User user, String sessionId) {
+	    // 从Redis中获取当前用户信息，并设置其ID到用户对象中
+	    user.setId(getUserFromRedis(sessionId).getId());
+
+	    // 尝试更新用户信息
+	    if (userMapper.updateById(user)>0){
+	        // 如果更新成功，从Redis中获取当前用户信息
+	        UserVo userVo = getUserFromRedis(sessionId);
+
+	        // 更新用户信息
+	        userVo.setFirstName(user.getFirstName());
+	        userVo.setLastName(user.getLastName());
+	        userVo.setPhone(user.getPhone());
+	        userVo.setAvatar(user.getAvatar());
+	        userVo.setBirthDate(user.getBirthDate());
+
+	        // 如果用户生日不为空，则计算并设置距离下一次生日的天数
+	        if (user.getBirthDate()!=null){
+	            userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+	        }
+
+	        // 更新Redis中的用户信息
+	        redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
+	        return true;
+	    }else {
+	        // 如果更新失败，记录错误日志
+	        logger.error("修改{}用户信息失败", user);
+	        return false;
+	    }
+	}
+
+
+	/**
+	 * 修改用户密码
+	 *
+	 * @param oldPassword 旧密码，用于验证当前用户的密码是否正确
+	 * @param newPassword 新密码，用于替换旧密码
+	 * @param sessionId 用户会话ID，用于识别用户会话
+	 * @param clientIp 客户端IP地址，用于记录操作日志
+	 * @param fingerprint 用户设备指纹，用于增强日志的唯一性
+	 * @return 返回一个布尔值表示密码修改的结果如果返回null，则表示修改密码失败
+	 */
+	@Override
+	public Boolean modifyPassword(@NotNull String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
+	    // 从Redis中获取当前用户信息
+	    UserVo user = getUserFromRedis(sessionId);
+
+	    // 验证旧密码是否正确
+	    if (!oldPassword.equals(userMapper.selectById(user.getId()).getPassword())){
+	        // 记录失败的修改密码日志
+	        userRecordService.failedModifyPasswordLog(user.getId(),clientIp,fingerprint);
+	        return false;
+	    }
+
+	    // 尝试修改密码
+	    if (userMapper.modifyPasswordById(user.getId(), newPassword) > 0){
+	        // 记录成功的修改密码日志
+	        userRecordService.successModifyPasswordLog(user.getId(),clientIp,fingerprint);
+	        // 清除会话中的用户信息，因为密码已修改
+	        logout(sessionId);
+	        return true;
+	    }else {
+	        // 记录修改密码失败的日志
+	        logger.error("{}用户修改密码失败", user.getId());
+	        return null;
 	    }
 	}
 
@@ -611,46 +612,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		// 根据查询条件尝试获取用户信息
 		return userMapper.selectCountByEmail(email) > 0;
 	}
-
-
-	/**
-	 * 用户注册步骤
-	 *
-	 * @param user             待注册/更新的用户信息
-	 * @param verificationCode 验证码对象，用于验证用户输入的验证码
-	 * @param sessionId        用户会话ID
-	 * @param clientIp         ip
-	 * @param fingerprint       指纹
-	 * @return 注册/更新成功返回用户ID，否则返回0
-	 */
-	@Override
-	public Long register(@NotNull User user, VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
-	    // 检查用户信息是否完整
-	    if(user.getUsername()!=null && user.getPassword()!=null && user.getEmail()!=null){
-	        // 设置用户账户为激活状态
-	        user.setIsActive(true);
-	        // 设置用户角色为普通用户
-//	        user.setRoleId(1);
-	        // 插入用户信息，若成功则返回用户ID，否则返回0
-		    if (userMapper.insert(user) > 0){
-				temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
-                verificationCodeService.useCode(user.getId(), verificationCode);
-                userRecordService.successRegisterLog(user, clientIp, fingerprint);
-		    }
-	        return userMapper.insert(user)>0?user.getId():0;
-	    }else{
-	        // 对于信息不完整的用户，清除其账户信息
-	        user.setUsername(null);
-	        user.setPassword(null);
-	        user.setEmail(null);
-			user.setIsActive(true);
-//			user.setRoleId(1);
-	        // 更新用户信息，若成功则返回用户ID，否则返回0
-		    redisService.deleteUser(sessionId);
-	        return userMapper.updateById(user)>0?user.getId():0;
-	    }
-	}
-
 
     /**
      * 获取用户列表
@@ -712,41 +673,4 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
     }
 
-	/**
-	 * 解锁用户方法。
-	 * 通过设置用户的活跃状态为true来解锁用户账号。
-	 *
-	 * @param userId      用户ID，用于查询和锁定特定用户。
-	 * @param clientIp      ip
-	 * @param fingerprint   指纹
-	 * @return 如果用户成功被解锁，返回true；如果用户不存在或解锁失败，返回false。
-	 */
-	@Override
-	public Boolean unlockUser(Long userId, String clientIp, String fingerprint) {
-	    // 创建查询条件对象
-	    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-	    // 设置查询条件：用户ID等于userId且用户当前是锁定状态（is_active为false）
-	    queryWrapper.eq("id", userId);
-	    queryWrapper.eq("is_active", false);
-
-	    // 根据查询条件尝试获取用户信息
-	    User user = userMapper.selectOne(queryWrapper);
-
-	    // 如果用户存在
-	    if (user != null) {
-	        // 将用户状态设置为解锁
-	        user.setIsActive(true);
-	        // 更新数据库中的用户信息
-	        if (userMapper.updateById(user)>0){
-				userRecordService.successUnlockAdminLog(userId, clientIp, fingerprint);
-				return true;
-	        }else{
-				return null;
-			}
-	    } else {
-	        // 记录日志，提示尝试解锁不存在的用户
-	        logger.info("尝试解锁不存在的用户，ID: {}", userId);
-	        return false;
-	    }
-	}
 }
