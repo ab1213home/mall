@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-public class ApiLoginInterceptor implements HandlerInterceptor {
+public class ApiInterceptor implements HandlerInterceptor {
 
 //	@Override
 //    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {

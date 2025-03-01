@@ -62,8 +62,6 @@ public class LoginController {
 		this.captchaService = captchaService;
 	}
 
-	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
 	private final static int max_try_number = 5;
 
 	/**

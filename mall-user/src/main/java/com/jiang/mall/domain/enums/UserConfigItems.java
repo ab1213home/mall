@@ -17,8 +17,9 @@ import lombok.Getter;
 
 @Getter
 public enum UserConfigItems {
-	ADMIN_ROLE_ID("admin.role.id", "管理员角色ID", "10"),
+	MAX_TRY_NUMBER("max.try.number", "最大尝试登录次数", "5"),
 	MAX_ADDRESS_NUM("max.address.num", "最大收货地址数量", "50"),
+	//默认用户组
 	ALLOW_REGISTRATION("allow.registration", "是否允许注册", "true");
 
 	private final String key;

@@ -114,8 +114,8 @@ public class UserConfig {
         }
     }
 
-    public static int getAdminRoleId() {
-        return Integer.parseInt(properties.getProperty(UserConfigItems.ADMIN_ROLE_ID.getKey(), UserConfigItems.ADMIN_ROLE_ID.getDefaultValue()));
+    public static int getMaxTryNumber() {
+        return Integer.parseInt(properties.getProperty(UserConfigItems.MAX_TRY_NUMBER.getKey(), UserConfigItems.MAX_TRY_NUMBER.getDefaultValue()));
     }
 
     public static int getMaxAddressNum() {
@@ -126,23 +126,16 @@ public class UserConfig {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), UserConfigItems.ALLOW_REGISTRATION.getDefaultValue()));
     }
 
-
-    public static void updateAdminRoleId(int id) {
-        properties.setProperty(UserConfigItems.ADMIN_ROLE_ID.getKey(), String.valueOf(id));
-        saveProperties();
-        loadProperties();
+    public static void updateMaxTryNumber(int num) {
+        properties.setProperty(UserConfigItems.MAX_TRY_NUMBER.getKey(), String.valueOf(num));
     }
 
     public static void updateMaxAddressNum(int num) {
         properties.setProperty(UserConfigItems.MAX_ADDRESS_NUM.getKey(), String.valueOf(num));
-        saveProperties();
-        loadProperties();
     }
 
     public static void updateAllowRegistration(boolean allow) {
         properties.setProperty(UserConfigItems.ALLOW_REGISTRATION.getKey(), String.valueOf(allow));
-        saveProperties();
-        loadProperties();
     }
 
 }

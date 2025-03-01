@@ -37,24 +37,24 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		this.apiRequestCounterInterceptor = apiRequestCounterInterceptor;
 	}
 
-	private AdminLoginInterceptor adminLoginInterceptor;
+	private AdminInterceptor adminInterceptor;
 
     @Autowired
-    public void setAdminLoginInterceptor(AdminLoginInterceptor adminLoginInterceptor) {
-        this.adminLoginInterceptor = adminLoginInterceptor;
+    public void setAdminLoginInterceptor(AdminInterceptor adminInterceptor) {
+        this.adminInterceptor = adminInterceptor;
     }
 
-    private UserLoginInterceptor userLoginInterceptor;
+    private UserInterceptor userInterceptor;
     @Autowired
-    public void setUserLoginInterceptor(UserLoginInterceptor userLoginInterceptor) {
-        this.userLoginInterceptor = userLoginInterceptor;
+    public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
     }
 
-    private ApiLoginInterceptor apiLoginInterceptor;
+    private ApiInterceptor apiInterceptor;
 
     @Autowired
-    public void setApiLoginInterceptor(ApiLoginInterceptor apiLoginInterceptor) {
-        this.apiLoginInterceptor = apiLoginInterceptor;
+    public void setApiLoginInterceptor(ApiInterceptor apiInterceptor) {
+        this.apiInterceptor = apiInterceptor;
     }
 
 	private HtmlInterceptor htmlInterceptor;
@@ -72,7 +72,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         // 用户登录拦截器
-        registry.addInterceptor(userLoginInterceptor)
+        registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
                 .addPathPatterns("/orders")
@@ -95,7 +95,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		        .addPathPatterns("/**")
                 .excludePathPatterns("/api/count");
 		// API登录拦截器
-		registry.addInterceptor(apiLoginInterceptor)
+		registry.addInterceptor(apiInterceptor)
                 .addPathPatterns("/api/**");
 		// HTML拦截器
 		registry.addInterceptor(htmlInterceptor)

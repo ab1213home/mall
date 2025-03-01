@@ -32,7 +32,7 @@ public class Group implements Serializable {
     private String description;
 
     /**
-     * 权限
+     * 权限 	authority
      */
     private String permission;
 

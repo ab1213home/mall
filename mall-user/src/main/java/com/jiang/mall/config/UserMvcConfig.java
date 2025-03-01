@@ -26,17 +26,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class UserMvcConfig implements WebMvcConfigurer {
 
-    private AdminLoginInterceptor adminLoginInterceptor;
+    private AdminInterceptor adminInterceptor;
 
     @Autowired
-    public void setAdminLoginInterceptor(AdminLoginInterceptor adminLoginInterceptor) {
-        this.adminLoginInterceptor = adminLoginInterceptor;
+    public void setAdminLoginInterceptor(AdminInterceptor adminInterceptor) {
+        this.adminInterceptor = adminInterceptor;
     }
 
-    private UserLoginInterceptor userLoginInterceptor;
+    private UserInterceptor userInterceptor;
     @Autowired
-    public void setUserLoginInterceptor(UserLoginInterceptor userLoginInterceptor) {
-        this.userLoginInterceptor = userLoginInterceptor;
+    public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
     }
 
     private RepeatLoginInterceptor repeatLoginInterceptor;
@@ -82,13 +82,19 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/register.html?*")
                 .addPathPatterns("/user/forgot.html?*");
         // 用户登录拦截器
-        registry.addInterceptor(userLoginInterceptor)
+        registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/user/")
                 .addPathPatterns("/user/**.html")
                 .addPathPatterns("/user/**.html?*")
                 .addPathPatterns("/user/**/**.html")
                 .addPathPatterns("/user/**/**.html?*")
                 .addPathPatterns("/user/**")
+                .addPathPatterns("/**/admin/**")
+                .addPathPatterns("/admin/**")
+                .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/admin/**.html?*")
+                .addPathPatterns("/admin/**/**.html")
+                .addPathPatterns("/admin/**/**.html?*")
                 .excludePathPatterns("/user/login.html")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/register.html")
@@ -102,7 +108,7 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/user/register.html?*")
                 .excludePathPatterns("/user/forgot.html?*");
         // 系统管理员登录拦截器
-        registry.addInterceptor(adminLoginInterceptor)
+        registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/**/admin/**")
                 .addPathPatterns("/admin/**")
                 .addPathPatterns("/admin/**.html")

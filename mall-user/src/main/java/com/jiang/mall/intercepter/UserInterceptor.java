@@ -13,7 +13,6 @@
 
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class UserLoginInterceptor implements HandlerInterceptor {
+public class UserInterceptor implements HandlerInterceptor {
 
     private II18nService i18nService;
 
@@ -79,7 +78,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
      * @param requestURI 当前请求的URI，尝试访问但需要登录权限的资源地址
      * @throws IOException 重定向过程中可能抛出的IO异常
      */
-    private void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String requestURI) throws IOException {
+    public void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String requestURI) throws IOException {
         // 构造登录页面的URL，使用上下文路径确保正确获取登录页面的位置
         String loginUrl = request.getContextPath() + "/user/login.html";
         // 编码请求的URI，以确保URL中的特殊字符能够正确传递
