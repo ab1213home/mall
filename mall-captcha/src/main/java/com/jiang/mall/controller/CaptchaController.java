@@ -17,12 +17,12 @@ import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.awt.*;
 import java.io.IOException;
@@ -58,15 +58,18 @@ public class CaptchaController {
         response.setDateHeader("Expires", 0);
         // 设置响应内容类型为PNG图像，告知浏览器将接收的数据显示为图像
         response.setContentType("image/png");
-        // 创建一个自定义的验证码对象
-        SpecCaptcha captcha = captchaService.generateCaptcha(request.getSession().getId());
-        // 将验证码图像输出到HTTP响应中，实现浏览器展示验证码图像
         try (OutputStream out = response.getOutputStream()) {
+            // 创建一个自定义的验证码对象
+            SpecCaptcha captcha = captchaService.generateCaptcha(request.getSession().getId());
+            // 输出验证码图像到HTTP响应中
             captcha.out(out);
-        } catch (IOException e) {
-            // 处理异常情况
-            logger.error("无法生成验证码图像", e);
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "无法生成验证码图像");
+        } catch (FontFormatException | IOException e) {
+            // 记录异常日志
+            logger.error("生成验证码图像失败", e);
+            // 清空响应内容并设置错误状态码
+            response.reset();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("无法生成验证码图像");
         }
     }
 }

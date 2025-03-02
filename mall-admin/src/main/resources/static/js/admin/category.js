@@ -17,7 +17,7 @@ let categoryArr = {};
 function getCategoryNum() {
     $.ajax({
         type: "GET",
-        url: "/category/getNum",
+        url: "/category/admin/getNum",
         dataType: "json",
         success: function (response) {
             if (response.code == 200) {
@@ -29,7 +29,7 @@ function getCategoryNum() {
 function queryCategory(pn,pz){
     $.ajax({
         type: "GET",
-        url: "/category/getList",
+        url: "/category/admin/getList",
         data: {
             pageNum: pn,
             pageSize: pz
@@ -165,7 +165,7 @@ function insertCategory() {
     };
     $.ajax({
         type: "POST",
-        url: "/category/add",
+        url: "/category/admin/add",
         data: data,
         dataType: "json",
         success: function (response) {
@@ -190,7 +190,7 @@ function updateCategory(id) {
     };
     $.ajax({
         type: "POST",
-        url: "/category/update",
+        url: "/category/admin/update",
         data: data,
         dataType: "json",
         success: function (response) {
@@ -208,7 +208,7 @@ function updateCategory(id) {
 function deleteCategory(id) {
     $.ajax({
         type: "POST",
-        url: "/category/delete",
+        url: "/category/admin/delete",
         data: {id: id},
         dataType: "json",
         success: function (response) {

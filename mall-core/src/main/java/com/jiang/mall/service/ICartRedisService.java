@@ -13,7 +13,7 @@
 
 package com.jiang.mall.service;
 
-public interface IProductRedisService {
+public interface ICartRedisService {
 
 	/**
      * 设置一个键值对

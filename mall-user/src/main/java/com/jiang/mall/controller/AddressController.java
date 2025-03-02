@@ -20,7 +20,6 @@ import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -40,26 +39,9 @@ public class AddressController {
 
 	private IAddressService addressService;
 
-	/**
-	 * 注入地址服务实例，用于处理地址相关的业务逻辑
-	 *
-	 * @param addressService 地址服务实例
-	 */
 	@Autowired
 	public void setAddressService(IAddressService addressService) {
 		this.addressService = addressService;
-	}
-
-	private IUserService userService;
-
-	/**
-	 * 注入用户服务实例，用于处理用户相关的业务逻辑
-	 *
-	 * @param userService 用户服务实例
-	 */
-	@Autowired
-	public void setUserService(IUserService userService) {
-		this.userService = userService;
 	}
 
 	private IAdministrativeDivisionService divisionService;

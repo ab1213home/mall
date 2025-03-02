@@ -93,14 +93,14 @@ function sub(id){
 	if(num == 1){
 		show_warning('不能更小了');
 	}else{
-		num = num -1;
-		updateCart(id,num);
+		// num = num -1;
+		updateCart(id,-1);
 	}
 }
 
 function add(id){
-	let num = parseInt($("#num_text" + id).val()) + 1;
-	updateCart(id, num);
+	// let num = parseInt($("#num_text" + id).val()) + 1;
+	updateCart(id, 1);
 }
 
 function updateCart(id, num){
@@ -115,9 +115,9 @@ function updateCart(id, num){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				$("#num_text" + id).val(num);	//界面更新
-				cartArr[id].num = num;	//更新内存中对应商品的数量
-				$("#sum_price"+id).html(num * cartArr[id].product.price);	//更新改行的价格
+				cartArr[id].num = parseInt($("#num_text" + id).val())+num;
+				$("#num_text" + id).val(cartArr[id].num);	//界面更新
+				$("#sum_price"+id).html(cartArr[id].num * cartArr[id].product.price);	//更新改行的价格
 				totalMoney();
 			}else{
 				show_error("更新购物车失败:"+res.message);

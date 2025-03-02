@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.category;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
@@ -33,8 +33,8 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/category")
-public class CategoryController {
+@RequestMapping("/category/admin")
+public class CategoryAdminController {
 
     private ICategoryService categoryService;
 
@@ -68,25 +68,9 @@ public class CategoryController {
      */
     @GetMapping("/getList")
     public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                  @RequestParam(defaultValue = "5") Integer pageSize) {
+                                                  @RequestParam(defaultValue = "10") Integer pageSize) {
         // 调用服务方法获取分类列表
         List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize);
-
-        // 检查返回的列表是否为空
-        if (categoryVos.isEmpty()) {
-            // 如果列表为空，返回资源未找到的响应结果
-            return ResponseResult.notFoundResourceResult("没有找到资源");
-        }
-
-        // 如果列表不为空，返回成功的响应结果，携带分类列表数据
-        return ResponseResult.okResult(categoryVos);
-    }
-
-    @GetMapping("/getTopList")
-    public ResponseResult<Object> getCategoryTopList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                     @RequestParam(defaultValue = "5") Integer pageSize) {
-        // 调用服务方法获取分类列表
-        List<CategoryVo> categoryVos = categoryService.getCategoryTopList(pageNum, pageSize);
 
         // 检查返回的列表是否为空
         if (categoryVos.isEmpty()) {

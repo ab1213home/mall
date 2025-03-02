@@ -16,6 +16,8 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Cart;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 /**
  * Cart的映射接口，继承自BaseMapper<Cart>
@@ -31,4 +33,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CartMapper extends BaseMapper<Cart> {
 
+	@Select("SELECT * FROM tb_carts WHERE prod_id = #{productId} AND user_id = #{userId} LIMIT 1")
+	Cart selectOneByProdIdAndUserId(Long productId, Long userId);
+
+	@Update("UPDATE tb_carts SET num = num + #{num} WHERE id = #{id}")
+	int updateNumById(Long id, Integer num);
+
+	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
+	Long selectUserIdById(Long id);
 }

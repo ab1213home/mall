@@ -27,7 +27,7 @@ $(document).ready(function(){
 
 function getProductNum() {
     $.ajax({
-        url: "/product/getNum",
+        url: "/product/admin/getNum",
         type: 'get',
         dataType: 'json',
         success: function (res) {
@@ -55,7 +55,7 @@ function insertProduct() {
     };
     $.ajax({
         type: "POST",
-        url: "/product/add",
+        url: "/product/admin/add",
         data: data ,
         dataType: "json",
         success: function (response) {
@@ -91,7 +91,7 @@ function updateProduct(id) {
     };
     $.ajax({
         type: "POST",
-        url: "/product/update",
+        url: "/product/admin/update",
         data: data ,
         dataType: "json",
         success: function (response) {
@@ -121,7 +121,7 @@ function getProduct(id) {
 function delProduct(id) {
     $.ajax({
         type: "GET",
-        url: "/product/delete",
+        url: "/product/admin/delete",
         data: {
             id: id
         },
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 function listCategory(){
     $.ajax({
-        url: "/category/getList",
+        url: "/category/admin/getList",
         type: 'get',
         dataType: 'json',
         success: function (res) {
@@ -218,7 +218,7 @@ function listCategorySelectById(id){
 function queryProduct(pn, pz) {
     $.ajax({
         type: "GET",
-        url: "/product/getList",
+        url: "/product/admin/getList",
         data: {
             pageNum: pn,
             pageSize: pz

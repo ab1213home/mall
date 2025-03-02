@@ -14,9 +14,7 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -76,14 +74,7 @@ public class CartController {
     public ResponseResult<Object> getCartList(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "5") Integer pageSize,
                                               HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
-		List<CartVo> cartList = cartService.getCartList(user.getId(), pageNum, pageSize);
+		List<CartVo> cartList = cartService.getCartList(session.getId(), pageNum, pageSize);
         return ResponseResult.okResult(cartList);
     }
 
@@ -95,15 +86,8 @@ public class CartController {
      */
     @GetMapping("/getNum")
     public ResponseResult<Object> getCartNum(HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
         // 调用服务方法获取购物车商品数量，并返回结果
-        return ResponseResult.okResult(cartService.getCartNum(user.getId()));
+        return ResponseResult.okResult(cartService.getCartNum(session.getId()));
     }
 
     /**
@@ -116,16 +100,8 @@ public class CartController {
      */
     @PostMapping("/add")
     public ResponseResult<Object> addCart(@RequestParam("productId") Long productId,
-                                  @RequestParam("num") Integer num,
-                                  HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
-
+                                          @RequestParam("num") Integer num,
+                                          HttpSession session) {
         if (productId == null|| num == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
         }
@@ -140,7 +116,7 @@ public class CartController {
         }
 
         // 调用购物车服务添加商品
-        if (cartService.insertCart(productId, num, user.getId())){
+        if (cartService.insertCart(productId, num, session.getId())){
             return ResponseResult.okResult("添加成功");
         }else {
             return ResponseResult.serverErrorResult("添加失败");
@@ -157,23 +133,15 @@ public class CartController {
      */
     @PostMapping("/update")
     public ResponseResult<Object> updateCart(@RequestParam("id") Long id,
-                                     @RequestParam("num") Integer num,
-                                     HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
-
+                                            @RequestParam("num") Integer num,
+                                            HttpSession session) {
         if (id == null|| num == null||id <= 0){
             return ResponseResult.failResult("参数错误");
         }
 		// 检查购物车数量是否小于等于0
-        if (num <= 0) {
-            return ResponseResult.failResult("购物车数量必须大于0");
-        }
+//        if (num <= 0) {
+//            return ResponseResult.failResult("购物车数量必须大于0");
+//        }
         if (!StringUtils.hasText(id.toString())){
             return ResponseResult.failResult("请输入购物车项Id");
         }
@@ -181,15 +149,14 @@ public class CartController {
             return ResponseResult.failResult("请输入购物车数量");
         }
 
-        // 创建一个Cart对象，仅包含ID、用户ID和数量，用于更新操作
-        Cart cart = new Cart(id, null, num, user.getId());
-
         // 尝试更新购物车项的数量
-        if (cartService.updateCart(cart)) {
-            // 更新成功
+        Boolean update = cartService.updateCart(id, num, session.getId());
+
+        if (update==null) {
+            return ResponseResult.failResult("无权限修改购物车");
+        }else if (update){
             return ResponseResult.okResult("更新成功");
-        } else {
-            // 更新失败
+        }else {
             return ResponseResult.serverErrorResult("更新失败");
         }
     }
@@ -205,13 +172,6 @@ public class CartController {
     @GetMapping("/delete")
     public ResponseResult<Object> deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
 
         if (id == null||id <= 0){
             return ResponseResult.failResult("参数错误");
@@ -222,11 +182,13 @@ public class CartController {
         }
 
         // 尝试删除指定的购物车项
-        if (cartService.deleteCart(id, user.getId())) {
-            // 删除成功
+        Boolean delete = cartService.deleteCart(id, session.getId());
+
+        if (delete==null) {
+            return ResponseResult.failResult("无权限删除购物车");
+        }else if (delete){
             return ResponseResult.okResult("删除成功");
-        } else {
-            // 删除失败
+        }else {
             return ResponseResult.serverErrorResult("删除失败");
         }
     }

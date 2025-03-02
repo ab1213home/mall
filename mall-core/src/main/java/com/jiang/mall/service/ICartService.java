@@ -30,30 +30,6 @@ import java.util.List;
  */
 public interface ICartService extends IService<Cart> {
 
-    List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize);
-
-	Boolean insertOrUpdate(Cart cart);
-
-    Boolean updateCart(Cart cart);
-
-	/**
-	 * 将指定商品添加到指定用户的购物车中
-	 *
-	 * @param productId 商品ID，标识要添加到购物车的商品
-	 * @param num       添加到购物车的商品数量
-	 * @param userId    用户ID，标识商品将被添加到哪个用户的购物车中
-	 * @return 如果添加成功，返回true；否则返回false
-	 */
-	Boolean insertCart(Long productId, Integer num, Long userId);
-
-	/**
-	 * 根据用户ID获取购物车数量
-	 *
-	 * @param userId 用户ID，用于标识特定用户
-	 * @return 返回用户的购物车数量如果用户不存在或发生错误，可能返回null
-	 */
-	Long getCartNum(Long userId);
-
 	/**
 	 * 根据用户ID、页码、页面大小和购物车项ID列表获取购物车项列表
 	 *
@@ -82,5 +58,50 @@ public interface ICartService extends IService<Cart> {
 	@SuppressWarnings("UnusedReturnValue")
 	Boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo);
 
-	Boolean deleteCart(Long id, Long userId);
+	List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize);
+
+	/**
+     * 重写获取购物车商品数量的方法
+     *
+     * @param sessionId 会话ID，用于识别用户
+     * @return 返回购物车中的商品数量
+     */
+	Long getCartNum(String sessionId);
+
+	/**
+     * 插入购物车功能
+     *
+     * @param productId 产品ID
+     * @param num 购买数量
+     * @param sessionId 用户会话ID
+     * @return 布尔值，表示购物车记录是否成功插入或更新
+     */
+	Boolean insertCart(Long productId, Integer num, String sessionId);
+
+	/**
+     * 更新购物车中商品的数量
+     * 此方法首先验证给定的商品ID是否属于当前用户，以防止跨用户修改
+     * 如果商品不属于当前用户，方法返回null
+     * 如果验证通过，方法将尝试更新商品的数量，并返回更新是否成功的布尔值
+     *
+     * @param id 商品在购物车中的ID
+     * @param num 新的商品数量
+     * @param sessionId 用户的会话ID，用于识别和验证用户
+     * @return 如果商品不属于当前用户，返回null；否则，返回更新是否成功的布尔值
+     */
+	Boolean updateCart(Long id, Integer num, String sessionId);
+
+	/**
+     * 删除购物车项
+     * <p>
+     * 此方法旨在删除指定的购物车项它首先确保只有该项的拥有者才能删除它，
+     * 通过比较购物车项关联的用户ID和当前会话标识对应的用户ID如果两者不匹配，
+     * 方法返回null，表示删除操作未经授权如果用户ID匹配，则执行删除操作，
+     * 并返回一个布尔值，指示删除操作是否成功
+     *
+     * @param id 购物车项的唯一标识符
+     * @param sessionId 当前用户的会话标识符，用于识别用户
+     * @return 如果删除成功，返回true；如果删除失败或未经授权，返回false或null
+     */
+	Boolean deleteCart(Long id, String sessionId);
 }

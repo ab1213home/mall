@@ -23,13 +23,10 @@ import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
-import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.domain.vo.CategoryVo;
-import com.jiang.mall.domain.vo.CheckoutVo;
-import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.ICartService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,97 +65,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         this.categoryMapper = categoryMapper;
     }
 
-    @Override
-    public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize) {
-        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userId);
-        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
-        List<CartVo> cartVos = new ArrayList<>();
-        for (Cart cart : carts) {
-            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
-            // 根据购物车项中的产品ID，查询产品信息
-            Product product = productMapper.selectById(cart.getProdId());
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
-            Category category = categoryMapper.selectById(product.getCategoryId());
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert productVo != null;
-	        productVo.setCategory(categoryVo);
-	        assert cartVo != null;
-	        cartVo.setProduct(productVo);
-            cartVos.add(cartVo);
-        }
-        return cartVos;
-    }
+    private IUserService userService;
 
-	@Override
-    public Boolean insertOrUpdate(@NotNull Cart cart) {
-        if (cart.getUserId() == null || cart.getProdId() == null) {
-            return false;
-        }
-        Cart cart1 = cartMapper.selectOne(new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, cart.getUserId()).eq(Cart::getProdId, cart.getProdId()));
-        if (cart1 == null) {
-            int res = cartMapper.insert(cart);
-	        return res == 1;
-        } else {
-            cart1.setNum(cart.getNum() + cart.getNum());
-            int res = cartMapper.updateById(cart1);
-	        return res == 1;
-        }
-	}
-
-    @Override
-    public Boolean updateCart(Cart cart) {
-        int res = cartMapper.updateById(cart);
-	    return res == 1;
-    }
-
-    /**
-     * 将指定商品添加到用户的购物车
-     * 如果商品已经在购物车中，则增加商品数量；如果商品不在购物车中，则新建一条购物车记录
-     *
-     * @param productId 商品ID
-     * @param num       添加的商品数量
-     * @param userId    用户ID
-     * @return 操作是否成功
-     */
-    @Override
-    public Boolean insertCart(Long productId, Integer num, Long userId) {
-        // 根据商品ID和用户ID查询购物车记录
-        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("prod_id", productId);
-        queryWrapper.eq("user_id", userId);
-        Cart cart = cartMapper.selectOne(queryWrapper);
-
-        // 如果记录存在，则增加商品数量
-        if (cart != null) {
-            Integer sum = cart.getNum() + num;
-            cart.setNum(sum);
-            // 更新购物车记录，并返回操作结果
-            return cartMapper.updateById(cart) == 1;
-        } else {
-            // 如果记录不存在，则新建购物车记录
-            cart = new Cart(productId, num, userId);
-            // 插入新的购物车记录，并返回操作结果
-            return cartMapper.insert(cart) == 1;
-        }
-    }
-
-    /**
-     * 获取指定用户的购物车商品数量
-     *
-     * @param userId 用户ID
-     * @return 购物车中的商品数量
-     */
-    @Override
-    public Long getCartNum(Long userId) {
-        // 创建查询包装器，用于查询条件的设置
-        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
-
-        // 设置查询条件，查找特定用户ID的购物车记录
-        queryWrapper.eq("user_id", userId);
-
-	    // 返回购物车列表的大小，即商品数量
-        return cartMapper.selectCount(queryWrapper);
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -255,30 +166,112 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         return true;
     }
 
+    @Override
+    public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize) {
+        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userService.getUserFromRedis(sessionId).getId());
+        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
+        List<CartVo> cartVos = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
+            // 根据购物车项中的产品ID，查询产品信息
+            Product product = productMapper.selectById(cart.getProdId());
+            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            Category category = categoryMapper.selectById(product.getCategoryId());
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+	        assert productVo != null;
+	        productVo.setCategory(categoryVo);
+	        assert cartVo != null;
+	        cartVo.setProduct(productVo);
+            cartVos.add(cartVo);
+        }
+        return cartVos;
+    }
+
     /**
-     * 删除购物车记录
+     * 重写获取购物车商品数量的方法
      *
-     * @param id     购物车记录的ID
-     * @param userId 用户ID，用于验证购物车记录的所有者
-     * @return 删除操作是否成功
+     * @param sessionId 会话ID，用于识别用户
+     * @return 返回购物车中的商品数量
      */
     @Override
-    public Boolean deleteCart(Long id, Long userId) {
+    public Long getCartNum(String sessionId) {
         // 创建查询包装器，用于查询条件的设置
         QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
-
         // 设置查询条件，查找特定用户ID的购物车记录
-        queryWrapper.eq("id", id);
+        queryWrapper.eq("user_id", userService.getUserFromRedis(sessionId).getId());
+        // 返回购物车列表的大小，即商品数量
+        return cartMapper.selectCount(queryWrapper);
+    }
 
-        // 执行查询并返回购物车列表
-        Cart cart = cartMapper.selectOne(queryWrapper);
-        // 检查购物车记录是否存在以及是否属于当前用户
-        if (cart == null || !cart.getUserId().equals(userId)){
-            // 如果记录不存在或不属于当前用户，返回删除失败
-            return false;
+    /**
+     * 插入购物车功能
+     *
+     * @param productId 产品ID
+     * @param num 购买数量
+     * @param sessionId 用户会话ID
+     * @return 布尔值，表示购物车记录是否成功插入或更新
+     */
+    @Override
+    public Boolean insertCart(Long productId, Integer num, String sessionId) {
+        // 从Redis中获取用户信息
+        UserVo user = userService.getUserFromRedis(sessionId);
+        // 根据商品ID和用户ID查询购物车记录
+        Cart cart = cartMapper.selectOneByProdIdAndUserId(productId, user.getId());
+
+        // 如果记录存在，则增加商品数量
+        if (cart != null) {
+            // 更新购物车记录，并返回操作结果
+            return cartMapper.updateNumById(cart.getId(), num) > 0;
+        } else {
+            // 如果记录不存在，则新建购物车记录
+            cart = new Cart(productId, num, user.getId());
+            // 插入新的购物车记录，并返回操作结果
+            return cartMapper.insert(cart) > 0;
         }
-        // 执行删除操作，返回删除是否成功
-        return cartMapper.deleteById(id) == 1;
+    }
+
+    /**
+     * 更新购物车中商品的数量
+     * 此方法首先验证给定的商品ID是否属于当前用户，以防止跨用户修改
+     * 如果商品不属于当前用户，方法返回null
+     * 如果验证通过，方法将尝试更新商品的数量，并返回更新是否成功的布尔值
+     *
+     * @param id 商品在购物车中的ID
+     * @param num 新的商品数量
+     * @param sessionId 用户的会话ID，用于识别和验证用户
+     * @return 如果商品不属于当前用户，返回null；否则，返回更新是否成功的布尔值
+     */
+    @Override
+    public Boolean updateCart(Long id, Integer num, String sessionId) {
+        // 验证购物车项的拥有者是否为当前用户
+        if (!cartMapper.selectUserIdById(id).equals(userService.getUserFromRedis(sessionId).getId())){
+            return null;
+        }
+        // 更新购物车中商品的数量，并返回更新结果
+        return cartMapper.updateNumById(id, num) > 0;
+    }
+
+    /**
+     * 删除购物车项
+     * <p>
+     * 此方法旨在删除指定的购物车项它首先确保只有该项的拥有者才能删除它，
+     * 通过比较购物车项关联的用户ID和当前会话标识对应的用户ID如果两者不匹配，
+     * 方法返回null，表示删除操作未经授权如果用户ID匹配，则执行删除操作，
+     * 并返回一个布尔值，指示删除操作是否成功
+     *
+     * @param id 购物车项的唯一标识符
+     * @param sessionId 当前用户的会话标识符，用于识别用户
+     * @return 如果删除成功，返回true；如果删除失败或未经授权，返回false或null
+     */
+    @Override
+    public Boolean deleteCart(Long id, String sessionId) {
+        // 检查购物车项的用户ID是否与当前会话用户ID匹配，确保只有拥有者可以删除
+        if (!cartMapper.selectUserIdById(id).equals(userService.getUserFromRedis(sessionId).getId())){
+            return null;
+        }
+        // 删除购物车项，并返回操作是否成功的布尔值
+        return cartMapper.deleteById(id) > 0;
     }
 
 }

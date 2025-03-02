@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.product;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
@@ -36,16 +36,11 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/product")
-public class ProductController {
+@RequestMapping("/product/admin")
+public class ProductAdminController {
 
     private IUserService userService;
 
-    /**
-     * 注入IUserService实例，用于处理用户相关的业务逻辑。
-     *
-     * @param userService IUserService实例，用于处理用户相关的业务逻辑
-     */
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
@@ -53,11 +48,6 @@ public class ProductController {
 
     IProductService productService;
 
-    /**
-     * 注入IProductService实例，用于处理产品相关的业务逻辑。
-     *
-     * @param productService IProductService实例，用于处理产品相关的业务逻辑
-     */
     @Autowired
     public void productService(IProductService productService) {
         this.productService = productService;

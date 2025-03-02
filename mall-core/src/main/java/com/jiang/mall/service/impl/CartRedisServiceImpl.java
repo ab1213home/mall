@@ -14,7 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.jiang.mall.config.GeneralConfig;
-import com.jiang.mall.service.IProductRedisService;
+import com.jiang.mall.service.ICartRedisService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,12 +22,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductRedisServiceImpl implements IProductRedisService {
+public class CartRedisServiceImpl implements ICartRedisService {
 
 	private StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public void setStringRedisTemplate(@Qualifier("ProductRedisTemplate") StringRedisTemplate stringRedisTemplate) {
+	public void setStringRedisTemplate(@Qualifier("CartRedisTemplate") StringRedisTemplate stringRedisTemplate) {
 	    this.stringRedisTemplate = stringRedisTemplate;
 	}
 
@@ -38,11 +38,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "product-";
+	String prefix = "cart-";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-product-";
+	    prefix = generalConfig.getRedisKeyPrefix()+"-cart-";
 	}
 
     String key(String key){
