@@ -96,15 +96,15 @@ public class GeneralConfig {
         File configFile = new File(configFilePath);
         File parentDir = configFile.getParentFile();
         if (!parentDir.exists() && !parentDir.mkdirs()) {
-            logger.error("无法创建配置文件目录: {}, 内容: {}", parentDir.getAbsolutePath(),configFilePath);
+            logger.error("无法创建配置文件目录: {}, 内容: {}", parentDir.getAbsolutePath(),properties);
             return;
         }
 
         try (OutputStream output = new FileOutputStream(configFilePath)) {
             properties.store(output, "Updated by application");
-            logger.debug("配置文件保存成功: {}, 内容: {}", configFilePath,configFilePath);
+            logger.debug("配置文件保存成功: {}, 内容: {}", configFilePath,properties);
         } catch (IOException e) {
-            logger.error("保存配置文件失败！路径: {}, 内容: {}", configFilePath,configFilePath, e);
+            logger.error("保存配置文件失败！路径: {}, 内容: {}", configFilePath,properties, e);
         }
     }
 

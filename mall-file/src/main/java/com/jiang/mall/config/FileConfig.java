@@ -334,14 +334,14 @@ public class FileConfig {
      * 此方法根据提供的存储配置对象更新系统中的存储配置它处理本地存储配置和S3存储配置，
      * 并确保只有一个默认存储配置存在如果存在多个默认配置，它会记录错误并更新旧的默认配置
      *
-     * @param storageConfig 要更新的存储配置对象，不能为空
+     * @param _storageConfig 要更新的存储配置对象，不能为空
      */
-    public void updateStorageConfig(@NotNull StorageConfig storageConfig) {
+    public void updateStorageConfig(@NotNull StorageConfig _storageConfig) {
         // 获取系统中已配置的存储名称列表
         String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
 
         // 处理本地存储配置
-        if (storageConfig.getConfig() instanceof LocalSetting localSetting){
+        if (_storageConfig.getConfig() instanceof LocalSetting localSetting){
             // 如果是默认配置，检查系统中是否有其他默认配置，并处理冲突
             if (localSetting.isDefault()){
                 //检查是否有默认配置且名字不同
@@ -364,7 +364,7 @@ public class FileConfig {
             // 保存并加载配置
             saveProperties();
             loadProperties();
-        }else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
+        }else if (_storageConfig.getConfig() instanceof S3Setting s3Setting){
             // 处理S3存储配置，逻辑与本地存储配置类似
             if (s3Setting.isDefault()){
                 //检查是否有默认配置且名字不同
@@ -389,7 +389,9 @@ public class FileConfig {
             }
         }else {
             // 如果存储类型未知，记录错误
-            logger.error("更新的配置是未知的储存配置: {}", storageConfig.getConfig().toString());
+            logger.error("更新的配置是未知的储存配置: {}", _storageConfig.getConfig().toString());
         }
+        storageConfig =getStorageConfig();
+        defaultStorageConfig= storageConfig.get(0);
     }
 }

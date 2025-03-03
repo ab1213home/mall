@@ -13,7 +13,8 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.config.PayConfig;
+import com.jiang.mall.config.AlipayConfig;
+import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.PaySettingVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/pay/admin")
 public class PayAdminController {
 
-    private PayConfig payConfig;
+    private WechatpayConfig wechatpayConfig;
 
 	@Autowired
-	public void setEmailConfig(PayConfig payConfig) {
-		this.payConfig = payConfig;
+	public void setPayConfig(WechatpayConfig wechatpayConfig) {
+		this.wechatpayConfig = wechatpayConfig;
+	}
+
+	private AlipayConfig alipayConfig;
+
+	@Autowired
+	public void setAlipayConfig(AlipayConfig alipayConfig) {
+		this.alipayConfig = alipayConfig;
 	}
 
     @GetMapping("/getSetting")

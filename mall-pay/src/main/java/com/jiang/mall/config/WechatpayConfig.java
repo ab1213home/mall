@@ -13,10 +13,10 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.config.AlipayConfig;
-import com.jiang.mall.domain.config.PaymentConfig;
-import com.jiang.mall.domain.enums.AlipayConfigItems;
-import com.jiang.mall.domain.enums.PayConfigItems;
+import com.jiang.mall.domain.enums.WechatpayConfigItems;
+import com.wechat.pay.java.core.Config;
+import com.wechat.pay.java.core.RSAAutoCertificateConfig;
+import com.wechat.pay.java.service.payments.nativepay.NativePayService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -28,14 +28,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 @Component
-public class PayConfig {
+public class WechatpayConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(PayConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(WechatpayConfig.class);
 
     private GeneralConfig generalConfig;
 
@@ -51,16 +49,12 @@ public class PayConfig {
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("pay");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("wechatpay");
         loadProperties();
-        PaymentConfig payConfig = new PaymentConfig();
-        payConfig.setConfig(getAlipayConfig());
-        payConfig.setHealth(getAlipayConfig().isEnabled());
-        payConfig.setName("支付宝");
-        paymentConfig.add(payConfig);
+        wechatpayConfig= new NativePayService.Builder().config(getWechtpayConfig()).build();
     }
 
-    public List<PaymentConfig> paymentConfig = new ArrayList<>();
+    public NativePayService wechatpayConfig;
 
     /**
      * 加载配置文件
@@ -70,13 +64,13 @@ public class PayConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-                for (PayConfigItems item : PayConfigItems.values()){
-                    String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
-                        saveProperties();
-                    }
-                }
+//                for (WechatpayConfigItems item : WechatpayConfigItems.values()){
+//                    String keyToCheck = item.getKey();
+//                    if (!properties.containsKey(keyToCheck)) {
+//                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+//                        saveProperties();
+//                    }
+//                }
                 logger.debug("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -103,7 +97,7 @@ public class PayConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (PayConfigItems item : PayConfigItems.values()){
+                for (WechatpayConfigItems item : WechatpayConfigItems.values()){
                     properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
@@ -114,20 +108,30 @@ public class PayConfig {
         }
     }
 
-    public void createAlipayConfig(@NotNull AlipayConfig alipayConfig){
-        properties.setProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey(), alipayConfig.getAppId());
-        properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey(), alipayConfig.getMerchantPrivateKey());
-        properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey(), alipayConfig.getAlipayPublicKey());
-        properties.setProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey(), String.valueOf(alipayConfig.isEnabled()));
+    public void updateWechatpayConfig(@NotNull Config config){
+
     }
 
-    public @NotNull AlipayConfig getAlipayConfig(){
-        AlipayConfig alipayConfig = new AlipayConfig();
-        alipayConfig.setAppId(properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey()));
-        alipayConfig.setMerchantPrivateKey(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey()));
-        alipayConfig.setAlipayPublicKey(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey()));
-        alipayConfig.setEnabled(Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey())));
-        return alipayConfig;
+    public @NotNull Config getWechtpayConfig(){
+        // 使用微信支付公钥的RSA配置
+        Config config =
+                new RSAAutoCertificateConfig.Builder()
+                        .merchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()))
+                        .privateKeyFromPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()))
+                        .merchantSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()))
+                        .apiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()))
+                        .build();
+        return config;
+    }
+
+    public boolean getIsEnabled(){
+        return Boolean.parseBoolean(properties.getProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey()));
+    }
+
+    public void updateIsEnabled(boolean isEnabled){
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey(), String.valueOf(isEnabled));
+        saveProperties();
+        loadProperties();
     }
 
 }

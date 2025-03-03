@@ -16,14 +16,18 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum PayConfigItems {
-	ALLOW_SEND_EMAIL("allow.send.email", "是否允许发送邮件", "false");
+public enum WechatpayConfigItems {
+	WECHATPAY_MERCHANT_ID("wechatpay.merchant.id", "商户号", "example"),
+	WECHATPAY_PRIVATE_KEY_PATH("wechatpay.merchant.private-path", "商户私钥路径", "example"),
+	WECHATPAY_MERCHANT_SERIAL_NUMBER("wechatpay.merchant.serial", "商户证书序列号", "example"),
+	WECHATPAY_API_V3_KEY("wechatpay.api-v3.key", "商户APIV3密钥", "example"),
+	WECHATPAY_IS_ENABLED("wechatpay.is.enabled", "是否启用", "false");
 
 	private final String key;
 	private final String description;
 	private final String defaultValue;
 
-	PayConfigItems(String key, String description, String defaultValue) {
+	WechatpayConfigItems(String key, String description, String defaultValue) {
 		this.key = key;
 		this.description = description;
 		this.defaultValue = defaultValue;

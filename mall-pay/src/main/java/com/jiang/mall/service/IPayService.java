@@ -15,5 +15,5 @@ package com.jiang.mall.service;
 
 public interface IPayService {
 
-	Boolean pay(Long orderId,double amount,String content, String payType);
+	Boolean pay(Long orderId,double amount,String content, int payType);
 }
