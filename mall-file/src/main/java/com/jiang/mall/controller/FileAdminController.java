@@ -160,10 +160,10 @@ public class FileAdminController {
             }else if (fileConfig.getConfig() instanceof S3Setting s3Setting){
                 // 如果是S3存储配置
                 setting.put("type","s3");
-                // S3存储的访问密钥（隐藏真实值）
-                setting.put("accessKey","******");
-                // S3存储的秘密密钥（隐藏真实值）
-                setting.put("secretKey","******");
+                // S3存储的访问密钥
+                setting.put("accessKey",s3Setting.getAccessKey());
+                // S3存储的秘密密钥
+                setting.put("secretKey",s3Setting.getSecretKey());
                 // S3存储的桶名称
                 setting.put("bucket",s3Setting.getBucket());
                 // S3存储的终端节点

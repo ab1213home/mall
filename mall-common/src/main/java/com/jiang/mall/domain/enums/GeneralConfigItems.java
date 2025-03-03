@@ -28,7 +28,9 @@ public enum GeneralConfigItems {
 	REGEX_PHONE("mall.phone.regexp", "手机号正则", "^1[3-9]\\d{9}$"),
 	REGEX_PASSWORD("mall.password.regexp", "密码正则", "^[a-zA-Z0-9]{6,16}$"),
 	REGEX_USERNAME("mall.username.regexp", "用户名正则", "^[a-zA-Z0-9]{6,16}$"),
-	REDIS_KEY_PREFIX("redis.key.prefix", "Redis键前缀", "mall");
+	REDIS_KEY_PREFIX("redis.key.prefix", "Redis键前缀", "mall"),
+	MALL_DOMAIN("mall.domain", "域名", "http://localhost:8080"),
+	MALL_DEMO_MODE("mall.demo.mode", "是否为演示模式", "false");
 
 	private final String key;
 	private final String description;

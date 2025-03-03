@@ -11,12 +11,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.config;
 
 import lombok.Data;
 
 @Data
-public class BannerSettingVo {
-	private boolean bannerCacheEnabled;
-	private Long syncTime;
+public class WechatpayConfig {
 }

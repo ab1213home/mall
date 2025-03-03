@@ -11,12 +11,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.service;
 
-import lombok.Data;
+public interface IPayService {
 
-@Data
-public class BannerSettingVo {
-	private boolean bannerCacheEnabled;
-	private Long syncTime;
+	Boolean pay(Long orderId,double amount,String content, String payType);
 }

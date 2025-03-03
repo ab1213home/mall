@@ -13,6 +13,10 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.vo.ProductVo;
+
+import java.util.concurrent.TimeUnit;
+
 public interface IProductRedisService {
 
 	/**
@@ -21,7 +25,7 @@ public interface IProductRedisService {
      * @param key 键，用于唯一标识一个值
      * @param value 值，与键关联的数据
      */
-    void setKey(String key, String value);
+    void setProduct(String key, ProductVo value,long timeout, TimeUnit unit);
 
     /**
      * 根据键获取对应的字符串值
@@ -29,19 +33,19 @@ public interface IProductRedisService {
      * @param key 字符串的键，用于唯一标识一个字符串值
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
-    String getKey(String key);
+    ProductVo getProduct(String key);
     /**
      * 检查给定的键是否存在于当前数据结构中
      *
      * @param key 要检查的键
      * @return 如果键存在，则返回true；否则返回false
      */
-    Boolean hasKey(String key);
+    Boolean hasProduct(String key);
 
     /**
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
      */
-    void deleteKey(String key);
+    void deleteProduct(String key);
 }

@@ -11,12 +11,23 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.enums;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class BannerSettingVo {
-	private boolean bannerCacheEnabled;
-	private Long syncTime;
+@Getter
+public enum CoreConfigItems {
+
+	PRODUCT_CACHE("allow.product.cache", "是否启用缓存", "false"),
+	PRODUCT_CACHE_TIME("product.cache.time", "缓存时间", "60000");
+
+	private final String key;
+	private final String description;
+	private final String defaultValue;
+
+	CoreConfigItems(String key, String description, String defaultValue) {
+		this.key = key;
+		this.description = description;
+		this.defaultValue = defaultValue;
+	}
 }

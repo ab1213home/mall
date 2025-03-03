@@ -60,14 +60,13 @@ public class BannerAdminController {
      * 获取轮播图列表
      *
      * @param pageNum  当前页码，默认为1
-     * @param pageSize 每页大小，默认为5
-     * @param session  HTTP会话
+     * @param pageSize 每页大小，默认为10
      * @return 轮播图列表或未找到资源的提示
      */
     @GetMapping("/getList")
     public ResponseResult<Object> getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                @RequestParam(defaultValue = "10") Integer pageSize,
-                                                HttpSession session) {
+                                                @RequestParam(defaultValue = "10") Integer pageSize
+                                                ) {
         List<BannerAdminVo> banner_list = bannerService.getBannerList(pageNum, pageSize);
         if (banner_list.isEmpty()) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
@@ -78,11 +77,10 @@ public class BannerAdminController {
     /**
      * 获取轮播图数量
      *
-     * @param session HTTP会话
      * @return 轮播图数量
      */
     @GetMapping("/getNum")
-    public ResponseResult<Object> getBannerNum(HttpSession session) {
+    public ResponseResult<Object> getBannerNum() {
         return ResponseResult.okResult(bannerService.getBannerNum());
     }
 
@@ -160,12 +158,6 @@ public class BannerAdminController {
         if (banner == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
-        // 检查会话中是否设置表示用户已登录的标志
-//        ResponseResult<Object> result = userService.hasPermission(banner.getUpdater(),session);
-//        // 如果用户未登录或不是管理员，则返回错误信息
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
 
         // 创建一个新的Banner对象并更新其信息
         banner = new Banner(id, img, url, description);

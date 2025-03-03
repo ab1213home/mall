@@ -122,8 +122,8 @@ public class BannerConfig {
      *
      * @return 轮播图同步时间，以毫秒为单位如果无法解析属性或属性不存在，则返回默认值60000毫秒
      */
-    public int getBannerSyncTime() {
-        return Integer.parseInt(properties.getProperty(BannerConfigItems.SYNC_TIME.getKey(), BannerConfigItems.SYNC_TIME.getDefaultValue()));
+    public Long getBannerSyncTime() {
+        return Long.parseLong(properties.getProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), BannerConfigItems.BANNER_SYNC_TIME.getDefaultValue()));
     }
 
     /**
@@ -144,9 +144,9 @@ public class BannerConfig {
      *
      * @param milliseconds 毫秒数，表示横幅内容的同步时间
      */
-    public void updateBannerSyncTime(int milliseconds) {
+    public void updateBannerSyncTime(Long milliseconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
-        properties.setProperty(BannerConfigItems.SYNC_TIME.getKey(), String.valueOf(milliseconds));
+        properties.setProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), String.valueOf(milliseconds));
     }
 
     public @NotNull BannerSettingVo getBannerSetting() {

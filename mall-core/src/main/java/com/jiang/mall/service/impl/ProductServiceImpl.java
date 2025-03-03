@@ -17,12 +17,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -56,6 +59,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public void setCategoryMapper(CategoryMapper categoryMapper) {
         this.categoryMapper = categoryMapper;
     }
+
+	private IProductRedisService productRedisService;
+
+	@Autowired
+	private void setProductRedisService(IProductRedisService productRedisService) {
+		this.productRedisService = productRedisService;
+	}
+
+	private CoreConfig coreConfig;
+
+	@Autowired
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
+	}
 
     /**
      * 根据名称、类别ID、页码和页面大小获取产品列表
@@ -106,27 +123,24 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	 * 然后创建一个查询条件以查找所有父类别ID匹配的子类别，并对每个找到的子类别递归调用自身，
 	 * 直到收集完所有相关子类别ID
 	 *
-	 * @param categoryId 指定的类别ID，作为收集的起始点如果传入的ID为null，方法将返回一个空的列表
+	 * @param id 指定的类别ID，作为收集的起始点如果传入的ID为null，方法将返回一个空的列表
 	 * @return 包含指定类别及其所有子类别ID的列表
 	 */
-	private @NotNull List<Long> getCategoryIds(Long categoryId){
+	private @NotNull List<Long> getCategoryIds(Long id){
 	    // 初始化列表以存储类别ID
 	    List<Long> categoryIds = new ArrayList<>();
 	    // 如果传入的类别ID非空，则继续处理
-	    if (categoryId != null){
+	    if (id != null){
 	        // 将当前类别ID添加到列表中
-	        categoryIds.add(categoryId);
-	        // 创建查询条件，用于查找所有父类别ID等于当前类别ID的子类别
-	        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
-	        queryWrapper.eq("parent_id", categoryId);
-	        // 执行查询，获取所有子类别列表
-	        List<Category> list = categoryMapper.selectList(queryWrapper);
+	        categoryIds.add(id);
+	        // 用于查找所有父类别ID等于当前类别ID的子类别
+	        List<Long> list = categoryMapper.selectListByParentId(id);
             if (list.isEmpty()){
                 return categoryIds;
             }
 	        // 遍历子类别列表，对每个子类别递归调用本方法，并合并结果
-	        for (Category category : list) {
-	            List<Long> ids = getCategoryIds(category.getId());
+	        for (Long _id : list) {
+	            List<Long> ids = getCategoryIds(_id);
 	            categoryIds.addAll(ids);
 	        }
 	    }
@@ -146,22 +160,28 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     public ProductVo getProduct(Long id) {
+		if (coreConfig.getProductCache() && productRedisService.hasProduct(String.valueOf(id))){
+			return productRedisService.getProduct(String.valueOf(id));
+		}
         // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);
+		ProductVo productVo;
         // 如果数据库中存在该产品
         if (product != null) {
             // 将查询到的Product对象转换为ProductVo对象
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             // 通过ID查询产品类别，并设置产品类别的名称
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
 	        assert productVo != null;
 	        productVo.setCategory(categoryVo);
-            // 返回转换后的ProductVo对象
-            return productVo;
+        }else{
+            return null;
         }
-        // 如果数据库中不存在该产品，返回null
-        return null;
+        if (coreConfig.getProductCache() && ! productRedisService.hasProduct(String.valueOf(id))){
+			productRedisService.setProduct(String.valueOf(id),productVo,coreConfig.getProductCacheTime(), TimeUnit.MINUTES);
+        }
+		return productVo;
     }
 
     /**

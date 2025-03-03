@@ -10,6 +10,7 @@ services:
     depends_on:
       - mall-redis
       - mall-mysql
+      - mall-elasticsearch
     volumes:
       - ./data:/home
       - ./application.properties:/application.properties
@@ -36,6 +37,28 @@ services:
       - ./data/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       MYSQL_ROOT_PASSWORD: mall
+  mall-elasticsearch:
+    image: elasticsearch:8.15.0
+    container_name: mall-elasticsearch
+    restart: always
+    networks:
+      - mall
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/backup:/usr/share/elasticsearch/backup
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=S4ktFcSNnTEhzYsW
+      - xpack.security.enabled=true
+      - ES_JAVA_OPTS=-Xlog:disable -Xlog:gc=debug:stderr -Xms512m -Xmx512m
 networks:
   mall:
     external: false

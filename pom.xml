@@ -260,6 +260,28 @@
                 <version>${git-commit.version}</version>
             </dependency>
 
+            <!-- 支付宝支付 -->
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>4.40.78.ALL</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-easysdk -->
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-easysdk</artifactId>
+                <version>2.2.3</version>
+            </dependency>
+
+            <!-- 微信支付 -->
+            <dependency>
+              <groupId>com.github.wechatpay-apiv3</groupId>
+              <artifactId>wechatpay-java</artifactId>
+              <version>0.2.16</version>
+            </dependency>
+
+
         <!-- 解析客户端操作系统、浏览器等 -->
 <!--        <dependency>-->
 <!--            <groupId>eu.bitwalker</groupId>-->
@@ -358,6 +380,11 @@
                 <artifactId>mall-monitor</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-pay</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -375,7 +402,7 @@
         <module>mall-core</module>
         <module>mall-address</module>
         <module>mall-monitor</module>
-<!--		<module>mall-pay</module>-->
+		<module>mall-pay</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->
@@ -439,6 +466,22 @@
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

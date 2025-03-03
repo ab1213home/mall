@@ -11,12 +11,22 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.enums;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class BannerSettingVo {
-	private boolean bannerCacheEnabled;
-	private Long syncTime;
+@Getter
+public enum PayConfigItems {
+	ALLOW_SEND_EMAIL("allow.send.email", "是否允许发送邮件", "false");
+
+	private final String key;
+	private final String description;
+	private final String defaultValue;
+
+	PayConfigItems(String key, String description, String defaultValue) {
+		this.key = key;
+		this.description = description;
+		this.defaultValue = defaultValue;
+	}
+
 }

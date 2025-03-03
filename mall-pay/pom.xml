@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>mall-parent</artifactId>
+        <groupId>com.jiang</groupId>
+        <version>2.0.1</version>
+    </parent>
+    <artifactId>mall-pay</artifactId>
+    <version>2.0.1</version>
+    <name>mall-pay</name>
+    <description>mall-pay</description>
+    <url/>
+    <licenses>
+        <license>
+            <name>Mulan PSL v2</name>
+            <url>http://license.coscl.org.cn/MulanPSL2</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+        <developers>
+        <developer>
+            <id>ab1213home</id>
+            <name>jiangrongjun</name>
+            <email>jiangrongjun2004@163.com</email>
+            <organization>jiangrongjun</organization>
+            <organizationUrl>https://github.com/ab1213home</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+	<scm>
+        <connection>scm:git:https://github.com/ab1213home/mall/master.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:ab1213home/develop.git</developerConnection>
+        <tag>2.0.1</tag>
+        <url>https://github.com/ab1213home/mall</url>
+    </scm>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 高性能的JSON库 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
+        <!-- 支付宝支付 -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-easysdk</artifactId>
+        </dependency>
+
+        <!-- 微信支付 -->
+        <dependency>
+            <groupId>com.github.wechatpay-apiv3</groupId>
+            <artifactId>wechatpay-java</artifactId>
+        </dependency>
+
+        <!--servlet-->
+        <dependency>
+        	<groupId>javax.servlet</groupId>
+        	<artifactId>javax.servlet-api</artifactId>
+        	<scope>provided</scope>
+    	</dependency>
+
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--JSR303-->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!--logback-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--监控-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+			<groupId>com.jiang</groupId>
+			<artifactId>mall-common</artifactId>
+		</dependency>
+
+
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </resource>
+<!--            <resource>-->
+<!--                <directory>.</directory>-->
+<!--                <includes>-->
+<!--                    <include>README.md</include>-->
+<!--                </includes>-->
+<!--            </resource>-->
+            <resource>
+                <directory>..</directory>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+</project>

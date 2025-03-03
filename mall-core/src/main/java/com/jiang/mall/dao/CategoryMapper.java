@@ -16,6 +16,9 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * Category的映射接口，继承自BaseMapper<Category>
@@ -31,4 +34,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
 
+	@Select("SELECT id FROM tb_categories WHERE parent_id = #{parentId} AND is_del = false")
+	List<Long> selectListByParentId(Long parentId);
 }

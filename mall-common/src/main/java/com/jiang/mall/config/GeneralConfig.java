@@ -174,6 +174,14 @@ public class GeneralConfig {
         return DateTimeFormatter.ofPattern(properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue()));
     }
 
+    public String getDomain() {
+        return properties.getProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), GeneralConfigItems.MALL_DOMAIN.getDefaultValue());
+    }
+
+    public Boolean isDemoMode() {
+        return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), GeneralConfigItems.MALL_DEMO_MODE.getDefaultValue()));
+    }
+
     public void updateDateFormat(String format) {
         properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
         saveProperties();
@@ -240,5 +248,13 @@ public class GeneralConfig {
 
     public void  updateDateFormatPattern(String pattern) {
         properties.setProperty(GeneralConfigItems.DATE_FORMAT_PATTERN.getKey(), pattern);
+    }
+
+    public void updateDomain(String domain) {
+        properties.setProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), domain);
+    }
+
+    public void updateDemoMode(boolean demoMode) {
+        properties.setProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), String.valueOf(demoMode));
     }
 }

@@ -13,13 +13,17 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductRedisService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProductRedisServiceImpl implements IProductRedisService {
@@ -48,15 +52,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
     String key(String key){
         return prefix+key;
     }
-    /**
-     * 设置一个键值对
-     *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
-     */
+
+
     @Override
-    public void setKey(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key(key), value);
+    public void setProduct(String key, ProductVo value, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
     }
 
     /**
@@ -66,8 +66,9 @@ public class ProductRedisServiceImpl implements IProductRedisService {
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public String getKey(String key) {
-        return stringRedisTemplate.opsForValue().get(key(key));
+    public ProductVo getProduct(String key) {
+        String value = stringRedisTemplate.opsForValue().get(key(key));
+        return value == null ? null : JSON.parseObject(value, ProductVo.class);
     }
 
     /**
@@ -77,7 +78,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
      * @return 如果键存在，则返回true；否则返回false
      */
     @Override
-    public Boolean hasKey(String key) {
+    public Boolean hasProduct(String key) {
         return stringRedisTemplate.hasKey(key(key));
     }
 
@@ -87,7 +88,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
      * @param key 要删除数据的键
      */
     @Override
-    public void deleteKey(String key) {
+    public void deleteProduct(String key) {
         stringRedisTemplate.delete(key(key));
     }
 }
