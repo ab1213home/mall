@@ -11,20 +11,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.config;
+package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
 @Data
-public class PaymentConfig {
-
-	private boolean health;
-
-	private String name;
-
-	private Object config;
-
-	public PaymentConfig() {
-
-	}
+public class WechatpayConfigVo {
+	private String merchantId;
+	private String privateKeyPath;
+	private String serialNumber;
+	private String apiV3Key;
+	private boolean isEnabled;
 }

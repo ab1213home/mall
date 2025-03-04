@@ -16,6 +16,7 @@ package com.jiang.mall.config;
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.kernel.Config;
 import com.jiang.mall.domain.enums.AlipayConfigItems;
+import com.jiang.mall.domain.vo.AlipayConfigVo;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -50,11 +51,27 @@ public class AlipayConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("alipay");
         loadProperties();
-        Factory.setOptions(getAlipayConfig());
-        alipayConfig = getAlipayConfig();
+        readAlipayConfig();
+        if (getIsEnabled()) {
+            logger.info("支付宝支付已启用");
+            Factory.setOptions(getAlipayConfig());
+        } else {
+            logger.info("支付宝支付未启用");
+        }
     }
 
-    public Config alipayConfig = new Config();
+    private void readAlipayConfig() {
+        alipayConfigVo.setAppId(properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey()));
+        alipayConfigVo.setMerchantPrivateKey(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey()));
+        alipayConfigVo.setCertificate(Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey())));
+        alipayConfigVo.setMerchantPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey()));
+        alipayConfigVo.setAlipayPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey()));
+        alipayConfigVo.setAlipayRootPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_ROOT_PATH.getKey()));
+        alipayConfigVo.setAlipayPublicKey(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey()));
+        alipayConfigVo.setEnabled(Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey())));
+    }
+
+    public AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
 
     /**
      * 加载配置文件
@@ -108,19 +125,25 @@ public class AlipayConfig {
         }
     }
 
-    public void updateAlipayConfig(@NotNull Config config, Boolean isCertificate){
-        properties.setProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey(), config.appId);
-        properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey(), config.merchantPrivateKey);
-        properties.setProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey(), String.valueOf(isCertificate));
-        if (isCertificate){
-            properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey(), config.merchantCertPath);
-            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey(), config.alipayCertPath);
-            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_ROOT_PATH.getKey(), config.alipayRootCertPath);
+    public void updateAlipayConfig(@NotNull AlipayConfigVo config){
+        properties.setProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey(), config.getAppId());
+        properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey(), config.getMerchantPrivateKey());
+        properties.setProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey(), String.valueOf(config.isCertificate()));
+        if (config.isCertificate()){
+            properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey(), config.getMerchantPublicPath());
+            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey(), config.getAlipayPublicPath());
+            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_ROOT_PATH.getKey(), config.getAlipayRootPath());
         }else{
-            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey(), config.alipayPublicKey);
+            properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey(), config.getAlipayPublicKey());
         }
+        properties.setProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey(), String.valueOf(config.isEnabled()));
         saveProperties();
         loadProperties();
+        if (config.isEnabled()){
+            Factory.setOptions(getAlipayConfig());
+        }else{
+            getAlipayConfig();
+        }
     }
 
     public @NotNull Config getAlipayConfig(){
@@ -143,12 +166,6 @@ public class AlipayConfig {
 
     public boolean getIsEnabled(){
         return Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey()));
-    }
-
-    public void updateIsEnabled(boolean isEnabled){
-        properties.setProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey(), String.valueOf(isEnabled));
-        saveProperties();
-        loadProperties();
     }
 
 }

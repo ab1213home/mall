@@ -15,13 +15,17 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
+import com.jiang.mall.domain.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 邮箱管理员控制器
- * 负责处理与邮箱设置相关的管理员操作，如获取和设置邮箱配置，以及验证码管理
+ * 支付控制器
+ * 负责处理与支付相关的操作
  * @author jiang
  * @version 1.0
  * @since 2024年9月20日
@@ -42,6 +46,15 @@ public class PayController {
 	@Autowired
 	public void setAlipayConfig(AlipayConfig alipayConfig) {
 		this.alipayConfig = alipayConfig;
+	}
+
+	//获取可用支付方式
+	@RequestMapping("/getPaymentList")
+	public ResponseResult<Object> getPaymentList() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("wechatpay", wechatpayConfig.getIsEnabled());
+		map.put("alipay", alipayConfig.getIsEnabled());
+		return ResponseResult.okResult(map);
 	}
 
 }

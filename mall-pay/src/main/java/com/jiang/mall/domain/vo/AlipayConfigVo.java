@@ -16,7 +16,13 @@ package com.jiang.mall.domain.vo;
 import lombok.Data;
 
 @Data
-public class PaySettingVo {
-	private AlipayConfigVo alipayConfig;
-	private WechatpayConfigVo wechatpayConfig;
+public class AlipayConfigVo {
+	private String appId;
+	private String merchantPrivateKey;
+	private boolean isCertificate;
+	private String merchantPublicPath;
+	private String alipayPublicPath;
+	private String alipayRootPath;
+	private String alipayPublicKey;
+	private boolean isEnabled;
 }

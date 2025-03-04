@@ -14,6 +14,7 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.WechatpayConfigItems;
+import com.jiang.mall.domain.vo.WechatpayConfigVo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
@@ -51,10 +52,26 @@ public class WechatpayConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("wechatpay");
         loadProperties();
-        wechatpayConfig= new NativePayService.Builder().config(getWechtpayConfig()).build();
+        readWechatpayConfig();
+        if (getIsEnabled()){
+            logger.debug("微信支付已启用");
+            nativePayService = new NativePayService.Builder().config(getWechatpayConfig()).build();
+        }else{
+            logger.debug("微信支付未启用");
+        }
     }
 
-    public NativePayService wechatpayConfig;
+    private void readWechatpayConfig() {
+        wechatpayConfigVo.setMerchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()));
+        wechatpayConfigVo.setPrivateKeyPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()));
+        wechatpayConfigVo.setSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()));
+        wechatpayConfigVo.setApiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()));
+        wechatpayConfigVo.setEnabled(Boolean.parseBoolean(properties.getProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey())));
+    }
+
+    public NativePayService nativePayService;
+
+    public WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
 
     /**
      * 加载配置文件
@@ -108,30 +125,29 @@ public class WechatpayConfig {
         }
     }
 
-    public void updateWechatpayConfig(@NotNull Config config){
-
+    public void updateWechatpayConfig(@NotNull WechatpayConfigVo config){
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey(), config.getMerchantId());
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey(), config.getPrivateKeyPath());
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey(), config.getSerialNumber());
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey(), config.getApiV3Key());
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey(), String.valueOf(config.isEnabled()));
+        saveProperties();
+        loadProperties();
+        nativePayService= new NativePayService.Builder().config(getWechatpayConfig()).build();
     }
 
-    public @NotNull Config getWechtpayConfig(){
+    public @NotNull Config getWechatpayConfig(){
         // 使用微信支付公钥的RSA配置
-        Config config =
-                new RSAAutoCertificateConfig.Builder()
-                        .merchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()))
-                        .privateKeyFromPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()))
-                        .merchantSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()))
-                        .apiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()))
-                        .build();
-        return config;
+	    return new RSAAutoCertificateConfig.Builder()
+	            .merchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()))
+	            .privateKeyFromPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()))
+	            .merchantSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()))
+	            .apiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()))
+	            .build();
     }
 
     public boolean getIsEnabled(){
         return Boolean.parseBoolean(properties.getProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey()));
-    }
-
-    public void updateIsEnabled(boolean isEnabled){
-        properties.setProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey(), String.valueOf(isEnabled));
-        saveProperties();
-        loadProperties();
     }
 
 }

@@ -20,15 +20,18 @@ import com.jiang.mall.domain.vo.PaySettingVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 邮箱管理员控制器
- * 负责处理与邮箱设置相关的管理员操作，如获取和设置邮箱配置，以及验证码管理
+ * 支付管理员控制器
+ * 负责处理与支付设置相关的管理员操作，如获取和设置支付配置，以及支付管理
  * @author jiang
  * @version 1.0
  * @since 2024年9月20日
  */
 @RestController
-@RequestMapping("/pay/admin")
+@RequestMapping("/pay")
 public class PayAdminController {
 
     private WechatpayConfig wechatpayConfig;
@@ -47,8 +50,10 @@ public class PayAdminController {
 
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
-//        return ResponseResult.okResult(payConfig.getSetting());
-        return ResponseResult.okResult();
+		Map<String,Object> setting = new HashMap<>();
+		setting.put("wechatpayConfig", wechatpayConfig.wechatpayConfigVo);
+		setting.put("alipayConfig", alipayConfig.alipayConfigVo);
+        return ResponseResult.okResult(setting);
     }
 
     @PostMapping("/setSetting")
