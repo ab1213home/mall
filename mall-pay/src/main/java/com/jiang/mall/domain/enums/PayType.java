@@ -11,16 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.enums;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class WechatpayConfigVo {
-	private String appId;
-	private String merchantId;
-	private String privateKeyPath;
-	private String serialNumber;
-	private String apiV3Key;
-	private boolean isEnabled;
+@Getter
+public enum PayType {
+	ALIPAY(1, "支付宝"),
+	WECHATPAY(2, "微信支付");
+
+	private final int value;
+	private final String description;
+
+	PayType(int value, String description) {
+		this.value = value;
+		this.description = description;
+	}
 }

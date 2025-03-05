@@ -19,6 +19,7 @@ import lombok.Data;
 public class AlipayConfigVo {
 	private String appId;
 	private String merchantPrivateKey;
+	private String gateway;
 	private boolean isCertificate;
 	private String merchantPublicPath;
 	private String alipayPublicPath;

@@ -53,25 +53,32 @@ public class WechatpayConfig {
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("wechatpay");
         loadProperties();
         readWechatpayConfig();
-        if (getIsEnabled()){
+        if (getIsEnabled() && health){
             logger.debug("微信支付已启用");
             nativePayService = new NativePayService.Builder().config(getWechatpayConfig()).build();
-        }else{
+        }else if(!getIsEnabled()){
             logger.debug("微信支付未启用");
+        }else if(!health){
+            logger.debug("微信支付健康检查失败");
         }
     }
 
-    private void readWechatpayConfig() {
+    private @NotNull WechatpayConfigVo readWechatpayConfig() {
+        WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
+        wechatpayConfigVo.setAppId(properties.getProperty(WechatpayConfigItems.WECHATPAY_APP_ID.getKey()));
         wechatpayConfigVo.setMerchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()));
         wechatpayConfigVo.setPrivateKeyPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()));
         wechatpayConfigVo.setSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()));
         wechatpayConfigVo.setApiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()));
         wechatpayConfigVo.setEnabled(Boolean.parseBoolean(properties.getProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey())));
+        return wechatpayConfigVo;
     }
 
     public NativePayService nativePayService;
 
     public WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
+
+    public boolean health = false;
 
     /**
      * 加载配置文件

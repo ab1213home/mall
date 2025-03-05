@@ -142,6 +142,11 @@
             <artifactId>mall-address</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-pay</artifactId>
+        </dependency>
+
 	</dependencies>
 
 	 <build>

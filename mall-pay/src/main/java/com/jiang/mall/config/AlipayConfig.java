@@ -52,26 +52,36 @@ public class AlipayConfig {
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("alipay");
         loadProperties();
         readAlipayConfig();
-        if (getIsEnabled()) {
-            logger.info("支付宝支付已启用");
+        if (getIsEnabled()&& health) {
+            logger.debug("支付宝支付已启用");
             Factory.setOptions(getAlipayConfig());
-        } else {
-            logger.info("支付宝支付未启用");
+        } else if (!getIsEnabled()){
+            logger.debug("支付宝支付未启用");
+        }else if (!health){
+            logger.debug("支付宝支付健康检查失败");
         }
     }
 
-    private void readAlipayConfig() {
+    private @NotNull AlipayConfigVo readAlipayConfig() {
+        AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
         alipayConfigVo.setAppId(properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey()));
         alipayConfigVo.setMerchantPrivateKey(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey()));
         alipayConfigVo.setCertificate(Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey())));
-        alipayConfigVo.setMerchantPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey()));
-        alipayConfigVo.setAlipayPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey()));
-        alipayConfigVo.setAlipayRootPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_ROOT_PATH.getKey()));
-        alipayConfigVo.setAlipayPublicKey(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey()));
+        alipayConfigVo.setGateway(properties.getProperty(AlipayConfigItems.ALIPAY_REQUEST_GATEWAY.getKey()));
+        if (alipayConfigVo.isCertificate()){
+            alipayConfigVo.setMerchantPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey()));
+            alipayConfigVo.setAlipayPublicPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey()));
+            alipayConfigVo.setAlipayRootPath(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_ROOT_PATH.getKey()));
+        }else{
+            alipayConfigVo.setAlipayPublicKey(properties.getProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_KEY.getKey()));
+        }
         alipayConfigVo.setEnabled(Boolean.parseBoolean(properties.getProperty(AlipayConfigItems.ALIPAY_IS_ENABLED.getKey())));
+        return alipayConfigVo;
     }
 
     public AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
+
+    public boolean health = false;
 
     /**
      * 加载配置文件
@@ -129,6 +139,7 @@ public class AlipayConfig {
         properties.setProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey(), config.getAppId());
         properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey(), config.getMerchantPrivateKey());
         properties.setProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey(), String.valueOf(config.isCertificate()));
+        properties.setProperty(AlipayConfigItems.ALIPAY_REQUEST_GATEWAY.getKey(), config.getGateway());
         if (config.isCertificate()){
             properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PUBLIC_PATH.getKey(), config.getMerchantPublicPath());
             properties.setProperty(AlipayConfigItems.ALIPAY_ALIPAY_PUBLIC_PATH.getKey(), config.getAlipayPublicPath());
@@ -149,7 +160,7 @@ public class AlipayConfig {
     public @NotNull Config getAlipayConfig(){
         Config config = new Config();
         config.protocol = "https";
-		config.gatewayHost = generalConfig.isDemoMode()? "openapi.alipaydev.com" : "openapi.alipay.com";
+		config.gatewayHost = properties.getProperty(AlipayConfigItems.ALIPAY_REQUEST_GATEWAY.getKey());
         config.signType = "RSA2";
         config.appId = properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey());
         config.merchantPrivateKey = properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey());

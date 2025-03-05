@@ -13,7 +13,15 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.dto.PayDto;
+import com.jiang.mall.domain.enums.PayType;
+
+import java.util.Map;
+
 public interface IPayService {
 
-	Boolean pay(Long orderId,double amount,String content, int payType);
+	PayDto pay(Long orderId, String amount, String content, Object payType);
+
+	//支付回调验签
+	boolean verifyNotify(Map<String, String> parameters, PayType payType);
 }
