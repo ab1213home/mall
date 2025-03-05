@@ -55,7 +55,7 @@ public class Cart implements Serializable {
     /**
      * 商品数量
      */
-    private Integer num;
+    private Long num;
 
     /**
      * 用户ID
@@ -71,7 +71,7 @@ public class Cart implements Serializable {
      * @param num 产品数量，表示用户希望购买的产品数量
      * @param userId 用户ID，标识拥有该购物车的用户
      */
-    public Cart(Long id, Long prodId, Integer num, Long userId) {
+    public Cart(Long id, Long prodId, Long num, Long userId) {
         this.id = id;
         this.prodId = prodId;
         this.num = num;
@@ -81,7 +81,7 @@ public class Cart implements Serializable {
     public Cart() {
     }
 
-    public Cart(Long productId, Integer num, Long userId) {
+    public Cart(Long productId, Long num, Long userId) {
         prodId = productId;
         this.num = num;
         this.userId = userId;

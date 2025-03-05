@@ -16,6 +16,8 @@ package com.jiang.mall.controller;
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PayType;
+import com.jiang.mall.service.IPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,13 @@ public class PayController {
 		this.alipayConfig = alipayConfig;
 	}
 
+	private IPayService payService;
+
+	@Autowired
+	public void setPayService(IPayService payService) {
+		this.payService = payService;
+	}
+
 	//获取可用支付方式
 	@RequestMapping("/getPaymentList")
 	public ResponseResult<Object> getPaymentList() {
@@ -68,18 +77,29 @@ public class PayController {
     public ResponseResult<Object> notifyAlipay(HttpServletRequest request, HttpServletResponse response) throws Exception {
         Map<String, String> params = new HashMap<>();
         //获取支付宝POST过来反馈信息，将异步通知中收到的待验证所有参数都存放到map中
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (String name : parameterMap.keySet()) {
-            String[] values = parameterMap.get(name);
+        Map<String, String[]> parameter = request.getParameterMap();
+        for (String name : parameter.keySet()) {
+            String[] values = parameter.get(name);
             String valueStr = "";
             for (int i = 0; i < values.length; i++) {
                 valueStr = (i == values.length - 1) ? valueStr + values[i]
                         : valueStr + values[i] + ",";
             }
             //乱码解决
-            valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+            valueStr = new String(valueStr.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
             params.put(name, valueStr);
         }
+	    if (!payService.verifyNotify(params, PayType.ALIPAY)){
+			return ResponseResult.failResult("签名验证失败");
+	    }
+		//TODO:业务逻辑
+		String trade_status = new String(request.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+		if ("TRADE_SUCCESS".equals(trade_status)) {
+			String out_trade_no = request.getParameter("out_trade_no");
+			// 更新订单状态
+            // orderService.updateOrderStatus(outTradeNo, PAY_SUCCESS);
+		}
+		return ResponseResult.okResult();
 //		Map<String, String> parameters = new HashMap<>();
 //parameters.put("charset", "UTF-8");
 //parameters.put("sign", "GM0CbuqaEivqgb......");
@@ -121,7 +141,7 @@ public class PayController {
 //        } else {
 //            response.getWriter().write("fail");   ///返回fail给支付宝，表示消息我没收到，请重试
 //        }
-	    return ResponseResult.okResult();
+//	    return ResponseResult.okResult();
     }
 
 	@PostMapping("/notify/wechatpay")

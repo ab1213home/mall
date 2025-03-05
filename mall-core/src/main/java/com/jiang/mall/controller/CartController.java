@@ -16,7 +16,6 @@ package com.jiang.mall.controller;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -37,26 +36,9 @@ public class CartController {
 
     private ICartService cartService;
 
-    /**
-     * 设置购物车服务实例
-     *
-     * @param cartService 购物车服务实例
-     */
     @Autowired
     public void setCartService(ICartService cartService) {
         this.cartService = cartService;
-    }
-
-    private IUserService userService;
-
-    /**
-     * 设置用户服务实例
-     *
-     * @param userService 用户服务实例
-     */
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
     }
 
     /**
@@ -100,7 +82,7 @@ public class CartController {
      */
     @PostMapping("/add")
     public ResponseResult<Object> addCart(@RequestParam("productId") Long productId,
-                                          @RequestParam("num") Integer num,
+                                          @RequestParam("num") Long num,
                                           HttpSession session) {
         if (productId == null|| num == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
@@ -133,7 +115,7 @@ public class CartController {
      */
     @PostMapping("/update")
     public ResponseResult<Object> updateCart(@RequestParam("id") Long id,
-                                            @RequestParam("num") Integer num,
+                                            @RequestParam("num") Long num,
                                             HttpSession session) {
         if (id == null|| num == null||id <= 0){
             return ResponseResult.failResult("参数错误");

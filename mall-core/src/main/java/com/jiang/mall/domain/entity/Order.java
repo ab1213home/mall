@@ -19,6 +19,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -66,8 +67,7 @@ public class Order implements Serializable {
     /**
      * 订单总金额
      */
-//    @Column(name = "price", precision = 10, scale = 2, nullable = false)
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     /**
      * 订单状态

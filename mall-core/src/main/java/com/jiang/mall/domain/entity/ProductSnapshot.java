@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -77,7 +78,7 @@ public class ProductSnapshot implements Serializable {
     /**
      * 商品价格
      */
-    private Double price;
+    private BigDecimal price;
 
 
     /**

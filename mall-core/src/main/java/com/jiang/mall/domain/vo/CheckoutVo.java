@@ -43,7 +43,7 @@ public class CheckoutVo {
     /**
      * 商品数量
      */
-    private Integer num;
+    private Long num;
 
 }
 

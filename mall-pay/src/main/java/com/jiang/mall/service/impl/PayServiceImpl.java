@@ -70,9 +70,9 @@ public class PayServiceImpl implements IPayService {
 	@Override
 	public PayDto pay(Long orderId, String amount, String content, Object payType) {
 		if (payType instanceof AlipayType alipayType && alipayConfig.getIsEnabled()){
-			return aliPay(orderId, amount, content , alipayType);
-		}else if (payType instanceof WechatpayType && wechatpayConfig.getIsEnabled()){
-			return wechatpayPay(orderId, amount, content);
+			return aliPay(orderId, amount, content, alipayType);
+		}else if (payType instanceof WechatpayType wechatpayType && wechatpayConfig.getIsEnabled()){
+			return wechatPay(orderId, amount, content, wechatpayType);
 		}else {
 			logger.error("支付失败，找不到对应的支付类型");
 			return PayDto.errorResult("支付失败，找不到对应的支付类型");
@@ -81,10 +81,31 @@ public class PayServiceImpl implements IPayService {
 
 	@Override
 	public boolean verifyNotify(Map<String, String> parameters, PayType payType) {
+		if (payType == PayType.WECHATPAY){
+			return wechatpayVerifyNotify(parameters);
+		}else if (payType == PayType.ALIPAY){
+			return alipayVerifyNotify(parameters);
+		}else {
+			logger.error("验签失败，找不到对应的支付类型");
+			return false;
+		}
+	}
+
+	private boolean alipayVerifyNotify(Map<String, String> parameters) {
+		try {
+			Factory.Payment.Common().verifyNotify(parameters);
+			return true;
+		} catch (Exception e) {
+			logger.error("支付宝验签失败");
+			return false;
+		}
+	}
+
+	private boolean wechatpayVerifyNotify(Map<String, String> parameters) {
 		return false;
 	}
 
-	private @NotNull PayDto wechatpayPay(Long orderId, String amount, String content) {
+	private @NotNull PayDto wechatPay(Long orderId, String amount, String content, WechatpayType wechatpayType) {
         // request.setXxx(val)设置所需参数，具体参数可见Request定义
         PrepayRequest request = new PrepayRequest();
         Amount _amount = new Amount();

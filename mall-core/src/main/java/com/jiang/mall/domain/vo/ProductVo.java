@@ -15,6 +15,8 @@ package com.jiang.mall.domain.vo;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 商品视图对象
  *
@@ -53,7 +55,7 @@ public class ProductVo {
     /**
      * 商品价格
      */
-    private Double price;
+    private BigDecimal price;
 
     /**
      * 库存数量

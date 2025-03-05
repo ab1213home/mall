@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -156,7 +157,7 @@ public class ProductAdminController {
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Long categoryId,
                                         @RequestParam("img") String img,
-                                        @RequestParam("price") Double price,
+                                        @RequestParam("price") BigDecimal price,
                                         @RequestParam("stocks") Integer stocks,
                                         @RequestParam("description") String description,
                                         HttpSession session) {
@@ -165,7 +166,7 @@ public class ProductAdminController {
         if (!result.isSuccess()) {
             return result;
         }
-        if (code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||price<=0||stocks<=0||categoryId<=0){
+        if (code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||stocks<=0||categoryId<=0){
             return ResponseResult.failResult("参数错误");
         }
         if (!StringUtils.hasText(title)){
@@ -220,11 +221,11 @@ public class ProductAdminController {
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Long categoryId,
                                         @RequestParam("img") String img,
-                                        @RequestParam("price") Double price,
+                                        @RequestParam("price") BigDecimal price,
                                         @RequestParam("stocks") Integer stocks,
                                         @RequestParam("description") String description,
                                         HttpSession session) {
-        if (id==null||code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||price<=0||stocks<=0||categoryId<=0||id<=0){
+        if (id==null||code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||stocks<=0||categoryId<=0||id<=0){
             return ResponseResult.failResult("参数错误");
         }
         if (!StringUtils.hasText(title)){

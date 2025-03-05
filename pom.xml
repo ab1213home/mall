@@ -106,14 +106,14 @@
 <!--            <scope>runtime</scope>-->
 <!--        </dependency>-->
 
-            <!--数据库连接池 HikariCP-->
+            <!-- 数据库连接池 HikariCP -->
             <dependency>
               <groupId>com.zaxxer</groupId>
               <artifactId>HikariCP</artifactId>
               <version>${hikaricp.version}</version>
             </dependency>
 
-            <!--mybatis-plus-->
+            <!-- mybatis-plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>

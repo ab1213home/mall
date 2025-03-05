@@ -150,7 +150,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 // 如果购物车商品ID与订单中的商品ID匹配
                 if (cart.getProdId().equals(checkoutVo.getProduct().getId())) {
                     // 计算购物车中商品的新数量
-                    int num = cart.getNum() - checkoutVo.getNum();
+                    long num = cart.getNum() - checkoutVo.getNum();
 
                     // 如果新数量大于0，则更新购物车商品数量
                     if (num > 0) {
@@ -213,7 +213,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 布尔值，表示购物车记录是否成功插入或更新
      */
     @Override
-    public Boolean insertCart(Long productId, Integer num, String sessionId) {
+    public Boolean insertCart(Long productId, Long num, String sessionId) {
         // 从Redis中获取用户信息
         UserVo user = userService.getUserFromRedis(sessionId);
         // 根据商品ID和用户ID查询购物车记录
@@ -243,7 +243,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 如果商品不属于当前用户，返回null；否则，返回更新是否成功的布尔值
      */
     @Override
-    public Boolean updateCart(Long id, Integer num, String sessionId) {
+    public Boolean updateCart(Long id, Long num, String sessionId) {
         // 验证购物车项的拥有者是否为当前用户
         if (!cartMapper.selectUserIdById(id).equals(userService.getUserFromRedis(sessionId).getId())){
             return null;

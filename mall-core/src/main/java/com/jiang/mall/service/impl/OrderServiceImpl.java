@@ -30,10 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+
+import static com.jiang.mall.util.DecimalUtils.add;
 
 /**
  * <p>
@@ -103,6 +106,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.categoryMapper = categoryMapper;
 	}
 
+	private String generateTradeNo(Long orderId) {
+        return orderId + "_" + System.currentTimeMillis();
+    }
+
 	/**
 	 * 插入订单信息
 	 *
@@ -120,10 +127,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    order.setUserId(userId);
 	    order.setAddressId(addressId);
 	    order.setDate(new Date());
-	    order.setTotalAmount(0.0);
+	    order.setTotalAmount(new BigDecimal("0.0"));
 	    // 计算订单总金额
 	    for (CheckoutVo checkoutVo : listCheckoutVo) {
-	        order.setTotalAmount(order.getTotalAmount()+(checkoutVo.getProduct().getPrice()* checkoutVo.getNum()));
+			if (checkoutVo.getProduct() == null) {
+				logger.error("结算信息中产品信息为空，无法创建订单");
+				return null;
+			}
+			if (checkoutVo.getNum() <= 0) {
+				logger.error("结算信息中商品数量小于等于0，无法创建订单");
+				return null;
+			}
+			// 计算单个订单项的金额
+		    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+			// 计算订单总金额
+	        order.setTotalAmount(add(order.getTotalAmount(),amount));
 	    }
 	    order.setPaymentMethod(paymentMethod);
 	    order.setStatus(status);

@@ -60,7 +60,7 @@ public class OrderList implements Serializable {
     /**
      * 购买数量
      */
-    private Integer num;
+    private Long num;
 
     /**
      * 创建时间，自动填充
@@ -88,7 +88,7 @@ public class OrderList implements Serializable {
      * @param id 订单ID
      * @param num 购买数量
      */
-    public OrderList(Long id, Integer num) {
+    public OrderList(Long id, Long num) {
         this.orderId = id;
         this.num = num;
     }

@@ -37,7 +37,7 @@ public interface CartMapper extends BaseMapper<Cart> {
 	Cart selectOneByProdIdAndUserId(Long productId, Long userId);
 
 	@Update("UPDATE tb_carts SET num = num + #{num} WHERE id = #{id}")
-	int updateNumById(Long id, Integer num);
+	int updateNumById(Long id, Long num);
 
 	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
 	Long selectUserIdById(Long id);
