@@ -71,17 +71,6 @@
             <artifactId>wechatpay-java</artifactId>
         </dependency>
 
-        <!-- ZXing -->
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-        </dependency>
-
         <!--servlet-->
         <dependency>
         	<groupId>javax.servlet</groupId>
