@@ -24,6 +24,7 @@ import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileOperation;
+import com.jiang.mall.service.IUserService;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
@@ -67,6 +68,13 @@ public class FileOperationImpl implements IFileOperation {
         this.fileConfig = fileConfig;
     }
 
+    private IUserService userService;
+
+    @Autowired
+    public void setUserService(IUserService userService) {
+        this.userService = userService;
+    }
+
     /**
      * 将字符串内容写入本地文件
      *
@@ -97,7 +105,7 @@ public class FileOperationImpl implements IFileOperation {
      * @return 文件内容的字符串表示，如果文件不存在或读取失败则返回null
      */
     @Override
-    public @Nullable String ReadStringToLocalFile(String filePath) {
+    public @Nullable String ReadStringFormLocalFile(String filePath) {
         // 检查文件是否存在
         if (!Files.exists(Paths.get(filePath))) {
             logger.error(" {} 文件不存在", filePath);
@@ -125,7 +133,7 @@ public class FileOperationImpl implements IFileOperation {
      * @param filePath 要删除的文件的路径
      */
     @Override
-    public void DeleteStringToLocalFile(String filePath) {
+    public void DeleteLocalFile(String filePath) {
         try {
             // 使用NIO文件通道方式删除文件，若文件不存在则不执行任何操作
             Files.deleteIfExists(Paths.get(filePath));
@@ -180,7 +188,7 @@ public class FileOperationImpl implements IFileOperation {
      * @return 文件内容的字符串表示如果读取过程中发生任何错误，则返回null
      */
     @Override
-    public String ReadStringToS3File(MinioClient minioClient, String bucket, String fileName) {
+    public String ReadStringFormS3File(MinioClient minioClient, String bucket, String fileName) {
         try (InputStream inputStream = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucket)
@@ -209,7 +217,7 @@ public class FileOperationImpl implements IFileOperation {
      * @param fileName 文件名，指定需要删除的文件
      */
     @Override
-    public void DeleteStringToS3File(@NotNull MinioClient minioClient, String bucket, String fileName) {
+    public void DeleteS3File(@NotNull MinioClient minioClient, String bucket, String fileName) {
         try {
             // 构建删除对象的参数，并执行删除操作
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
@@ -256,7 +264,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     @Override
-    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, UserVo user, FilePurpose type) throws IOException {
+    public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, String sessionId, FilePurpose type) throws IOException {
         // 检查文件是否为空
         if (file.isEmpty()){
             return ResponseResult.failResult("文件不能为空");
@@ -289,6 +297,7 @@ public class FileOperationImpl implements IFileOperation {
         String name;
         if (type==FilePurpose.USER_AVATAR||type==FilePurpose.USER_FACE){
             String extension = index > 0 ? oldFileName.substring(index) : "";
+            UserVo user = userService.getUserFromRedis(sessionId);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss_" + user.getId()+"_"+user.getUsername());
             name = sdf.format(new Date()) + extension;
         }else{
@@ -674,7 +683,7 @@ public class FileOperationImpl implements IFileOperation {
                     GetObjectArgs.builder().bucket(s3Setting.getBucket()).object(name).build());
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             // 处理异常
-            logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
+            logger.error("在S3存储读操作期间发生错误: {}", e.getMessage());
             return null;
         }
     }
@@ -696,7 +705,7 @@ public class FileOperationImpl implements IFileOperation {
         } catch (ServerException | InsufficientDataException | ErrorResponseException | IOException |
                  InvalidKeyException | InvalidResponseException | NoSuchAlgorithmException | XmlParserException |
                  InternalException e) {
-            logger.error("在S3存储操作期间发生错误: {}", e.getMessage());
+            logger.error("在S3存储写操作期间发生错误: {}", e.getMessage());
             return false;
         }
     }

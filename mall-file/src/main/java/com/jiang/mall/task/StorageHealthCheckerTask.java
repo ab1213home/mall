@@ -66,7 +66,7 @@ public class StorageHealthCheckerTask {
 
 	private @NotNull Boolean checkStorageHealth(@NotNull StorageConfig storageConfig){
 		if (storageConfig.getConfig() instanceof LocalSetting localSetting){
-			boolean health = storageHealthChecker.checkLocalStorageHealth(localSetting);
+			boolean health = storageHealthChecker.checkStorageHealth(localSetting);
 			storageConfig.setHealth(health);
 			if (!health){
 				logger.error("{}(本地存储)不正常，请尝试恢复...", storageConfig.getName());
@@ -76,7 +76,7 @@ public class StorageHealthCheckerTask {
 				return true;
 			}
 		}else if (storageConfig.getConfig() instanceof S3Setting s3Setting){
-			boolean health = storageHealthChecker.checkS3StorageHealth(s3Setting);
+			boolean health = storageHealthChecker.checkStorageHealth(s3Setting);
 			storageConfig.setHealth(health);
 			if (!health){
 				logger.error("{}(S3存储)运行状况不佳，请尝试恢复...", storageConfig.getName());

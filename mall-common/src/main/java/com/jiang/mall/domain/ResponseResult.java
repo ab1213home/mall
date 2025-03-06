@@ -14,6 +14,7 @@
 package com.jiang.mall.domain;
 
 import com.jiang.mall.service.II18nService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * 响应结果类
@@ -65,75 +65,6 @@ public class ResponseResult<T> implements Serializable {
     private long timestamp;
 
     /**
-     * 默认失败消息
-     */
-    private static final String DEFAULT_FAIL_MESSAGE = "fail";
-    /**
-     * 默认成功状态码
-     */
-    private static final int DEFAULT_SUCCESS_CODE = 200;
-    /**
-     * 默认失败状态码
-     */
-    private static final int DEFAULT_FAIL_CODE = 500;
-    /**
-     * 默认错误状态码
-     */
-    private static final int DEFAULT_ERROR_CODE = 400;
-    /**
-     * 默认未授权状态码
-     */
-    private static final int DEFAULT_UNAUTHORIZED_CODE = 401;
-    /**
-     * 默认禁止状态码
-     */
-    private static final int DEFAULT_FORBIDDEN_CODE = 403;
-    /**
-     * 默认未找到资源状态码
-     */
-    private static final int DEFAULT_NOT_FOUND_CODE = 404;
-    /**
-     * 默认服务器错误状态码
-     */
-    private static final int DEFAULT_SERVER_ERROR_CODE = 500;
-    /**
-     * 默认错误状态码
-     */
-    private static final int DEFAULT_BAD_REQUEST_CODE = 400;
-    /**
-     * 默认不可接受状态码
-     */
-    private static final int DEFAULT_NOT_ACCEPTABLE_CODE = 406;
-    /**
-     * 默认不可处理实体状态码
-     */
-    private static final int DEFAULT_UNPROCESSABLE_ENTITY_CODE = 422;
-    /**
-     * 默认服务器错误状态码
-     */
-    private static final int DEFAULT_INTERNAL_SERVER_ERROR_CODE = 500;
-    /**
-     * 默认未实现状态码
-     */
-    private static final int DEFAULT_NOT_IMPLEMENTED_CODE = 501;
-    /**
-     * 默认未找到资源状态码
-     */
-    private static final int DEFAULT_NOT_FOUND_RESOURCE_CODE = 404;
-    /**
-     * 创建一个表示未授权资源的响应结果对象
-     */
-    private static final int DEFAULT_UNAUTHORIZED_RESOURCE_CODE = 401;
-    /**
-     * 创建一个表示未找到资源的响应结果对象
-     */
-    private static final int DEFAULT_NOT_FOUND_RESOURCE_MESSAGE = 404;
-    /**
-     * 创建一个表示未授权资源的响应结果对象
-     */
-    private static final int DEFAULT_UNAUTHORIZED_RESOURCE_MESSAGE = 401;
-
-    /**
      * 创建一个表示操作成功的响应结果，使用默认的成功消息
      *
      * @return 返回包含默认成功消息的响应结果对象
@@ -142,7 +73,7 @@ public class ResponseResult<T> implements Serializable {
         // 创建一个新的响应结果对象
         ResponseResult<T> responseResult = new ResponseResult<>();
         // 设置响应结果的状态码为默认的成功码
-        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        responseResult.setCode(HttpServletResponse.SC_OK);
         // 设置响应结果的消息为传入的默认消息
         responseResult.setMessage(i18nService.getMessage("DEFAULT_SUCCESS_MESSAGE"));
         // 返回构建好的响应结果对象
@@ -160,7 +91,7 @@ public class ResponseResult<T> implements Serializable {
         // 创建一个新的响应结果对象
         ResponseResult<T> responseResult = new ResponseResult<>();
         // 设置响应结果的状态码为默认的成功码
-        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        responseResult.setCode(HttpServletResponse.SC_OK);
         // 设置响应结果的消息为传入的自定义消息
         responseResult.setMessage(message);
         // 返回构建好的响应结果对象
@@ -177,7 +108,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull ResponseResult<Object> okResult(Object data) {
         ResponseResult<Object> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        responseResult.setCode(HttpServletResponse.SC_OK);
         responseResult.setMessage(i18nService.getMessage("DEFAULT_SUCCESS_MESSAGE"));
         responseResult.setData(data);
         return responseResult;
@@ -192,7 +123,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull <T> ResponseResult<T> failResult(){
         ResponseResult<T> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_FAIL_CODE);
+        responseResult.setCode(HttpServletResponse.SC_BAD_GATEWAY);
         responseResult.setMessage(i18nService.getMessage("DEFAULT_FAIL_MESSAGE"));
         return responseResult;
     }
@@ -207,7 +138,7 @@ public class ResponseResult<T> implements Serializable {
         // 创建一个新的响应对象
         ResponseResult<T> responseResult = new ResponseResult<>();
         // 设置响应代码为默认的失败代码
-        responseResult.setCode(DEFAULT_FAIL_CODE);
+        responseResult.setCode(HttpServletResponse.SC_BAD_GATEWAY);
         // 设置失败的详细信息信息
         responseResult.setMessage(message);
         // 返回包含失败信息的响应对象
@@ -234,7 +165,6 @@ public class ResponseResult<T> implements Serializable {
 
     public ResponseResult() {
         this.timestamp = System.currentTimeMillis();
-//        this.reqid= UUID.randomUUID().toString();
     }
 
     /**
@@ -246,7 +176,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull <T> ResponseResult<T> notLoggedResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_UNAUTHORIZED_CODE);
+        responseResult.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         responseResult.setMessage(message);
         return responseResult;
     }
@@ -260,7 +190,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull<T> ResponseResult<T> notFoundResourceResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_NOT_FOUND_RESOURCE_CODE);
+        responseResult.setCode(HttpServletResponse.SC_NOT_FOUND);
         responseResult.setMessage(message);
         return responseResult;
     }
@@ -274,7 +204,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull<T> ResponseResult<T> serverErrorResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_NOT_IMPLEMENTED_CODE);
+        responseResult.setCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         responseResult.setMessage(message);
         return responseResult;
     }
@@ -290,7 +220,7 @@ public class ResponseResult<T> implements Serializable {
      */
     public static @NotNull ResponseResult<Object> okResult(Object data, String message) {
         ResponseResult<Object> responseResult = new ResponseResult<>();
-        responseResult.setCode(DEFAULT_SUCCESS_CODE);
+        responseResult.setCode(HttpServletResponse.SC_OK);
         responseResult.setData(data);
         responseResult.setMessage(message);
         return responseResult;
@@ -302,6 +232,6 @@ public class ResponseResult<T> implements Serializable {
      * @return 如果响应结果的状态码等于默认的成功状态码，则返回true；否则返回false
      */
     public boolean isSuccess() {
-	    return code == DEFAULT_SUCCESS_CODE;
+	    return code == HttpServletResponse.SC_OK;
     }
 }

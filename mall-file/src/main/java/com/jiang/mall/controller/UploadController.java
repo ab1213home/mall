@@ -13,10 +13,8 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.FilePurpose;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
@@ -77,14 +75,7 @@ public class UploadController {
     @RequestMapping("/uploadFile")
     @ResponseBody
     public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-
-		if (!result.isSuccess()) {
-			// 如果未登录，则直接返回
-		    return result;
-		}
-        UserVo user = (UserVo) result.getData();
-        return fileOperation.FileWrite(file, user,FilePurpose.DEFAULT_IMAGE);
+        return fileOperation.FileWrite(file, session.getId(), FilePurpose.DEFAULT_IMAGE);
 
     }
 
@@ -99,14 +90,7 @@ public class UploadController {
     @RequestMapping("/uploadFaces")
     @ResponseBody
     public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
-        // 检查用户登录状态
-        ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-        if (!result.isSuccess()) {
-            // 如果未登录，则直接返回
-            return result;
-        }
-        UserVo user = (UserVo) result.getData();
-        return fileOperation.FileWrite(file, user,FilePurpose.USER_FACE);
+        return fileOperation.FileWrite(file,session.getId(), FilePurpose.USER_FACE);
     }
 
 }

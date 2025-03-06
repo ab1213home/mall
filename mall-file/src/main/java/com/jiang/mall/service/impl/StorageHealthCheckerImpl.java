@@ -17,15 +17,15 @@ import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IStorageHealthChecker;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.errors.MinioException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -52,7 +52,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	 * @return 返回一个布尔值，true表示存储健康，false表示存储有问题
 	 */
 	@Override
-	public Boolean checkLocalStorageHealth(@NotNull LocalSetting localSetting) {
+	public Boolean checkStorageHealth(@NotNull LocalSetting localSetting) {
 	    //填充随机字符串
 	    String randomString = generateRandomString(100);
 	    //获取时时间戳
@@ -69,18 +69,18 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	    }
 
 	    // 读取文件内容
-	    String readContent = fileOperation.ReadStringToLocalFile(FILE_PATH);
+	    String readContent = fileOperation.ReadStringFormLocalFile(FILE_PATH);
 	    if (readContent == null || !readContent.equals(randomString)) {
 	        // 如果读取失败或内容不匹配，记录错误日志，删除文件并返回false
 	        logger.error("读取文件失败或内容不匹配，{}(本地存储)不健康", localSetting.getName());
 	        // 删除文件
-	        fileOperation.DeleteStringToLocalFile(FILE_PATH);
+	        fileOperation.DeleteLocalFile(FILE_PATH);
 	        return false;
 	    } else {
 	        // 如果读取成功且内容匹配，记录信息日志，删除文件并返回true
 	        logger.debug("读取文件成功且内容匹配，{}(本地存储)健康", localSetting.getName());
 	        // 删除文件
-	        fileOperation.DeleteStringToLocalFile(FILE_PATH);
+	        fileOperation.DeleteLocalFile(FILE_PATH);
 	        return true;
 	    }
 	}
@@ -93,7 +93,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	 * @return 如果S3存储健康则返回true，否则返回false
 	 */
 	@Override
-	public Boolean checkS3StorageHealth(@NotNull S3Setting s3Setting) {
+	public Boolean checkStorageHealth(@NotNull S3Setting s3Setting) {
 	    //填充随机字符串
 	    String randomString = generateRandomString(100);
 	    //获取时时间戳
@@ -120,16 +120,16 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	        }
 
 	        // 测试读取文件
-	        String readContent = fileOperation.ReadStringToS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	        String readContent = fileOperation.ReadStringFormS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	        if (readContent == null || !readContent.equals(randomString)) {
 	            logger.error("读取文件失败或内容不匹配，{}(S3存储)不健康", s3Setting.getName());
 	            // 删除文件
-	            fileOperation.DeleteStringToS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	            fileOperation.DeleteS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return false;
 	        } else {
 	            logger.debug("读取文件成功且内容匹配，{}(S3存储)健康", s3Setting.getName());
 	            // 删除文件
-	            fileOperation.DeleteStringToS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	            fileOperation.DeleteS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return true;
 	        }
 	    } catch (MinioException e) {

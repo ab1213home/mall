@@ -17,6 +17,9 @@ import com.jiang.mall.domain.enums.WechatpayConfigItems;
 import com.jiang.mall.domain.vo.WechatpayConfigVo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
+import com.wechat.pay.java.service.payments.app.AppService;
+import com.wechat.pay.java.service.payments.h5.H5Service;
+import com.wechat.pay.java.service.payments.jsapi.JsapiService;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +59,9 @@ public class WechatpayConfig {
         if (getIsEnabled() && health){
             logger.debug("微信支付已启用");
             nativePayService = new NativePayService.Builder().config(getWechatpayConfig()).build();
+            h5PayService = new H5Service.Builder().config(getWechatpayConfig()).build();
+            appPayService = new AppService.Builder().config(getWechatpayConfig()).build();
+            jsapiService = new JsapiService.Builder().config(getWechatpayConfig()).build();
         }else if(!getIsEnabled()){
             logger.debug("微信支付未启用");
         }else if(!health){
@@ -63,7 +69,8 @@ public class WechatpayConfig {
         }
     }
 
-    private @NotNull WechatpayConfigVo readWechatpayConfig() {
+    @NotNull
+    public WechatpayConfigVo readWechatpayConfig() {
         WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
         wechatpayConfigVo.setAppId(properties.getProperty(WechatpayConfigItems.WECHATPAY_APP_ID.getKey()));
         wechatpayConfigVo.setMerchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()));
@@ -74,9 +81,18 @@ public class WechatpayConfig {
         return wechatpayConfigVo;
     }
 
+    /*
+     * 获取微信NativePay服务
+     */
     public NativePayService nativePayService;
 
-    public WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
+    public H5Service h5PayService;
+
+    public AppService appPayService;
+
+    public JsapiService jsapiService;
+
+//    public WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
 
     public boolean health = false;
 

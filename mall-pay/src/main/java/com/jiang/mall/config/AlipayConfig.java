@@ -62,7 +62,7 @@ public class AlipayConfig {
         }
     }
 
-    private @NotNull AlipayConfigVo readAlipayConfig() {
+    public @NotNull AlipayConfigVo readAlipayConfig() {
         AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
         alipayConfigVo.setAppId(properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey()));
         alipayConfigVo.setMerchantPrivateKey(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey()));
@@ -79,7 +79,7 @@ public class AlipayConfig {
         return alipayConfigVo;
     }
 
-    public AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
+//    public AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
 
     public boolean health = false;
 

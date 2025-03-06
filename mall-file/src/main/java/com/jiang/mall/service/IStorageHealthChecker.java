@@ -25,7 +25,7 @@ public interface IStorageHealthChecker {
 	 * @param localSetting 本地存储设置对象，包含存储路径等信息
 	 * @return 返回一个布尔值，true表示存储健康，false表示存储有问题
 	 */
-	Boolean checkLocalStorageHealth(LocalSetting localSetting);
+	Boolean checkStorageHealth(LocalSetting localSetting);
 
 	/**
 	 * 检查S3存储的健康状况
@@ -34,5 +34,5 @@ public interface IStorageHealthChecker {
 	 * @param s3Setting S3存储的设置，包括访问密钥、秘密密钥和端点等信息
 	 * @return 如果S3存储健康则返回true，否则返回false
 	 */
-	Boolean checkS3StorageHealth(S3Setting s3Setting);
+	Boolean checkStorageHealth(S3Setting s3Setting);
 }

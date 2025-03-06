@@ -16,7 +16,6 @@ package com.jiang.mall.service;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.domain.vo.DirectoryVo;
-import com.jiang.mall.domain.vo.UserVo;
 import io.minio.MinioClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +34,7 @@ public interface IFileOperation {
      * @return 如果文件写入成功，则返回true；否则返回false
      */
 	boolean WriteStringToLocalFile(String content, String filePath);
+
 	/**
      * 该方法尝试从指定的文件路径读取内容，并以字符串形式返回
      * 如果文件不存在或读取过程中发生错误，方法将返回null
@@ -42,13 +42,14 @@ public interface IFileOperation {
      * @param filePath 文件路径
      * @return 文件内容的字符串表示，如果文件不存在或读取失败则返回null
      */
-	String ReadStringToLocalFile(String filePath);
+	String ReadStringFormLocalFile(String filePath);
+
 	/**
      * 用于删除指定路径的本地文件
      *
      * @param filePath 要删除的文件的路径
      */
-	void DeleteStringToLocalFile(String filePath);
+	void DeleteLocalFile(String filePath);
 
 	/**
      * 将字符串内容写入S3文件中
@@ -60,6 +61,7 @@ public interface IFileOperation {
      * @return 写入操作的成功与否，成功返回true，失败返回false
      */
 	boolean WriteStringToS3File(MinioClient minioClient, String content, String bucket, String fileName);
+
 	/**
      * 从S3存储中读取一个文件并将其内容转换为字符串
      * 此方法使用Minio客户端从指定的桶中获取一个对象（文件），并将该对象的内容读取为一个字符串
@@ -70,7 +72,8 @@ public interface IFileOperation {
      * @param fileName 文件名，指定要读取的文件
      * @return 文件内容的字符串表示如果读取过程中发生任何错误，则返回null
      */
-	String ReadStringToS3File(MinioClient minioClient, String bucket, String fileName);
+	String ReadStringFormS3File(MinioClient minioClient, String bucket, String fileName);
+
 	/**
      * 从S3存储中删除指定文件
      *
@@ -78,10 +81,11 @@ public interface IFileOperation {
      * @param bucket 存储桶名称，指定文件所在的存储桶
      * @param fileName 文件名，指定需要删除的文件
      */
-	void DeleteStringToS3File(MinioClient minioClient, String bucket, String fileName);
+	void DeleteS3File(MinioClient minioClient, String bucket, String fileName);
 
 	// 文件写
-	ResponseResult<Object> FileWrite(MultipartFile file, UserVo userId, FilePurpose type) throws IOException;
+	ResponseResult<Object> FileWrite(MultipartFile file, String sessionId, FilePurpose type) throws IOException;
+
 	// 文件读
 	ResponseEntity<Object> FileRead(String storageName, String fileName) throws IOException;
 

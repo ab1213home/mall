@@ -24,12 +24,17 @@ import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.dto.PayDto;
 import com.jiang.mall.domain.enums.AlipayType;
-import com.jiang.mall.domain.enums.PayType;
 import com.jiang.mall.domain.enums.WechatpayType;
 import com.jiang.mall.service.IPayService;
+import com.wechat.pay.java.core.notification.NotificationConfig;
+import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.core.notification.RequestParam;
+import com.wechat.pay.java.service.payments.jsapi.model.Payer;
 import com.wechat.pay.java.service.payments.nativepay.model.Amount;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,6 +44,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -68,63 +77,24 @@ public class PayServiceImpl implements IPayService {
 	}
 
 	@Override
-	public PayDto pay(Long orderId, String amount, String content, Object payType) {
-		if (payType instanceof AlipayType alipayType && alipayConfig.getIsEnabled()){
-			return aliPay(orderId, amount, content, alipayType);
-		}else if (payType instanceof WechatpayType wechatpayType && wechatpayConfig.getIsEnabled()){
-			return wechatPay(orderId, amount, content, wechatpayType);
+	public PayDto pay(Long orderId, String amount, String content, String userId, WechatpayType payType) {
+		if (payType == WechatpayType.WECHATPAY_NATIVE) {
+			return wechatPayNative(orderId, amount, content);
+		}else if (payType == WechatpayType.WECHATPAY_JSAPI){
+			return wechatPayJsapi(orderId, amount, content, userId);
+		}else if (payType == WechatpayType.WECHATPAY_APP){
+			return wechatPayApp(orderId, amount, content);
+		}else if (payType == WechatpayType.WECHATPAY_H5){
+			return wechatPayH5(orderId,amount, content);
 		}else {
-			logger.error("支付失败，找不到对应的支付类型");
-			return PayDto.errorResult("支付失败，找不到对应的支付类型");
+			logger.error("支付失败，找不到对应的微信支付类型");
+			return PayDto.errorResult("支付失败，找不到对应的微信支付类型");
 		}
 	}
 
 	@Override
-	public boolean verifyNotify(Map<String, String> parameters, PayType payType) {
-		if (payType == PayType.WECHATPAY){
-			return wechatpayVerifyNotify(parameters);
-		}else if (payType == PayType.ALIPAY){
-			return alipayVerifyNotify(parameters);
-		}else {
-			logger.error("验签失败，找不到对应的支付类型");
-			return false;
-		}
-	}
-
-	private boolean alipayVerifyNotify(Map<String, String> parameters) {
-		try {
-			return Factory.Payment.Common().verifyNotify(parameters);
-		} catch (Exception e) {
-			logger.error("支付宝验签失败", e);
-			return false;
-		}
-	}
-
-	private boolean wechatpayVerifyNotify(Map<String, String> parameters) {
-		return false;
-	}
-
-	private @NotNull PayDto wechatPay(Long orderId, String amount, String content, WechatpayType wechatpayType) {
-        // request.setXxx(val)设置所需参数，具体参数可见Request定义
-        PrepayRequest request = new PrepayRequest();
-        Amount _amount = new Amount();
-		//TODO: 单位为分
-        _amount.setTotal(Integer.valueOf(amount));
-		_amount.setCurrency("CNY");
-        request.setAmount(_amount);
-		//公众号ID
-        request.setAppid(wechatpayConfig.wechatpayConfigVo.getAppId());
-        request.setMchid(wechatpayConfig.wechatpayConfigVo.getMerchantId());
-        request.setDescription(content);
-        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
-        request.setOutTradeNo(String.valueOf(orderId));
-        // 调用下单方法，得到应答
-        PrepayResponse response = wechatpayConfig.nativePayService.prepay(request);
-		return PayDto.okResult(response.getCodeUrl(), null, null);
-	}
-
-	private @NotNull PayDto aliPay(Long orderId, String amount, String content, AlipayType payType) {
-        if (payType == AlipayType.ALIPAY_PC_WEB){
+	public PayDto pay(Long orderId, String amount, String content, String userId, AlipayType payType) {
+		if (payType == AlipayType.ALIPAY_PC_WEB){
 			return aliPayPage(orderId, amount, content);
         }else if (payType == AlipayType.ALIPAY_MOBILE_WEB){
 			return aliPayWap(orderId, amount, content);
@@ -139,6 +109,171 @@ public class PayServiceImpl implements IPayService {
 			logger.error("支付失败，找不到对应的支付宝支付类型");
 			return PayDto.errorResult("支付失败，找不到对应的支付宝支付类型");
 		}
+	}
+
+	@SneakyThrows
+	@Override
+	public boolean verifyNotify(@NotNull HttpServletRequest parameters, WechatpayType payType) {
+		// 获取RSA配置
+        NotificationParser notificationParser = new NotificationParser((NotificationConfig) wechatpayConfig.getWechatpayConfig());
+        // 构建请求
+        StringBuilder bodyBuilder = new StringBuilder();
+        BufferedReader reader = parameters.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            bodyBuilder.append(line);
+        }
+        String body = bodyBuilder.toString();
+        String timestamp = parameters.getHeader("Wechatpay-Timestamp");
+        String nonce = parameters.getHeader("Wechatpay-Nonce");
+        String signature = parameters.getHeader("Wechatpay-Signature");
+        String singType = parameters.getHeader("Wechatpay-Signature-Type");
+        String wechatPayCertificateSerialNumber = parameters.getHeader("Wechatpay-Serial");
+        RequestParam requestParam = new RequestParam.Builder()
+                .serialNumber(wechatPayCertificateSerialNumber)
+                .nonce(nonce)
+                .signature(signature)
+                .timestamp(timestamp)
+                .signType(singType)
+                .body(body)
+                .build();
+		if (payType == WechatpayType.WECHATPAY_NATIVE) {
+			return verifyNotifyWechatpayNative(notificationParser,requestParam);
+		}else if (payType == WechatpayType.WECHATPAY_JSAPI){
+			return verifyNotifyWechatpayJsapi(notificationParser,requestParam);
+		}else if (payType == WechatpayType.WECHATPAY_APP){
+			return verifyNotifyWechatpayApp(notificationParser,requestParam);
+		}else if (payType == WechatpayType.WECHATPAY_H5){
+			return verifyNotifyWechatpayH5(notificationParser,requestParam);
+		}else {
+			logger.error("验签验签失败，找不到对应的验签支付类型");
+			return false;
+		}
+	}
+
+	private boolean verifyNotifyWechatpayH5(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
+		com.wechat.pay.java.service.partnerpayments.h5.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.h5.model.Transaction.class);
+		return transaction != null;
+	}
+
+	private boolean verifyNotifyWechatpayApp(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
+		com.wechat.pay.java.service.partnerpayments.app.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.app.model.Transaction.class);
+		return transaction != null;
+	}
+
+	private boolean verifyNotifyWechatpayJsapi(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
+		com.wechat.pay.java.service.partnerpayments.jsapi.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.jsapi.model.Transaction.class);
+		return transaction != null;
+	}
+
+	private boolean verifyNotifyWechatpayNative(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
+		com.wechat.pay.java.service.partnerpayments.nativepay.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.nativepay.model.Transaction.class);
+		return transaction != null;
+	}
+
+	@Override
+	public boolean verifyNotify(@NotNull HttpServletRequest parameters, AlipayType payType) {
+		Map<String, String> params = new HashMap<>();
+        //获取支付宝POST过来反馈信息，将异步通知中收到的待验证所有参数都存放到map中
+        Map<String, String[]> parameter = parameters.getParameterMap();
+        for (String name : parameter.keySet()) {
+            String[] values = parameter.get(name);
+            String valueStr = "";
+            for (int i = 0; i < values.length; i++) {
+                valueStr = (i == values.length - 1) ? valueStr + values[i]
+                        : valueStr + values[i] + ",";
+            }
+            //乱码解决
+            valueStr = new String(valueStr.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            params.put(name, valueStr);
+        }
+		try {
+			return Factory.Payment.Common().verifyNotify(params);
+		} catch (Exception e) {
+			logger.error("支付宝验签失败", e);
+			return false;
+		}
+	}
+
+
+	private @NotNull PayDto wechatPayH5(Long orderId, String amount, String content) {
+		// request.setXxx(val)设置所需参数，具体参数可见Request定义
+        com.wechat.pay.java.service.payments.h5.model.PrepayRequest request = new com.wechat.pay.java.service.payments.h5.model.PrepayRequest();
+        com.wechat.pay.java.service.payments.h5.model.Amount _amount = new com.wechat.pay.java.service.payments.h5.model.Amount();
+		//TODO: 单位为分
+        _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
+		_amount.setCurrency("CNY");
+        request.setAmount(_amount);
+		//公众号ID
+        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
+        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setDescription(content);
+        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
+        request.setOutTradeNo(String.valueOf(orderId));
+        // 调用下单方法，得到应答
+        com.wechat.pay.java.service.payments.h5.model.PrepayResponse response = wechatpayConfig.h5PayService.prepay(request);
+		return PayDto.okResult(response.getH5Url(), null, null);
+	}
+
+	private @NotNull PayDto wechatPayApp(Long orderId, String amount, String content) {
+		// request.setXxx(val)设置所需参数，具体参数可见Request定义
+        com.wechat.pay.java.service.payments.app.model.PrepayRequest request = new com.wechat.pay.java.service.payments.app.model.PrepayRequest();
+        com.wechat.pay.java.service.payments.app.model.Amount _amount = new com.wechat.pay.java.service.payments.app.model.Amount();
+		//TODO: 单位为分
+        _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
+		_amount.setCurrency("CNY");
+        request.setAmount(_amount);
+		//公众号ID
+        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
+        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setDescription(content);
+        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
+        request.setOutTradeNo(String.valueOf(orderId));
+        // 调用下单方法，得到应答
+        com.wechat.pay.java.service.payments.app.model.PrepayResponse response = wechatpayConfig.appPayService.prepay(request);
+		return PayDto.okResult(null , response.getPrepayId() ,null);
+	}
+
+	private @NotNull PayDto wechatPayJsapi(Long orderId, String amount, String content,String openId) {
+		// request.setXxx(val)设置所需参数，具体参数可见Request定义
+        com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest request = new com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest();
+        com.wechat.pay.java.service.payments.jsapi.model.Amount _amount = new com.wechat.pay.java.service.payments.jsapi.model.Amount();
+		//TODO: 单位为分
+        _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
+		_amount.setCurrency("CNY");
+        request.setAmount(_amount);
+		// 支付者信息
+		Payer payer = new Payer();
+		payer.setOpenid(openId);
+		request.setPayer(payer);
+		//公众号ID
+        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
+        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setDescription(content);
+        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
+        request.setOutTradeNo(String.valueOf(orderId));
+        // 调用下单方法，得到应答
+        com.wechat.pay.java.service.payments.jsapi.model.PrepayResponse response = wechatpayConfig.jsapiService.prepay(request);
+		return PayDto.okResult(null, response.getPrepayId(), null);
+	}
+
+	private @NotNull PayDto wechatPayNative(Long orderId, String amount, String content) {
+		// request.setXxx(val)设置所需参数，具体参数可见Request定义
+        PrepayRequest request = new PrepayRequest();
+        Amount _amount = new Amount();
+		//TODO: 单位为分
+        _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
+		_amount.setCurrency("CNY");
+        request.setAmount(_amount);
+		//公众号ID
+        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
+        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setDescription(content);
+        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
+        request.setOutTradeNo(String.valueOf(orderId));
+        // 调用下单方法，得到应答
+        PrepayResponse response = wechatpayConfig.nativePayService.prepay(request);
+		return PayDto.okResult(response.getCodeUrl(), null, null);
 	}
 
 	private @NotNull PayDto aliPayFaceToFace(Long orderId, String amount, String content) {
@@ -227,16 +362,4 @@ public class PayServiceImpl implements IPayService {
 			return PayDto.errorResult("支付宝电脑网站支付调用失败，原因：" + e.getMessage());
         }
 	}
-
-
-
-//	Map<String, String> parameters = new HashMap<>();
-//parameters.put("charset", "UTF-8");
-//parameters.put("sign", "GM0CbuqaEivqgb......");
-//parameters.put("app_id", "2018091261392200");
-//parameters.put("sign_type", "RSA2");
-//parameters.put("isv_ticket", "");
-//parameters.put("timestamp", "2020-03-25 16:27:08");
-////... ... 接收到的所有参数放入一个Map中
-//Factory.Payment.Common().verifyNotify(parameters);
 }

@@ -14,6 +14,7 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.intercepter.UploadAllowedInterceptor;
+import com.jiang.mall.intercepter.UserInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,13 @@ public class FileMvcConfig implements WebMvcConfigurer {
         this.uploadAllowedInterceptor = uploadAllowedInterceptor;
     }
 
+    private UserInterceptor userInterceptor;
+
+    @Autowired
+    public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
+    }
+
 
     /**
      * 重写addInterceptors方法，用于添加拦截器
@@ -39,6 +47,11 @@ public class FileMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         registry.addInterceptor(uploadAllowedInterceptor)
+                .addPathPatterns("/common/uploadFile?*")
+                .addPathPatterns("/common/uploadFile")
+                .addPathPatterns("/common/uploadFaces?*")
+                .addPathPatterns("/common/uploadFaces");
+        registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/common/uploadFile?*")
                 .addPathPatterns("/common/uploadFile")
                 .addPathPatterns("/common/uploadFaces?*")

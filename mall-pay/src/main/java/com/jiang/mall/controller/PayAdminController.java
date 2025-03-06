@@ -51,8 +51,8 @@ public class PayAdminController {
     @GetMapping("/getSetting")
     public ResponseResult<Object> getSetting() {
 		Map<String,Object> setting = new HashMap<>();
-		setting.put("wechatpayConfig", wechatpayConfig.wechatpayConfigVo);
-		setting.put("alipayConfig", alipayConfig.alipayConfigVo);
+		setting.put("wechatpayConfig", wechatpayConfig.readWechatpayConfig());
+		setting.put("alipayConfig", alipayConfig.readAlipayConfig());
         return ResponseResult.okResult(setting);
     }
 

@@ -14,14 +14,18 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.dto.PayDto;
-import com.jiang.mall.domain.enums.PayType;
-
-import java.util.Map;
+import com.jiang.mall.domain.enums.AlipayType;
+import com.jiang.mall.domain.enums.WechatpayType;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface IPayService {
 
-	PayDto pay(Long orderId, String amount, String content, Object payType);
+	PayDto pay(Long orderId, String amount, String content, String userId, WechatpayType payType);
+
+	PayDto pay(Long orderId, String amount, String content, String userId, AlipayType payType);
 
 	//支付回调验签
-	boolean verifyNotify(Map<String, String> parameters, PayType payType);
+	boolean verifyNotify(HttpServletRequest parameters, WechatpayType payType);
+
+	boolean verifyNotify(HttpServletRequest parameters, AlipayType payType);
 }
