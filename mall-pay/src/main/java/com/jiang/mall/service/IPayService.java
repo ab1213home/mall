@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.dto.PayCallbackDto;
 import com.jiang.mall.domain.dto.PayDto;
 import com.jiang.mall.domain.enums.AlipayType;
 import com.jiang.mall.domain.enums.WechatpayType;
@@ -25,7 +26,7 @@ public interface IPayService {
 	PayDto pay(Long orderId, String amount, String content, String userId, AlipayType payType);
 
 	//支付回调验签
-	boolean verifyNotify(HttpServletRequest parameters, WechatpayType payType);
+	PayCallbackDto verifyNotify(HttpServletRequest parameters, WechatpayType payType);
 
-	boolean verifyNotify(HttpServletRequest parameters, AlipayType payType);
+	PayCallbackDto verifyNotify(HttpServletRequest parameters, AlipayType payType);
 }

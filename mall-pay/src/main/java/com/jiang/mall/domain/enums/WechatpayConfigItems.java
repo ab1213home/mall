@@ -17,10 +17,11 @@ import lombok.Getter;
 
 @Getter
 public enum WechatpayConfigItems {
-	//公众号ID
-	WECHATPAY_APP_ID("wechatpay.app.id", "公众号ID", "example"),
+	WECHATPAY_APP_ID("wechatpay.app.id", "应用ID", "example"),
 	WECHATPAY_MERCHANT_ID("wechatpay.merchant.id", "商户号", "example"),
 	WECHATPAY_PRIVATE_KEY_PATH("wechatpay.merchant.private-path", "商户私钥路径", "example"),
+	WECHATPAY_PUBLIC_KEY_PATH("wechatpay.merchant.public-path", "商户公钥路径", "example"),
+	WECHATPAY_PUBLIC_KEY_ID("wechatpay.merchant.public-id", "商户公钥ID", "example"),
 	WECHATPAY_MERCHANT_SERIAL_NUMBER("wechatpay.merchant.serial", "商户证书序列号", "example"),
 	WECHATPAY_API_V3_KEY("wechatpay.api-v3.key", "商户APIV3密钥", "example"),
 	WECHATPAY_IS_ENABLED("wechatpay.is.enabled", "是否启用", "false");

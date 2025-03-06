@@ -54,12 +54,17 @@ public class AlipayConfig {
         readAlipayConfig();
         if (getIsEnabled()&& health) {
             logger.debug("支付宝支付已启用");
-            Factory.setOptions(getAlipayConfig());
+            iniAlipayConfig();
+
         } else if (!getIsEnabled()){
             logger.debug("支付宝支付未启用");
         }else if (!health){
             logger.debug("支付宝支付健康检查失败");
         }
+    }
+
+    private void iniAlipayConfig() {
+        Factory.setOptions(getAlipayConfig());
     }
 
     public @NotNull AlipayConfigVo readAlipayConfig() {
@@ -151,9 +156,7 @@ public class AlipayConfig {
         saveProperties();
         loadProperties();
         if (config.isEnabled()){
-            Factory.setOptions(getAlipayConfig());
-        }else{
-            getAlipayConfig();
+            iniAlipayConfig();
         }
     }
 

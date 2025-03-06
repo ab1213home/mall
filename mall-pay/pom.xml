@@ -121,8 +121,6 @@
 			<artifactId>mall-common</artifactId>
 		</dependency>
 
-
-
     </dependencies>
 
     <build>

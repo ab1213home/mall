@@ -31,7 +31,7 @@ import java.util.Map;
  * @since 2024年9月20日
  */
 @RestController
-@RequestMapping("/pay")
+@RequestMapping("/pay/admin")
 public class PayAdminController {
 
     private WechatpayConfig wechatpayConfig;

@@ -76,7 +76,7 @@ public class PayController {
      */
     @PostMapping("/notify/alipay")
     public void notifyAlipay(HttpServletRequest request, HttpServletResponse response) throws Exception {
-	    if (!payService.verifyNotify(request, AlipayType.ALIPAY_COMMON_API)){
+	    if (!payService.verifyNotify(request, AlipayType.ALIPAY_COMMON_API).isVerify()){
 //			return ResponseResult.failResult("签名验证失败");
 		    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		    response.getWriter().write("签名验证失败");
@@ -112,19 +112,21 @@ public class PayController {
 
 	@PostMapping("/notify/wechatpay")
     public void notifyWechatpay(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		if (!payService.verifyNotify(request, WechatpayType.WECHATPAY_H5)){
-//			return ResponseResult.failResult("签名验证失败");
-			//HTTP应答状态码需返回5XX或4XX
+		if (!payService.verifyNotify(request, WechatpayType.WECHATPAY_H5).isVerify()){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		    response.getWriter().write("签名验证失败");
 	    }
 		//TODO:业务逻辑
-		String trade_status = new String(request.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-		if ("TRADE_SUCCESS".equals(trade_status)) {
-			String out_trade_no = request.getParameter("out_trade_no");
-			// 更新订单状态
-            // orderService.updateOrderStatus(outTradeNo, PAY_SUCCESS);
-		}
+
+//1、商户调用Native支付下单接口下单成功后，商户可以调用查询订单接口来确认订单状态，详情请参考支付回调和查单实现指引。
+//2、当订单状态处于未支付(trade_state：NOTPAY)时，用户可对订单进行支付，若用户支付失败，订单状态不变。
+//3、7天内商户可对无需继续支付的订单（例如用户超过商户系统内部规定的支付时间，或超过商户下单设置的最晚支付时间（time_expire）的订单）调用关单接口，使订单关闭，或超过7天后由微信侧自动关单。关单后，订单状态会从未支付(trade_state：NOTPAY)流转为已关闭(trade_state：CLOSED)。
+//4、当用户成功支付订单时，订单状态会从未支付(trade_state：NOTPAY)流转为支付成功(trade_state：SUCCESS)。
+//5、当订单状态为支付成功(trade_state：SUCCESS)时，如果用户需要退款，商户可调用申请退款接口(仅支持支付成功后1年内的订单)，退款申请成功后，订单状态会从支付成功(trade_state：SUCCESS)流转为转入退款(trade_state：REFUND)，退款状态可通过查询退款单接口进行确认。
+//6、以下三个状态为终态
+//trade_state：CLOSED
+//trade_state：SUCCESS
+//trade_state：REFUND
 		response.setStatus(HttpServletResponse.SC_OK);
     }
 

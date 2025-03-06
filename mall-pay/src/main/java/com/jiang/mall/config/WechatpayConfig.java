@@ -17,10 +17,14 @@ import com.jiang.mall.domain.enums.WechatpayConfigItems;
 import com.jiang.mall.domain.vo.WechatpayConfigVo;
 import com.wechat.pay.java.core.Config;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
+import com.wechat.pay.java.core.notification.NotificationConfig;
+import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.core.notification.RSAPublicKeyNotificationConfig;
 import com.wechat.pay.java.service.payments.app.AppService;
 import com.wechat.pay.java.service.payments.h5.H5Service;
 import com.wechat.pay.java.service.payments.jsapi.JsapiService;
 import com.wechat.pay.java.service.payments.nativepay.NativePayService;
+import com.wechat.pay.java.service.refund.RefundService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -58,15 +62,22 @@ public class WechatpayConfig {
         readWechatpayConfig();
         if (getIsEnabled() && health){
             logger.debug("微信支付已启用");
-            nativePayService = new NativePayService.Builder().config(getWechatpayConfig()).build();
-            h5PayService = new H5Service.Builder().config(getWechatpayConfig()).build();
-            appPayService = new AppService.Builder().config(getWechatpayConfig()).build();
-            jsapiService = new JsapiService.Builder().config(getWechatpayConfig()).build();
+            //初始化微信支付服务
+            iniWechatpayConfig();
         }else if(!getIsEnabled()){
             logger.debug("微信支付未启用");
         }else if(!health){
             logger.debug("微信支付健康检查失败");
         }
+    }
+
+    private void iniWechatpayConfig() {
+        nativePayService = new NativePayService.Builder().config(getWechatpayConfig()).build();
+        h5PayService = new H5Service.Builder().config(getWechatpayConfig()).build();
+        appPayService = new AppService.Builder().config(getWechatpayConfig()).build();
+        jsapiService = new JsapiService.Builder().config(getWechatpayConfig()).build();
+        notificationParser = new NotificationParser(getWechatpaynotificationConfig());
+        refundService = new RefundService.Builder().config(getWechatpayConfig()).build();
     }
 
     @NotNull
@@ -77,6 +88,8 @@ public class WechatpayConfig {
         wechatpayConfigVo.setPrivateKeyPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey()));
         wechatpayConfigVo.setSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()));
         wechatpayConfigVo.setApiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()));
+        wechatpayConfigVo.setPublicKeyPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_PATH.getKey()));
+        wechatpayConfigVo.setPublicKeyId(properties.getProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_ID.getKey()));
         wechatpayConfigVo.setEnabled(Boolean.parseBoolean(properties.getProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey())));
         return wechatpayConfigVo;
     }
@@ -86,13 +99,28 @@ public class WechatpayConfig {
      */
     public NativePayService nativePayService;
 
+    /*
+     * 获取微信H5Pay服务
+     */
     public H5Service h5PayService;
 
+    /*
+     * 获取微信AppPay服务
+     */
     public AppService appPayService;
 
+    /*
+     * 获取微信Jsapi服务
+     */
     public JsapiService jsapiService;
 
-//    public WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
+    /*
+     * 获取微信通知解析器
+     */
+    public NotificationParser notificationParser;
+
+    public RefundService refundService;
+
 
     public boolean health = false;
 
@@ -154,12 +182,16 @@ public class WechatpayConfig {
         properties.setProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey(), config.getSerialNumber());
         properties.setProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey(), config.getApiV3Key());
         properties.setProperty(WechatpayConfigItems.WECHATPAY_IS_ENABLED.getKey(), String.valueOf(config.isEnabled()));
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_PATH.getKey(), config.getPublicKeyPath());
+        properties.setProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_ID.getKey(), config.getPublicKeyId());
         saveProperties();
         loadProperties();
-        nativePayService= new NativePayService.Builder().config(getWechatpayConfig()).build();
+        if (config.isEnabled()){
+            iniWechatpayConfig();
+        }
     }
 
-    public @NotNull Config getWechatpayConfig(){
+    private @NotNull Config getWechatpayConfig(){
         // 使用微信支付公钥的RSA配置
 	    return new RSAAutoCertificateConfig.Builder()
 	            .merchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()))
@@ -167,6 +199,15 @@ public class WechatpayConfig {
 	            .merchantSerialNumber(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey()))
 	            .apiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()))
 	            .build();
+    }
+
+    private NotificationConfig getWechatpaynotificationConfig() {
+        // 使用微信支付公钥的RSA配置
+	    return new RSAPublicKeyNotificationConfig.Builder()
+                .publicKeyFromPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_PATH.getKey()))
+                .publicKeyId(properties.getProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_ID.getKey()))
+                .apiV3Key(properties.getProperty(WechatpayConfigItems.WECHATPAY_API_V3_KEY.getKey()))
+                .build();
     }
 
     public boolean getIsEnabled(){

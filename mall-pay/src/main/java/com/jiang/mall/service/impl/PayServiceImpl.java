@@ -22,19 +22,20 @@ import com.alipay.easysdk.payment.wap.models.AlipayTradeWapPayResponse;
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.WechatpayConfig;
+import com.jiang.mall.domain.dto.PayCallbackDto;
 import com.jiang.mall.domain.dto.PayDto;
 import com.jiang.mall.domain.enums.AlipayType;
 import com.jiang.mall.domain.enums.WechatpayType;
 import com.jiang.mall.service.IPayService;
-import com.wechat.pay.java.core.notification.NotificationConfig;
-import com.wechat.pay.java.core.notification.NotificationParser;
+import com.wechat.pay.java.core.exception.MalformedMessageException;
+import com.wechat.pay.java.core.exception.ValidationException;
 import com.wechat.pay.java.core.notification.RequestParam;
 import com.wechat.pay.java.service.payments.jsapi.model.Payer;
+import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.nativepay.model.Amount;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -45,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -111,68 +113,64 @@ public class PayServiceImpl implements IPayService {
 		}
 	}
 
-	@SneakyThrows
 	@Override
-	public boolean verifyNotify(@NotNull HttpServletRequest parameters, WechatpayType payType) {
-		// 获取RSA配置
-        NotificationParser notificationParser = new NotificationParser((NotificationConfig) wechatpayConfig.getWechatpayConfig());
-        // 构建请求
-        StringBuilder bodyBuilder = new StringBuilder();
-        BufferedReader reader = parameters.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            bodyBuilder.append(line);
+	public PayCallbackDto verifyNotify(@NotNull HttpServletRequest parameters, WechatpayType payType) {
+		// 读取原始的请求体
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = parameters.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+			logger.error("读取原始的请求体失败", e);
+	        return PayCallbackDto.errorResult("读取原始的请求体失败" + e);
         }
-        String body = bodyBuilder.toString();
+		String body = sb.toString();
+		//获取请求头
         String timestamp = parameters.getHeader("Wechatpay-Timestamp");
         String nonce = parameters.getHeader("Wechatpay-Nonce");
         String signature = parameters.getHeader("Wechatpay-Signature");
         String singType = parameters.getHeader("Wechatpay-Signature-Type");
-        String wechatPayCertificateSerialNumber = parameters.getHeader("Wechatpay-Serial");
-        RequestParam requestParam = new RequestParam.Builder()
-                .serialNumber(wechatPayCertificateSerialNumber)
-                .nonce(nonce)
-                .signature(signature)
-                .timestamp(timestamp)
-                .signType(singType)
-                .body(body)
-                .build();
-		if (payType == WechatpayType.WECHATPAY_NATIVE) {
-			return verifyNotifyWechatpayNative(notificationParser,requestParam);
-		}else if (payType == WechatpayType.WECHATPAY_JSAPI){
-			return verifyNotifyWechatpayJsapi(notificationParser,requestParam);
-		}else if (payType == WechatpayType.WECHATPAY_APP){
-			return verifyNotifyWechatpayApp(notificationParser,requestParam);
-		}else if (payType == WechatpayType.WECHATPAY_H5){
-			return verifyNotifyWechatpayH5(notificationParser,requestParam);
-		}else {
-			logger.error("验签验签失败，找不到对应的验签支付类型");
-			return false;
-		}
-	}
+        String wechatpaySerial = parameters.getHeader("Wechatpay-Serial");
+		try {
+            // 构建请求参数
+            RequestParam requestParam = new RequestParam.Builder()
+                    .serialNumber(wechatpaySerial)
+                    .nonce(nonce)
+                    .signature(signature)
+                    .timestamp(timestamp)
+		            .signType(singType)
+                    .body(body)
+                    .build();
 
-	private boolean verifyNotifyWechatpayH5(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
-		com.wechat.pay.java.service.partnerpayments.h5.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.h5.model.Transaction.class);
-		return transaction != null;
-	}
-
-	private boolean verifyNotifyWechatpayApp(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
-		com.wechat.pay.java.service.partnerpayments.app.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.app.model.Transaction.class);
-		return transaction != null;
-	}
-
-	private boolean verifyNotifyWechatpayJsapi(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
-		com.wechat.pay.java.service.partnerpayments.jsapi.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.jsapi.model.Transaction.class);
-		return transaction != null;
-	}
-
-	private boolean verifyNotifyWechatpayNative(@NotNull NotificationParser notificationParser, RequestParam requestParam) {
-		com.wechat.pay.java.service.partnerpayments.nativepay.model.Transaction transaction = notificationParser.parse(requestParam, com.wechat.pay.java.service.partnerpayments.nativepay.model.Transaction.class);
-		return transaction != null;
+            // 解析并验证通知
+            Transaction transaction = wechatpayConfig.notificationParser.parse(requestParam, Transaction.class);
+			//资源对象示例
+            // 成功返回
+            String transactionId = transaction.getTransactionId();
+			String orderId = transaction.getOutTradeNo();
+			String tradeState = String.valueOf(transaction.getTradeState());
+			String successTime = transaction.getSuccessTime();
+			String amount = String.valueOf(transaction.getAmount().getTotal());
+			return PayCallbackDto.okResult(transactionId, orderId, tradeState, successTime, amount);
+        } catch (ValidationException e) {
+            // 签名验证失败
+			logger.error("微信支付签名验证失败", e);
+            return PayCallbackDto.errorResult("微信支付签名验证失败" + e);
+        } catch (MalformedMessageException e) {
+            // 报文解析异常
+			logger.error("微信支付报文解析异常", e);
+            return PayCallbackDto.errorResult("微信支付报文解析异常" + e);
+        } catch (Exception e) {
+            // 其他异常
+			logger.error("微信支付处理异常", e);
+            return PayCallbackDto.errorResult("微信支付处理异常" + e);
+        }
 	}
 
 	@Override
-	public boolean verifyNotify(@NotNull HttpServletRequest parameters, AlipayType payType) {
+	public PayCallbackDto verifyNotify(@NotNull HttpServletRequest parameters, AlipayType payType) {
 		Map<String, String> params = new HashMap<>();
         //获取支付宝POST过来反馈信息，将异步通知中收到的待验证所有参数都存放到map中
         Map<String, String[]> parameter = parameters.getParameterMap();
@@ -188,10 +186,20 @@ public class PayServiceImpl implements IPayService {
             params.put(name, valueStr);
         }
 		try {
-			return Factory.Payment.Common().verifyNotify(params);
+			if (Factory.Payment.Common().verifyNotify(params)){
+				String transactionId = parameters.getParameter("out_trade_no");;
+				String orderId = null;
+				String tradeState = new String(parameters.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+				String successTime = null;
+				String amount = null;
+				return PayCallbackDto.okResult(transactionId, orderId, tradeState, successTime, amount);
+			}else {
+				logger.error("支付宝验签失败");
+				return PayCallbackDto.errorResult("支付宝验签失败");
+			}
 		} catch (Exception e) {
 			logger.error("支付宝验签失败", e);
-			return false;
+			return PayCallbackDto.errorResult("支付宝验签失败" + e);
 		}
 	}
 
@@ -200,7 +208,7 @@ public class PayServiceImpl implements IPayService {
 		// request.setXxx(val)设置所需参数，具体参数可见Request定义
         com.wechat.pay.java.service.payments.h5.model.PrepayRequest request = new com.wechat.pay.java.service.payments.h5.model.PrepayRequest();
         com.wechat.pay.java.service.payments.h5.model.Amount _amount = new com.wechat.pay.java.service.payments.h5.model.Amount();
-		//TODO: 单位为分
+		// 单位为分
         _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
@@ -219,7 +227,7 @@ public class PayServiceImpl implements IPayService {
 		// request.setXxx(val)设置所需参数，具体参数可见Request定义
         com.wechat.pay.java.service.payments.app.model.PrepayRequest request = new com.wechat.pay.java.service.payments.app.model.PrepayRequest();
         com.wechat.pay.java.service.payments.app.model.Amount _amount = new com.wechat.pay.java.service.payments.app.model.Amount();
-		//TODO: 单位为分
+		//、单位为分
         _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
@@ -238,7 +246,7 @@ public class PayServiceImpl implements IPayService {
 		// request.setXxx(val)设置所需参数，具体参数可见Request定义
         com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest request = new com.wechat.pay.java.service.payments.jsapi.model.PrepayRequest();
         com.wechat.pay.java.service.payments.jsapi.model.Amount _amount = new com.wechat.pay.java.service.payments.jsapi.model.Amount();
-		//TODO: 单位为分
+		// 单位为分
         _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
@@ -261,7 +269,7 @@ public class PayServiceImpl implements IPayService {
 		// request.setXxx(val)设置所需参数，具体参数可见Request定义
         PrepayRequest request = new PrepayRequest();
         Amount _amount = new Amount();
-		//TODO: 单位为分
+		//单位为分
         _amount.setTotal(new BigDecimal(amount).movePointRight(2).intValue());
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);

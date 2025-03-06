@@ -20,6 +20,8 @@ public class WechatpayConfigVo {
 	private String appId;
 	private String merchantId;
 	private String privateKeyPath;
+	private String publicKeyPath;
+	private String publicKeyId;
 	private String serialNumber;
 	private String apiV3Key;
 	private boolean isEnabled;
