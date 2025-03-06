@@ -44,6 +44,7 @@
 	<properties>
 		<java.version>17</java.version>
         <mall.version>2.0.1</mall.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.4.1</spring-boot.version>
         <mysql.version>9.1.0</mysql.version>
         <mybatis-plus.version>3.5.8</mybatis-plus.version>
@@ -215,7 +216,6 @@
                 <version>6.4.2</version>
             </dependency>
 
-
             <!--modelmapper对象映射库-->
             <dependency>
                 <groupId>org.modelmapper</groupId>
@@ -339,81 +339,103 @@
                 <version>3.3.3</version>
             </dependency>
 
+            <!-- Hutool工具库 -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.24</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-admin</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-email</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-user</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-common</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-system</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-task</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-file</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-captcha</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-banner</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-address</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-core</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-websocket</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-seo</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-monitor</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-pay</artifactId>
                 <version>${mall.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -506,6 +528,21 @@
                 <executions>
                     <execution>
                         <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+				  		<phase>package</phase>
+<!--                        <phase>verify</phase>-->
                         <goals>
                             <goal>jar</goal>
                         </goals>

@@ -15,6 +15,8 @@ package com.jiang.mall.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.OutputStream;
+
 public interface II18nService {
 
 	/**
@@ -83,4 +85,6 @@ public interface II18nService {
 
 	Boolean isValidUsername(String username);
 
+	//生成二维码到响应
+	void generateQRCode(String content, int width, int height, OutputStream out);
 }

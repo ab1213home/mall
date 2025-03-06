@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import cn.hutool.extra.qrcode.QrCodeUtil;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.MyLocaleResolverConfig;
 import com.jiang.mall.service.II18nService;
@@ -25,6 +26,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
+import java.io.OutputStream;
 import java.util.Locale;
 
 import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
@@ -225,6 +227,11 @@ public class I18nServiceImpl implements II18nService {
 	@Override
 	public Boolean isValidUsername(@NotNull String username) {
 		return username.matches(generalConfig.getRegexUsername());
+	}
+
+	@Override
+	public void generateQRCode(String content, int width, int height, OutputStream out) {
+		QrCodeUtil.generate(content, width, height, "png", out);
 	}
 
 }

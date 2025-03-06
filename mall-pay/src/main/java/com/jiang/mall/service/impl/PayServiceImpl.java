@@ -93,10 +93,9 @@ public class PayServiceImpl implements IPayService {
 
 	private boolean alipayVerifyNotify(Map<String, String> parameters) {
 		try {
-			Factory.Payment.Common().verifyNotify(parameters);
-			return true;
+			return Factory.Payment.Common().verifyNotify(parameters);
 		} catch (Exception e) {
-			logger.error("支付宝验签失败");
+			logger.error("支付宝验签失败", e);
 			return false;
 		}
 	}
