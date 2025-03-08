@@ -57,6 +57,7 @@ function queryCategory(pn,pz){
                         `
                         <tr id="category`+ category.id +`" class="address-row text-center">
                             <th scope="row">${category.id}</th>
+                            <td id="parent`+ category.id +`">${category.parent}</td>
                             <td id="code`+ category.id +`">${category.code}</td>
                             <td id="name`+ category.id +`">${category.name}</td>
                             <td>
@@ -127,11 +128,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
         if (type === 'add') {
-            modalTitle.textContent = '添加商品信息';
+            modalTitle.textContent = '添加分类信息';
             submitBtn.textContent = '添加';
             clearModal();
         } else if (type === 'edit') {
-            modalTitle.textContent = '编辑商品信息';
+            modalTitle.textContent = '编辑分类信息';
             submitBtn.textContent = '保存';
             let id = button.getAttribute('data-bs-prod-id');
             clearModal();
@@ -148,20 +149,45 @@ document.addEventListener('DOMContentLoaded', function() {
 function clearModal() {
     $('#code').val('');
     $('#name').val('');
+    listCategoryShow();
+}
+
+function listCategoryShow(){
+    $('#parentcategoryId').empty();
+    $('#parentcategoryId').append('<option value="0" selected>根类型</option>');
+    categoryArr.forEach(cat => {
+        const option = `
+            <option value="${cat.id}">${cat.name}</option>
+        `;
+        $('#parentcategoryId').append(option);
+    })
+}
+function listCategorySelectById(id){
+    $('#parentcategoryId').empty();
+    $('#parentcategoryId').append('<option value="0">根类型</option>');
+    categoryArr.forEach(cat => {
+        const option = `
+            <option value="${cat.id}" ${cat.id == id ? 'selected' : ''}>${cat.name}</option>
+        `;
+        $('#parentcategoryId').append(option);
+    })
 }
 
 function getCategory(id) {
     let category = categoryArr[id];
     $('#code').val(category.code);
     $('#name').val(category.name);
+    listCategorySelectById(category.parentId);
 }
 
 function insertCategory() {
     let code = $('#code').val();
     let name = $('#name').val();
+    let parent = $('#parentcategoryId').val();
     const data= {
         code: code,
-        name: name
+        name: name,
+        parent: parent,
     };
     $.ajax({
         type: "POST",
@@ -183,9 +209,11 @@ function insertCategory() {
 function updateCategory(id) {
     let code = $('#code').val();
     let name = $('#name').val();
+    let parent = $('#parentcategoryId').val();
     const data= {
         id: id,
         code: code,
+        parent: parent,
         name: name
     };
     $.ajax({

@@ -16,6 +16,7 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  */
 public interface ICategoryService extends IService<Category> {
 
-    List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize);
+    List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId);
 
     Boolean insertCategory(Category category);
 
@@ -40,4 +41,8 @@ public interface ICategoryService extends IService<Category> {
     Boolean deleteCategory(Category category);
 
 	List<CategoryVo> getCategoryTopList(Integer pageNum, Integer pageSize);
+
+    String getCategoryName(Long id);
+
+    @NotNull List<Long> getCategoryIds(Long id);
 }

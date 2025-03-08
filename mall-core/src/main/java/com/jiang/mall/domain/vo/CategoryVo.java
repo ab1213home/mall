@@ -36,6 +36,11 @@ public class CategoryVo {
     private String code;
 
     /**
+     * 父级分类名称
+     */
+    private String parent;
+
+    /**
      * 分类名称
      */
     private String name;

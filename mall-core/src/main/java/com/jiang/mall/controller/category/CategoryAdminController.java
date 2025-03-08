@@ -17,7 +17,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -48,17 +47,6 @@ public class CategoryAdminController {
         this.categoryService = categoryService;
     }
 
-    private IUserService userService;
-
-    /**
-     * 注入用户服务实例
-     *
-     * @param userService 用户服务实例
-     */
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
-    }
     /**
      * 获取分类列表
      *
@@ -68,9 +56,10 @@ public class CategoryAdminController {
      */
     @GetMapping("/getList")
     public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                  @RequestParam(defaultValue = "10") Integer pageSize) {
+                                                  @RequestParam(defaultValue = "10") Integer pageSize,
+                                                  @RequestParam(required = false) Long parentId) {
         // 调用服务方法获取分类列表
-        List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize);
+        List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize, parentId);
 
         // 检查返回的列表是否为空
         if (categoryVos.isEmpty()) {
@@ -105,13 +94,8 @@ public class CategoryAdminController {
     @PostMapping("/add")
     public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
                                          @RequestParam("name")String name,
+                                         @RequestParam("parent")Long parent,
                                          HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        // 如果用户未登录或无管理员权限，则返回错误结果
-        if (!result.isSuccess()) {
-            return result;
-        }
         if (code == null || name == null) {
             return ResponseResult.failResult("参数错误");
         }
@@ -144,6 +128,7 @@ public class CategoryAdminController {
     public ResponseResult<Object> updateCategory(@RequestParam("id") Long id,
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
+                                         @RequestParam("parent")Long parent,
                                          HttpSession session) {
         if (id == null || code == null || name == null||id <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -162,12 +147,6 @@ public class CategoryAdminController {
         if (category == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
-
-        // 判断当前用户是否有权限进行更新操作
-//        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
 
         // 创建一个新的Category对象并设置其属性
         category = new Category(id, code, name);
@@ -188,7 +167,7 @@ public class CategoryAdminController {
      */
     @GetMapping("/delete")
     public ResponseResult<Object> deleteCategory(@RequestParam("id") Integer id,
-                                         HttpSession session) {
+                                                 HttpSession session) {
         if (id == null || id <= 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -202,12 +181,6 @@ public class CategoryAdminController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
 
-        // 检查当前会话中用户是否已登录并有权限进行操作
-//        ResponseResult<Object> result = userService.hasPermission(category.getUpdater(), session);
-//        // 如果用户没有权限（未登录或不是要求的管理员角色），返回错误信息
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
 
         // 尝试从数据库中删除分类
         if (categoryService.deleteCategory(category)) {

@@ -18,7 +18,8 @@ import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 
 public interface IProductSnapshotService extends IService<ProductSnapshot> {
-	ProductSnapshotVo getSnapshotInfo(Long id, Long userId);
 
-	ProductSnapshotVo getSnapshotInfo(Long id, String sessionId);
+	ProductSnapshotVo getSnapshot(Long id);
+
+	ProductSnapshotVo getSnapshot(Long id, String sessionId);
 }

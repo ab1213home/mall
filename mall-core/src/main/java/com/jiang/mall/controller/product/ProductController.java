@@ -61,8 +61,8 @@ public class ProductController {
         this.productSnapshotService = productSnapshotService;
     }
 
-    @GetMapping("/getSnapshotInfo")
-    public ResponseResult<Object> getSnapshotInfo(@RequestParam("id") Long id,
+    @GetMapping("/getSnapshot")
+    public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id,
                                           HttpSession session) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
@@ -71,7 +71,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,session.getId());
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshot(id,session.getId());
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
@@ -112,8 +112,8 @@ public class ProductController {
      * @param productId 从请求参数中获取的产品ID
      * @return 返回产品信息或者错误信息
      */
-    @GetMapping("/getInfo")
-    public ResponseResult<Object> getProductInfo(@RequestParam("productId") Long productId) {
+    @GetMapping("/getProduct")
+    public ResponseResult<Object> getProduct(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
         }

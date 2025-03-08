@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,9 +22,11 @@ import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,10 +48,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize) {
+    public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId) {
         Page<Category> categoryPage = new Page<>(pageNum, pageSize);
-        List<Category> categorys = categoryMapper.selectPage(categoryPage, null).getRecords();
-	    return BeanCopyUtils.copyBeanList(categorys, CategoryVo.class);
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(parentId != null,Category::getParentId, parentId);
+        List<Category> categories = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
+        List<CategoryVo> categoryVos = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+	        assert categoryVo != null;
+	        categoryVo.setName(getCategoryName(category.getId()));
+            categoryVos.add(categoryVo);
+        }
+	    return categoryVos;
     }
 
     @Override
@@ -76,8 +88,56 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("parent_id", 0);
         Page<Category> categoryPage = new Page<>(pageNum, pageSize);
-        List<Category> categorys = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
-	    return BeanCopyUtils.copyBeanList(categorys, CategoryVo.class);
+        List<Category> category = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
+	    return BeanCopyUtils.copyBeanList(category, CategoryVo.class);
     }
+
+    @Override
+    public String getCategoryName(Long id) {
+        Category category = categoryMapper.selectById(id);
+        if (category != null){
+            if (category.getParentId() == 0){
+                return category.getName();
+            }else{
+                String parent = getCategoryName(category.getParentId());
+                return parent+"-"+category.getName();
+            }
+        }else{
+            return "";
+        }
+    }
+
+    /**
+	 * 获取指定类别ID及其所有子类别的ID
+	 * <p>
+	 * 该方法用于递归地收集给定类别ID下的所有子类别ID，包括自身ID在内它首先检查传入的类别ID是否非空，
+	 * 然后创建一个查询条件以查找所有父类别ID匹配的子类别，并对每个找到的子类别递归调用自身，
+	 * 直到收集完所有相关子类别ID
+	 *
+	 * @param id 指定的类别ID，作为收集的起始点如果传入的ID为null，方法将返回一个空的列表
+	 * @return 包含指定类别及其所有子类别ID的列表
+	 */
+    @Override
+    public @NotNull List<Long> getCategoryIds(Long id){
+	    // 初始化列表以存储类别ID
+	    List<Long> categoryIds = new ArrayList<>();
+	    // 如果传入的类别ID非空，则继续处理
+	    if (id != null){
+	        // 将当前类别ID添加到列表中
+	        categoryIds.add(id);
+	        // 用于查找所有父类别ID等于当前类别ID的子类别
+	        List<Long> list = categoryMapper.selectListByParentId(id);
+            if (list.isEmpty()){
+                return categoryIds;
+            }
+	        // 遍历子类别列表，对每个子类别递归调用本方法，并合并结果
+	        for (Long _id : list) {
+	            List<Long> ids = getCategoryIds(_id);
+	            categoryIds.addAll(ids);
+	        }
+	    }
+	    // 返回收集到的所有类别ID列表
+	    return categoryIds;
+	}
 
 }

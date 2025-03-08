@@ -17,7 +17,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
@@ -62,23 +61,16 @@ public class ProductAdminController {
     }
 
     @GetMapping("/getSnapshotInfo")
-    public ResponseResult<Object> getSnapshotInfo(@RequestParam("id") Long id,
-                                          HttpSession session) {
+    public ResponseResult<Object> getSnapshotInfo(@RequestParam("id") Long id) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
         }
         if (!StringUtils.hasText(id.toString())){
             return ResponseResult.failResult("请输入商品ID");
         }
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
+
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,user.getId());
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshot(id);
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
@@ -119,8 +111,8 @@ public class ProductAdminController {
      * @param productId 从请求参数中获取的产品ID
      * @return 返回产品信息或者错误信息
      */
-    @GetMapping("/getInfo")
-    public ResponseResult<Object> getProductInfo(@RequestParam("productId") Long productId) {
+    @GetMapping("/getProduct")
+    public ResponseResult<Object> getProduct(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -161,11 +153,6 @@ public class ProductAdminController {
                                         @RequestParam("stocks") Integer stocks,
                                         @RequestParam("description") String description,
                                         HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        if (!result.isSuccess()) {
-            return result;
-        }
         if (code==null||title==null||categoryId==null||img==null||price==null||stocks==null||description==null||stocks<=0||categoryId<=0){
             return ResponseResult.failResult("参数错误");
         }
@@ -254,12 +241,6 @@ public class ProductAdminController {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
 
-//        // 检查会话中是否设置表示用户已登录的标志
-//        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
-//        // 如果用户未登录或不是管理员，则返回错误信息
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
         if (productService.queryCode(product.getCode())&&!product.getCode().equals(code)) {
             return ResponseResult.failResult("产品编码已存在");
         }
@@ -297,12 +278,6 @@ public class ProductAdminController {
         if (product == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
-        // 检查会话中是否设置表示用户已登录的标志
-//        ResponseResult<Object> result = userService.hasPermission(product.getUpdater(),session);
-//        // 验证用户权限，确保用户已登录并有权限进行删除操作
-//        if (!result.isSuccess()) {
-//            return result;
-//        }
 
         // 尝试删除产品
         if (productService.deleteProduct(id)) {
@@ -316,11 +291,6 @@ public class ProductAdminController {
 
     @GetMapping("/getNum")
     public ResponseResult<Object> getProductNum(HttpSession session) {
-        // 检查会话中是否设置表示用户已登录的标志
-        ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-        if (!result.isSuccess()) {
-            return result;
-        }
         return ResponseResult.okResult(productService.getProductNum());
     }
 

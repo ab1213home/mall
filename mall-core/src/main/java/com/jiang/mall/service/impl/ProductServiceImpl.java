@@ -14,7 +14,6 @@
 package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.CoreConfig;
@@ -24,10 +23,10 @@ import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +73,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.coreConfig = coreConfig;
 	}
 
+	private ICategoryService categoryService;
+
+	@Autowired
+	public void setCategoryService(ICategoryService categoryService) {
+		this.categoryService = categoryService;
+	}
+
     /**
      * 根据名称、类别ID、页码和页面大小获取产品列表
      *
@@ -89,7 +95,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Page<Product> productPage = new Page<>(pageNum, pageSize);
 
         // 获取指定类别及其所有子类别的ID列表
-        List<Long> categoryIds = getCategoryIds(categoryId);
+        List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
 
         // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
@@ -104,10 +110,12 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         for (Product product : products) {
             // 遍历产品VO列表，设置每个产品的类别名称
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+			assert productVo != null;
             // 根据类别ID查询类别名称，并设置到产品VO中
             Category category = categoryMapper.selectById(product.getCategoryId());
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert productVo != null;
+	        assert categoryVo != null;
+	        categoryVo.setName(categoryService.getCategoryName(category.getId()));
 	        productVo.setCategory(categoryVo);
             productVos.add(productVo);
         }
@@ -115,38 +123,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 返回产品VO列表
         return productVos;
     }
-
-    /**
-	 * 获取指定类别ID及其所有子类别的ID
-	 * <p>
-	 * 该方法用于递归地收集给定类别ID下的所有子类别ID，包括自身ID在内它首先检查传入的类别ID是否非空，
-	 * 然后创建一个查询条件以查找所有父类别ID匹配的子类别，并对每个找到的子类别递归调用自身，
-	 * 直到收集完所有相关子类别ID
-	 *
-	 * @param id 指定的类别ID，作为收集的起始点如果传入的ID为null，方法将返回一个空的列表
-	 * @return 包含指定类别及其所有子类别ID的列表
-	 */
-	private @NotNull List<Long> getCategoryIds(Long id){
-	    // 初始化列表以存储类别ID
-	    List<Long> categoryIds = new ArrayList<>();
-	    // 如果传入的类别ID非空，则继续处理
-	    if (id != null){
-	        // 将当前类别ID添加到列表中
-	        categoryIds.add(id);
-	        // 用于查找所有父类别ID等于当前类别ID的子类别
-	        List<Long> list = categoryMapper.selectListByParentId(id);
-            if (list.isEmpty()){
-                return categoryIds;
-            }
-	        // 遍历子类别列表，对每个子类别递归调用本方法，并合并结果
-	        for (Long _id : list) {
-	            List<Long> ids = getCategoryIds(_id);
-	            categoryIds.addAll(ids);
-	        }
-	    }
-	    // 返回收集到的所有类别ID列表
-	    return categoryIds;
-	}
 
     /**
      * 根据ID获取产品信息
@@ -172,8 +148,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
             // 通过ID查询产品类别，并设置产品类别的名称
             Category category = categoryMapper.selectById(product.getCategoryId());
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert productVo != null;
+            assert productVo != null;
+			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+			assert categoryVo != null;
+	        categoryVo.setName(categoryService.getCategoryName(category.getId()));
 	        productVo.setCategory(categoryVo);
         }else{
             return null;
@@ -236,15 +214,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 产品的库存数量
      */
     @Override
-    public Integer queryStoksById(Long productId) {
-        // 创建查询包装器并设置条件：产品ID必须匹配
-        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", productId);
-
-        // 根据查询条件获取产品信息
-        Product product = productMapper.selectOne(queryWrapper);
+    public Long queryStoksById(Long productId) {
         // 返回产品的库存数量
-        return product.getStocks();
+	    //TODO:需要判断是否上架，防止爆破
+        return productMapper.selectStocksById(productId);
     }
 
     /**
@@ -255,12 +228,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     public Boolean queryCode(String code) {
-        // 创建查询包装器，用于指定查询条件
-        QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-        // 设置查询条件为商品编码
-        queryWrapper.eq("code", code);
         // 执行查询并判断结果是否为空，返回查询结果的布尔值
-        return productMapper.selectOne(queryWrapper) != null;
+        return productMapper.selectCountByCode(code) != 0;
     }
 
     @Override

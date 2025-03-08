@@ -251,6 +251,7 @@
                                 <thead>
                                     <tr>
                                         <th scope="col" class="text-center">分类ID</th>
+                                        <th scope="col" class="text-center">父分类</th>
                                         <th scope="col" class="text-center">分类编码</th>
                                         <th scope="col" class="text-center">分类名称</th>
                                         <th scope="col" class="text-center">操作</th>
@@ -320,6 +321,12 @@
                 </div>
                 <form>
                     <div class="modal-body col-10 mx-auto my-auto">
+                        <div class="form-group has-feedback">
+                            <span class="fa fa-list form-control-feedback"></span>
+                            <label for="parentcategoryId"></label>
+                            <select class="form-select" id="parentcategoryId" required>
+                            </select>
+                        </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-pencil form-control-feedback"></span>
                             <label for="name"></label>

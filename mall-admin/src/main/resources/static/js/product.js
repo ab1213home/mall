@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     $.ajax({
 		type:"GET",
-		url:"/product/getInfo",
+		url:"/product/getProduct",
 		data:data,
 		async:false,	//设置同步请求
 		dataType:"json",

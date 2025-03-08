@@ -16,6 +16,7 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Product;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * Product的映射接口，继承自BaseMapper<Product>
@@ -31,4 +32,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface ProductMapper extends BaseMapper<Product> {
 
+	@Select("SELECT stocks FROM tb_products WHERE id = #{id}")
+	Long selectStocksById(Long id);
+
+	@Select("SELECT COUNT(*) FROM tb_products WHERE code = #{code}")
+	int selectCountByCode(String code);
 }

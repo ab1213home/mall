@@ -76,7 +76,7 @@ public class WechatpayConfig {
         h5PayService = new H5Service.Builder().config(getWechatpayConfig()).build();
         appPayService = new AppService.Builder().config(getWechatpayConfig()).build();
         jsapiService = new JsapiService.Builder().config(getWechatpayConfig()).build();
-        notificationParser = new NotificationParser(getWechatpaynotificationConfig());
+        notificationParser = new NotificationParser(getWechatpayNotificationConfig());
         refundService = new RefundService.Builder().config(getWechatpayConfig()).build();
     }
 
@@ -201,7 +201,7 @@ public class WechatpayConfig {
 	            .build();
     }
 
-    private NotificationConfig getWechatpaynotificationConfig() {
+    private NotificationConfig getWechatpayNotificationConfig() {
         // 使用微信支付公钥的RSA配置
 	    return new RSAPublicKeyNotificationConfig.Builder()
                 .publicKeyFromPath(properties.getProperty(WechatpayConfigItems.WECHATPAY_PUBLIC_KEY_PATH.getKey()))

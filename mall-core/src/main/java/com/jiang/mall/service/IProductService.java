@@ -39,7 +39,7 @@ public interface IProductService extends IService<Product> {
 
     Boolean deleteProduct(Long id);
 
-    Integer queryStoksById(Long productId);
+    Long queryStoksById(Long productId);
 
     Boolean queryCode(String code);
 
