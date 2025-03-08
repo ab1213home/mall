@@ -84,8 +84,6 @@ public class AlipayConfig {
         return alipayConfigVo;
     }
 
-//    public AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
-
     public boolean health = false;
 
     /**

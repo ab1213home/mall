@@ -22,7 +22,9 @@ import com.jiang.mall.domain.entity.Order;
 import com.jiang.mall.domain.entity.OrderList;
 import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IProductSnapshotService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,13 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	}
 
 	private OrderListMapper orderListMapper;
+
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
 
 	@Autowired
 	public void setOrderListMapper(OrderListMapper orderListMapper) {
@@ -85,6 +94,29 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	            queryWrapper.eq("id", id);
 	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper);
 
+	            if (productSnapshot == null) {
+	                return null;
+	            }
+		        return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+	        }
+	    }else{
+	        return null;
+	    }
+	}
+
+	@Override
+	public ProductSnapshotVo getSnapshotInfo(Long id, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
+		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
+	    if (orderId!= null){
+	        // 验证订单是否属于指定的用户
+	        if (!Objects.equals(orderMapper.selectOneUserIdById(orderId), user.getId())) {
+	            return null;
+	        }else{
+	            // 查询与指定产品ID关联的产品快照
+	            QueryWrapper<ProductSnapshot> queryWrapper = new QueryWrapper<>();
+	            queryWrapper.eq("id", id);
+	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper);
 	            if (productSnapshot == null) {
 	                return null;
 	            }

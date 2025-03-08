@@ -14,6 +14,8 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.GeneralConfigItems;
+import com.jiang.mall.util.MachineCodeUtil;
+import com.jiang.mall.util.RunningUtil;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -49,12 +51,16 @@ public class GeneralConfig {
 
     private String CONFIG_FILE_PATH;
     private final Properties properties = new Properties();
+    private String MACHINE_CODE = "";
+    private boolean RUNNING_DOCKER = false;
 
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = getConfigFilePath("mall");
         loadProperties();
+        MACHINE_CODE = MachineCodeUtil.getMachineCode();
+        RUNNING_DOCKER = RunningUtil.isRunningInDocker();
     }
 
     /**
@@ -168,6 +174,14 @@ public class GeneralConfig {
 
     public String getRedisKeyPrefix() {
         return properties.getProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), GeneralConfigItems.REDIS_KEY_PREFIX.getDefaultValue());
+    }
+
+    public String getMachineCode() {
+        return MACHINE_CODE;
+    }
+
+    public boolean isRunningInDocker() {
+        return RUNNING_DOCKER;
     }
 
     public @NotNull DateTimeFormatter getDateFormatPattern() {

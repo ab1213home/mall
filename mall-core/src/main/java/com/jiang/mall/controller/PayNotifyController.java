@@ -15,20 +15,16 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
-import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.dto.PayCallbackDto;
 import com.jiang.mall.domain.enums.AlipayType;
 import com.jiang.mall.domain.enums.WechatpayType;
 import com.jiang.mall.service.IPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 支付控制器
@@ -37,9 +33,9 @@ import java.util.Map;
  * @version 1.0
  * @since 2024年9月20日
  */
-@RestController
-@RequestMapping("/pay")
-public class PayController {
+@Controller
+@RequestMapping("/pay/notify")
+public class PayNotifyController {
 
     private WechatpayConfig wechatpayConfig;
 
@@ -62,34 +58,29 @@ public class PayController {
 		this.payService = payService;
 	}
 
-	//获取可用支付方式
-	@RequestMapping("/getPaymentList")
-	public ResponseResult<Object> getPaymentList() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("wechatpay", wechatpayConfig.getIsEnabled());
-		map.put("alipay", alipayConfig.getIsEnabled());
-		return ResponseResult.okResult(map);
-	}
 
 	/**
      * 给支付宝的回调接口
      */
-    @PostMapping("/notify/alipay")
+    @PostMapping("/alipay")
     public void notifyAlipay(HttpServletRequest request, HttpServletResponse response) throws Exception {
-	    if (!payService.verifyNotify(request, AlipayType.ALIPAY_COMMON_API).isVerify()){
-//			return ResponseResult.failResult("签名验证失败");
-		    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		    response.getWriter().write("签名验证失败");
+		if (!alipayConfig.getIsEnabled()){
+			response.getWriter().write("fail");
+			return;
+		}
+		if (!alipayConfig.health){
+			response.getWriter().write("fail");
+			return;
+		}
+	    PayCallbackDto payCallbackDto = payService.verifyNotify(request, AlipayType.ALIPAY_COMMON_API);
+		if (!payCallbackDto.isVerify()){
+		    response.getWriter().write("fail");
+			return;
 	    }
 		//TODO:业务逻辑
-		String trade_status = new String(request.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-		if ("TRADE_SUCCESS".equals(trade_status)) {
-			String out_trade_no = request.getParameter("out_trade_no");
-			// 更新订单状态
-            // orderService.updateOrderStatus(outTradeNo, PAY_SUCCESS);
-		}
-		response.setStatus(HttpServletResponse.SC_OK);
+	    // orderService.updateOrderStatus(outTradeNo, PAY_SUCCESS);
 		response.getWriter().write("success");
+		//return "success";
 //            switch (trade_status) {
 //                case "TRADE_SUCCESS":
 //                    //支付成功的业务逻辑，比如落库，开vip权限等
@@ -112,9 +103,18 @@ public class PayController {
 
 	@PostMapping("/notify/wechatpay")
     public void notifyWechatpay(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		if (!payService.verifyNotify(request, WechatpayType.WECHATPAY_H5).isVerify()){
+		if (!wechatpayConfig.getIsEnabled()){
+			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+			return;
+		}
+		if (!wechatpayConfig.health){
+			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);
+			return;
+		}
+		PayCallbackDto payCallbackDto = payService.verifyNotify(request, WechatpayType.WECHATPAY_H5);
+		if (!payCallbackDto.isVerify()){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		    response.getWriter().write("签名验证失败");
+			return;
 	    }
 		//TODO:业务逻辑
 

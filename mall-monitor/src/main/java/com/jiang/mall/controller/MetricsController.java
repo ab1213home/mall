@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.IMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,13 @@ public class MetricsController {
         this.metricsService = metricsService;
     }
 
+    private GeneralConfig generalConfig;
+
+    @Autowired
+    public void setGeneralConfig(GeneralConfig generalConfig) {
+        this.generalConfig = generalConfig;
+    }
+
     @GetMapping("/getGit")
     public ResponseResult<Object> getGit() {
         return ResponseResult.okResult(metricsService.getGitMetrics());
@@ -61,6 +69,16 @@ public class MetricsController {
     @GetMapping("/admin/data-info")
     public ResponseResult<Object> getDatabaseInfo() {
         return ResponseResult.okResult(metricsService.getDatabaseMetrics());
+    }
+
+    @GetMapping("/admin/getMachineCode")
+    public ResponseResult<Object> getMachineCode() {
+        return ResponseResult.okResult(generalConfig.getMachineCode());
+    }
+
+    @GetMapping("/admin/isDocker")
+    public ResponseResult<Object> isDocker() {
+        return ResponseResult.okResult(generalConfig.isRunningInDocker());
     }
 
 }

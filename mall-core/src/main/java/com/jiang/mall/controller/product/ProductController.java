@@ -16,7 +16,6 @@ package com.jiang.mall.controller.product;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
@@ -71,15 +70,8 @@ public class ProductController {
         if (!StringUtils.hasText(id.toString())){
             return ResponseResult.failResult("请输入商品ID");
         }
-        // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,user.getId());
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshotInfo(id,session.getId());
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");

@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productTitle').textContent = product.title;
                 document.getElementById('productImg').src = product.img;
                 document.getElementById('productCode').textContent = product.code;
-                document.getElementById('productCategory').textContent = product.category.name;
+                document.getElementById('productCategory').textContent = product.category;
                 document.getElementById('productPrice').textContent = product.price;
                 document.getElementById('productDescription').textContent = product.description;
 				document.getElementById('view-product-details').href = "./product.html?id=" + product.prodId;

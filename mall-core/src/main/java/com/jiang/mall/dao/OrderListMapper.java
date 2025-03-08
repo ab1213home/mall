@@ -16,6 +16,7 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.OrderList;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * OrderList的映射接口，继承自BaseMapper<OrderList>
@@ -30,4 +31,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface OrderListMapper extends BaseMapper<OrderList> {
+
+	@Select("SELECT order_id FROM tb_orderLists WHERE prod_id = #{prodId} LIMIT 1")
+	Long selectOneOrderIdByProdId(Long prodId);
 }

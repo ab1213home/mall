@@ -187,11 +187,16 @@ public class PayServiceImpl implements IPayService {
         }
 		try {
 			if (Factory.Payment.Common().verifyNotify(params)){
+				// App支付为例，返回的异步通知示例报文参数如下
+				//total_amount=2.00&buyer_id=20****7&body=大乐透2.1&trade_no=2016071921001003030200089909&refund_fee=0.00&notify_time=2016-07-19 14:10:49
+				// &subject=大乐透2.1&sign_type=RSA2&charset=utf-8&notify_type=trade_status_sync&out_trade_no=0719141034-6418&gmt_close=2016-07-19 14:10:46
+				// &gmt_payment=2016-07-19 14:10:47&trade_status=TRADE_SUCCESS&version=1.0&sign=kPbQIjX+xQc8F0/A6/AocEug2LhF0l/KL8ANtj8oTDJUpQOzCzZKxnzM=
+				// &gmt_create=2016-07-19 14:10:44&app_id=20151*****3&seller_id=20881021****8&notify_id=4a91b7a78a503640467525113fb7d8bg8e
 				String transactionId = parameters.getParameter("out_trade_no");;
-				String orderId = null;
+				String orderId = parameters.getParameter("trade_no");
 				String tradeState = new String(parameters.getParameter("trade_status").getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-				String successTime = null;
-				String amount = null;
+				String successTime = parameters.getParameter("gmt_payment");
+				String amount = parameters.getParameter("total_amount");
 				return PayCallbackDto.okResult(transactionId, orderId, tradeState, successTime, amount);
 			}else {
 				logger.error("支付宝验签失败");
