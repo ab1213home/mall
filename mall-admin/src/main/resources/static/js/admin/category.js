@@ -13,7 +13,7 @@
 
 let num_category = 0;
 let currentPageNum_category = 1;
-let categoryArr = {};
+let categoryArr = [];
 function getCategoryNum() {
     $.ajax({
         type: "GET",
@@ -48,7 +48,7 @@ function queryCategory(pn,pz){
 						`;
 					$('#categorylist tbody').append(row);
 				}
-				categoryArr = {};
+				categoryArr = [];
 				for(let record of response.data){
 					categoryArr[record.id] = record;
 				}
@@ -58,7 +58,7 @@ function queryCategory(pn,pz){
                         <tr id="category`+ category.id +`" class="address-row text-center">
                             <th scope="row">${category.id}</th>
                             <td id="parent`+ category.id +`">${category.parent}</td>
-                            <td id="code`+ category.id +`">${category.code}</td>
+                            <td id="code`+ category.id +`">${category.sort}</td>
                             <td id="name`+ category.id +`">${category.name}</td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" data-bs-type="edit" data-bs-prod-id="${category.id}">编辑</button>
@@ -93,6 +93,17 @@ $(document).ready(function(){
     queryCategory(1,10);
 	bindPreNextPage();
 })
+
+function listCategory(){
+    $.ajax({
+        url: "/category/getAllList",
+        type: 'get',
+        dataType: 'json',
+        success: function (res) {
+            categoryArr=res.data;
+        }
+    });
+}
 
 function bindPreNextPage() {
     $("#prePage").on("click", function(){
@@ -147,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function clearModal() {
-    $('#code').val('');
+    $('#sort').val('');
     $('#name').val('');
     listCategoryShow();
 }
@@ -155,19 +166,20 @@ function clearModal() {
 function listCategoryShow(){
     $('#parentcategoryId').empty();
     $('#parentcategoryId').append('<option value="0" selected>根类型</option>');
-    categoryArr.forEach(cat => {
+    categoryArr.forEach(category => {
         const option = `
-            <option value="${cat.id}">${cat.name}</option>
+            <option value="${category.id}">${category.parentId == 0?'':category.parent+" : "}${category.name}</option>
         `;
         $('#parentcategoryId').append(option);
     })
 }
+
 function listCategorySelectById(id){
     $('#parentcategoryId').empty();
     $('#parentcategoryId').append('<option value="0">根类型</option>');
-    categoryArr.forEach(cat => {
+    categoryArr.forEach(category => {
         const option = `
-            <option value="${cat.id}" ${cat.id == id ? 'selected' : ''}>${cat.name}</option>
+            <option value="${category.id}" ${category.id == id ? 'selected' : ''}>${category.parentId == 0?'':category.parent+" : "}${category.name}</option>
         `;
         $('#parentcategoryId').append(option);
     })
@@ -175,17 +187,17 @@ function listCategorySelectById(id){
 
 function getCategory(id) {
     let category = categoryArr[id];
-    $('#code').val(category.code);
+    $('#sort').val(category.sort);
     $('#name').val(category.name);
     listCategorySelectById(category.parentId);
 }
 
 function insertCategory() {
-    let code = $('#code').val();
+    let sort = $('#sort').val();
     let name = $('#name').val();
     let parent = $('#parentcategoryId').val();
     const data= {
-        code: code,
+        sort: sort,
         name: name,
         parent: parent,
     };
@@ -207,12 +219,12 @@ function insertCategory() {
 }
 
 function updateCategory(id) {
-    let code = $('#code').val();
+    let sort = $('#sort').val();
     let name = $('#name').val();
     let parent = $('#parentcategoryId').val();
     const data= {
         id: id,
-        code: code,
+        sort: sort,
         parent: parent,
         name: name
     };

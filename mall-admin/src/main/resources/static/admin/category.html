@@ -252,7 +252,7 @@
                                     <tr>
                                         <th scope="col" class="text-center">分类ID</th>
                                         <th scope="col" class="text-center">父分类</th>
-                                        <th scope="col" class="text-center">分类编码</th>
+                                        <th scope="col" class="text-center">分类权重</th>
                                         <th scope="col" class="text-center">分类名称</th>
                                         <th scope="col" class="text-center">操作</th>
                                     </tr>
@@ -322,6 +322,16 @@
                 <form>
                     <div class="modal-body col-10 mx-auto my-auto">
                         <div class="form-group has-feedback">
+                            <span class="fa fa-barcode form-control-feedback"></span>
+                            <label for="level"></label>
+<!--                            <input type="number" id="level" name="level" class="form-control" placeholder="请输入分类层级" required></input>-->
+                            <select class="form-select" id="level" required>
+                                <option value="1">根分类</option>
+                                <option value="2">二级分类</option>
+                                <option value="3">三级分类</option>
+                            </select>
+                        </div>
+                        <div class="form-group has-feedback">
                             <span class="fa fa-list form-control-feedback"></span>
                             <label for="parentcategoryId"></label>
                             <select class="form-select" id="parentcategoryId" required>
@@ -334,8 +344,8 @@
                         </div>
                         <div class="form-group has-feedback">
                             <span class="fa fa-barcode form-control-feedback"></span>
-                            <label for="code"></label>
-                            <input type="text" id="code" name="code" class="form-control" placeholder="请输入分类编码" required>
+                            <label for="sort"></label>
+                            <input type="number" id="sort" name="sort" class="form-control" placeholder="请输入分类权重（整数）" required>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mt-3 modal-footer">

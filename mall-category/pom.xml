@@ -7,10 +7,10 @@
         <groupId>com.jiang</groupId>
         <version>2.0.1</version>
     </parent>
-	<artifactId>mall-core</artifactId>
+	<artifactId>mall-category</artifactId>
 	<version>2.0.1</version>
-	<name>mall-core</name>
-	<description>mall-core</description>
+	<name>mall-category</name>
+	<description>mall-category</description>
 	<url/>
     <licenses>
         <license>
@@ -145,11 +145,6 @@
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-pay</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-category</artifactId>
         </dependency>
 
 <!--        <dependency>-->

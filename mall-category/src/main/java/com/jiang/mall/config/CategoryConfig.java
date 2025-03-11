@@ -13,8 +13,7 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.enums.CoreConfigItems;
-import com.jiang.mall.domain.enums.UserConfigItems;
+import com.jiang.mall.domain.enums.CategoryConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,9 +27,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Component
-public class CoreConfig {
+public class CategoryConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(CoreConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(CategoryConfig.class);
 
     private GeneralConfig generalConfig;
 
@@ -46,7 +45,7 @@ public class CoreConfig {
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("core");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("category");
         loadProperties();
     }
 
@@ -58,7 +57,7 @@ public class CoreConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-                for (CoreConfigItems item : CoreConfigItems.values()) {
+                for (CategoryConfigItems item : CategoryConfigItems.values()) {
                     String keyToCheck = item.getKey();
                     if (!properties.containsKey(keyToCheck)) {
                         properties.setProperty(keyToCheck, item.getDefaultValue());
@@ -92,7 +91,7 @@ public class CoreConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (UserConfigItems item : UserConfigItems.values()) {
+                for (CategoryConfigItems item : CategoryConfigItems.values()) {
                     properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
@@ -103,20 +102,20 @@ public class CoreConfig {
         }
     }
 
-    public Boolean isProductCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), CoreConfigItems.PRODUCT_CACHE.getDefaultValue()));
+    public Boolean isCategoryCacheEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), CategoryConfigItems.CATEGORY_CACHE.getDefaultValue()));
     }
 
-    public Long getProductCacheTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(),CoreConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+    public Long getCategoryCacheTime() {
+        return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), CategoryConfigItems.CATEGORY_CACHE_TIME.getDefaultValue()));
     }
 
-    public void updateProductCache(Boolean cache) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), String.valueOf(cache));
+    public void updateCategoryCache(Boolean cache) {
+        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), String.valueOf(cache));
     }
 
-    public void updateProductCacheTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+    public void updateCategoryCacheTime(Long time) {
+        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
 

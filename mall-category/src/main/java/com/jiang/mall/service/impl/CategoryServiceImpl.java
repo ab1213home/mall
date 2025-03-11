@@ -27,7 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -48,16 +50,21 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId) {
+    public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId, Integer level) {
         Page<Category> categoryPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(parentId != null,Category::getParentId, parentId);
+		queryWrapper.eq(level != null,Category::getLevel, level);
         List<Category> categories = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
         List<CategoryVo> categoryVos = new ArrayList<>();
         for (Category category : categories) {
             CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
 	        assert categoryVo != null;
-	        categoryVo.setName(getCategoryName(category.getId()));
+			if (category.getParentId() == 0){
+				categoryVo.setParent("根分类");
+			}else{
+				categoryVo.setParent(getCategoryName(category.getParentId()));
+			}
             categoryVos.add(categoryVo);
         }
 	    return categoryVos;
@@ -65,6 +72,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public Boolean insertCategory(Category category) {
+
         return categoryMapper.insert(category)==1;
     }
 
@@ -74,8 +82,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public Long getCategoryNum() {
-	    return categoryMapper.selectCount(null);
+    public Long getCategoryNum(Long parentId, Integer level) {
+		LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(parentId != null,Category::getParentId, parentId);
+		queryWrapper.eq(level != null,Category::getLevel, level);
+	    return categoryMapper.selectCount(queryWrapper);
     }
 
     @Override
@@ -84,11 +95,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public List<CategoryVo> getCategoryTopList(Integer pageNum, Integer pageSize) {
+    public List<CategoryVo> getCategoryTopList() {
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("parent_id", 0);
-        Page<Category> categoryPage = new Page<>(pageNum, pageSize);
-        List<Category> category = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
+//        Page<Category> categoryPage = new Page<>(pageNum, pageSize);
+//        List<Category> category = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
+	    List<Category> category = categoryMapper.selectList(queryWrapper);
 	    return BeanCopyUtils.copyBeanList(category, CategoryVo.class);
     }
 
@@ -99,8 +111,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
             if (category.getParentId() == 0){
                 return category.getName();
             }else{
-                String parent = getCategoryName(category.getParentId());
-                return parent+"-"+category.getName();
+                return getCategoryName(category.getParentId()) + "-" + category.getName();
             }
         }else{
             return "";
@@ -126,7 +137,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	        // 将当前类别ID添加到列表中
 	        categoryIds.add(id);
 	        // 用于查找所有父类别ID等于当前类别ID的子类别
-	        List<Long> list = categoryMapper.selectListByParentId(id);
+	        List<Long> list = categoryMapper.selectIdListByParentId(id);
             if (list.isEmpty()){
                 return categoryIds;
             }
@@ -139,5 +150,45 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	    // 返回收集到的所有类别ID列表
 	    return categoryIds;
 	}
+
+	@Override
+	public List<CategoryVo> getList() {
+		List<Category> categories = categoryMapper.selectList(null);
+        List<CategoryVo> categoryVos = new ArrayList<>();
+        for (Category category : categories) {
+            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+	        assert categoryVo != null;
+			if (category.getParentId() == 0){
+				categoryVo.setParent("根分类");
+			}else{
+				categoryVo.setParent(getCategoryName(category.getParentId()));
+			}
+            categoryVos.add(categoryVo);
+        }
+	    return categoryVos;
+	}
+
+	@Override
+	public @NotNull List<Category> buildCategoryTree(@NotNull List<Category> list) {
+        Map<Long, Category> map = new HashMap<>();
+        List<Category> roots = new ArrayList<>();
+
+        for (Category category : list) {
+            map.put(category.getId(), category);
+            if (category.getParentId() == 0L) {
+                roots.add(category);
+            }
+        }
+
+        for (Category category : list) {
+            if (category.getParentId() != 0L) {
+                Category parent = map.get(category.getParentId());
+                if (parent != null) {
+//                    parent.getChildren().add(category); // 假设Category有children字段
+                }
+            }
+        }
+        return roots;
+    }
 
 }

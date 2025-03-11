@@ -13,7 +13,7 @@
 
 let num_banner = 0;
 let currentPageNum_banner = 1;
-let bannerArr = {};
+let bannerArr = [];
 
 function getBannerNum() {
     $.ajax({
@@ -55,7 +55,7 @@ function queryBanner(pn,pz) {
 						`;
 					$('#bannerlist tbody').append(row);
 				}
-				bannerArr = {};
+				bannerArr = [];
 				for(let record of response.data){
 					bannerArr[record.id] = record;
 				}

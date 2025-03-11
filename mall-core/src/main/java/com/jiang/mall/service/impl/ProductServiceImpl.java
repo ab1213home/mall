@@ -136,7 +136,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     public ProductVo getProduct(Long id) {
-		if (coreConfig.getProductCache() && productRedisService.hasProduct(String.valueOf(id))){
+		if (coreConfig.isProductCacheEnabled() && productRedisService.hasProduct(String.valueOf(id))){
 			return productRedisService.getProduct(String.valueOf(id));
 		}
         // 通过ID从数据库中查询产品信息
@@ -156,7 +156,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }else{
             return null;
         }
-        if (coreConfig.getProductCache() && ! productRedisService.hasProduct(String.valueOf(id))){
+        if (coreConfig.isProductCacheEnabled() && ! productRedisService.hasProduct(String.valueOf(id))){
 			productRedisService.setProduct(String.valueOf(id),productVo,coreConfig.getProductCacheTime(), TimeUnit.MINUTES);
         }
 		return productVo;

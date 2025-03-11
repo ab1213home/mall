@@ -18,6 +18,8 @@ import com.jiang.mall.domain.entity.Product;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * Product的映射接口，继承自BaseMapper<Product>
  * 本接口用于定义与数据库中tb_products表进行交互的方法，专门用于处理Product实体的CRUD操作
@@ -32,9 +34,12 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface ProductMapper extends BaseMapper<Product> {
 
-	@Select("SELECT stocks FROM tb_products WHERE id = #{id}")
+	@Select("SELECT stocks FROM tb_products WHERE id = #{id} AND is_del = false")
 	Long selectStocksById(Long id);
 
-	@Select("SELECT COUNT(*) FROM tb_products WHERE code = #{code}")
+	@Select("SELECT COUNT(*) FROM tb_products WHERE code = #{code} AND is_del = false")
 	int selectCountByCode(String code);
+
+	@Select("SELECT id FROM tb_products WHERE is_del = false")
+	List<Long> selectIdList();
 }

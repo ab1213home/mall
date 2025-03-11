@@ -176,7 +176,12 @@
             <groupId>com.jiang</groupId>
 			<artifactId>mall-pay</artifactId>
         </dependency>
-<!--        <dependency>-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>2.0.31</version>
+        </dependency>
+        <!--        <dependency>-->
 <!--            <groupId>com.jiang</groupId>-->
 <!--			<artifactId>mall-websocket</artifactId>-->
 <!--        </dependency>-->

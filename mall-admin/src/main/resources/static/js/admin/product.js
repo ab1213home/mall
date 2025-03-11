@@ -11,10 +11,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let productArr = {};
+let productArr = [];
 let currentPageNum_product = 1;
 let num_product = 0;
-let categoryArr = {};
+let categoryArr = [];
 
 $(document).ready(function(){
 	isAdminUser();
@@ -237,7 +237,7 @@ function queryProduct(pn, pz) {
 						`;
 					$('#productlist tbody').append(row);
 				}
-				productArr = {};
+				productArr = [];
 				for(let record of response.data){
 					productArr[record.id] = record;
 				}

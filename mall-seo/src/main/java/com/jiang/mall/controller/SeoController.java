@@ -13,14 +13,9 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.domain.entity.Product;
-import com.jiang.mall.service.IProductService;
-import com.redfin.sitemapgenerator.ChangeFreq;
-import com.redfin.sitemapgenerator.WebSitemapGenerator;
-import com.redfin.sitemapgenerator.WebSitemapUrl;
+import com.jiang.mall.service.ISeoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -30,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * 处理网站搜索引擎优化（SEO）相关的请求
@@ -44,11 +36,11 @@ import java.util.List;
 @RequestMapping("/")
 public class SeoController {
 
-    private IProductService productService;
+    private ISeoService seoService;
 
     @Autowired
-    public void setProductService(IProductService productService) {
-        this.productService = productService;
+    public void setSeoService(ISeoService seoService) {
+        this.seoService = seoService;
     }
 
     /**
@@ -98,45 +90,9 @@ public class SeoController {
         Writer writer = response.getWriter();
 
         // 生成 sitemap 的 XML 内容
-        String xml = createSiteMapXmlContent(request);
+        String xml = seoService.createSiteMapXmlContent(request);
 
         // 将生成的 XML 内容写入响应
         writer.append(xml);
-    }
-
-    /**
-     * 生成网站地图的XML内容
-     *
-     * @param request 不允许为空的HttpServletRequest对象，用于获取方案、服务器名称和端口
-     * @return 返回网站地图的XML内容
-     * @throws IOException 如果在读写过程中发生I/O错误
-     * @throws ParseException 如果解析日期格式时发生错误
-     */
-    public String createSiteMapXmlContent(@NotNull HttpServletRequest request) throws IOException, ParseException {
-        // 构造域名，包括方案（http或https）、服务器名称和端口
-        String domain = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-        // 定义日期时间格式化器，用于格式化最后修改日期
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        // 初始化WebSitemapGenerator对象，开始构造网站地图
-        WebSitemapGenerator wsg = new WebSitemapGenerator(domain);
-        // 首页 url
-        WebSitemapUrl indexUrl = new WebSitemapUrl.Options(domain).lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
-        wsg.addUrl(indexUrl);
-        // 关于页 url
-        WebSitemapUrl aboutUrl = new WebSitemapUrl.Options(domain + "/about.html").lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(0.5).changeFreq(ChangeFreq.WEEKLY).build();
-        wsg.addUrl(aboutUrl);
-        // 服务协议页 url
-        WebSitemapUrl protocolUrl = new WebSitemapUrl.Options(domain + "/protocol.html").lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.YEARLY).build();
-        wsg.addUrl(protocolUrl);
-
-        // 商品列表页的url
-        List<Product> productList = productService.queryAll();
-        for(Product product : productList){
-            WebSitemapUrl productUrl = new WebSitemapUrl.Options(domain + "/product.html?id=" + product.getId()).lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
-            wsg.addUrl(productUrl);
-        }
-        // 将所有URL的XML字符串合并为一个字符串并返回
-        return String.join("", wsg.writeAsStrings());
     }
 }

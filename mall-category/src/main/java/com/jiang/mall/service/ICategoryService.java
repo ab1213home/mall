@@ -30,19 +30,23 @@ import java.util.List;
  */
 public interface ICategoryService extends IService<Category> {
 
-    List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId);
+    List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId, Integer level);
 
     Boolean insertCategory(Category category);
 
     Boolean updateCategory(Category category);
 
-    Long getCategoryNum();
+    Long getCategoryNum(Long parentId, Integer level);
 
     Boolean deleteCategory(Category category);
 
-	List<CategoryVo> getCategoryTopList(Integer pageNum, Integer pageSize);
+	List<CategoryVo> getCategoryTopList();
 
     String getCategoryName(Long id);
 
     @NotNull List<Long> getCategoryIds(Long id);
+
+    List<CategoryVo> getList();
+
+    @NotNull List<Category> buildCategoryTree(List<Category> list);
 }

@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let orderArr = {};
+let orderArr = [];
 let currentPageNum_order = 1;
 let num_order = 0;
 
@@ -37,7 +37,7 @@ function queryOrders(pn, pz) {
 						`;
 					$('#orderTable tbody').append(row);
 				}
-				orderArr = {};
+				orderArr = [];
 				for(let record of response.data){
 					orderArr[record.id] = record;
 				}

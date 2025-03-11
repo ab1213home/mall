@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let userArr = {};
+let userArr = [];
 let currentPageNum_user = 1;
 let num_user = 0;
 
@@ -62,7 +62,7 @@ function queryUser(pn, pz) {
 						`;
 					$('#userlist tbody').append(row);
 				}
-				userArr = {};
+				userArr = [];
 				for(let record of response.data){
 					userArr[record.id] = record;
 				}

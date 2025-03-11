@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.category;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
@@ -57,9 +57,11 @@ public class CategoryAdminController {
     @GetMapping("/getList")
     public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
-                                                  @RequestParam(required = false) Long parentId) {
+                                                  @RequestParam(required = false) Long parentId,
+                                                  @RequestParam(required = false) Integer level) {
+
         // 调用服务方法获取分类列表
-        List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize, parentId);
+        List<CategoryVo> categoryVos = categoryService.getCategoryList(pageNum, pageSize, parentId, level);
 
         // 检查返回的列表是否为空
         if (categoryVos.isEmpty()) {
@@ -77,8 +79,9 @@ public class CategoryAdminController {
      * @return 返回包含分类数量的响应结果
      */
     @GetMapping("/getNum")
-    public ResponseResult<Object> getCategoryNum() {
-        return ResponseResult.okResult(categoryService.getCategoryNum());
+    public ResponseResult<Object> getCategoryNum(@RequestParam(required = false) Long parentId,
+                                                 @RequestParam(required = false) Integer level) {
+        return ResponseResult.okResult(categoryService.getCategoryNum(parentId, level));
     }
 
     /**
@@ -95,6 +98,8 @@ public class CategoryAdminController {
     public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
                                          @RequestParam("name")String name,
                                          @RequestParam("parent")Long parent,
+                                         @RequestParam("level") Integer level,
+                                         @RequestParam("sort") Integer sort,
                                          HttpSession session) {
         if (code == null || name == null) {
             return ResponseResult.failResult("参数错误");
@@ -106,7 +111,7 @@ public class CategoryAdminController {
             return ResponseResult.failResult("请输入分类名称");
         }
         // 创建Category对象，使用传入的代码和名称进行初始化
-        Category category = new Category(code, name);
+        Category category = new Category();
         // 调用服务层方法尝试插入分类信息，根据插入结果返回相应响应
         if (categoryService.insertCategory(category)) {
             return ResponseResult.okResult();
@@ -129,6 +134,8 @@ public class CategoryAdminController {
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
                                          @RequestParam("parent")Long parent,
+                                         @RequestParam("level") Integer level,
+                                         @RequestParam("sort") Integer sort,
                                          HttpSession session) {
         if (id == null || code == null || name == null||id <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -147,9 +154,43 @@ public class CategoryAdminController {
         if (category == null) {
             return ResponseResult.notFoundResourceResult("没有找到资源");
         }
-
+//        if (category.getParentId() == 0) {
+//        // 根分类必须是1级
+//        if (category.getLevel() != 1) {
+//            throw new BusinessException("根分类层级必须为1");
+//        }
+//    } else {
+//        Category parent = getCategoryById(category.getParentId());
+//        if (parent == null) {
+//            throw new BusinessException("父分类不存在");
+//        }
+//        if (category.getLevel() != parent.getLevel() + 1) {
+//            throw new BusinessException("子分类层级必须为父分类层级+1");
+//        }
+//    }
+// // 新增/修改分类时校验层级
+//public void saveOrUpdateCategory(Category category) {
+//    if (category.getParentId() != 0) {
+//        Category parent = getCategoryById(category.getParentId());
+//        if (parent == null || parent.getLevel() + 1 != category.getLevel()) {
+//            throw new BusinessException("分类层级不合法");
+//        }
+//    }
+//    // 保存逻辑...
+//}
+//当父分类的parentId或level变更时，需级联更新所有子分类的level：
+//
+//public void updateChildrenLevel(Long parentId, Integer newParentLevel) {
+//    List<Category> children = getChildrenByParentId(parentId);
+//    for (Category child : children) {
+//        child.setLevel(newParentLevel + 1);
+//        updateChildrenLevel(child.getId(), child.getLevel()); // 递归更新
+//        categoryMapper.updateById(child);
+//        updateCache(child); // 更新缓存
+//    }
+//}
         // 创建一个新的Category对象并设置其属性
-        category = new Category(id, code, name);
+        category = new Category();
         // 尝试更新数据库中的分类信息
         if (categoryService.updateCategory(category)) {
             return ResponseResult.okResult();

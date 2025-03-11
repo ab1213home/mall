@@ -46,12 +46,6 @@ public class Category implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-
-    /**
-     * 编码，需唯一
-     */
-    private String code;
-
     /**
      * 父级分类ID，默认为 0
      */
@@ -61,6 +55,16 @@ public class Category implements Serializable {
      * 分类名称
      */
     private String name;
+
+    /**
+     * 分类层级（1-一级分类 2-二级分类）
+     */
+    private Integer level;
+
+    /**
+     * 分类排序
+     */
+    private Integer sort;
 
     /**
      * 创建人
@@ -79,6 +83,7 @@ public class Category implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    @JSONField(format = "yyyy-MM-dd HH:mm:ss", locale = "zh")
     private LocalDateTime createdAt;
 
     /**
@@ -86,6 +91,7 @@ public class Category implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    @JSONField(format = "yyyy-MM-dd HH:mm:ss", locale = "zh")
     private LocalDateTime updatedAt;
 
     /**
@@ -94,19 +100,12 @@ public class Category implements Serializable {
     @TableLogic
     private Boolean isDel;
 
-    public Category(String code, String name) {
-        this.code = code;
-        this.name = name;
-    }
-
-    public Category(Long id, String code, String name) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
-    }
 
     public Category() {
     }
+
+//    @TableField(exist = false)
+//    private List<Category> children = new ArrayList<>();
 
     /**
      * 商品分类对象的字符串表示形式
@@ -115,8 +114,10 @@ public class Category implements Serializable {
     public String toString() {
         return "Category{" +
             "id = " + id +
-            ", code = " + code +
             ", name = " + name +
+            ", parentId = " + parentId +
+            ", level = " + level +
+            ", sort = " + sort +
             ", creator = " + creator +
             ", createdAt = " + createdAt +
             ", updatedAt = " + updatedAt +

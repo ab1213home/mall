@@ -130,4 +130,20 @@ public class CoreRedisConfig {
         return template;
     }
 
+//	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+//        RedisTemplate<String, Object> template = new RedisTemplate<>();
+//        template.setConnectionFactory(factory);
+//
+//        // Key使用String序列化
+//        template.setKeySerializer(RedisSerializer.string());
+//        template.setHashKeySerializer(RedisSerializer.string());
+//
+//        // Value使用Fastjson2序列化
+//        FastJsonRedisSerializer<Object> serializer = new FastJsonRedisSerializer<>(Object.class);
+//        template.setValueSerializer(serializer);
+//        template.setHashValueSerializer(serializer);
+//
+//        template.afterPropertiesSet();
+//        return template;
+//    }
 }

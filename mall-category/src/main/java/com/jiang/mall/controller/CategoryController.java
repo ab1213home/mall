@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.category;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.vo.CategoryVo;
@@ -19,7 +19,6 @@ import com.jiang.mall.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -43,10 +42,9 @@ public class CategoryController {
     }
 
     @GetMapping("/getTopList")
-    public ResponseResult<Object> getCategoryTopList(@RequestParam(defaultValue = "1") Integer pageNum,
-                                                     @RequestParam(defaultValue = "5") Integer pageSize) {
+    public ResponseResult<Object> getCategoryTopList() {
         // 调用服务方法获取分类列表
-        List<CategoryVo> categoryVos = categoryService.getCategoryTopList(pageNum, pageSize);
+        List<CategoryVo> categoryVos = categoryService.getCategoryTopList();
 
         // 检查返回的列表是否为空
         if (categoryVos.isEmpty()) {

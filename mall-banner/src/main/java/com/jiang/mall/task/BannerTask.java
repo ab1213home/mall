@@ -72,7 +72,10 @@ public class BannerTask {
     public void checkBannerTask() {
 		if (bannerConfig.isBannerCacheEnabled()){
 			timer=timer+1000;
-			if (timer==1000||timer>=bannerConfig.getBannerSyncTime()){
+			if (timer==1000){
+				logger.info("轮播图数据缓存预热");
+				checkBanner();
+			}else if (timer>=bannerConfig.getBannerSyncTime()){
 				timer = 1;
 				checkBanner();
 			}
