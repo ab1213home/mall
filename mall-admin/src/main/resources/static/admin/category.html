@@ -262,6 +262,25 @@
                             <div class="cartd6">
                                 <button id="prePage" disabled>上一页</button>
                                 <button id="nextPage">下一页</button>
+                                <nav aria-label="...">
+                                    <ul class="pagination" id="pagination-ul">
+                                        <li class="page-item">
+                                            <a class="page-link  disabled" href="#" aria-label="Previous" id="prev-page">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item active" aria-current="page">
+                                            <a class="page-link" href="#">2</a>
+                                        </li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item" id="next-page">
+                                            <a class="page-link" href="#" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
                             </div>
                             <div class="row d-flex justify-content-end">
                                 <div class="col-12 text-end">
@@ -326,7 +345,8 @@
                             <label for="level"></label>
 <!--                            <input type="number" id="level" name="level" class="form-control" placeholder="请输入分类层级" required></input>-->
                             <select class="form-select" id="level" required>
-                                <option value="1">根分类</option>
+                                <option value="0">根分类</option>
+                                <option value="1">一级分类</option>
                                 <option value="2">二级分类</option>
                                 <option value="3">三级分类</option>
                             </select>

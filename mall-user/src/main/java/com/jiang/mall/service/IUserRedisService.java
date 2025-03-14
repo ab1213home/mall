@@ -14,66 +14,86 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.vo.UserVo;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 
 public interface IUserRedisService {
 
     /**
-     * 将用户信息存储到Redis中，并为其设置过期时间
-     * 此方法会将用户信息以JSON字符串的形式存储，并同时存储一份用户ID与用户信息键的映射
-     *
-     * @param key 用户信息的唯一键，用于标识用户
-     * @param value 用户信息对象，包含具体的用户数据
-     * @param timeout 数据的有效期，当超过这个时间后数据将自动过期
-     * @param unit 时间单位，用于解释timeout参数的时间单位
-     */
-    void setUser(String key, UserVo value, long timeout, TimeUnit unit);
+	 * 设置用户信息到缓存中
+	 *
+	 * @param sessionId 会话ID，用于标识用户会话
+	 * @param token 用户令牌，用于验证用户身份
+	 * @param user 用户信息对象，包含用户相关数据
+	 */
+    void setUser(String sessionId, String token ,@NotNull UserVo user);
+
+	/**
+	 * 更新用户信息
+	 * 当用户的缓存存在时，更新Redis中的用户信息
+	 *
+	 * @param user 用户信息，不能为空
+	 */
+	void updateUser(@NotNull UserVo user);
 
     /**
-     * 根据键获取用户信息
-     *
-     * @param key Redis中存储用户信息的键
-     * @return 如果键不存在或值为null，则返回null；否则返回解析后的UserVo对象
-     */
-    UserVo getUser(String key);
-
-    String getUserKey(String key);
-
-    /**
-     * 判断用户是否存在
-     * <p>
-     * 通过检查给定键是否存在于Redis中来判断用户是否存在
-     *
-     * @param key 用户键
-     * @return 如果键存在，则返回true，表示用户存在；否则返回false，表示用户不存在
-     */
-    Boolean hasUser(String key);
+	 * 根据用户token获取用户信息
+	 * 此方法首先检查Redis中是否存在与给定token关联的用户ID，
+	 * 如果存在，则进一步检查该用户的详细信息是否也存在于Redis中
+	 * 如果所有检查都通过，则解析用户信息并返回；如果任何检查失败，则返回null
+	 *
+	 * @param token 用户的认证令牌，用于在Redis中查找用户ID和用户信息
+	 * @return 如果找到用户信息则返回用户信息对象UserVo，否则返回null
+	 */
+    UserVo getUserByToken(String token);
 
     /**
-     * 设置指定键的过期时间
-     * <p>
-     * 此方法用于为给定的键设置过期时间一旦过期时间到达，键将被删除
-     * 如果键不存在，则该操作将失败，且方法不执行任何操作
-     *
-     * @param key   要设置过期时间的键不能为空
-     * @param timeout  键的过期时间，单位为秒如果值为非正值，则该操作将失败
-     */
-    void expire(String key, long timeout);
+	 * 根据会话ID获取用户信息
+	 * 此方法首先检查Redis中是否存在与给定会话ID关联的用户ID，
+	 * 如果存在，则进一步检查该用户ID对应的用户信息是否存在，
+	 * 如果用户信息存在，则解析并返回用户信息，否则返回null
+	 *
+	 * @param sessionId 会话ID，用于识别用户会话
+	 * @return UserVo 如果找到对应的用户信息，则返回UserVo对象，否则返回null
+	 */
+    UserVo getUserBySessionId(String sessionId);
 
     /**
-     * 获取指定键的剩余过期时间
-     *
-     * @param key 要获取过期时间的键
-     * @return 剩余过期时间，以秒为单位，如果键不存在或者没有设置过期时间，则返回null
-     */
-    Long getExpire(String key);
+	 * 获取用户登录状态
+	 * 通过检查Redis中用户相关键的存在情况，来判断用户是否已登录，并返回登录相关的信息
+	 *
+	 * @param userId 用户ID，用于标识特定的用户
+	 * @return 包含用户登录信息的Map，包括sessionId和token的过期时间，如果用户未登录，则返回null
+	 */
+    Map<String,String> getUserLoginStatus(Long userId);
 
     /**
-     * 删除指定键对应的数据
-     *
-     * @param key 要删除数据的键
-     *
-     */
-    Boolean deleteUser(String key);
+	 * 判断用户是否存在于缓存中
+	 *
+	 * @param userId 用户ID，用于查询缓存中是否存在该用户的相关信息
+	 * @return 如果用户存在且其会话ID或token有效，则返回true；否则返回false
+	 */
+    Boolean hasUser(Long userId);
+
+    /**
+	 * 刷新用户登录状态
+	 * 此方法旨在更新用户在系统中的登录状态，通过延长与用户相关的缓存数据的有效期来实现
+	 * 主要针对用户的登录状态信息、会话ID和令牌的缓存进行有效期的刷新
+	 *
+	 * @param userId 用户ID，用于标识和定位用户相关的缓存数据
+	 */
+    void refreshUserLoginStatus(Long userId);
+
+    /**
+	 * 删除用户信息
+	 * 此方法首先检查Redis缓存中是否存在与用户ID关联的数据如果存在，它将删除这些数据
+	 * 包括用户的登录状态信息、会话ID和令牌信息，如果Redis中没有与用户ID关联的数据，方法返回null
+	 *
+	 * @param userId 用户ID，用于定位和删除缓存中的用户信息
+	 * @return 删除操作的结果，如果用户ID在Redis中没有对应的缓存数据，则返回null
+	 */
+    Boolean deleteUser(Long userId);
+
+	Boolean deleteUser(String sessionId);
 }

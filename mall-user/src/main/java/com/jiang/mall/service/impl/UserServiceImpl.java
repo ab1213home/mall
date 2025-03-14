@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -130,7 +131,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	@Override
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
-		UserVo user = redisService.getUser(sessionId);
+		UserVo user = redisService.getUserBySessionId(sessionId);
 		if (user == null){
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}else{
@@ -144,16 +145,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public UserVo getUserFromRedis(String sessionId) {
-		if (redisService.hasUser(sessionId)){
-			return redisService.getUser(sessionId);
-		}else{
-			return null;
-		}
+//		if (redisService.hasUser(sessionId)){
+//			return redisService.getUser(sessionId);
+//		}else{
+//			return null;
+//		}
+		return redisService.getUserBySessionId(sessionId);
 	}
 
 	@Override
 	public void setUserToRedis(UserVo user, String sessionId) {
-		redisService.setUser(sessionId, user,4, TimeUnit.HOURS);
+		redisService.updateUser(user);
 	}
 
 	/**
@@ -233,16 +235,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 确保单例登录，同一用户在同一时间只能在一个地方登录。如果用户在另一个地方尝试登录，系统会自动将之前的登录状态注销
-			if (redisService.hasUser(String.valueOf(user.getId()))){
-				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
-				logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
-				redisService.deleteUser(userKey);
-			}
-			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
+//			if (redisService.hasUser(String.valueOf(user.getId()))){
+//				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
+//				logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
+//				redisService.deleteUser(userKey);
+//			}
+//			// 将用户信息存储到Redis中，并设置过期时间
+//			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
+			String token = UUID.randomUUID().toString();
+			redisService.setUser(sessionId, token, userVo);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
 			logger.debug("用户{}登录成功", user.getUsername());
+			//TODO:返回token
 			return true;
 		}
 	}
@@ -353,12 +358,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean logout(String sessionId) {
-		if (redisService.hasUser(sessionId)){
-			UserVo user = redisService.getUser(sessionId);
-			redisService.deleteUser(String.valueOf(user.getId()));
-			return redisService.deleteUser(sessionId);
-		}
-		return true;
+//		if (redisService.hasUser(sessionId)){
+//			UserVo user = redisService.getUser(sessionId);
+//			redisService.deleteUser(String.valueOf(user.getId()));
+//			return redisService.deleteUser(sessionId);
+//		}
+//		return true;
+//		UserVo user = getUserFromRedis(sessionId);
+		return redisService.deleteUser(sessionId);
 	}
 
 	@Override
@@ -483,12 +490,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 		if(userMapper.lockById(userId,user.getId())>0) {
 			userRecordService.successLockAdminLog(userId,clientIp,fingerprint);
-			if (redisService.hasUser(String.valueOf(userId))){
-				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
-				logger.debug("管理员锁定{}用户在一个地方登录，自动注销用户登录状态", user.getUsername());
-				redisService.deleteUser(userKey);
-				redisService.deleteUser(String.valueOf(userId));
-			}
+//			if (redisService.hasUser(String.valueOf(userId))){
+//				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
+//				logger.debug("管理员锁定{}用户在一个地方登录，自动注销用户登录状态", user.getUsername());
+//				redisService.deleteUser(userKey);
+//				redisService.deleteUser(String.valueOf(userId));
+//			}
+			redisService.deleteUser(userId);
 			return true;
 		}else {
 			logger.error("管理员锁定{}用户失败", userId);

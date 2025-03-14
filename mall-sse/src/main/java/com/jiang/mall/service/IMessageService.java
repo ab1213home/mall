@@ -11,15 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.service;
 
-import lombok.Data;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.jiang.mall.domain.entity.Message;
 
-@Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private Long sessionTimeout;
-	private boolean allowRegistration;
+public interface IMessageService extends IService<Message> {
+	void sendMessage(Message message);
+	int getUnreadCount(Long userId);
 }

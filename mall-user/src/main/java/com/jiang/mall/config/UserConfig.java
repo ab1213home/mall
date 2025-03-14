@@ -44,7 +44,7 @@ public class UserConfig {
     private GroupMapper groupMapper;
 
     @Autowired
-    public void setGroupMapper(GroupMapper groupMapper) {
+    private void setGroupMapper(GroupMapper groupMapper) {
         this.groupMapper = groupMapper;
     }
 
@@ -53,7 +53,7 @@ public class UserConfig {
     private final Properties properties = new Properties();
 
     @PostConstruct
-    public void init() {
+    private void init() {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("user");
         loadProperties();
@@ -62,7 +62,7 @@ public class UserConfig {
     /**
      * 加载配置文件
      */
-    public void loadProperties() {
+    private void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -98,7 +98,7 @@ public class UserConfig {
     /**
      * 保存配置文件
      */
-    public void saveProperties() {
+    private void saveProperties() {
         // 确保目录存在
         generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
@@ -133,6 +133,10 @@ public class UserConfig {
         return Long.parseLong(properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
     }
 
+    public long getSessionTimeout() {
+        return Long.parseLong(properties.getProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), UserConfigItems.USER_SESSION_TIMEOUT.getDefaultValue()));
+    }
+
     public boolean isAllowRegistration() {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), UserConfigItems.ALLOW_USER_REGISTRATION.getDefaultValue()));
     }
@@ -153,12 +157,17 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
     }
 
+    public void updateSessionTimeout(long timeout) {
+        properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
+    }
+
     public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();
         settingVo.setMaxTryNumber(getUserMaxTry());
         settingVo.setMaxAddressNum(getUserMaxAddress());
         settingVo.setDefaultGroup(getDefaultGroup());
         settingVo.setAllowRegistration(isAllowRegistration());
+        settingVo.setSessionTimeout(getSessionTimeout());
         return settingVo;
     }
 
@@ -167,6 +176,7 @@ public class UserConfig {
         updateUserMaxAddress(settingVo.getMaxAddressNum());
         updateDefaultGroup(settingVo.getDefaultGroup());
         updateAllowRegistration(settingVo.isAllowRegistration());
+        updateSessionTimeout(settingVo.getSessionTimeout());
         saveProperties();
         loadProperties();
     }

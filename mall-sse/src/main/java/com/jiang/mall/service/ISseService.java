@@ -11,15 +11,14 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.service;
 
-import lombok.Data;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-@Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private Long sessionTimeout;
-	private boolean allowRegistration;
+public interface ISseService {
+	SseEmitter subscribe();
+
+	void broadcast(String message);
+
+	int getActiveConnections();
 }

@@ -11,15 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.cache;
 
 import lombok.Data;
 
 @Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private Long sessionTimeout;
-	private boolean allowRegistration;
+public class UserCache {
+
+	/**
+	 * 用户会话ID
+	 */
+	private String sessionId;
+
+	/**
+	 * 用户令牌
+	 */
+	private String token;
 }

@@ -11,15 +11,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.dao;
 
-import lombok.Data;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jiang.mall.domain.entity.Message;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
-@Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private Long sessionTimeout;
-	private boolean allowRegistration;
+import java.util.List;
+
+@Mapper
+public interface MessageMapper extends BaseMapper<Message> {
+
+	@Select("SELECT * FROM tb_messages WHERE user_id = #{userId} AND is_read = 0")
+	List<Message> selectUnreadMessages(Long userId);
 }

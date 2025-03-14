@@ -43,7 +43,7 @@ public class FileConfig {
     private GeneralConfig generalConfig;
 
     @Autowired
-    public void setGeneralConfig(GeneralConfig generalConfig) {
+    private void setGeneralConfig(GeneralConfig generalConfig) {
         this.generalConfig = generalConfig;
     }
 
@@ -52,7 +52,7 @@ public class FileConfig {
     private final Properties properties = new Properties();
 
     @PostConstruct
-    public void init() {
+    private void init() {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("file");
         loadProperties();
@@ -68,7 +68,7 @@ public class FileConfig {
     /**
      * 加载配置文件
      */
-     public void loadProperties() {
+     private void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -140,7 +140,7 @@ public class FileConfig {
     /**
      * 保存配置文件
      */
-    public void saveProperties() {
+    private void saveProperties() {
         // 确保目录存在
         generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
@@ -169,7 +169,7 @@ public class FileConfig {
     /**
      * 创建本地储存配置
      */
-    public void createLocalConfig(@NotNull LocalSetting localSetting) {
+    private void createLocalConfig(@NotNull LocalSetting localSetting) {
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
         properties.setProperty(localSetting.getName()+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
         properties.setProperty(localSetting.getName()+ FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
@@ -179,7 +179,7 @@ public class FileConfig {
     /**
      * 创建对象储存配置
      */
-    public void createS3Config(@NotNull S3Setting s3Setting) {
+    private void createS3Config(@NotNull S3Setting s3Setting) {
         properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
         properties.setProperty(s3Setting.getName()+ FileS3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
         properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());

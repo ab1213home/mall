@@ -35,6 +35,7 @@ import com.wechat.pay.java.service.payments.model.Transaction;
 import com.wechat.pay.java.service.payments.nativepay.model.Amount;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayRequest;
 import com.wechat.pay.java.service.payments.nativepay.model.PrepayResponse;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -115,18 +116,19 @@ public class PayServiceImpl implements IPayService {
 
 	@Override
 	public PayCallbackDto verifyNotify(@NotNull HttpServletRequest parameters, WechatpayType payType) {
-		// 读取原始的请求体
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = parameters.getReader()) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-			logger.error("读取原始的请求体失败", e);
-	        return PayCallbackDto.errorResult("读取原始的请求体失败" + e);
-        }
-		String body = sb.toString();
+//		// 读取原始的请求体
+//        StringBuilder sb = new StringBuilder();
+//        try (BufferedReader reader = parameters.getReader()) {
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                sb.append(line);
+//            }
+//        } catch (IOException e) {
+//			logger.error("读取原始的请求体失败", e);
+//	        return PayCallbackDto.errorResult("读取原始的请求体失败" + e);
+//        }
+//		String body = sb.toString();
+		String body = getRequestBody(parameters);
 		//获取请求头
         String timestamp = parameters.getHeader("Wechatpay-Timestamp");
         String nonce = parameters.getHeader("Wechatpay-Nonce");
@@ -374,5 +376,20 @@ public class PayServiceImpl implements IPayService {
 			logger.error("支付宝电脑网站支付调用失败，原因：{}", e.getMessage());
 			return PayDto.errorResult("支付宝电脑网站支付调用失败，原因：" + e.getMessage());
         }
+	}
+
+	private String getRequestBody(@NotNull HttpServletRequest request) {
+	    ByteArrayOutputStream body = new ByteArrayOutputStream();
+	    try {
+	        ServletInputStream inputStream = request.getInputStream();
+	        byte[] buffer = new byte[1024];
+	        for (int length; (length = inputStream.read(buffer)) != -1; ) {
+	            body.write(buffer, 0, length);
+	        }
+	    } catch (IOException ex) {
+	        logger.error("支付回调，读取数据流异常", ex);
+	    }
+	    logger.info("支付回调，通知消息体：{}", body);
+	    return body.toString();
 	}
 }

@@ -13,13 +13,5 @@
 
 package com.jiang.mall.domain.vo;
 
-import lombok.Data;
-
-@Data
-public class UserSettingVo {
-	private Integer maxTryNumber;
-	private Integer maxAddressNum;
-	private Long defaultGroup;
-	private Long sessionTimeout;
-	private boolean allowRegistration;
+public class UserLoginStatusVo {
 }

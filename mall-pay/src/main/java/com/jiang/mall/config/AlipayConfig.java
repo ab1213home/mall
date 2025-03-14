@@ -38,7 +38,7 @@ public class AlipayConfig {
     private GeneralConfig generalConfig;
 
     @Autowired
-    public void setGeneralConfig(GeneralConfig generalConfig) {
+    private void setGeneralConfig(GeneralConfig generalConfig) {
         this.generalConfig = generalConfig;
     }
 
@@ -47,7 +47,7 @@ public class AlipayConfig {
     private final Properties properties = new Properties();
 
     @PostConstruct
-    public void init() {
+    private void init() {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("alipay");
         loadProperties();
@@ -89,7 +89,7 @@ public class AlipayConfig {
     /**
      * 加载配置文件
      */
-    public void loadProperties() {
+    private void loadProperties() {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
@@ -116,7 +116,7 @@ public class AlipayConfig {
     /**
      * 保存配置文件
      */
-    public void saveProperties() {
+    private void saveProperties() {
         generalConfig.saveProperties(CONFIG_FILE_PATH,properties);
     }
 

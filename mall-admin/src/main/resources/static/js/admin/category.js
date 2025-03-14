@@ -69,6 +69,7 @@ function queryCategory(pn,pz){
                     $('#categorylist tbody').append(row);
                 });
                 currentPageNum_category = pn;
+
                 if (currentPageNum_category == 1) {
                     $("#prePage").prop("disabled", true);
                 } else {
