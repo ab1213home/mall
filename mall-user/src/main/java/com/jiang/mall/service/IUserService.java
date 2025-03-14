@@ -47,7 +47,7 @@ public interface IUserService extends IService<User> {
 
     UserVo getUserFromRedis(String sessionId);
 
-    void setUserToRedis(UserVo user, String sessionId);
+    void setUserToRedis(UserVo user);
 
     Long getUserNum();
 

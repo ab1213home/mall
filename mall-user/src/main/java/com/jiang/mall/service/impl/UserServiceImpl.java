@@ -154,7 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public void setUserToRedis(UserVo user, String sessionId) {
+	public void setUserToRedis(UserVo user) {
 		redisService.updateUser(user);
 	}
 
@@ -234,15 +234,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             if (user.getBirthDate()!=null){
                 userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
-			// 确保单例登录，同一用户在同一时间只能在一个地方登录。如果用户在另一个地方尝试登录，系统会自动将之前的登录状态注销
-//			if (redisService.hasUser(String.valueOf(user.getId()))){
-//				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
-//				logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
-//				redisService.deleteUser(userKey);
-//			}
-//			// 将用户信息存储到Redis中，并设置过期时间
-//			redisService.setUser(sessionId, userVo,4, TimeUnit.HOURS);
 			String token = UUID.randomUUID().toString();
+			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setUser(sessionId, token, userVo);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
@@ -358,13 +351,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean logout(String sessionId) {
-//		if (redisService.hasUser(sessionId)){
-//			UserVo user = redisService.getUser(sessionId);
-//			redisService.deleteUser(String.valueOf(user.getId()));
-//			return redisService.deleteUser(sessionId);
-//		}
-//		return true;
-//		UserVo user = getUserFromRedis(sessionId);
 		return redisService.deleteUser(sessionId);
 	}
 
@@ -383,7 +369,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 记录邮箱修改成功日志
 			userRecordService.successModifyEmailLog(user,verificationCode.getEmail(),clientIp,fingerprint);
 			userVo.setEmail(verificationCode.getEmail());
-			setUserToRedis(userVo,sessionId);
+			setUserToRedis(userVo);
 			return true;
 		}else {
 			logger.error("修改{}用户邮箱失败", getUserFromRedis(sessionId).getId());
@@ -551,7 +537,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        }
 
 	        // 更新Redis中的用户信息
-	        setUserToRedis(userVo,sessionId);
+	        setUserToRedis(userVo);
 	        return true;
 	    }else {
 	        // 如果更新失败，记录错误日志
