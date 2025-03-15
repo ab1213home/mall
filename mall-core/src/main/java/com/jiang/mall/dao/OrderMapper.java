@@ -18,6 +18,8 @@ import com.jiang.mall.domain.entity.Order;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
+
 /**
  * Order的映射接口，继承自BaseMapper<Order>
  * 本接口用于定义与数据库中tb_orders表进行交互的方法，专门用于处理Order实体的CRUD操作
@@ -31,6 +33,10 @@ import org.apache.ibatis.annotations.Select;
  */
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
+
 	@Select("SELECT user_id FROM tb_orders WHERE id = #{id} LIMIT 1")
 	Long selectOneUserIdById(Long id);
+
+	@Select("SELECT SUM(total_amount) FROM tb_orders WHERE date BETWEEN #{firstDayOfMonth} AND #{lastDayOfMonth}")
+	String getAmount(LocalDate firstDayOfMonth, LocalDate lastDayOfMonth);
 }

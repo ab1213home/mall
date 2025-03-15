@@ -39,11 +39,6 @@ public class OrderController {
 
     private IOrderService orderService;
 
-	/**
-	 * 注入订单服务实例
-	 *
-	 * @param orderService 订单服务实例
-	 */
 	@Autowired
 	public void setOrderService(IOrderService orderService) {
 	    this.orderService = orderService;
@@ -51,11 +46,6 @@ public class OrderController {
 
 	private IProductService productService;
 
-	/**
-	 * 注入商品服务实例
-	 *
-	 * @param productService 商品服务实例
-	 */
 	@Autowired
 	public void setProductService(IProductService productService) {
 	    this.productService = productService;
@@ -63,11 +53,6 @@ public class OrderController {
 
     private ICartService cartService;
 
-	/**
-	 * 注入购物车服务实例
-	 *
-	 * @param cartService 购物车服务实例
-	 */
 	@Autowired
 	public void setCartService(ICartService cartService) {
 	    this.cartService = cartService;
@@ -75,11 +60,6 @@ public class OrderController {
 
 	private IAddressService addressService;
 
-	/**
-	 * 注入地址服务实例
-	 *
-	 * @param addressService 地址服务实例
-	 */
 	@Autowired
 	public void setAddressService(IAddressService addressService) {
 	    this.addressService = addressService;
@@ -87,11 +67,6 @@ public class OrderController {
 
 	private IUserService userService;
 
-	/**
-	 * 注入用户服务实例
-	 *
-	 * @param userService 用户服务实例
-	 */
 	@Autowired
 	public void setUserService(IUserService userService) {
 	    this.userService = userService;
@@ -113,12 +88,6 @@ public class OrderController {
 	    if (list_checkoutVo.isEmpty()) {
 	        return ResponseResult.failResult("请选择商品");
 	    }
-	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
 	    // 用于存储已选商品的购物车ID
 	    List<Long> list_cartId = new ArrayList<>();
 	    for (CheckoutVo checkoutVo : list_checkoutVo) {
@@ -136,8 +105,9 @@ public class OrderController {
 	            list_cartId.add(checkoutVo.getId());
 	        }
 	    }
+		cartService.checkoutToRedis(list_cartId, session.getId());
 	    // 将确认购买的商品ID列表保存到会话中，以便后续操作使用
-	    session.setAttribute("List_cartId", list_cartId);
+//	    session.setAttribute("List_cartId", list_cartId);
 	    // 返回操作成功结果
 	    return ResponseResult.okResult();
 	}
@@ -159,33 +129,27 @@ public class OrderController {
 	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize,
 	                                            HttpSession session) {
-	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
-	    // 检查 session.getAttribute("list_cartId") 是否为 null
-	    List<Long> list_cartId;
-	    Object listObj = session.getAttribute("List_cartId");
-
-	    if (listObj == null) {
-	        list_cartId = new ArrayList<>();
-	    } else if (listObj instanceof List<?> tempList) {
-	        list_cartId = new ArrayList<>();
-	        for (Object obj : tempList) {
-	            if (obj instanceof Long) {
-	                list_cartId.add((Long) obj);
-	            }
-	        }
-	    } else {
-	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
-	    }
+//	    // 检查 session.getAttribute("list_cartId") 是否为 null
+//	    List<Long> list_cartId;
+//	    Object listObj = session.getAttribute("List_cartId");
+//
+//	    if (listObj == null) {
+//	        list_cartId = new ArrayList<>();
+//	    } else if (listObj instanceof List<?> tempList) {
+//	        list_cartId = new ArrayList<>();
+//	        for (Object obj : tempList) {
+//	            if (obj instanceof Long) {
+//	                list_cartId.add((Long) obj);
+//	            }
+//	        }
+//	    } else {
+//	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
+//	    }
+		List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
 	    }
-	    List<CartVo> list_checkout = cartService.getCartList(user.getId(), pageNum, pageSize, list_cartId);
+	    List<CartVo> list_checkout = cartService.getCartList(session.getId(), pageNum, pageSize, list_cartId);
 	    if (list_checkout.isEmpty()) {
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -202,28 +166,22 @@ public class OrderController {
 	 */
 	@GetMapping("/getTemporaryNum")
 	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
-	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
 	    // 检查 session.getAttribute("List_cartId") 是否为 null
-	    List<Long> list_cartId;
-	    Object listObj = session.getAttribute("List_cartId");
-
-	    if (listObj == null) {
-	        list_cartId = new ArrayList<>();
-	    } else if (listObj instanceof List<?> tempList) {
-	        list_cartId = new ArrayList<>();
-	        for (Object obj : tempList) {
-	            if (obj instanceof Long) {
-	                list_cartId.add((Long) obj);
-	            }
-	        }
-	    } else {
-	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
-	    }
+	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
+//	    Object listObj = session.getAttribute("List_cartId");
+//
+//	    if (listObj == null) {
+//	        list_cartId = new ArrayList<>();
+//	    } else if (listObj instanceof List<?> tempList) {
+//	        list_cartId = new ArrayList<>();
+//	        for (Object obj : tempList) {
+//	            if (obj instanceof Long) {
+//	                list_cartId.add((Long) obj);
+//	            }
+//	        }
+//	    } else {
+//	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
+//	    }
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -268,29 +226,31 @@ public class OrderController {
 			return ResponseResult.failResult("请先选择商品");
 		}
 	    // 调用服务层方法插入新订单
-	    Long orderId = orderService.insertOrder(user.getId(), addressId, paymentMethod, status, list_checkoutVo);
+	    Long orderId = orderService.insertOrder(session.getId(), addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
-	    List<Long> list_cartId;
-	    Object listObj = session.getAttribute("List_cartId");
-
-	    if (listObj == null) {
-	        list_cartId = new ArrayList<>();
-	    } else if (listObj instanceof List<?> tempList) {
-	        list_cartId = new ArrayList<>();
-	        for (Object obj : tempList) {
-	            if (obj instanceof Long) {
-	                list_cartId.add((Long) obj);
-	            }
-	        }
-	    } else {
-	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
-	    }
+	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
+//	    Object listObj = session.getAttribute("List_cartId");
+//
+//	    if (listObj == null) {
+//	        list_cartId = new ArrayList<>();
+//	    } else if (listObj instanceof List<?> tempList) {
+//	        list_cartId = new ArrayList<>();
+//	        for (Object obj : tempList) {
+//	            if (obj instanceof Long) {
+//	                list_cartId.add((Long) obj);
+//	            }
+//	        }
+//	    } else {
+//	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
+//	    }
 	    // 根据订单删除购物车中的商品
-	    cartService.deleteCartByOrder(list_cartId, user.getId(), list_checkoutVo);
-	    if (session.getAttribute("List_cartId") != null) {
-	        // 删除会话中的购物车ID列表
-	        session.removeAttribute("List_cartId");
-	    }
+	    cartService.deleteCartByOrder(list_cartId, session.getId(), list_checkoutVo);
+		//删除redis中的缓存
+		cartService.deleteCartIdListInRedis(session.getId());
+//	    if (session.getAttribute("List_cartId") != null) {
+//	        // 删除会话中的购物车ID列表
+//	        session.removeAttribute("List_cartId");
+//	    }
 	    if (orderId == null) {
 	        return ResponseResult.failResult("提交失败");
 	    }
@@ -310,15 +270,8 @@ public class OrderController {
 	public ResponseResult<Object> getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                   @RequestParam(defaultValue = "5") Integer pageSize,
 	                                   HttpSession session) {
-	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
 	    // 调用服务方法，根据用户ID获取订单列表
-	    List<OrderVo> orderList = orderService.getOrderList(user.getId(), pageNum, pageSize);
+	    List<OrderVo> orderList = orderService.getOrderList(session.getId(), pageNum, pageSize);
 	    if (orderList == null) {
 	        // 如果获取订单列表失败
 	        return ResponseResult.failResult("获取失败");
@@ -333,26 +286,13 @@ public class OrderController {
 
 	@GetMapping("/getNum")
 	public ResponseResult<Object> getOrderNum(HttpSession session) {
-		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
-		return ResponseResult.okResult(orderService.getOrderNum(user.getId()));
+		return ResponseResult.okResult(orderService.getOrderNum(session.getId()));
 	}
 
 	@GetMapping("/getAllList")
 	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                      @RequestParam(defaultValue = "5") Integer pageSize,
 	                                      HttpSession session) {
-		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
 	    // 调用服务方法，根据用户ID获取订单列表
 	    List<OrderAllVo> orderList = orderService.getOrderList(pageNum, pageSize);
 	    if (orderList == null) {
@@ -367,25 +307,13 @@ public class OrderController {
 	    return ResponseResult.okResult(orderList);
 	}
 
-	@GetMapping("/getAllNum")
-	public ResponseResult<Object> getAllOrderNum(HttpSession session) {
-		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-		return ResponseResult.okResult(orderService.getAllOrderNum());
+	@GetMapping("/admin/getNum")
+	public ResponseResult<Object> getAllOrderNum() {
+		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 
-	@GetMapping("/getAmount")
-	public ResponseResult<Object> getAmount(HttpSession session) {
-		// 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkAdminUser(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
+	@GetMapping("/admin/getAmount")
+	public ResponseResult<Object> getAmount() {
 		double amount = Double.parseDouble(orderService.getAmount());
 		return ResponseResult.okResult(amount);
 	}

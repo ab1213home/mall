@@ -203,14 +203,14 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        // 如果用户缓存中的sessionId在Redis中存在，则获取其过期时间
 	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+userCache.getSessionId())){
 	            //获取过期时间
-	            long expire = stringRedisTemplate.getExpire(prefix+"sessionId-"+userCache.getSessionId(), TimeUnit.SECONDS);
+	            long expire = stringRedisTemplate.getExpire(prefix+"sessionId-"+userCache.getSessionId(), TimeUnit.MINUTES);
 	            // 将sessionId的过期时间添加到返回的Map中
 	            map.put("sessionId_expire",String.valueOf(expire));
 	        }
 
 	        // 如果用户缓存中的token在Redis中存在，则获取其过期时间
 	        if (stringRedisTemplate.hasKey(prefix+"token-"+userCache.getToken())){
-	            long expire = stringRedisTemplate.getExpire(prefix+"token-"+userCache.getToken(), TimeUnit.SECONDS);
+	            long expire = stringRedisTemplate.getExpire(prefix+"token-"+userCache.getToken(), TimeUnit.MINUTES);
 	            // 将token的过期时间添加到返回的Map中
 	            map.put("token_expire",String.valueOf(expire));
 	        }
@@ -318,8 +318,17 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    }
 	}
 
+	/**
+	 * 删除用户信息
+	 * 此方法首先检查Redis缓存中是否存在与会话ID关联的数据，
+	 * 如果存在，它将删除这些数据，包括用户的登录状态信息、会话ID和令牌信息
+	 * 如果Redis中没有与会话ID关联的数据，方法返回null
+	 *
+	 * @param sessionId 会话ID，用于定位和删除缓存中的用户信息
+	 * @return 删除操作的结果，如果会话ID在Redis中没有对应的缓存数据，则返回null
+	 */
 	@Override
-	public Boolean deleteUser(String sessionId) {
+	public Boolean deleteUserBySessionId(String sessionId) {
 	    // 检查Redis中是否存在与用户ID关联的数据
 	    if (stringRedisTemplate.hasKey(prefix+"sessionId-"+sessionId)){
 	        // 从Redis中获取并解析用户缓存信息
@@ -330,6 +339,41 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        // 如果Redis中没有与用户ID关联的数据，返回null
 		    logger.warn("用户{}信息删除失败，会话ID关联缓存不存在", sessionId);
 	        return null;
+	    }
+	}
+
+	@Override
+	public Boolean deleteUserByToken(String token) {
+		if (stringRedisTemplate.hasKey(prefix+"token-"+token)){
+	        // 从Redis中获取并解析用户缓存信息
+		    String userId = stringRedisTemplate.opsForValue().get(prefix+"token-"+token);
+		    assert userId != null;
+		    return deleteUser(Long.parseLong(userId));
+	    }else {
+	        // 如果Redis中没有与用户ID关联的数据，返回null
+		    logger.warn("用户{}信息删除失败，token关联缓存不存在", token);
+	        return null;
+	    }
+	}
+
+	/**
+	 * 用于更新会话ID与用户ID之间的绑定关系
+	 * 此方法主要目的是在验证token有效后，将sessionId与用户ID绑定，并设置过期时间
+	 *
+	 * @param token    用户的认证令牌，用于验证用户身份
+	 * @param sessionId 新的会话ID，需要与用户ID建立绑定关系
+	 */
+	@Override
+	public void refreshSessionId(String token, String sessionId) {
+	    if (stringRedisTemplate.hasKey(prefix+"token-"+token)){
+	        //从Redis中获取与token关联的用户ID
+	        String userId=stringRedisTemplate.opsForValue().get(prefix+"token-"+token);
+	        //获取token的剩余过期时间，单位为分钟
+	        long expire = stringRedisTemplate.getExpire(prefix+"token-"+token, TimeUnit.MINUTES);
+	        //断言用户ID不为空，确保后续操作的有效性
+	        assert userId != null;
+	        //将sessionId与用户ID绑定，并设置与token相同的过期时间
+	        stringRedisTemplate.opsForValue().set(prefix+"sessionId-"+sessionId, userId , expire, TimeUnit.MINUTES);
 	    }
 	}
 

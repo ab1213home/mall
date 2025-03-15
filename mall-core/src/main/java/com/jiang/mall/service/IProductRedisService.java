@@ -23,9 +23,9 @@ public interface IProductRedisService {
      * 设置一个键值对
      *
      * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
+     * @param product 值，与键关联的数据
      */
-    void setProduct(String key, ProductVo value,long timeout, TimeUnit unit);
+    void setProduct(String key, ProductVo product, long timeout, TimeUnit unit);
 
     /**
      * 根据键获取对应的字符串值

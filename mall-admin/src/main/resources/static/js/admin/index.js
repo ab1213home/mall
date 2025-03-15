@@ -50,7 +50,7 @@ function  getUserNum(){
 }
 function getOrdersAmount(){
 	$.ajax({
-		url:"/order/getAmount",
+		url:"/order/admin/getAmount",
 		type:"get",
 		data:{},
 		dataType:"json",
@@ -61,7 +61,7 @@ function getOrdersAmount(){
 }
 function getOrdersNum(){
 	$.ajax({
-		url:"/order/getAllNum",
+		url:"/order/admin/getNum",
 		type:"get",
 		data:{},
 		dataType:"json",

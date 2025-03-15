@@ -95,5 +95,25 @@ public interface IUserRedisService {
 	 */
     Boolean deleteUser(Long userId);
 
-	Boolean deleteUser(String sessionId);
+	/**
+	 * 删除用户信息
+	 * 此方法首先检查Redis缓存中是否存在与会话ID关联的数据，
+	 * 如果存在，它将删除这些数据，包括用户的登录状态信息、会话ID和令牌信息
+	 * 如果Redis中没有与会话ID关联的数据，方法返回null
+	 *
+	 * @param sessionId 会话ID，用于定位和删除缓存中的用户信息
+	 * @return 删除操作的结果，如果会话ID在Redis中没有对应的缓存数据，则返回null
+	 */
+	Boolean deleteUserBySessionId(String sessionId);
+
+	Boolean deleteUserByToken(String token);
+
+	/**
+	 * 用于更新会话ID与用户ID之间的绑定关系
+	 * 此方法主要目的是在验证token有效后，将sessionId与用户ID绑定，并设置过期时间
+	 *
+	 * @param token    用户的认证令牌，用于验证用户身份
+	 * @param sessionId 新的会话ID，需要与用户ID建立绑定关系
+	 */
+	void refreshSessionId(String token, String sessionId);
 }

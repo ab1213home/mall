@@ -24,7 +24,9 @@ import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.*;
+import com.jiang.mall.service.ICartRedisService;
 import com.jiang.mall.service.ICartService;
+import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,17 +74,25 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         this.userService = userService;
     }
 
+    private ICartRedisService redisService;
+
+	@Autowired
+	private void setCartRedisService(ICartRedisService redisService) {
+		this.redisService = redisService;
+	}
+
     /**
      * 根据用户ID、页码、页面大小和购物车项ID列表，获取购物车项列表的视图对象
      *
-     * @param userId 用户ID，用于验证购物车项属于该用户
-     * @param pageNum 页码，用于分页查询
-     * @param pageSize 页面大小，用于分页查询
+     * @param sessionId
+     * @param pageNum    页码，用于分页查询
+     * @param pageSize   页面大小，用于分页查询
      * @param listCartId 购物车项ID列表，用于查询特定的购物车项
      * @return 返回购物车项的视图列表，如果列表为空或不属于该用户，则返回null
      */
     @Override
-    public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize, List<Long> listCartId) {
+    public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize, List<Long> listCartId) {
+        UserVo user = userService.getUserFromRedis(sessionId);
         // 创建分页对象，指定页码和页面大小
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         // 创建查询构造器，条件是购物车项ID
@@ -95,7 +105,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
         // 遍历查询结果，验证购物车项是否属于指定的用户
         for (Cart cart : carts) {
-            if (!cart.getUserId().equals(userId)){
+            if (!cart.getUserId().equals(user.getId())){
                 return null;
             }
         }
@@ -123,12 +133,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * 该方法主要用于在用户下单后，更新购物车中相关商品的数量或删除已购买的商品
      *
      * @param listCartId     购物车商品ID列表，用于定位需要更新的购物车商品
-     * @param userId         用户ID，用于验证购物车商品是否属于当前用户
+     * @param sessionId
      * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
      * @return 如果成功更新购物车则返回true，否则返回false
      */
     @Override
-    public Boolean deleteCartByOrder(List<Long> listCartId, Long userId, List<CheckoutVo> listCheckoutVo) {
+    public Boolean deleteCartByOrder(List<Long> listCartId, String sessionId, List<CheckoutVo> listCheckoutVo) {
+        UserVo user = userService.getUserFromRedis(sessionId);
         // 根据购物车商品ID列表查询购物车商品信息
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
@@ -141,7 +152,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         // 遍历查询到的购物车商品
         for (Cart cart : carts) {
             // 检查购物车商品是否属于当前用户，如果不属于则返回失败
-            if (!cart.getUserId().equals(userId)){
+            if (!cart.getUserId().equals(user.getId())){
                 return false;
             }
 
@@ -168,8 +179,9 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     @Override
     public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize) {
+        UserVo user = userService.getUserFromRedis(sessionId);
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, userService.getUserFromRedis(sessionId).getId());
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, user.getId());
         List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
         List<CartVo> cartVos = new ArrayList<>();
         for (Cart cart : carts) {
@@ -272,6 +284,21 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
         // 删除购物车项，并返回操作是否成功的布尔值
         return cartMapper.deleteById(id) > 0;
+    }
+
+    @Override
+    public void checkoutToRedis(List<Long> listCartId, String sessionId) {
+        redisService.setCartIdList(sessionId, listCartId);
+    }
+
+    @Override
+    public List<Long> getCartIdListFormRedis(String sessionId) {
+        return redisService.getCartIdList(sessionId);
+    }
+
+    @Override
+    public void deleteCartIdListInRedis(String sessionId) {
+        redisService.deleteCartIdList(sessionId);
     }
 
 }

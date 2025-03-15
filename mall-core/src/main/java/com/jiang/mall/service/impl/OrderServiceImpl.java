@@ -23,6 +23,7 @@ import com.jiang.mall.domain.enums.PaymentMethod;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -31,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -63,6 +63,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Autowired
 	public void setOrderListMapper(OrderListMapper orderListMapper) {
 		this.orderListMapper = orderListMapper;
+	}
+
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
 	}
 
 	private UserMapper userMapper;
@@ -113,18 +120,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	/**
 	 * 插入订单信息
 	 *
-	 * @param userId 用户ID
-	 * @param addressId 地址ID
-	 * @param paymentMethod 支付方式
-	 * @param status 订单状态
+	 * @param sessionId
+	 * @param addressId      地址ID
+	 * @param paymentMethod  支付方式
+	 * @param status         订单状态
 	 * @param listCheckoutVo 结算信息列表，用于创建订单详情
 	 * @return 插入成功返回订单ID，否则返回null
 	 */
 	@Override
-	public Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
+	public Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 	    // 创建订单对象并设置基本信息
 	    Order order = new Order();
-	    order.setUserId(userId);
+	    order.setUserId(user.getId());
 	    order.setAddressId(addressId);
 	    order.setDate(new Date());
 	    order.setTotalAmount(new BigDecimal("0.0"));
@@ -208,17 +216,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize) {
+	public List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		Page<Order> orderPage = new Page<>(pageNum, pageSize);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
-		queryWrapper_order.eq("user_id", userId);
+		queryWrapper_order.eq("user_id", user.getId());
 		List<Order> orderList = orderMapper.selectPage(orderPage,queryWrapper_order).getRecords();
 		List<OrderVo> orderVoList = new ArrayList<>();
-		QueryWrapper<User> queryWrapper_use = new QueryWrapper<>();
-	    queryWrapper_use.eq("id", userId);
-	    queryWrapper_use.eq("is_active", true);
-	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectOne(queryWrapper_use);
 		Long defaultAddressId = user.getDefaultAddressId();
 		for (Order order_item : orderList) {
 			OrderVo orderVo = BeanCopyUtils.copyBean(order_item, OrderVo.class);
@@ -251,13 +255,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	/**
 	 * 根据用户ID获取该用户的订单数量
 	 *
-	 * @param userId 用户ID，用于标识哪个用户的订单数量
-	 * @return 用户的订单数量
+	 * @param sessionId@return 用户的订单数量
 	 */
 	@Override
-	public Long getOrderNum(Long userId) {
+	public Long getOrderNum(String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
-	    queryWrapper_order.eq("user_id", userId);
+	    queryWrapper_order.eq("user_id", user.getId());
 	    // 通过用户ID查询该用户的所有订单
 	    return orderMapper.selectCount(queryWrapper_order);
 	}
@@ -346,7 +350,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 * @return 订单数量
 	 */
 	@Override
-	public Long getAllOrderNum() {
+	public Long getOrderNum() {
 	    // 通过调用Mapper接口的selectCount方法，无条件查询所有订单信息
 	    return orderMapper.selectCount(null);
 	}
@@ -358,18 +362,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LocalDate firstDayOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
 
+		String amount = orderMapper.getAmount(firstDayOfMonth, lastDayOfMonth);
+
         // 使用Lambda表达式构建查询条件
-        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
-        queryWrapper.between("date", Timestamp.valueOf(firstDayOfMonth.atStartOfDay()), Timestamp.valueOf(lastDayOfMonth.atTime(23, 59, 59)));
-        queryWrapper.select("SUM(total_amount) as total_amount");
-
-        // 执行查询
-        List<Map<String, Object>> resultList = orderMapper.selectMaps(queryWrapper);
-
-        // 返回结果
-        if (!resultList.isEmpty() && resultList.get(0) != null) {
-            return resultList.get(0).get("total_amount").toString();
-        }
-        return "0.00";
+//        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.between("date", Timestamp.valueOf(firstDayOfMonth.atStartOfDay()), Timestamp.valueOf(lastDayOfMonth.atTime(23, 59, 59)));
+//        queryWrapper.select("SUM(total_amount) as total_amount");
+//
+//        // 执行查询
+//        List<Map<String, Object>> resultList = orderMapper.selectMaps(queryWrapper);
+//
+//        // 返回结果
+//        if (!resultList.isEmpty() && resultList.get(0) != null) {
+//            return resultList.get(0).get("total_amount").toString();
+//        }
+        return amount != null ? amount: "0.00";
 	}
 }

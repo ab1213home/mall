@@ -13,7 +13,10 @@
 
 package com.jiang.mall.intercepter;
 
+import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.IUserRedisService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,11 +39,11 @@ public class UserInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
-    private IUserService userService;
+    private IUserRedisService redisService;
 
     @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
+    public void setRedisService(IUserRedisService redisService) {
+        this.redisService = redisService;
     }
 
     /**
@@ -58,14 +61,38 @@ public class UserInterceptor implements HandlerInterceptor {
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         // 获取请求的URI
         String requestURI = request.getRequestURI();
-
-        if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
-            return true;
+        //获取token
+        String token = request.getHeader("Authorization");
+//        token != null && !token.isEmpty()
+        if (i18nService.checkString(token)){
+            UserVo user = redisService.getUserByToken(token);
+            if (checkLogin(user)){
+                redisService.refreshSessionId(token, request.getSession().getId());
+                redisService.refreshUserLoginStatus(user.getId());
+                return true;
+            }else {
+                //TODO:判断是网页请求还是API请求,后续应该会改为前后端分离，因此推迟更改
+                redirectToLogin(request, response, requestURI);
+                return false;
+            }
         }else {
-            //判断是网页请求还是API请求
-            //TODO:后续应该会改为前后端分离，因此推迟更改
-            redirectToLogin(request, response, requestURI);
+            UserVo user = redisService.getUserBySessionId(request.getSession().getId());
+            if (checkLogin(user)){
+                redisService.refreshUserLoginStatus(user.getId());
+                return true;
+            }else {
+                //TODO:判断是网页请求还是API请求,后续应该会改为前后端分离，因此推迟更改
+                redirectToLogin(request, response, requestURI);
+                return false;
+            }
+        }
+    }
+
+    public boolean checkLogin(UserVo user){
+        if (user == null){
             return false;
+        }else{
+	        return user.getId() != null;
         }
     }
 

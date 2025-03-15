@@ -22,7 +22,9 @@ import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICollectionService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,13 +50,21 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		this.productMapper = productMapper;
 	}
 
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
+
 	@Override
-	public Boolean insertCollection(Long productId, Long userId) {
+	public Boolean insertCollection(Long productId, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		if (collectionMapper.selectOne(queryWrapper) == null) {
-			Collection collection = new Collection(productId, userId);
+			Collection collection = new Collection(productId, user.getId());
 			return collectionMapper.insert(collection) > 0;
 		}else {
 			return false;
@@ -62,25 +72,28 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Collection queryByProductIdByUserId(Long productId, Long userId) {
+	public Collection queryByProductIdByUserId(Long productId, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		return collectionMapper.selectOne(queryWrapper);
 	}
 
 	@Override
-	public Boolean deleteCollection(Long productId, Long userId) {
+	public Boolean deleteCollection(Long productId, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		return collectionMapper.delete(queryWrapper)>0;
 	}
 
 	@Override
-	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Long userId) {
+	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		Page<Collection> page = new Page<>(pageNum, pageSize);
 		List<Collection> collectionList = collectionMapper.selectPage(page, queryWrapper).getRecords();
 		List<CollectionVo> collectionVo = new ArrayList<>();
@@ -100,17 +113,19 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
-	public Long getCollectionNum(Long userId) {
+	public Long getCollectionNum(String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		return collectionMapper.selectCount(queryWrapper);
 	}
 
 	@Override
-	public Boolean isCollect(Long productId, Long userId) {
+	public Boolean isCollect(Long productId, String sessionId) {
+		UserVo user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", userId);
+		queryWrapper.eq("user_id", user.getId());
 		return collectionMapper.selectOne(queryWrapper) != null;
 	}
 

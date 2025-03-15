@@ -55,8 +55,8 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 
     @Override
-    public void setProduct(String key, ProductVo value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(value), timeout, unit);
+    public void setProduct(String key, ProductVo product, long timeout, TimeUnit unit) {
+        stringRedisTemplate.opsForValue().set(key(key), JSON.toJSONString(product), timeout, unit);
     }
 
     /**

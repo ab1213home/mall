@@ -112,7 +112,7 @@ function queryOrders(pn, pz) {
 function getOrdersNum() {
 	$.ajax({
 		type:"GET",
-		url:"/order/getAllNum",
+		url:"/order/admin/getNum",
 		data:{},
 		dataType:"json",
 		success:function(response){

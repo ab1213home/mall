@@ -31,15 +31,15 @@ import java.util.List;
  */
 public interface IOrderService extends IService<Order> {
 
-	Long insertOrder(Long userId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
+	Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
 
-	List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize);
+	List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize);
 
-	Long getOrderNum(Long userId);
+	Long getOrderNum(String sessionId);
 
 	List<OrderAllVo> getOrderList(Integer pageNum, Integer pageSize);
 
-	Long getAllOrderNum();
+	Long getOrderNum();
 
 	String getAmount();
 }

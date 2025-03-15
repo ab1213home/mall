@@ -145,11 +145,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public UserVo getUserFromRedis(String sessionId) {
-//		if (redisService.hasUser(sessionId)){
-//			return redisService.getUser(sessionId);
-//		}else{
-//			return null;
-//		}
 		return redisService.getUserBySessionId(sessionId);
 	}
 
@@ -351,7 +346,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean logout(String sessionId) {
-		return redisService.deleteUser(sessionId);
+		return redisService.deleteUserBySessionId(sessionId);
 	}
 
 	@Override

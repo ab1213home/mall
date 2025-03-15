@@ -59,11 +59,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         this.categoryMapper = categoryMapper;
     }
 
-	private IProductRedisService productRedisService;
+	private IProductRedisService redisService;
 
 	@Autowired
-	private void setProductRedisService(IProductRedisService productRedisService) {
-		this.productRedisService = productRedisService;
+	private void setProductRedisService(IProductRedisService redisService) {
+		this.redisService = redisService;
 	}
 
 	private CoreConfig coreConfig;
@@ -136,8 +136,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     public ProductVo getProduct(Long id) {
-		if (coreConfig.isProductCacheEnabled() && productRedisService.hasProduct(String.valueOf(id))){
-			return productRedisService.getProduct(String.valueOf(id));
+		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(String.valueOf(id))){
+			return redisService.getProduct(String.valueOf(id));
 		}
         // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);
@@ -156,8 +156,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }else{
             return null;
         }
-        if (coreConfig.isProductCacheEnabled() && ! productRedisService.hasProduct(String.valueOf(id))){
-			productRedisService.setProduct(String.valueOf(id),productVo,coreConfig.getProductCacheTime(), TimeUnit.MINUTES);
+        if (coreConfig.isProductCacheEnabled() && ! redisService.hasProduct(String.valueOf(id))){
+			redisService.setProduct(String.valueOf(id),productVo,coreConfig.getProductCacheTime(), TimeUnit.MINUTES);
         }
 		return productVo;
     }
