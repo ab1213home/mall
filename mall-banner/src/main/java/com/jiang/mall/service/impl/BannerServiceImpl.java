@@ -18,16 +18,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.enums.ChangeType;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.event.BannerChangedEvent;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.task.BannerTask;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,6 +82,13 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.bannerConfig = bannerConfig;
 	}
 
+	private ApplicationEventPublisher eventPublisher;
+
+	@Autowired
+	public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+
 	/**
 	 * 获取横幅列表
 	 *
@@ -120,11 +133,14 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
      * @return 如果删除成功返回true，否则返回false
      */
     @Override
-    public Boolean deleteBanner(Integer id) {
+    @Transactional
+    public Boolean deleteBanner(Long id) {
         // 尝试删除指定ID的轮播图，如果删除成功则进行后续操作
         if (bannerMapper.deleteById(id) == 1){
             // 调用轮播图检查机制，确保数据一致性
-            bannerTask.checkBanner();
+	        eventPublisher.publishEvent(
+	            new BannerChangedEvent(this, id, ChangeType.DELETE)
+	        );
             return true;
         }else{
             // 删除失败，返回false
@@ -185,10 +201,13 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
      * @return 返回一个布尔值，表示插入操作是否成功true 表示成功，false 表示失败
      */
     @Override
+    @Transactional
     public Boolean insertBanner(Banner banner) {
         // 尝试插入轮播图数据，如果成功，触发轮播图检查任务，并返回 true 表示操作成功
     	if (bannerMapper.insert(banner) == 1){
-    		bannerTask.checkBanner();
+			eventPublisher.publishEvent(
+	            new BannerChangedEvent(this, banner.getId(), ChangeType.CREATE)
+	        );
     		return true;
     	}else{
     		// 如果插入失败，返回 false 表示操作失败
@@ -206,16 +225,65 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
      * @return 如果轮播图信息成功更新，则返回true；否则返回false
      */
     @Override
+    @Transactional
     public Boolean updateBanner(Banner banner) {
         // 尝试更新数据库中的轮播图信息
         if (bannerMapper.updateById(banner) == 1){
             // 更新成功后，调用检查任务以确保轮播图状态的正确性
-            bannerTask.checkBanner();
+            eventPublisher.publishEvent(
+	            new BannerChangedEvent(this, banner.getId(), ChangeType.UPDATE)
+	        );
             return true;
         }else{
             // 如果更新失败，返回false
             return false;
         }
     }
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleProductChangedEvent(BannerChangedEvent event) {
+	    try {
+	        switch (event.getChangeType()) {
+	            case CREATE:
+					System.out.println("1");
+	            case UPDATE:
+	                syncProductToEs(event.getBannerId());
+		            System.out.println("2");
+	                break;
+	            case DELETE:
+	                deleteProductFromEs(event.getBannerId());
+					System.out.println("3");
+	                break;
+	        }
+	        refreshCache(event.getBannerId());
+	    } catch (Exception e) {
+//	        log.error("处理商品变更事件失败: {}", e.getMessage());
+	        // 可添加重试逻辑
+	    }
+	}
+
+	private void syncProductToEs(Long productId) {
+//	    Product product = baseMapper.selectById(productId);
+//	    if (product != null) {
+//	        EsProduct esProduct = convertToEsProduct(product);
+//	        elasticsearchOperations.save(esProduct);
+//	    }
+		log.debug("事件触发成功");
+		System.out.println("事件触发成功");
+	}
+
+	private void deleteProductFromEs(Long productId) {
+//	    elasticsearchOperations.delete(productId.toString(), EsProduct.class);
+	}
+
+	private void refreshCache(Long productId) {
+//	    String cacheKey = CACHE_PREFIX + productId;
+//	    redisTemplate.delete(cacheKey);
+//	    Product product = baseMapper.selectById(productId);
+//	    if (product != null) {
+//	        redisTemplate.opsForValue().set(cacheKey, product, 30, TimeUnit.MINUTES);
+//	    }
+		bannerTask.checkBanner();
+	}
 
 }

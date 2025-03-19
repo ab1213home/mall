@@ -24,7 +24,7 @@ function submitForgotStepOneForm() {
 
   // 发送 AJAX 请求
   $.ajax({
-    url: '/user/forgotStep1',
+    url: '/user/forgot/step1',
     type: 'POST',
     data: data,
     success: function (res) {
@@ -106,7 +106,7 @@ function submitForgotStepTwoForm() {
 
   // 发送 AJAX 请求
   $.ajax({
-    url: '/user/forgotStep2',
+    url: '/user/forgot/step2',
     type: 'POST',
     data: data,
     headers: {

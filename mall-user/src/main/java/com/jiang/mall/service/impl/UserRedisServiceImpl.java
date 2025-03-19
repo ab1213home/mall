@@ -59,11 +59,11 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    this.userConfig = userConfig;
 	}
 
-	String prefix = "user-";
+	String prefix = "user:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-user-";
+	    prefix = generalConfig.getRedisKeyPrefix()+":user:";
 	}
 
 

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/user/forgot")
 public class ForgotController {
 
 	private IUserService userService;
@@ -74,7 +74,7 @@ public class ForgotController {
      * @param session HTTP会话
      * @return 操作结果
      */
-    @PostMapping("/forgotStep1")
+    @PostMapping("/step1")
     public ResponseResult<Object> forgotStep1(@RequestParam("username") String username,
                                               @RequestParam("captcha") String captcha,
                                               HttpSession session) {
@@ -128,7 +128,7 @@ public class ForgotController {
      * @param session HTTP会话，用于检查用户登录状态
      * @return 返回密码重置结果的响应对象
      */
-    @PostMapping("/forgotStep2")
+    @PostMapping("/step2")
     public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
                                               @RequestHeader("X-Real-IP") String clientIp,

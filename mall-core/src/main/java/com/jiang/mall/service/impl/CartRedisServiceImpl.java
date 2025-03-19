@@ -41,11 +41,11 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "cart-";
+	String prefix = "cart:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-cart-";
+	    prefix = generalConfig.getRedisKeyPrefix()+":cart:";
 	}
 
     String key(String key){

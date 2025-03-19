@@ -12,7 +12,7 @@
  */
 
 $(document).ready(function() {
-    let flag=isLogin();
+    isLogin();
 	getFooterInfo();
     queryGitInfo();
 });
@@ -24,9 +24,12 @@ function queryGitInfo() {
         dataType: "json",
         success: function(res) {
             $("#version").text(res.data["git.build.version"]);
-            $("#buildTime").text(res.data["git.build.time"]);
-            $("#gitCommit").text(res.data["git.commit.id.abbrev"]);
-            $("#gitCommit").attr("href", "https://github.com/ab1213home/mall/commit/" + res.data["git.commit.id.full"]);
+            const buildTimeStr = res.data["git.build.time"];
+            const formattedBuildTimeStr = buildTimeStr.replace(/$GMT\+0(\d)$/, "(GMT+$1)");
+            $("#buildTime").text(formattedBuildTimeStr);
+            let gitCommit = $("#gitCommit");
+            gitCommit.text(res.data["git.commit.id.abbrev"]);
+            gitCommit.attr("href", "https://github.com/ab1213home/mall/commit/" + res.data["git.commit.id.full"]);
         },
     });
 }

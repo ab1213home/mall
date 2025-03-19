@@ -34,7 +34,7 @@ import java.util.Date;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/user/register")
 public class RegisterController {
 
 	private IUserService userService;
@@ -96,7 +96,7 @@ public class RegisterController {
      * @param session HTTP会话
      * @return 注册结果
      */
-    @PostMapping("/registerStep1")
+    @PostMapping("/step1")
     public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
                                                 @RequestParam("email") String email,
                                                 @RequestParam("password") String password,
@@ -161,7 +161,7 @@ public class RegisterController {
      * @param session HTTP会话
      * @return 注册结果
      */
-    @PostMapping("/registerStep2")
+    @PostMapping("/step2")
     public ResponseResult<Object> registerStep2(@RequestParam("code")String code,
                                                 @RequestHeader("X-Real-IP") String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,

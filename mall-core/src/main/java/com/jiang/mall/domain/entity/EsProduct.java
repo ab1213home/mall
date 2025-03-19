@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.cache;
+package com.jiang.mall.domain.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -19,13 +19,12 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Data
-@Document(indexName = "product")
-public class ProductCache {
+import java.math.BigDecimal;
 
-    /**
-     * 主键ID，自增
-     */
+@Data
+@Document(indexName = "products")
+public class EsProduct {
+
     @Id
     private Long id;
 
@@ -53,20 +52,13 @@ public class ProductCache {
     @Field(type = FieldType.Text)
     private String description;
 
-    public ProductCache() {
-    }
+	@Field(type = FieldType.Double)
+    private BigDecimal price;
 
-    /**
-     * 商品对象的字符串表示形式
-     */
-    @Override
-    public String toString() {
-        return "Product{" +
-            "id = " + id +
-            ", code = " + code +
-            ", title = " + title +
-            ", categoryId = " + categoryId +
-            ", description = " + description +
-        "}";
-    }
+    @Field(type = FieldType.Integer)
+    private Integer stock;
+
+	public EsProduct() {
+
+	}
 }

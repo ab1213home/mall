@@ -177,7 +177,7 @@ public class BannerAdminController {
      * @return 删除结果或错误信息
      */
     @GetMapping("/delete")
-    public ResponseResult<Object> deleteBanner(@RequestParam("id") Integer id,
+    public ResponseResult<Object> deleteBanner(@RequestParam("id") Long id,
                                                 HttpSession session) {
         if (id==null||id<=0){
             return ResponseResult.failResult("参数错误");

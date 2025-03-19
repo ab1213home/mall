@@ -94,9 +94,14 @@ public class User implements Serializable {
     private Long defaultAddressId;
 
     /**
-     * 权限
+     * 用户独立于用户组的权限
      */
     private String permission;
+
+    /**
+     * 不允许从用户组继承的权限
+     */
+    private String deniedPermission;
 
     /**
      * TOTP 状态，默认为 false

@@ -57,7 +57,7 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-banner";
+	    prefix = generalConfig.getRedisKeyPrefix()+":banner";
 	}
 
     /**

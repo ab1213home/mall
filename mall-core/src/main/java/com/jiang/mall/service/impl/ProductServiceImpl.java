@@ -20,15 +20,20 @@ import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.entity.Category;
+import com.jiang.mall.domain.entity.EsProduct;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.event.ProductChangedEvent;
 import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +83,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	@Autowired
 	public void setCategoryService(ICategoryService categoryService) {
 		this.categoryService = categoryService;
+	}
+
+    private ElasticsearchOperations elasticsearchOperations;
+
+	@Autowired
+	public void setElasticsearchOperations(ElasticsearchOperations elasticsearchOperations) {
+		this.elasticsearchOperations = elasticsearchOperations;
 	}
 
     /**
@@ -242,5 +254,46 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    return productMapper.selectList(null);
     }
 
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleProductChangedEvent(ProductChangedEvent event) {
+	    try {
+	        switch (event.getChangeType()) {
+	            case CREATE:
+	            case UPDATE:
+	                syncProductToEs(event.getProductId());
+	                break;
+	            case DELETE:
+	                deleteProductFromEs(event.getProductId());
+	                break;
+	        }
+	        refreshCache(event.getProductId());
+	    } catch (Exception e) {
+	        log.error("处理商品变更事件失败: {}");
+	        // 可添加重试逻辑
+	    }
+	}
+
+	private void syncProductToEs(Long productId) {
+	    Product product = baseMapper.selectById(productId);
+	    if (product != null) {
+	        EsProduct esProduct = BeanCopyUtils.copyBean(product, EsProduct.class);
+		    assert esProduct != null;
+		    elasticsearchOperations.save(esProduct);
+	    }
+	}
+
+	private void deleteProductFromEs(Long productId) {
+	    elasticsearchOperations.delete(productId.toString(), EsProduct.class);
+	}
+
+	private void refreshCache(Long productId) {
+//	    String cacheKey = CACHE_PREFIX + productId;
+//	    redisTemplate.delete(cacheKey);
+//	    Product product = baseMapper.selectById(productId);
+//	    if (product != null) {
+//	        redisTemplate.opsForValue().set(cacheKey, product, 30, TimeUnit.MINUTES);
+//	    }
+	}
 
 }

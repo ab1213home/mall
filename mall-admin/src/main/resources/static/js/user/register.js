@@ -56,7 +56,7 @@ function submitRegisterStepOneForm() {
         // confirmPassword: sha256(confirmPassword),
     };
     $.ajax({
-        url: '/user/registerStep1',
+        url: '/user/register/step1',
         type: 'POST',
         data: data,
         dataType: 'json',
@@ -177,7 +177,7 @@ function submitRegisterStepTowForm() {
 
     // 发送 AJAX 请求
   $.ajax({
-    url: '/user/registerStep2',
+    url: '/user/register/step2',
     type: 'POST',
     data: data,
     headers: {

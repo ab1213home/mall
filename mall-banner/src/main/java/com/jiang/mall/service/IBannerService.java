@@ -83,7 +83,7 @@ public interface IBannerService extends IService<Banner> {
      * @param id 要删除的轮播图的ID
      * @return 如果删除成功返回true，否则返回false
      */
-    Boolean deleteBanner(Integer id);
+    Boolean deleteBanner(Long id);
 
     /**
 	 * 获取当前有效的Banner列表

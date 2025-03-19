@@ -11,26 +11,28 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service.impl;
+package com.jiang.mall.repository;
 
-import com.jiang.mall.domain.cache.ProductCache;
-import com.jiang.mall.service.IProductRepository;
+import com.jiang.mall.domain.entity.EsProduct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.RefreshPolicy;
+import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
 
 @Service
-public abstract class ProductRepositoryImpl implements IProductRepository, ElasticsearchRepository<ProductCache, Long> {
+public interface EsProductRepository extends ElasticsearchRepository<EsProduct, String> {
 
-    @Override
-    public List<Long> findByTitleContainingOrDescriptionContaining(String title, String description) {
-        return null;
-    }
+    /**
+     * 根据名称或描述搜索（使用分词查询）
+     */
+    Page<EsProduct> findByTitleOrDescription(String title, String description, Pageable pageable);
 
+    /**
+     * 价格范围搜索
+     */
+    @Query("{\"range\": {\"price\": {\"gte\": ?0, \"lte\": ?1}}}")
+    Page<EsProduct> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 }

@@ -11,15 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service;
+package com.jiang.mall.controller;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.jiang.mall.domain.cache.ProductCache;
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-
-import java.util.List;
-
-public interface IProductRepository extends ElasticsearchRepository<ProductCache, Long> {
-    // 根据标题或描述搜索
-    List<Long> findByTitleContainingOrDescriptionContaining(String title, String description);
+@RestController
+@RequestMapping("/user")
+public class TotpController {
 }

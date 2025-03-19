@@ -42,11 +42,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "product-";
+	String prefix = "product:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-product-";
+	    prefix = generalConfig.getRedisKeyPrefix()+":product:";
 	}
 
     String key(String key){
