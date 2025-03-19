@@ -24,9 +24,18 @@ function queryGitInfo() {
         dataType: "json",
         success: function(res) {
             $("#version").text(res.data["git.build.version"]);
-            const buildTimeStr = res.data["git.build.time"];
-            const formattedBuildTimeStr = buildTimeStr.replace(/$GMT\+0(\d)$/, "(GMT+$1)");
-            $("#buildTime").text(formattedBuildTimeStr);
+            let buildTimeStr = res.data["git.build.time"];
+            // 正则表达式匹配日期、时间以及时区偏移量
+            const regex = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-])(\d{2}):(\d{2})/;
+            const match = buildTimeStr.match(regex);
+            // 组合日期和时间
+            const dateTime = `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}:${match[6]}`;
+            // 组合时区信息，这里简化处理，假设只处理GMT+X或GMT-X的形式
+            const timeZone = `GMT${match[7] === '+' ? '+' : '-'}${match[8]}`;
+            buildTimeStr = dateTime+(timeZone);
+            // 使用正则表达式匹配并替换时区中的前导零
+            buildTimeStr = buildTimeStr.replace(/$GMT\+0(\d)$/, "(GMT+$1)");
+            $("#buildTime").text(buildTimeStr);
             let gitCommit = $("#gitCommit");
             gitCommit.text(res.data["git.commit.id.abbrev"]);
             gitCommit.attr("href", "https://github.com/ab1213home/mall/commit/" + res.data["git.commit.id.full"]);
