@@ -15,6 +15,7 @@ package com.jiang.mall.service.impl;
 
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
@@ -22,7 +23,6 @@ import com.jiang.mall.domain.enums.FilePurpose;
 import com.jiang.mall.domain.enums.FileType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IUserService;
 import io.minio.*;
@@ -297,7 +297,7 @@ public class FileOperationImpl implements IFileOperation {
         String name;
         if (type==FilePurpose.USER_AVATAR||type==FilePurpose.USER_FACE){
             String extension = index > 0 ? oldFileName.substring(index) : "";
-            UserVo user = userService.getUserFromRedis(sessionId);
+            UserCache user = userService.getUserFromRedis(sessionId);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss_" + user.getId()+"_"+user.getUsername());
             name = sdf.format(new Date()) + extension;
         }else{

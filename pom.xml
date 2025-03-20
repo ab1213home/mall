@@ -259,11 +259,6 @@
                 <version>1.18.3</version>
             </dependency>
 
-    <!--        <dependency>-->
-    <!--            <groupId>org.springframework.session</groupId>-->
-    <!--            <artifactId>spring-session-data-redis</artifactId>-->
-    <!--        </dependency>-->
-
             <!-- minio对象存储 -->
             <dependency>
                 <groupId>io.minio</groupId>
@@ -299,21 +294,13 @@
               <version>0.2.16</version>
             </dependency>
 
-
-        <!-- 解析客户端操作系统、浏览器等 -->
-<!--        <dependency>-->
-<!--            <groupId>eu.bitwalker</groupId>-->
-<!--            <artifactId>UserAgentUtils</artifactId>-->
-<!--&lt;!&ndash;            <version>${bitwalker.version}</version>&ndash;&gt;-->
-<!--        </dependency>-->
-
-        <!-- 获取系统信息 -->
-        <dependency>
-            <groupId>com.github.oshi</groupId>
-            <artifactId>oshi-core</artifactId>
-            <version>6.4.2</version>
-<!--            <version>${oshi.version}</version>-->
-        </dependency>
+            <!-- 获取系统信息 -->
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>6.4.2</version>
+    <!--            <version>${oshi.version}</version>-->
+            </dependency>
 
             <!-- 数据库迁移 -->
             <dependency>

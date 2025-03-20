@@ -17,7 +17,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.*;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -106,8 +105,6 @@ public class OrderController {
 	        }
 	    }
 		cartService.checkoutToRedis(list_cartId, session.getId());
-	    // 将确认购买的商品ID列表保存到会话中，以便后续操作使用
-//	    session.setAttribute("List_cartId", list_cartId);
 	    // 返回操作成功结果
 	    return ResponseResult.okResult();
 	}
@@ -129,22 +126,6 @@ public class OrderController {
 	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize,
 	                                            HttpSession session) {
-//	    // 检查 session.getAttribute("list_cartId") 是否为 null
-//	    List<Long> list_cartId;
-//	    Object listObj = session.getAttribute("List_cartId");
-//
-//	    if (listObj == null) {
-//	        list_cartId = new ArrayList<>();
-//	    } else if (listObj instanceof List<?> tempList) {
-//	        list_cartId = new ArrayList<>();
-//	        for (Object obj : tempList) {
-//	            if (obj instanceof Long) {
-//	                list_cartId.add((Long) obj);
-//	            }
-//	        }
-//	    } else {
-//	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
-//	    }
 		List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
@@ -166,22 +147,7 @@ public class OrderController {
 	 */
 	@GetMapping("/getTemporaryNum")
 	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
-	    // 检查 session.getAttribute("List_cartId") 是否为 null
 	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
-//	    Object listObj = session.getAttribute("List_cartId");
-//
-//	    if (listObj == null) {
-//	        list_cartId = new ArrayList<>();
-//	    } else if (listObj instanceof List<?> tempList) {
-//	        list_cartId = new ArrayList<>();
-//	        for (Object obj : tempList) {
-//	            if (obj instanceof Long) {
-//	                list_cartId.add((Long) obj);
-//	            }
-//	        }
-//	    } else {
-//	        return ResponseResult.failResult("Session中的List_cartId数据类型错误");
-//	    }
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -229,28 +195,10 @@ public class OrderController {
 	    Long orderId = orderService.insertOrder(session.getId(), addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
 	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
-//	    Object listObj = session.getAttribute("List_cartId");
-//
-//	    if (listObj == null) {
-//	        list_cartId = new ArrayList<>();
-//	    } else if (listObj instanceof List<?> tempList) {
-//	        list_cartId = new ArrayList<>();
-//	        for (Object obj : tempList) {
-//	            if (obj instanceof Long) {
-//	                list_cartId.add((Long) obj);
-//	            }
-//	        }
-//	    } else {
-//	        return ResponseResult.failResult("Session中的List_prodId数据类型错误");
-//	    }
 	    // 根据订单删除购物车中的商品
 	    cartService.deleteCartByOrder(list_cartId, session.getId(), list_checkoutVo);
 		//删除redis中的缓存
 		cartService.deleteCartIdListInRedis(session.getId());
-//	    if (session.getAttribute("List_cartId") != null) {
-//	        // 删除会话中的购物车ID列表
-//	        session.removeAttribute("List_cartId");
-//	    }
 	    if (orderId == null) {
 	        return ResponseResult.failResult("提交失败");
 	    }

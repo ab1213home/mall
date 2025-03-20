@@ -18,11 +18,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CollectionMapper;
 import com.jiang.mall.dao.ProductMapper;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Collection;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICollectionService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -59,7 +59,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Boolean insertCollection(Long productId, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", user.getId());
@@ -73,7 +73,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Collection queryByProductIdByUserId(Long productId, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", user.getId());
@@ -82,7 +82,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Boolean deleteCollection(Long productId, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", user.getId());
@@ -91,7 +91,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_id", user.getId());
 		Page<Collection> page = new Page<>(pageNum, pageSize);
@@ -114,7 +114,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Long getCollectionNum(String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("user_id", user.getId());
 		return collectionMapper.selectCount(queryWrapper);
@@ -122,7 +122,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Boolean isCollect(Long productId, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
 		queryWrapper.eq("user_id", user.getId());

@@ -15,8 +15,9 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -66,8 +67,7 @@ public class UserAdminController {
     public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "20") Integer pageSize,
                                               HttpSession session){
-        UserVo user = (UserVo) userService.checkAdminUser(session.getId()).getData();
-        List<UserVo> userList = userService.getUserList(pageNum,pageSize, user.getId());
+        List<UserAdminVo> userList = userService.getUserList(pageNum,pageSize);
         if (userList == null){
             return ResponseResult.failResult("获取用户列表失败！");
         }
@@ -97,7 +97,7 @@ public class UserAdminController {
             return ResponseResult.failResult(i18nService.getMessage("id.error"));
         }
 
-		UserVo user = userService.getUserFromRedis(session.getId());
+		UserCache user = userService.getUserFromRedis(session.getId());
 		if (Objects.equals(user.getId(), userId)){
 			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
 		}

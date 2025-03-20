@@ -22,9 +22,11 @@ import com.jiang.mall.dao.GroupMapper;
 import com.jiang.mall.dao.UserGroupRelationMapper;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -34,10 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
@@ -131,25 +130,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	@Override
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
-		UserVo user = redisService.getUserBySessionId(sessionId);
+		UserCache user = getUserFromRedis(sessionId);
 		if (user == null){
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}else{
 			if (user.getId()==null){
 				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
 			}else{
-				return ResponseResult.okResult(user);
+				return ResponseResult.okResult(BeanCopyUtils.copyBean(user, UserVo.class));
 			}
 		}
 	}
 
 	@Override
-	public UserVo getUserFromRedis(String sessionId) {
+	public UserCache getUserFromRedis(String sessionId) {
 		return redisService.getUserBySessionId(sessionId);
 	}
 
 	@Override
-	public void setUserToRedis(UserVo user) {
+	public void setUserToRedis(UserCache user) {
 		redisService.updateUser(user);
 	}
 
@@ -164,31 +163,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    return userMapper.selectCount(null);
 	}
 
-	/**
-	 * 检查当前用户是否为管理员
-	 * 此方法首先调用checkUserLogin方法验证用户是否已登录
-	 * 如果用户未登录，则返回相应的未登录结果
-	 * 如果用户已登录但不是管理员，则返回无权限访问的结果
-	 * 如果用户已登录且是管理员，则返回成功的验证结果
-	 *
-	 * @param sessionId 当前用户的会话Id
-	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
-	 */
-	@Override
-	public ResponseResult<Object> checkAdminUser(String sessionId) {
-	    // 检查用户是否已登录
-	    ResponseResult<Object> result = checkUserLogin(sessionId);
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-		UserVo user = (UserVo) result.getData();
-		if (user.isAdmin()){
-			return ResponseResult.okResult(user);
-		}else{
-			return ResponseResult.failResult(i18nService.getMessage("user.checkAdmin.noAdmin"));
-		}
-	}
+//	/**
+//	 * 检查当前用户是否为管理员
+//	 * 此方法首先调用checkUserLogin方法验证用户是否已登录
+//	 * 如果用户未登录，则返回相应的未登录结果
+//	 * 如果用户已登录但不是管理员，则返回无权限访问的结果
+//	 * 如果用户已登录且是管理员，则返回成功的验证结果
+//	 *
+//	 * @param sessionId 当前用户的会话Id
+//	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
+//	 */
+//	@Override
+//	public ResponseResult<Object> checkAdminUser(String sessionId) {
+//	    // 检查用户是否已登录
+//	    ResponseResult<Object> result = checkUserLogin(sessionId);
+//	    if (!result.isSuccess()) {
+//	        // 如果未登录，则直接返回
+//	        return result;
+//	    }
+//		UserVo user = (UserVo) result.getData();
+//		if (user.isAdmin()){
+//			return ResponseResult.okResult(user);
+//		}else{
+//			return ResponseResult.failResult(i18nService.getMessage("user.checkAdmin.noAdmin"));
+//		}
+//	}
 
 	/**
 	 * 用户登录方法
@@ -209,29 +208,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			logger.debug("用户名或密码错误");
 			return false;
 		} else {
-			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
-	        assert userVo != null;
+//			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
+			UserCache userCache = BeanCopyUtils.copyBean(user, UserCache.class);
+			assert userCache != null;
 			Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
-			userVo.setGroups(groupIds);
+			userCache.setGroups(groupIds);
 			StringBuilder permissions_str = new StringBuilder();
 			for (Long groupId : groupIds) {
 				permissions_str.append(groupMapper.selectPermissionByGroupId(groupId)).append(",");
 			}
 			permissions_str.append(user.getPermission());
 
-			Set<String> permissions = new HashSet<>();
-			for (String permission : permissions_str.toString().split(",")) {
-				permissions.add(permission);
-			}
-			userVo.setPermissions(permissions);
-	        userVo.setAdmin(!permissions.isEmpty());
+			Set<String> permissions = new HashSet<>(Arrays.asList(permissions_str.toString().split(",")));
+			userCache.setPermissions(permissions);
+//	        userCache.setAdmin(!permissions.isEmpty());
 			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
-                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+//                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+				userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			String token = UUID.randomUUID().toString();
 			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setUser(sessionId, token, userVo);
+			redisService.setUser(sessionId, token, userCache);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
 			logger.debug("用户{}登录成功", user.getUsername());
@@ -356,7 +354,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
-		UserVo userVo = getUserFromRedis(sessionId);
+		UserCache userVo = getUserFromRedis(sessionId);
 		User user = userMapper.selectUserByIdAndActive(userVo.getId());
 		if (userMapper.updateEmail(user.getId(),verificationCode.getEmail())>0){
 			// 验证码使用标记
@@ -450,7 +448,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean lock(String sessionId, String clientIp, String fingerprint) {
-		UserVo user = getUserFromRedis(sessionId);
+		UserCache user = getUserFromRedis(sessionId);
 
 		if(userMapper.lockById(user.getId(),user.getId())>0) {
 			userRecordService.successLockLog(user.getId(),clientIp,fingerprint);
@@ -464,7 +462,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean lock(Long userId, String sessionId, String clientIp, String fingerprint) {
-		UserVo user = getUserFromRedis(sessionId);
+		UserCache user = getUserFromRedis(sessionId);
 		if (userMapper.selectById(userId)==null){
 			logger.info("尝试锁定不存在的{}用户", userId);
 			return null;
@@ -487,7 +485,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean unlock(Long userId, String sessionId, String clientIp, String fingerprint) {
-		UserVo user = getUserFromRedis(sessionId);
+		UserCache user = getUserFromRedis(sessionId);
 		if (userMapper.selectById(userId)==null){
 			logger.info("尝试解锁不存在的{}用户", userId);
 			return null;
@@ -517,7 +515,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 尝试更新用户信息
 	    if (userMapper.updateById(user)>0){
 	        // 如果更新成功，从Redis中获取当前用户信息
-	        UserVo userVo = getUserFromRedis(sessionId);
+	        UserCache userVo = getUserFromRedis(sessionId);
 
 	        // 更新用户信息
 	        userVo.setFirstName(user.getFirstName());
@@ -548,6 +546,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			userVo.setId(-1L);
 			userVo.setUsername("系统默认");
 			return userVo;
+		}else if (userId==0){
+			UserVo userVo = new UserVo();
+			userVo.setId(0L);
+			userVo.setUsername("未知用户");
+			return userVo;
 		}
 		User user = userMapper.selectById(userId);
 		if (user==null){
@@ -574,7 +577,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean modifyPassword(@NotNull String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
 	    // 从Redis中获取当前用户信息
-	    UserVo user = getUserFromRedis(sessionId);
+	    UserCache user = getUserFromRedis(sessionId);
 
 	    // 验证旧密码是否正确
 	    if (!oldPassword.equals(userMapper.selectById(user.getId()).getPassword())){
@@ -630,13 +633,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 它首先通过用户ID获取用户信息，然后根据此用户的角色ID从数据库中查询相应的用户列表
      * 最后，它会为每个用户计算下一次生日的天数，并设置是否为管理员的状态
      *
-     * @param pageNum 当前页码
+     * @param pageNum  当前页码
      * @param pageSize 页面大小
-     * @param userId 用户ID
      * @return 用户列表的Vo对象
      */
 	@Override
-    public List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId) {
+    public List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize) {
         // 通过用户ID获取用户信息
 //        User user = userMapper.selectById(userId);
         // 创建分页对象
@@ -647,14 +649,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 根据分页和查询条件获取用户列表
         List<User> users = userMapper.selectPage(userPage,queryWrapper).getRecords();
         // 将用户列表转换为Vo对象列表
-        List<UserVo> userVos = BeanCopyUtils.copyBeanList(users, UserVo.class);
+        List<UserAdminVo> userVos = new ArrayList<>();
         // 为每个Vo对象计算下一次生日和设置是否为管理员状态
-        for (UserVo userVo : userVos) {
-			userVo.setActive(userMapper.selectById(userVo.getId()).getIsActive());
-			if (userVo.getBirthDate() != null) {
-				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
-			}
-            userVo.setAdmin(!userVo.getPermissions().isEmpty());
+        for (User user : users) {
+			UserAdminVo userVo = BeanCopyUtils.copyBean(user, UserAdminVo.class);
+	        assert userVo != null;
+	        userVo.setUpdater(getUserById(user.getUpdater()));
+//			userVo.setActive(userMapper.selectById(userVo.getId()).getIsActive());
+//			if (userVo.getBirthDate() != null) {
+//				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
+//			}
+//            userVo.setAdmin(!userVo.getPermissions().isEmpty());
+	        userVos.add(userVo);
         }
         // 返回处理后的用户列表Vo对象
         return userVos;

@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.*;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.*;
 import com.jiang.mall.domain.enums.OrderStatus;
 import com.jiang.mall.domain.enums.PaymentMethod;
@@ -34,7 +35,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import static com.jiang.mall.util.DecimalUtils.add;
 
@@ -129,7 +133,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 */
 	@Override
 	public Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 	    // 创建订单对象并设置基本信息
 	    Order order = new Order();
 	    order.setUserId(user.getId());
@@ -217,7 +221,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 	@Override
 	public List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		Page<Order> orderPage = new Page<>(pageNum, pageSize);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
 		queryWrapper_order.eq("user_id", user.getId());
@@ -259,7 +263,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 */
 	@Override
 	public Long getOrderNum(String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
 	    queryWrapper_order.eq("user_id", user.getId());
 	    // 通过用户ID查询该用户的所有订单

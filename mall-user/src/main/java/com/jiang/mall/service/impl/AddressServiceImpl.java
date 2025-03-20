@@ -19,10 +19,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.AddressMapper;
 import com.jiang.mall.dao.AdministrativeDivisionMapper;
 import com.jiang.mall.dao.UserMapper;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.entity.AdministrativeDivision;
 import com.jiang.mall.domain.vo.AddressVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -124,7 +124,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	@Override
 	public List<AddressVo> getAddressList(String sessionId, Integer pageNum, Integer pageSize) {
 	    // 从Redis中获取用户信息
-	    UserVo user = userService.getUserFromRedis(sessionId);
+	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 创建分页对象，指定当前页码和页面大小
 	    Page<Address> addressPage = new Page<>(pageNum, pageSize);
 	    // 创建查询构造器
@@ -160,7 +160,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	@Override
 	public Long getAddressNum(String sessionId) {
 	    // 从Redis中获取用户信息
-	    UserVo user = userService.getUserFromRedis(sessionId);
+	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 创建查询构造器，用于后续的查询条件组装
 	    QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
 	    // 设置查询条件，查找用户ID与参数中用户ID匹配的地址
@@ -183,7 +183,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	@Override
 	public Boolean insertAddress(@NotNull Address address, boolean isDefault, String sessionId) {
 	    // 从Redis中获取当前用户信息
-	    UserVo user = userService.getUserFromRedis(sessionId);
+	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 设置地址对象的用户ID
 	    address.setUserId(user.getId());
 	    // 插入地址到数据库，并判断是否成功
@@ -209,7 +209,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	@Override
 	public Boolean updateAddress(@NotNull Address address, boolean isDefault, String sessionId) {
 	    // 从Redis中获取当前用户信息
-	    UserVo user = userService.getUserFromRedis(sessionId);
+	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 检查旧地址是否属于当前用户，如果不是，返回null
 	    if (!addressMapper.selectUserIdById(address.getId()).equals(user.getId())){
 	        return null;
@@ -256,7 +256,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	@Override
 	public Boolean deleteAddress(Long id, String sessionId) {
 	    // 从Redis中获取当前用户信息
-	    UserVo user = userService.getUserFromRedis(sessionId);
+	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 检查旧地址是否属于当前用户，如果不是，返回null
 	    if (!addressMapper.selectUserIdById(id).equals(user.getId())){
 	        return null;

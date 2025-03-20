@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.Set;
 
 /**
  * 用户视图对象
@@ -71,39 +70,9 @@ public class UserVo {
     private Date birthDate;
 
     /**
-     * 默认地址ID
-     */
-    //TODO:计划删除
-    private Long defaultAddressId;
-
-    /**
-     * 是否激活
-     */
-    //TODO:计划删除
-    private boolean isActive;
-
-    /**
-     * 是否是管理员
-     */
-    //TODO:计划删除
-    private boolean isAdmin;
-
-    /**
      * 距离下次生日的天数
      */
     private Integer nextBirthday;
-
-    /**
-     * 权限set集合
-     */
-    //TODO:计划删除
-    private Set<String> permissions;
-
-    /**
-     * 用户组set集合
-     */
-    //TODO:计划删除
-    private Set<Long> groups;
 
     /**
      * 默认构造方法

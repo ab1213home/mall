@@ -22,7 +22,7 @@ NC='\033[0m' # 重置颜色
 
 # 配置参数
 DOCKER_COMPOSE_VERSION="v2.29.7"
-DOWNLOAD_URL="https://raw.githubusercontent.com/ab1213home/mall/develop"
+DOWNLOAD_URL="https://download.jiangrongjun.top/"
 
 # Docker 安装
 install_docker() {

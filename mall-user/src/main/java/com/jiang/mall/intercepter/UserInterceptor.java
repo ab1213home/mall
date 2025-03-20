@@ -13,14 +13,18 @@
 
 package com.jiang.mall.intercepter;
 
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -46,6 +50,8 @@ public class UserInterceptor implements HandlerInterceptor {
         this.redisService = redisService;
     }
 
+    private static final Logger logger = LoggerFactory.getLogger(UserInterceptor.class);
+
     /**
      * 重写preHandle方法，用于在处理请求前进行用户登录状态的检查
      * 此方法的主要目的是确定用户是否已经登录，如果未登录，则重定向到登录页面
@@ -59,36 +65,44 @@ public class UserInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-        // 获取请求的URI
-        String requestURI = request.getRequestURI();
         //获取token
         String token = request.getHeader("Authorization");
-//        token != null && !token.isEmpty()
         if (i18nService.checkString(token)){
-            UserVo user = redisService.getUserByToken(token);
+            UserCache user = redisService.getUserByToken(token);
             if (checkLogin(user)){
                 redisService.refreshSessionId(token, request.getSession().getId());
                 redisService.refreshUserLoginStatus(user.getId());
                 return true;
             }else {
-                //TODO:判断是网页请求还是API请求,后续应该会改为前后端分离，因此推迟更改
-                redirectToLogin(request, response, requestURI);
+                redirectToLogin(request, response);
                 return false;
             }
         }else {
-            UserVo user = redisService.getUserBySessionId(request.getSession().getId());
+            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
             if (checkLogin(user)){
                 redisService.refreshUserLoginStatus(user.getId());
                 return true;
             }else {
-                //TODO:判断是网页请求还是API请求,后续应该会改为前后端分离，因此推迟更改
-                redirectToLogin(request, response, requestURI);
+                redirectToLogin(request, response);
                 return false;
             }
         }
     }
 
-    public boolean checkLogin(UserVo user){
+    private void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        //TODO:根据请求来源返回未登录响应
+        String agent = request.getHeader("User-Agent");
+        logger.debug("agent:{}",agent);
+        if (agent == null) redirectToLoginInApi(response);
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        if (!userAgent.getBrowser().isUnknown()){
+            redirectToLoginInBrowser(request, response,request.getContextPath() + "/user/login.html");
+        }else {
+            redirectToLoginInApi(response);
+        }
+    }
+
+    public boolean checkLogin(UserCache user){
         if (user == null){
             return false;
         }else{
@@ -102,12 +116,11 @@ public class UserInterceptor implements HandlerInterceptor {
      *
      * @param request  HTTP请求对象，用于获取上下文路径
      * @param response HTTP响应对象，用于重定向用户到登录页面
-     * @param requestURI 当前请求的URI，尝试访问但需要登录权限的资源地址
      * @throws IOException 重定向过程中可能抛出的IO异常
      */
-    public void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String requestURI) throws IOException {
-        // 构造登录页面的URL，使用上下文路径确保正确获取登录页面的位置
-        String loginUrl = request.getContextPath() + "/user/login.html";
+    public void redirectToLoginInBrowser(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String redirectUrl) throws IOException {
+        // 获取请求的URI
+        String requestURI = request.getRequestURI();
         // 编码请求的URI，以确保URL中的特殊字符能够正确传递
         String urlParam = URLEncoder.encode(requestURI, StandardCharsets.UTF_8);
         // 编码提示信息，以确保非ASCII字符能正确传递
@@ -118,6 +131,13 @@ public class UserInterceptor implements HandlerInterceptor {
         response.setCharacterEncoding("UTF-8");
 
         // 执行重定向，将用户引导至登录页面，并传递目标URL和提示信息作为参数
-        response.sendRedirect(loginUrl + "?url=" + urlParam + "&message=" + messageParam);
+        response.sendRedirect(redirectUrl + "?url=" + urlParam + "&message=" + messageParam);
+    }
+
+    public void redirectToLoginInApi(@NotNull HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        String json = JSON.toJSONString(ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin")));
+        response.getWriter().write(json);
     }
 }

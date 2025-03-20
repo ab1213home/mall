@@ -20,13 +20,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.CartMapper;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.Product;
-import com.jiang.mall.domain.vo.*;
+import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CategoryVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.ICartRedisService;
 import com.jiang.mall.service.ICartService;
-import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +95,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      */
     @Override
     public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize, List<Long> listCartId) {
-        UserVo user = userService.getUserFromRedis(sessionId);
+        UserCache user = userService.getUserFromRedis(sessionId);
         // 创建分页对象，指定页码和页面大小
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         // 创建查询构造器，条件是购物车项ID
@@ -139,7 +142,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      */
     @Override
     public Boolean deleteCartByOrder(List<Long> listCartId, String sessionId, List<CheckoutVo> listCheckoutVo) {
-        UserVo user = userService.getUserFromRedis(sessionId);
+        UserCache user = userService.getUserFromRedis(sessionId);
         // 根据购物车商品ID列表查询购物车商品信息
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
@@ -179,7 +182,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     @Override
     public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize) {
-        UserVo user = userService.getUserFromRedis(sessionId);
+        UserCache user = userService.getUserFromRedis(sessionId);
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, user.getId());
         List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
@@ -227,7 +230,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     @Override
     public Boolean insertCart(Long productId, Long num, String sessionId) {
         // 从Redis中获取用户信息
-        UserVo user = userService.getUserFromRedis(sessionId);
+        UserCache user = userService.getUserFromRedis(sessionId);
         // 根据商品ID和用户ID查询购物车记录
         Cart cart = cartMapper.selectOneByProdIdAndUserId(productId, user.getId());
 

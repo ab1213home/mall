@@ -116,6 +116,7 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**/admin/**")
                 .addPathPatterns("/admin/**")
                 .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/user/isAdminUser")
                 .addPathPatterns("/admin/**.html?*")
                 .addPathPatterns("/admin/**/**.html")
                 .addPathPatterns("/admin/**/**.html?*");

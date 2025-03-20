@@ -15,8 +15,10 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 
 import java.util.List;
@@ -39,15 +41,15 @@ public interface IUserService extends IService<User> {
 
     Boolean queryByEmail(String email);
 
-    List<UserVo> getUserList(Integer pageNum, Integer pageSize, Long userId);
+    List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize);
 
-    ResponseResult<Object> checkAdminUser(String sessionId);
+//    ResponseResult<Object> checkAdminUser(String sessionId);
 
     ResponseResult<Object> checkUserLogin(String sessionId);
 
-    UserVo getUserFromRedis(String sessionId);
+    UserCache getUserFromRedis(String sessionId);
 
-    void setUserToRedis(UserVo user);
+    void setUserToRedis(UserCache user);
 
     Long getUserNum();
 

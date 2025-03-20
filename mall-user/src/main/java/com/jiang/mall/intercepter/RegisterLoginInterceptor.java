@@ -17,7 +17,6 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.ITemporaryRedisService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +52,7 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
      * @return boolean 返回值决定是否继续执行其他拦截器和当前请求的处理器方法
      *                 如果返回true，表示继续执行；如果返回false，表示中断执行
      * <p>
-     * 此方法主要用于检查用户是否已经登录如果用户已经登录，将直接重定向到用户首页，
+     * 此方法主要用于检查用户注册是否过期，
      * 以避免未授权的访问此拦截器对所有请求生效，但只对未登录的用户进行重定向操作
      */
     @Override
@@ -64,11 +63,12 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
             // 如果用户已登录，重定向到用户首页
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
-            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.register.error.previous")));
+            String json = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.register.error.previous")));
             PrintWriter writer = response.getWriter();
-            writer.write(jsonResponse);
+            writer.write(json);
             writer.flush();
             writer.close();
+            return false;
         }
         // 允许其他请求继续执行
         return true;

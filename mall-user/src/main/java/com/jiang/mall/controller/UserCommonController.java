@@ -15,7 +15,7 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public class UserCommonController {
      */
     @GetMapping("/user/getDays")
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
-        UserVo user =userService.getUserFromRedis(session.getId());
+        UserCache user =userService.getUserFromRedis(session.getId());
         // 检查是否设置了用户生日
         if (user.getBirthDate() == null){
             return ResponseResult.failResult("未设置生日！");

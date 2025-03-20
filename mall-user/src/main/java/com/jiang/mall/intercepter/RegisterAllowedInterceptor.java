@@ -52,20 +52,21 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
      * @return boolean 返回值决定是否继续执行其他拦截器和当前请求的处理器方法
      *                 如果返回true，表示继续执行；如果返回false，表示中断执行
      * <p>
-     * 此方法主要用于检查用户是否已经登录如果用户已经登录，将直接重定向到用户首页，
+     * 此方法主要用于检查是否允许注册，将直接重定向到首页，
      * 以避免未授权的访问此拦截器对所有请求生效，但只对未登录的用户进行重定向操作
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-        // 检查用户登录状态
+        // 检查是否允许注册
         if (!userConfig.isAllowRegistration()){
             response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
-            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(403,i18nService.getMessage("user.register.error.allowed")));
+            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_FORBIDDEN,i18nService.getMessage("user.login.error.repeated")));
             PrintWriter writer = response.getWriter();
             writer.write(jsonResponse);
             writer.flush();
             writer.close();
+            return false;
         }
         // 允许其他请求继续执行
         return true;

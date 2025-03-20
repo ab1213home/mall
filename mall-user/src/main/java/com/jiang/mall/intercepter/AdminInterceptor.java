@@ -13,8 +13,8 @@
 
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -29,11 +29,11 @@ public class AdminInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
 
-    private IUserService userService;
+    private IUserRedisService redisService;
 
     @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
+    public void setRedisService(IUserRedisService redisService) {
+        this.redisService = redisService;
     }
 
 	@Override
@@ -76,7 +76,7 @@ public class AdminInterceptor implements HandlerInterceptor {
 
         logger.debug("权限:{}", permission);
 
-        UserVo user = userService.getUserFromRedis(request.getSession().getId());
+        UserCache user =redisService.getUserBySessionId(request.getSession().getId());
         for (String s : user.getPermissions()) {
             if (s.contentEquals(permission)){
                 return true;

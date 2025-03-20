@@ -14,8 +14,8 @@
 package com.jiang.mall.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.jiang.mall.domain.vo.UserVo;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +27,11 @@ import java.time.LocalDateTime;
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
-    private IUserService userService;
+    private IUserRedisService redisService;
 
     @Autowired
-    public void setUserService(@Lazy IUserService userService) {
-        this.userService = userService;
+    public void setRedisService(@Lazy IUserRedisService redisService) {
+        this.redisService=redisService;
     }
 
     private HttpServletRequest request;
@@ -50,18 +50,18 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+        if(redisService.getUserBySessionId(request.getSession().getId())!=null){
             // 从会话中获取当前用户的ID
-            UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
+            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
             // 设置创建者ID为当前用户的ID
-            this.setFieldValByName("creator", userVo.getId(), metaObject);
+            this.setFieldValByName("creator", user.getId(), metaObject);
             // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", userVo.getId(), metaObject);
+            this.setFieldValByName("updater", user.getId(), metaObject);
         }else{
-            // 设置创建者ID为当前用户的ID
-            this.setFieldValByName("creator", -1, metaObject);
-            // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", -1, metaObject);
+            // 设置创建者ID为未知的ID
+            this.setFieldValByName("creator", 0L, metaObject);
+            // 设置更新者ID为未知的ID
+            this.setFieldValByName("updater", 0L, metaObject);
         }
         // 设置创建时间为当前时间
         this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
@@ -80,14 +80,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         // 设置更新时间为当前时间
         this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
-        if(userService.checkUserLogin(request.getSession().getId()).isSuccess()){
+        if(redisService.getUserBySessionId(request.getSession().getId())!=null){
             // 从会话中获取当前用户的ID
-            UserVo userVo = (UserVo)userService.checkUserLogin(request.getSession().getId()).getData() ;
+            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
             // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", userVo.getId(), metaObject);
+            this.setFieldValByName("updater", user.getId(), metaObject);
         }else{
-            // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", -1, metaObject);
+            // 设置更新者ID为未知的ID
+            this.setFieldValByName("updater", 0L, metaObject);
         }
     }
 

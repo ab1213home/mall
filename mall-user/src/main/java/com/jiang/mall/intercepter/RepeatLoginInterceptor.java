@@ -67,6 +67,7 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
             writer.write(jsonResponse);
             writer.flush();
             writer.close();
+            return false;
         }
         // 允许其他请求继续执行
         return true;

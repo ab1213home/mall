@@ -14,8 +14,8 @@
 package com.jiang.mall.controller.modify;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.EmailCodeDto;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user/modify")
+@RequestMapping("/user/modify/email")
 public class EmailModifyController {
 
 	private IUserService userService;
@@ -71,12 +71,12 @@ public class EmailModifyController {
 		this.emailService = emailService;
 	}
 
-	@PostMapping("/emailStep1")
+	@PostMapping("/step1")
     public ResponseResult<Object> emailStep1(@RequestParam("password") String password,
 	                                         @RequestParam("email") String email,
 	                                         @RequestParam("captcha") String captcha,
 	                                         HttpSession session) {
-		UserVo user = userService.getUserFromRedis(session.getId());
+		UserCache user = userService.getUserFromRedis(session.getId());
 
         if (password==null||captcha==null||email==null){
             return ResponseResult.failResult("非法请求");
@@ -140,7 +140,7 @@ public class EmailModifyController {
 	 * @param session HTTP会话，用于获取用户登录信息
 	 * @return 返回修改结果
 	 */
-	@PostMapping("/emailStep2")
+	@PostMapping("/step2")
 	public ResponseResult<Object> emailStep2(@RequestParam("code") String code,
 	                                         @RequestHeader("X-Real-IP") String clientIp,
 	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,

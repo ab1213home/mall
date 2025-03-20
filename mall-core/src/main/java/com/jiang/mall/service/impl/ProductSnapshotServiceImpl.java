@@ -18,9 +18,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.OrderListMapper;
 import com.jiang.mall.dao.OrderMapper;
 import com.jiang.mall.dao.ProductSnapshotMapper;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
@@ -79,7 +79,7 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 
 	@Override
 	public ProductSnapshotVo getSnapshot(Long id, String sessionId) {
-		UserVo user = userService.getUserFromRedis(sessionId);
+		UserCache user = userService.getUserFromRedis(sessionId);
 		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
 	    if (orderId!= null){
 	        // 验证订单是否属于指定的用户

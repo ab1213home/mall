@@ -17,7 +17,7 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.cache.UserBindingCache;
-import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 * @param user 用户信息对象，包含用户相关数据
 	 */
 	@Override
-	public void setUser(String sessionId, String token, @NotNull UserVo user) {
+	public void setUser(String sessionId, String token, @NotNull UserCache user) {
 	    // 创建用户缓存对象，用于存储用户会话和令牌信息
 	    UserBindingCache userBindingCache = new UserBindingCache();
 	    userBindingCache.setSessionId(sessionId);
@@ -110,7 +110,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 * @param user 用户信息，不能为空
 	 */
 	@Override
-	public void updateUser(@NotNull UserVo user) {
+	public void updateUser(@NotNull UserCache user) {
 	    // 检查Redis中是否存在当前用户的缓存
 	    if(stringRedisTemplate.hasKey(prefix+"id-"+user.getId())){
 	        // 获取当前用户缓存的剩余过期时间
@@ -124,10 +124,10 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    }
 	}
 
-	private @Nullable UserVo getUser(String userId){
+	private @Nullable UserCache getUser(String userId){
 		if (stringRedisTemplate.hasKey(prefix+"id-"+userId)){
 			// 如果用户详细信息存在，则解析并返回用户信息对象
-			return JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+"id-"+userId), UserVo.class);
+			return JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+"id-"+userId), UserCache.class);
 		}else {
 			// 如果用户详细信息不存在，则返回null
 			logger.warn("用户{}信息获取失败，缓存不存在", userId);
@@ -145,7 +145,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 * @return 如果找到用户信息则返回用户信息对象UserVo，否则返回null
 	 */
 	@Override
-	public UserVo getUserByToken(String token) {
+	public UserCache getUserByToken(String token) {
 	    // 检查Redis中是否存在与给定token关联的用户ID
 	    if (stringRedisTemplate.hasKey(prefix+"token-"+token)){
 	        // 获取与token关联的用户ID
@@ -169,7 +169,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 * @return UserVo 如果找到对应的用户信息，则返回UserVo对象，否则返回null
 	 */
 	@Override
-	public UserVo getUserBySessionId(String sessionId) {
+	public UserCache getUserBySessionId(String sessionId) {
 	    // 检查是否存在与给定会话ID关联的用户ID
 	    if (stringRedisTemplate.hasKey(prefix+"sessionId-"+sessionId)){
 	        // 获取用户ID
