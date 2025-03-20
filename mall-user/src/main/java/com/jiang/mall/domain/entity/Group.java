@@ -72,4 +72,23 @@ public class Group implements Serializable {
      */
     @TableLogic
     private Boolean isDel;
+
+    public Group() {
+    }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", permission='" + permission + '\'' +
+                ", totpEnabled=" + totpEnabled +
+                ", creator=" + creator +
+                ", createdAt=" + createdAt +
+                ", updater=" + updater +
+                ", updatedAt=" + updatedAt +
+                ", isDel=" +isDel +
+                '}';
+    }
 }

@@ -101,4 +101,19 @@ public class UserLog implements Serializable {
 		this.fingerprint = fingerprint;
 		this.triggerTime = LocalDateTime.now();
 	}
+
+	@Override
+	public String toString() {
+		return "UserLog{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", oldEmail='" + oldEmail + '\'' +
+				", userId=" + userId +
+				", ip='" + ip + '\'' +
+				", fingerprint='" + fingerprint + '\'' +
+				", state=" + state +
+				", triggerTime=" + triggerTime +
+				", updater=" + updater +
+				'}';
+	}
 }

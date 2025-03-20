@@ -59,4 +59,21 @@ public class UserGroupRelation implements Serializable {
 
     @TableLogic
     private Boolean isDel;
+
+    public UserGroupRelation() {
+    }
+
+    @Override
+    public String toString() {
+        return "UserGroupRelation{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", groupId=" + groupId +
+                ", creator=" + creator +
+                ", createdAt=" + createdAt +
+                ", updater=" + updater +
+                ", updatedAt=" + updatedAt +
+                ", isDel=" + isDel +
+                '}';
+    }
 }

@@ -73,16 +73,19 @@ public class UserVo {
     /**
      * 默认地址ID
      */
+    //TODO:计划删除
     private Long defaultAddressId;
 
     /**
      * 是否激活
      */
+    //TODO:计划删除
     private boolean isActive;
 
     /**
      * 是否是管理员
      */
+    //TODO:计划删除
     private boolean isAdmin;
 
     /**
@@ -93,49 +96,19 @@ public class UserVo {
     /**
      * 权限set集合
      */
+    //TODO:计划删除
     private Set<String> permissions;
 
     /**
      * 用户组set集合
      */
+    //TODO:计划删除
     private Set<Long> groups;
-
-
-    /**
-     * 构造方法，用于初始化用户ID和用户名
-     *
-     * @param userId   用户ID
-     * @param username 用户名
-     */
-    public UserVo(Long userId, String username) {
-        this.id = userId;
-        this.username = username;
-    }
 
     /**
      * 默认构造方法
      */
     public UserVo() {
-    }
-
-    public UserVo(Long userId, String username, String email, String phone, String firstName, String lastName, Date birthDate, Long defaultAddressId, boolean isAdmin, Integer daysUntilNextBirthday) {
-        this.id = userId;
-        this.username = username;
-        this.email = email;
-        this.phone = phone;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-        this.defaultAddressId = defaultAddressId;
-        this.isAdmin = isAdmin;
-        this.nextBirthday = daysUntilNextBirthday;
-    }
-
-    public UserVo(Long userId, String username, String email, boolean isAdmin) {
-        this.id = userId;
-        this.username = username;
-        this.email = email;
-        this.isAdmin = isAdmin;
     }
 }
 

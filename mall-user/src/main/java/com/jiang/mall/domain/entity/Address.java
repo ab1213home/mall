@@ -134,4 +134,22 @@ public class Address implements Serializable {
         this.addressDetail = addressDetail;
         this.postalCode = postalCode;
     }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", country='" + country + '\'' +
+                ", areaCode=" + areaCode +
+                ", addressDetail='" + addressDetail + '\'' +
+                ", postalCode='"+ postalCode + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", isDel=" + isDel +
+                '}';
+    }
 }

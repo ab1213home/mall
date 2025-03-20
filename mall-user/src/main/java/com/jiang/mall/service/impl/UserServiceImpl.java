@@ -541,6 +541,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
 	}
 
+	@Override
+	public UserVo getUserById(Long userId) {
+		if (userId==-1){
+			UserVo userVo = new UserVo();
+			userVo.setId(-1L);
+			userVo.setUsername("系统默认");
+			return userVo;
+		}
+		User user = userMapper.selectById(userId);
+		if (user==null){
+			UserVo userVo = new UserVo();
+			userVo.setId(0L);
+			userVo.setUsername("未知用户");
+			return userVo;
+		}else {
+			return BeanCopyUtils.copyBean(user, UserVo.class);
+		}
+	}
+
 
 	/**
 	 * 修改用户密码

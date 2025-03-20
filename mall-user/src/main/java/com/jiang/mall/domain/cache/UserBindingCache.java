@@ -11,36 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.cache;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class CategoryTreeVo {
+public class UserBindingCache {
+
 	/**
-	 * 分类id
+	 * 用户会话ID
 	 */
-	private Long id;
+	private String sessionId;
+
 	/**
-	 * 分类名称
+	 * 用户令牌
 	 */
-	private String name;
-	/**
-	 * 父级id
-	 */
-	private Long parentId;
-	/**
-	 * 分类级别
-	 */
-	private Integer level;
-	/**
-	 * 排序
-	 */
-	private Integer sort;
-	/**
-	 * 子分类
-	 */
-	private List<Long> children;
+	private String token;
 }

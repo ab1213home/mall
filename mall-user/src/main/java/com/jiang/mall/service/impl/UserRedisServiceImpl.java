@@ -16,7 +16,7 @@ package com.jiang.mall.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
-import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.cache.UserBindingCache;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.annotation.PostConstruct;
@@ -77,15 +77,15 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public void setUser(String sessionId, String token, @NotNull UserVo user) {
 	    // 创建用户缓存对象，用于存储用户会话和令牌信息
-	    UserCache userCache = new UserCache();
-	    userCache.setSessionId(sessionId);
-	    userCache.setToken(token);
+	    UserBindingCache userBindingCache = new UserBindingCache();
+	    userBindingCache.setSessionId(sessionId);
+	    userBindingCache.setToken(token);
 	    // 将用户信息转换为JSON字符串并存储到Redis中，同时设置过期时间
 		if (!stringRedisTemplate.hasKey(prefix+user.getId())){
 			logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
 			deleteUser(user.getId());
 		}
-	    stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(userCache), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(userBindingCache), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 
 	    // 检查用户ID对应的键是否已存在，如果不存在则存储用户信息，如果存在则更新过期时间
 	    if(!stringRedisTemplate.hasKey(prefix+"id-"+user.getId())){
@@ -195,22 +195,22 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    // 检查是否存在指定用户的缓存信息
 	    if (stringRedisTemplate.hasKey(prefix+userId)){
 	        // 从Redis中获取用户缓存信息，并转换为UserCache对象
-	        UserCache userCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserBindingCache.class);
 	        // 初始化一个Map来存储用户登录状态信息
 	        Map<String,String> map = new HashMap<>();
-	        assert userCache != null;
+	        assert userBindingCache != null;
 
 	        // 如果用户缓存中的sessionId在Redis中存在，则获取其过期时间
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+userCache.getSessionId())){
+	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+ userBindingCache.getSessionId())){
 	            //获取过期时间
-	            long expire = stringRedisTemplate.getExpire(prefix+"sessionId-"+userCache.getSessionId(), TimeUnit.MINUTES);
+	            long expire = stringRedisTemplate.getExpire(prefix+"sessionId-"+ userBindingCache.getSessionId(), TimeUnit.MINUTES);
 	            // 将sessionId的过期时间添加到返回的Map中
 	            map.put("sessionId_expire",String.valueOf(expire));
 	        }
 
 	        // 如果用户缓存中的token在Redis中存在，则获取其过期时间
-	        if (stringRedisTemplate.hasKey(prefix+"token-"+userCache.getToken())){
-	            long expire = stringRedisTemplate.getExpire(prefix+"token-"+userCache.getToken(), TimeUnit.MINUTES);
+	        if (stringRedisTemplate.hasKey(prefix+"token-"+ userBindingCache.getToken())){
+	            long expire = stringRedisTemplate.getExpire(prefix+"token-"+ userBindingCache.getToken(), TimeUnit.MINUTES);
 	            // 将token的过期时间添加到返回的Map中
 	            map.put("token_expire",String.valueOf(expire));
 	        }
@@ -235,14 +235,14 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    // 检查用户ID对应的缓存是否存在
 	    if (stringRedisTemplate.hasKey(prefix+userId)){
 	        // 从缓存中获取用户信息并解析为UserCache对象
-	        UserCache userCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
-	        assert userCache != null;
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserBindingCache.class);
+	        assert userBindingCache != null;
 	        // 检查用户会话ID对应的缓存是否存在
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+userCache.getSessionId())){
+	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+ userBindingCache.getSessionId())){
 	            return true;
 	        }
 	        // 检查用户token对应的缓存是否存在
-	        return stringRedisTemplate.hasKey(prefix + "token-" + userCache.getToken());
+	        return stringRedisTemplate.hasKey(prefix + "token-" + userBindingCache.getToken());
 	    }else {
 	        // 如果用户ID对应的缓存不存在，则返回false
 		    logger.warn("用户{}信息获取失败，缓存不存在", userId);
@@ -262,19 +262,19 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    // 检查是否存在指定用户ID对应的缓存数据
 	    if (stringRedisTemplate.hasKey(prefix+userId)){
 	        // 从缓存中获取用户信息，并转换为UserCache对象
-	        UserCache userCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserBindingCache.class);
 	        // 确保用户缓存信息不为空
-	        assert userCache != null;
+	        assert userBindingCache != null;
 
 	        // 检查并刷新会话ID缓存的有效期
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+userCache.getSessionId())){
-	            stringRedisTemplate.expire(prefix+"sessionId-"+userCache.getSessionId(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+ userBindingCache.getSessionId())){
+	            stringRedisTemplate.expire(prefix+"sessionId-"+ userBindingCache.getSessionId(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 				logger.debug("用户{}会话ID刷新成功", userId);
 	        }
 
 	        // 检查并刷新令牌缓存的有效期
-	        if (stringRedisTemplate.hasKey(prefix+"token-"+userCache.getToken())){
-	            stringRedisTemplate.expire(prefix+"token-"+userCache.getToken(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        if (stringRedisTemplate.hasKey(prefix+"token-"+ userBindingCache.getToken())){
+	            stringRedisTemplate.expire(prefix+"token-"+ userBindingCache.getToken(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 				logger.debug("用户{}令牌刷新成功", userId);
 	        }
 
@@ -297,17 +297,17 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    // 检查Redis中是否存在与用户ID关联的数据
 	    if (stringRedisTemplate.hasKey(prefix+userId)){
 	        // 从Redis中获取并解析用户缓存信息
-	        UserCache userCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserBindingCache.class);
 	        // 删除用户ID关联的数据，返回删除结果
 	        boolean result = stringRedisTemplate.delete(prefix+userId);
-	        assert userCache != null;
+	        assert userBindingCache != null;
 	        // 如果用户缓存中的会话ID在Redis中有对应数据，删除该数据，并更新删除结果
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+userCache.getSessionId())){
-	            result = stringRedisTemplate.delete(prefix+"sessionId-"+userCache.getSessionId());
+	        if (stringRedisTemplate.hasKey(prefix+"sessionId-"+ userBindingCache.getSessionId())){
+	            result = stringRedisTemplate.delete(prefix+"sessionId-"+ userBindingCache.getSessionId());
 	        }
 	        // 如果用户缓存中的令牌在Redis中有对应数据，删除该数据，并更新删除结果
-	        if (stringRedisTemplate.hasKey(prefix+"token-"+userCache.getToken())){
-	            result = stringRedisTemplate.delete(prefix+"token-"+userCache.getToken());
+	        if (stringRedisTemplate.hasKey(prefix+"token-"+ userBindingCache.getToken())){
+	            result = stringRedisTemplate.delete(prefix+"token-"+ userBindingCache.getToken());
 	        }
 	        // 返回最终的删除结果
 	        return result;

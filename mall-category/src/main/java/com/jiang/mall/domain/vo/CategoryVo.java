@@ -37,7 +37,7 @@ public class CategoryVo {
 
     /**
      * 父类别ID，用于建立类别之间的层级关系
-     * 如果该类别是顶级类别，则此字段为null或特定值（如0）
+     * 如果该类别是顶级类别，则此字段为0
      */
     private Long parentId;
 

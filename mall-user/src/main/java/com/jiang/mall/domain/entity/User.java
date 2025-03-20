@@ -138,29 +138,8 @@ public class User implements Serializable {
      */
     private Boolean isActive;
 
-    public User(String username, String password, String email) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-    }
-
-    public User(Long userId, String firstName, String lastName, String phone) {
-        this.id = userId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-    }
-
     public User() {
 
-    }
-
-    public User(Long userId, String firstName, String lastName, String phone, String avatar) {
-        this.id = userId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phone = phone;
-        this.avatar = avatar;
     }
 
     /**

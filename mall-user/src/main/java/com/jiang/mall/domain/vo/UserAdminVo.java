@@ -11,11 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.cache;
+package com.jiang.mall.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -27,7 +28,7 @@ import java.util.Set;
  * @since 2024年9月8日
  */
 @Data
-public class UserCache {
+public class UserAdminVo {
 
     /**
      * 用户ID
@@ -71,14 +72,9 @@ public class UserCache {
     private Date birthDate;
 
     /**
-     * 默认地址ID
+     * 是否激活
      */
-    private Long defaultAddressId;
-
-    /**
-     * 距离下次生日的天数
-     */
-    private Integer nextBirthday;
+    private boolean isActive;
 
     /**
      * 权限set集合
@@ -91,9 +87,32 @@ public class UserCache {
     private Set<Long> groups;
 
     /**
+     * TOTP 状态，默认为 false
+     */
+    private boolean totpEnabled;
+
+    /**
+     * 创建时间，自动填充
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新人
+     */
+    private UserVo updater;
+
+    /**
+     * 更新时间，自动填充
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updatedAt;
+
+
+    /**
      * 默认构造方法
      */
-    public UserCache() {
+    public UserAdminVo() {
     }
 
 }

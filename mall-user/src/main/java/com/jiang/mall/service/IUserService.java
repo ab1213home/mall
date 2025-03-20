@@ -72,4 +72,6 @@ public interface IUserService extends IService<User> {
     Boolean unlock(Long userId, String sessionId, String clientIp, String fingerprint);
 
     Boolean modifyInfo(User user, String sessionId);
+
+    UserVo getUserById(Long userId);
 }

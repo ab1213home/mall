@@ -25,6 +25,7 @@ import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.event.BannerChangedEvent;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.task.BannerTask;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,13 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.bannerConfig = bannerConfig;
 	}
 
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
+
 	private ApplicationEventPublisher eventPublisher;
 
 	@Autowired
@@ -104,6 +112,8 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		for (Banner banner : banners) {
 			BannerAdminVo bannerAdminVo = BeanCopyUtils.copyBean(banner, BannerAdminVo.class);
 			assert bannerAdminVo != null;
+			//获取创建者和更新者信息
+			bannerAdminVo.setCreator(userService.getUserById(banner.getCreator()));
 			bannerAdminVo.setCreator(BeanCopyUtils.copyBean(banner.getCreator(), UserVo.class));
 			bannerAdminVo.setUpdater(BeanCopyUtils.copyBean(banner.getUpdater(), UserVo.class));
 			bannerAdminVos.add(bannerAdminVo);
