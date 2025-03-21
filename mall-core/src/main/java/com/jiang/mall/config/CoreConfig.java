@@ -108,7 +108,7 @@ public class CoreConfig {
     }
 
     public Long getProductCacheTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(),CoreConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(),CoreConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
     }
 
     public void updateProductCache(Boolean cache) {
@@ -116,7 +116,7 @@ public class CoreConfig {
     }
 
     public void updateProductCacheTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+        properties.setProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 

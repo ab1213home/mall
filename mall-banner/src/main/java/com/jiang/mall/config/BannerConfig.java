@@ -126,6 +126,10 @@ public class BannerConfig {
         return Long.parseLong(properties.getProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), BannerConfigItems.BANNER_SYNC_TIME.getDefaultValue()));
     }
 
+    public Long getBannerCacheTime() {
+        return Long.parseLong(properties.getProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), BannerConfigItems.BANNER_CACHE_TIME.getDefaultValue()));
+    }
+
     /**
      * 更新Banner缓存设置
      * 此方法用于启用或禁用Banner的缓存功能通过修改属性值来实现
@@ -142,23 +146,29 @@ public class BannerConfig {
      * <p>
      * 此方法用于更新配置文件中的横幅同步时间属性这在需要记录或更新横幅内容最后一次同步的时间时特别有用
      *
-     * @param milliseconds 毫秒数，表示横幅内容的同步时间
+     * @param seconds 毫秒数，表示横幅内容的同步时间
      */
-    public void updateBannerSyncTime(Long milliseconds) {
+    public void updateBannerSyncTime(Long seconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
-        properties.setProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), String.valueOf(milliseconds));
+        properties.setProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), String.valueOf(seconds));
+    }
+
+    public void updateBannerCacheTime(Long seconds) {
+        properties.setProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), String.valueOf(seconds));
     }
 
     public @NotNull BannerSettingVo getBannerSetting() {
         BannerSettingVo bannerSettingVo = new BannerSettingVo();
-        bannerSettingVo.setBannerCacheEnabled(isBannerCacheEnabled());
+        bannerSettingVo.setCacheEnabled(isBannerCacheEnabled());
         bannerSettingVo.setSyncTime(getBannerSyncTime());
+        bannerSettingVo.setCacheTime(getBannerCacheTime());
         return bannerSettingVo;
     }
 
     public void updateBannerSetting(@NotNull BannerSettingVo bannerSettingVo) {
-        updateBannerCache(bannerSettingVo.isBannerCacheEnabled());
+        updateBannerCache(bannerSettingVo.isCacheEnabled());
         updateBannerSyncTime(bannerSettingVo.getSyncTime());
+        updateBannerCacheTime(bannerSettingVo.getCacheTime());
         loadProperties();
         saveProperties();
     }

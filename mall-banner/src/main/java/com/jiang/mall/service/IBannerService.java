@@ -105,4 +105,6 @@ public interface IBannerService extends IService<Banner> {
 	 * @return List<BannerVo> 返回轮播图列表，如果列表为空，则返回空列表
 	 */
     List<BannerVo> getBannerListFromRedis();
+
+	void checkBanner();
 }

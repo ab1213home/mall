@@ -20,7 +20,7 @@ public enum UserConfigItems {
 	USER_MAX_TRY("user.max.try", "最大尝试登录次数", "5"),
 	USER_MAX_ADDRESS("user.max.address", "最大收货地址数量", "50"),
 	USER_DEFAULT_GROUP("user.default.group", "默认用户组", "1"),
-	USER_SESSION_TIMEOUT("user.session.timeout", "用户会话保持时间（小时）", "24"),
+	USER_SESSION_TIMEOUT("user.cache.time", "用户会话保持时间(小时)", "24"),
 	ALLOW_USER_REGISTRATION("allow.user.registration", "是否允许注册", "true");
 
 	private final String key;

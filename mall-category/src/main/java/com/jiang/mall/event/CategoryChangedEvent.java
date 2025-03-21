@@ -11,36 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.event;
 
-import lombok.Data;
+import com.jiang.mall.domain.enums.ChangeType;
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
 
-import java.util.List;
+@Getter
+public class CategoryChangedEvent extends ApplicationEvent {
+    private final Long categoryId;
+    private final ChangeType changeType;
 
-@Data
-public class CategoryTreeVo {
-	/**
-	 * 分类id
-	 */
-	private Long id;
-	/**
-	 * 分类名称
-	 */
-	private String name;
-	/**
-	 * 父级id
-	 */
-	private Long parentId;
-	/**
-	 * 分类级别
-	 */
-	private Integer level;
-	/**
-	 * 排序
-	 */
-	private Integer sort;
-	/**
-	 * 子分类
-	 */
-	private List<Long> children;
+    public CategoryChangedEvent(Object source, Long categoryId, ChangeType changeType) {
+        super(source);
+        this.categoryId = categoryId;
+        this.changeType = changeType;
+    }
 }

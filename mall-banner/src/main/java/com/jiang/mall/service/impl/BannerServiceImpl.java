@@ -13,12 +13,12 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.domain.entity.Banner;
-import com.jiang.mall.domain.enums.ChangeType;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.domain.vo.UserVo;
@@ -26,11 +26,11 @@ import com.jiang.mall.event.BannerChangedEvent;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.task.BannerTask;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
@@ -69,12 +69,12 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.redisService = redisService;
 	}
 
-	private BannerTask bannerTask;
-
-	@Autowired
-	public void setBannerTask(@Lazy BannerTask bannerTask) {
-		this.bannerTask = bannerTask;
-	}
+//	private BannerTask bannerTask;
+//
+//	@Autowired
+//	public void setBannerTask(@Lazy BannerTask bannerTask) {
+//		this.bannerTask = bannerTask;
+//	}
 
 	private BannerConfig bannerConfig;
 
@@ -89,6 +89,8 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
 	}
+
+	private static final Logger logger = LoggerFactory.getLogger(BannerServiceImpl.class);
 
 	private ApplicationEventPublisher eventPublisher;
 
@@ -133,31 +135,6 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         return bannerMapper.selectCount(null);
     }
 
-    /**
-     * 根据ID删除轮播图
-     * <p>
-     * 此方法首先尝试从数据库中删除指定ID的轮播图如果删除成功，
-     * 则触发轮播图的检查机制，以确保轮播图数据的一致性和完整性
-     *
-     * @param id 要删除的轮播图的ID
-     * @return 如果删除成功返回true，否则返回false
-     */
-    @Override
-    @Transactional
-    public Boolean deleteBanner(Long id) {
-        // 尝试删除指定ID的轮播图，如果删除成功则进行后续操作
-        if (bannerMapper.deleteById(id) == 1){
-            // 调用轮播图检查机制，确保数据一致性
-	        eventPublisher.publishEvent(
-	            new BannerChangedEvent(this, id, ChangeType.DELETE)
-	        );
-            return true;
-        }else{
-            // 删除失败，返回false
-            return false;
-        }
-    }
-
 	/**
 	 * 获取当前有效的Banner列表
 	 * <p>
@@ -185,21 +162,39 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	 */
 	@Override
 	public List<BannerVo> getBannerListFromRedis() {
-	    // 检查是否启用了轮播图缓存
-	    if (bannerConfig.isBannerCacheEnabled()){
-	        // 检查Redis中是否存在轮播图数据
-	        if (redisService.hasBanner()) {
-	            // 从Redis中获取轮播图数据
-	            return redisService.getBanner();
-	        }else {
-	            // 调用方法获取轮播图数据并存入Redis
-	            return getBannerList();
-	        }
+	    // 检查是否启用了轮播图缓存并且Redis中是否存在轮播图数据
+	    if (bannerConfig.isBannerCacheEnabled() && redisService.hasBanner()){
+			return redisService.getBanner();
 	    }else {
 	        // 如果轮播图缓存未启用，直接调用方法获取轮播图数据
 	        return getBannerList();
 	    }
 	}
+
+    /**
+     * 根据ID删除轮播图
+     * <p>
+     * 此方法首先尝试从数据库中删除指定ID的轮播图如果删除成功，
+     * 则触发轮播图的检查机制，以确保轮播图数据的一致性和完整性
+     *
+     * @param id 要删除的轮播图的ID
+     * @return 如果删除成功返回true，否则返回false
+     */
+    @Override
+    @Transactional
+    public Boolean deleteBanner(Long id) {
+        // 尝试删除指定ID的轮播图，如果删除成功则进行后续操作
+        if (bannerMapper.deleteById(id) == 1){
+            // 调用轮播图检查机制，确保数据一致性
+	        eventPublisher.publishEvent(
+	            new BannerChangedEvent(this)
+	        );
+            return true;
+        }else{
+            // 删除失败，返回false
+            return false;
+        }
+    }
 
     /**
      * 插入轮播图
@@ -216,7 +211,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         // 尝试插入轮播图数据，如果成功，触发轮播图检查任务，并返回 true 表示操作成功
     	if (bannerMapper.insert(banner) == 1){
 			eventPublisher.publishEvent(
-	            new BannerChangedEvent(this, banner.getId(), ChangeType.CREATE)
+	            new BannerChangedEvent(this)
 	        );
     		return true;
     	}else{
@@ -241,7 +236,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         if (bannerMapper.updateById(banner) == 1){
             // 更新成功后，调用检查任务以确保轮播图状态的正确性
             eventPublisher.publishEvent(
-	            new BannerChangedEvent(this, banner.getId(), ChangeType.UPDATE)
+	            new BannerChangedEvent(this)
 	        );
             return true;
         }else{
@@ -251,49 +246,47 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
     }
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void handleProductChangedEvent(BannerChangedEvent event) {
+	public void handleBannerChangedEvent(BannerChangedEvent event) {
 	    try {
-	        switch (event.getChangeType()) {
-	            case CREATE:
-					System.out.println("1");
-	            case UPDATE:
-	                syncProductToEs(event.getBannerId());
-		            System.out.println("2");
-	                break;
-	            case DELETE:
-	                deleteProductFromEs(event.getBannerId());
-					System.out.println("3");
-	                break;
-	        }
-	        refreshCache(event.getBannerId());
+			if (bannerConfig.isBannerCacheEnabled()){
+				checkBanner();
+			}else{
+				logger.info("轮播图缓存已禁用。");
+			}
 	    } catch (Exception e) {
-//	        log.error("处理商品变更事件失败: {}", e.getMessage());
+			logger.error("处理轮播图变更事件失败: {}", e.getMessage());
 	        // 可添加重试逻辑
 	    }
 	}
 
-	private void syncProductToEs(Long productId) {
-//	    Product product = baseMapper.selectById(productId);
-//	    if (product != null) {
-//	        EsProduct esProduct = convertToEsProduct(product);
-//	        elasticsearchOperations.save(esProduct);
-//	    }
-		log.debug("事件触发成功");
-		System.out.println("事件触发成功");
-	}
+	/**
+	 * 检查并更新轮播图数据
+	 * 该方法首先从服务层获取轮播图列表，然后根据列表的情况进行处理：
+	 * 如果列表为空或不存在，则记录日志并从Redis中删除现有的轮播图数据；
+	 * 如果列表存在且不为空，则检查数据大小是否超过阈值，如果超过则记录警告日志，
+	 * 最后将轮播图数据更新到Redis中
+	 */
+	@Override
+	public void checkBanner() {
+	    // 获取轮播图列表
+	    List<BannerVo> bannerList = getBannerList();
 
-	private void deleteProductFromEs(Long productId) {
-//	    elasticsearchOperations.delete(productId.toString(), EsProduct.class);
-	}
+	    // 检查列表是否为空或不存在
+	    if (bannerList == null || bannerList.isEmpty()) {
+	        logger.info("未找到有效的轮播图数据。");
+	        // 如果为空，从Redis中删除轮播图数据
+	        redisService.deleteBanner();
+	        return;
+	    }
 
-	private void refreshCache(Long productId) {
-//	    String cacheKey = CACHE_PREFIX + productId;
-//	    redisTemplate.delete(cacheKey);
-//	    Product product = baseMapper.selectById(productId);
-//	    if (product != null) {
-//	        redisTemplate.opsForValue().set(cacheKey, product, 30, TimeUnit.MINUTES);
-//	    }
-		bannerTask.checkBanner();
+	    // 添加保护措施防止大Key
+	    if(JSON.toJSONString(bannerList).getBytes().length > 1024 * 1024){ // 超过1MB报警
+	        logger.warn("检测到轮播图数据过大：{}字节", JSON.toJSONString(bannerList).length());
+	    }
+
+	    // 更新Redis中的轮播图数据
+	    redisService.setBanner(bannerList);
+	    logger.info("轮播图数据已更新。");
 	}
 
 }

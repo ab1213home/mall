@@ -13,8 +13,8 @@
 
 package com.jiang.mall.intercepter;
 
-import com.alibaba.fastjson2.JSON;
-import com.jiang.mall.domain.ResponseResult;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.ITemporaryRedisService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.PrintWriter;
+import java.io.IOException;
 
 @Component
 public class RegisterLoginInterceptor implements HandlerInterceptor {
@@ -43,6 +43,13 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
 		this.temporaryRedisService = temporaryRedisService;
 	}
 
+    private UserInterceptor userInterceptor;
+
+    @Autowired
+    public void setUserInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
+    }
+
     /**
      * 在请求处理之前进行预处理
      *
@@ -60,17 +67,22 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
         String userId = temporaryRedisService.getKey(request.getSession().getId());
         // 检查用户登录状态
         if (userId == null){
-            // 如果用户已登录，重定向到用户首页
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
-            String json = JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("user.register.error.previous")));
-            PrintWriter writer = response.getWriter();
-            writer.write(json);
-            writer.flush();
-            writer.close();
+            // 如果用户未有注册状态，重定向到注册页面
+            redirectToRegister(request, response);
             return false;
         }
         // 允许其他请求继续执行
         return true;
+    }
+
+    private void redirectToRegister(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        String agent = request.getHeader("User-Agent");
+        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        if (!userAgent.getBrowser().isUnknown()){
+            userInterceptor.redirectInBrowser(response, request.getRequestURI(),request.getContextPath() + "/user/register.html", i18nService.getMessage("user.register.error.previous"));
+        }else {
+            userInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
+        }
     }
 }

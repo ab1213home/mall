@@ -13,7 +13,10 @@
 
 package com.jiang.mall.intercepter;
 
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.io.IOException;
 
 @Component
 public class AdminInterceptor implements HandlerInterceptor {
@@ -34,6 +39,20 @@ public class AdminInterceptor implements HandlerInterceptor {
     @Autowired
     public void setRedisService(IUserRedisService redisService) {
         this.redisService = redisService;
+    }
+
+    private UserInterceptor userInterceptor;
+
+    @Autowired
+    public void setUserInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
+    }
+
+    private II18nService i18nService;
+
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
     }
 
 	@Override
@@ -87,5 +106,16 @@ public class AdminInterceptor implements HandlerInterceptor {
         //TODO: 由于重构基于角色的访问控制（RBAC），暂时放行，后续再处理权限问题
         return true;
 	}
+
+    private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        String agent = request.getHeader("User-Agent");
+        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        if (!userAgent.getBrowser().isUnknown()){
+            userInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.checkAdmin.noAdmin"));
+        }else {
+            userInterceptor.redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+        }
+    }
 
 }

@@ -13,8 +13,8 @@
 
 package com.jiang.mall.intercepter;
 
-import com.alibaba.fastjson2.JSON;
-import com.jiang.mall.domain.ResponseResult;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.PrintWriter;
+import java.io.IOException;
 
 @Component
 public class RepeatLoginInterceptor implements HandlerInterceptor {
@@ -41,6 +41,13 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
+    }
+
+    private UserInterceptor userInterceptor;
+
+    @Autowired
+    public void setUserInterceptor(UserInterceptor userInterceptor) {
+        this.userInterceptor = userInterceptor;
     }
 
     /**
@@ -60,16 +67,21 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
         // 检查用户登录状态
         if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
             // 如果用户已登录，重定向到用户首页
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 设置HTTP状态码为403
-            String jsonResponse = JSON.toJSONString(ResponseResult.failResult(403,i18nService.getMessage("user.login.error.repeated")));
-            PrintWriter writer = response.getWriter();
-            writer.write(jsonResponse);
-            writer.flush();
-            writer.close();
+            redirectToUserIndex(request, response);
             return false;
         }
         // 允许其他请求继续执行
         return true;
+    }
+
+    private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        String agent = request.getHeader("User-Agent");
+        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        if (!userAgent.getBrowser().isUnknown()){
+            userInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.login.error.repeated"));
+        }else {
+            userInterceptor.redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+        }
     }
 }

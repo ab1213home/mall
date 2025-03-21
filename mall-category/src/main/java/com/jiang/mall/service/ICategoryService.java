@@ -48,5 +48,5 @@ public interface ICategoryService extends IService<Category> {
 
     List<CategoryVo> getList();
 
-    @NotNull List<Category> buildCategoryTree(List<Category> list);
+	void checkCategory();
 }

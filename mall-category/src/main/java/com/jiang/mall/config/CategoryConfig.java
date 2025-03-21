@@ -110,12 +110,20 @@ public class CategoryConfig {
         return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), CategoryConfigItems.CATEGORY_CACHE_TIME.getDefaultValue()));
     }
 
+
+    public Long getCategorySyncTime() {
+        return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), CategoryConfigItems.CATEGORY_SYNC_TIME.getDefaultValue()));
+    }
     public void updateCategoryCache(Boolean cache) {
         properties.setProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), String.valueOf(cache));
     }
 
     public void updateCategoryCacheTime(Long time) {
         properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), String.valueOf(time));
+    }
+
+    public void updateCategorySyncTime(Long time) {
+        properties.setProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 

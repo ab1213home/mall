@@ -93,12 +93,12 @@ public class UserInterceptor implements HandlerInterceptor {
         //TODO:根据请求来源返回未登录响应
         String agent = request.getHeader("User-Agent");
         logger.debug("agent:{}",agent);
-        if (agent == null) redirectToLoginInApi(response);
+        if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
         UserAgent userAgent = UserAgentUtil.parse(agent);
         if (!userAgent.getBrowser().isUnknown()){
-            redirectToLoginInBrowser(request, response,request.getContextPath() + "/user/login.html");
+            redirectInBrowser(response,request.getRequestURI(),request.getContextPath() + "/user/login.html", i18nService.getMessage("user.checkUser.noLogin"));
         }else {
-            redirectToLoginInApi(response);
+            redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 
@@ -110,34 +110,61 @@ public class UserInterceptor implements HandlerInterceptor {
         }
     }
 
-    /**
-     * 重定向用户到登录页面
-     * 当检测到尝试访问的请求需要登录权限时，会调用此方法将用户重定向到登录页面，并携带当前尝试访问的URL和提示信息
-     *
-     * @param request  HTTP请求对象，用于获取上下文路径
-     * @param response HTTP响应对象，用于重定向用户到登录页面
-     * @throws IOException 重定向过程中可能抛出的IO异常
-     */
-    public void redirectToLoginInBrowser(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String redirectUrl) throws IOException {
-        // 获取请求的URI
-        String requestURI = request.getRequestURI();
-        // 编码请求的URI，以确保URL中的特殊字符能够正确传递
-        String urlParam = URLEncoder.encode(requestURI, StandardCharsets.UTF_8);
-        // 编码提示信息，以确保非ASCII字符能正确传递
-        String messageParam = URLEncoder.encode(i18nService.getMessage("user.checkUser.noLogin"), StandardCharsets.UTF_8);
 
-        // 设置响应的内容类型和字符编码，确保浏览器正确解析重定向的URL
+    /**
+     * 向浏览器发送重定向响应，可选地包含原始请求URL和提示信息
+     * 此方法用于在处理完用户请求后，将用户重定向到另一个页面，并可选地携带提示信息
+     * 它确保了在重定向过程中，所有传递的参数都经过适当的URL编码，以防止URL中的特殊字符造成问题
+     *
+     * @param response      HTTP响应对象，用于设置重定向
+     * @param requestUrl    原始请求的URL，如果需要在重定向URL中包含此URL，则不应为null
+     * @param redirectUrl   重定向的目标URL
+     * @param message       要传递给目标页面的提示信息，将被编码后附加到重定向URL
+     * @throws IOException 如果在执行重定向时发生I/O错误
+     */
+    public void redirectInBrowser(@NotNull HttpServletResponse response, String requestUrl, String redirectUrl, String message) throws IOException {
+        String url = redirectUrl != null ? redirectUrl : "/index.html";
+        // 设置响应的内容类型和字符编码，确保浏览器能够正确解析重定向的URL
         response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-
-        // 执行重定向，将用户引导至登录页面，并传递目标URL和提示信息作为参数
-        response.sendRedirect(redirectUrl + "?url=" + urlParam + "&message=" + messageParam);
+        if (requestUrl != null){
+            // 对请求URI进行编码，确保URL中的特殊字符能够正确传递
+            String urlParam = URLEncoder.encode(requestUrl, StandardCharsets.UTF_8);
+            url += "?url=" + urlParam;
+        }
+        if (message != null){
+            // 对提示信息进行编码，确保非ASCII字符能够正确传递
+            String messageParam = URLEncoder.encode(message, StandardCharsets.UTF_8);
+            url += "&message=" + messageParam;
+        }
+        // 将编码后的重定向URL和提示信息拼接，执行重定向
+        response.sendRedirect(url);
     }
 
-    public void redirectToLoginInApi(@NotNull HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    /**
+     * 重定向到API接口的响应方法。
+     * <p>
+     * 该方法用于在API调用中返回一个标准化的JSON格式错误响应。
+     * 它会设置HTTP响应状态码、内容类型，并将错误信息以JSON格式写入响应体。
+     *
+     * @param response HTTP响应对象，用于设置状态码和写入响应内容。不能为空。
+     * @param message  错误信息，描述当前请求失败的原因。
+     * @param status   HTTP状态码，表示请求的处理结果（如400、404、500等）。
+     *
+     * @throws IOException 如果在写入响应内容时发生I/O异常，则抛出此异常。
+     */
+    public void redirectInApi(@NotNull HttpServletResponse response, String message, int status) throws IOException {
+        // 设置HTTP响应的状态码
+        response.setStatus(status);
+
+        // 设置响应的内容类型为JSON，并指定字符编码为UTF-8
         response.setContentType("application/json;charset=UTF-8");
-        String json = JSON.toJSONString(ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin")));
+
+        // 将错误信息封装为标准化的JSON格式字符串
+        String json = JSON.toJSONString(ResponseResult.failResult(status, message));
+
+        // 将生成的JSON字符串写入HTTP响应体
         response.getWriter().write(json);
     }
+
 }

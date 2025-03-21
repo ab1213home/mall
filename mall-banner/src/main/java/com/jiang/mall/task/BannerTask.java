@@ -13,18 +13,13 @@
 
 package com.jiang.mall.task;
 
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.BannerConfig;
-import com.jiang.mall.domain.vo.BannerVo;
-import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Banner定时任务
@@ -44,13 +39,6 @@ public class BannerTask {
 	@Autowired
 	public void setBannerService(IBannerService bannerService) {
 		this.bannerService = bannerService;
-	}
-
-	private IBannerRedisService redisService;
-
-	@Autowired
-	public void setRedisService(IBannerRedisService redisService) {
-		this.redisService = redisService;
 	}
 
 	private BannerConfig bannerConfig;
@@ -74,42 +62,14 @@ public class BannerTask {
 			timer=timer+1000;
 			if (timer==1000){
 				logger.info("轮播图数据缓存预热");
-				checkBanner();
+				bannerService.checkBanner();
 			}else if (timer>=bannerConfig.getBannerSyncTime()){
 				timer = 1;
-				checkBanner();
+				bannerService.checkBanner();
 			}
 		}else{
 			logger.info("轮播图数据缓存已禁用。");
 		}
     }
 
-	/**
-	 * 检查并更新轮播图数据
-	 * 该方法首先从服务层获取轮播图列表，然后根据列表的情况进行处理：
-	 * 如果列表为空或不存在，则记录日志并从Redis中删除现有的轮播图数据；
-	 * 如果列表存在且不为空，则检查数据大小是否超过阈值，如果超过则记录警告日志，
-	 * 最后将轮播图数据更新到Redis中
-	 */
-	public void checkBanner() {
-	    // 获取轮播图列表
-	    List<BannerVo> bannerList = bannerService.getBannerList();
-
-	    // 检查列表是否为空或不存在
-	    if (bannerList == null || bannerList.isEmpty()) {
-	        logger.info("未找到有效的轮播图数据。");
-	        // 如果为空，从Redis中删除轮播图数据
-	        redisService.deleteBanner();
-	        return;
-	    }
-
-	    // 添加保护措施防止大Key
-	    if(JSON.toJSONString(bannerList).getBytes().length > 1024 * 1024){ // 超过1MB报警
-	        logger.warn("检测到轮播图数据过大：{}字节", JSON.toJSONString(bannerList).length());
-	    }
-
-	    // 更新Redis中的轮播图数据
-	    redisService.setBanner(bannerList);
-	    logger.info("轮播图数据已更新。");
-	}
 }

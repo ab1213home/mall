@@ -11,15 +11,36 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.event;
+package com.jiang.mall.domain.cache;
 
-import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+import lombok.Data;
 
-@Getter
-public class BannerChangedEvent extends ApplicationEvent {
+import java.util.List;
 
-    public BannerChangedEvent(Object source) {
-        super(source);
-    }
+@Data
+public class CategoryTreeCache {
+	/**
+	 * 分类id
+	 */
+	private Long id;
+	/**
+	 * 分类名称
+	 */
+	private String name;
+	/**
+	 * 父级id
+	 */
+	private Long parentId;
+	/**
+	 * 分类级别
+	 */
+	private Integer level;
+	/**
+	 * 排序
+	 */
+	private Integer sort;
+	/**
+	 * 子分类
+	 */
+	private List<Long> children;
 }

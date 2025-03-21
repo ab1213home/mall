@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerRedisService;
@@ -24,6 +25,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * BannerRedisServiceImpl类实现了IBannerRedisService接口，提供了一系列操作Redis缓存中轮播图（Banner）信息的方法
@@ -53,6 +55,13 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
+	private BannerConfig bannerConfig;
+
+	@Autowired
+	public void setBannerConfig(BannerConfig bannerConfig) {
+	    this.bannerConfig = bannerConfig;
+	}
+
 	String prefix = "banner";
 
 	@PostConstruct
@@ -71,7 +80,7 @@ public class BannerRedisServiceImpl implements IBannerRedisService {
     @Override
     public void setBanner(List<BannerVo> bannerList) {
         // 将轮播图列表转换为JSON字符串并设置到Redis中，以便快速访问
-        stringRedisTemplate.opsForValue().set(prefix, JSON.toJSONString(bannerList));
+        stringRedisTemplate.opsForValue().set(prefix, JSON.toJSONString(bannerList), bannerConfig.getBannerCacheTime(), TimeUnit.SECONDS);
     }
 
     /**

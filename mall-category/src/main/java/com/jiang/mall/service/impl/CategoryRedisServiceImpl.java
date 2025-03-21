@@ -13,13 +13,19 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.CategoryConfig;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.domain.cache.CategoryTreeCache;
 import com.jiang.mall.service.ICategoryRedisService;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * BannerRedisServiceImpl类实现了IBannerRedisService接口，提供了一系列操作Redis缓存中轮播图（Banner）信息的方法
@@ -49,70 +55,38 @@ public class CategoryRedisServiceImpl implements ICategoryRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "category-";
+	private CategoryConfig categoryConfig;
+
+	@Autowired
+	public void setCategoryConfig(CategoryConfig categoryConfig) {
+	    this.categoryConfig = categoryConfig;
+	}
+
+	String prefix = "category:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-category-";
+	    prefix = generalConfig.getRedisKeyPrefix()+":category:";
 	}
 
-	String key(String key){
-        return prefix+key;
-    }
+	@Override
+	public void setCategory(@NotNull CategoryTreeCache category) {
+		stringRedisTemplate.opsForValue().set(prefix+category.getId(), JSON.toJSONString(category),categoryConfig.getCategoryCacheTime(), TimeUnit.SECONDS);
+	}
 
-    /**
-     * 设置轮播图信息到缓存中
-     * <p>
-     * 本方法接收一个轮播图信息列表，并将其转换为JSON字符串后存储到Redis缓存中
-     * 这样做可以快速地从缓存中读取轮播图信息，提高系统性能
-     *
-     * @param bannerList 轮播图信息列表，包含多个轮播图对象
-     */
-//    @Override
-//    public void setBanner(List<BannerVo> bannerList) {
-//        // 将轮播图列表转换为JSON字符串并设置到Redis中，以便快速访问
-//        stringRedisTemplate.opsForValue().set(prefix, JSON.toJSONString(bannerList));
-//    }
+	@Override
+	public CategoryTreeCache getCategory(Long categoryId) {
+		String categoryJson = stringRedisTemplate.opsForValue().get(prefix+categoryId);
+		return categoryJson == null ? null :JSON.parseObject(categoryJson, CategoryTreeCache.class);
+	}
 
-    /**
-     * 从Redis中获取Banner列表信息
-     * <p>
-     * 此方法从Redis中获取存储的Banner列表信息的JSON字符串，
-     * 然后将其解析为BannerVo对象的列表使用Redis存储Banner列表信息可以提高访问速度
-     *
-     * @return List<BannerVo> 返回解析后的BannerVo对象列表如果Redis中没有对应的值，或者解析失败，返回空列表或null
-     */
-//    @Override
-//    public List<BannerVo> getBanner() {
-//        // 从Redis中获取存储的Banner列表信息的JSON字符串
-//        String bannerListJson = stringRedisTemplate.opsForValue().get(prefix);
-//
-//        // 将获取到的JSON字符串解析为BannerVo对象的列表
-//        return JSON.parseArray(bannerListJson, BannerVo.class);
-//    }
+	@Override
+	public Boolean hasCategory(Long categoryId) {
+		return stringRedisTemplate.hasKey(prefix+categoryId);
+	}
 
-    /**
-     * 判断是否存在Banner信息
-     * <p>
-     * 此方法用于检查Redis中是否存在与Banner信息相关的键
-     * 它通过检查预定义的键前缀来确定是否存在相应的Banner信息
-     *
-     * @return Boolean 表示是否有Banner信息的布尔值存在则返回True，否则返回False
-     */
-    @Override
-    public Boolean hasBanner(String key) {
-        return stringRedisTemplate.hasKey(key(key));
-    }
-
-
-    /**
-     * 删除轮播图的缓存信息
-     * <p>
-     * 本方法旨在从Redis缓存中删除轮播图信息
-     * 这对于移除过时或不再需要的轮播图信息非常有用
-     */
-    @Override
-    public void deleteBanner(String key) {
-        stringRedisTemplate.delete(key(key));
-    }
+	@Override
+	public void deleteCategory(Long categoryId) {
+        stringRedisTemplate.delete(prefix+categoryId);
+	}
 }

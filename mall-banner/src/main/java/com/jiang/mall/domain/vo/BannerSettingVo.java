@@ -17,6 +17,7 @@ import lombok.Data;
 
 @Data
 public class BannerSettingVo {
-	private boolean bannerCacheEnabled;
+	private boolean cacheEnabled;
 	private Long syncTime;
+	private Long cacheTime;
 }
