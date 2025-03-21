@@ -17,9 +17,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.CoreConfig;
-import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
-import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.entity.EsProduct;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CategoryVo;
@@ -55,13 +53,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Autowired
     public void setProductMapper(ProductMapper productMapper) {
         this.productMapper = productMapper;
-    }
-
-    private CategoryMapper categoryMapper;
-
-    @Autowired
-    public void setCategoryMapper(CategoryMapper categoryMapper) {
-        this.categoryMapper = categoryMapper;
     }
 
 	private IProductRedisService redisService;
@@ -124,11 +115,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
 			assert productVo != null;
             // 根据类别ID查询类别名称，并设置到产品VO中
-            Category category = categoryMapper.selectById(product.getCategoryId());
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert categoryVo != null;
-	        categoryVo.setName(categoryService.getCategoryName(category.getId()));
-	        productVo.setCategory(categoryVo);
+            CategoryVo category = categoryService.selectById(product.getCategoryId());
+	        productVo.setCategory(category);
             productVos.add(productVo);
         }
 
@@ -158,13 +146,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (product != null) {
             // 将查询到的Product对象转换为ProductVo对象
             productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
-            // 通过ID查询产品类别，并设置产品类别的名称
-            Category category = categoryMapper.selectById(product.getCategoryId());
-            assert productVo != null;
-			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-			assert categoryVo != null;
-	        categoryVo.setName(categoryService.getCategoryName(category.getId()));
-	        productVo.setCategory(categoryVo);
+            // 根据类别ID查询类别名称，并设置到产品VO中
+            CategoryVo category = categoryService.selectById(product.getCategoryId());
+	        assert productVo != null;
+			productVo.setCategory(category);
         }else{
             return null;
         }

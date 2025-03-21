@@ -34,11 +34,11 @@ public interface ICategoryService extends IService<Category> {
 
     Boolean insertCategory(Category category);
 
-    Boolean updateCategory(Category category);
+    Boolean updateCategory(@NotNull Category category);
 
     Long getCategoryNum(Long parentId, Integer level);
 
-    Boolean deleteCategory(Category category);
+    Boolean deleteCategory(Long id);
 
 	List<CategoryVo> getCategoryTopList();
 
@@ -49,4 +49,6 @@ public interface ICategoryService extends IService<Category> {
     List<CategoryVo> getList();
 
 	void checkCategory();
+
+	CategoryVo selectById(Long id);
 }

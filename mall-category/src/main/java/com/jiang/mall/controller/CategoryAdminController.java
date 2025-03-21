@@ -207,7 +207,7 @@ public class CategoryAdminController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    public ResponseResult<Object> deleteCategory(@RequestParam("id") Integer id,
+    public ResponseResult<Object> deleteCategory(@RequestParam("id") Long id,
                                                  HttpSession session) {
         if (id == null || id <= 0) {
             return ResponseResult.failResult("参数错误");
@@ -224,7 +224,7 @@ public class CategoryAdminController {
 
 
         // 尝试从数据库中删除分类
-        if (categoryService.deleteCategory(category)) {
+        if (categoryService.deleteCategory(id)) {
             // 删除成功，返回成功信息
             return ResponseResult.okResult();
         } else {

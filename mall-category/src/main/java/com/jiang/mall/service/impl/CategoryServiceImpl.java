@@ -21,12 +21,14 @@ import com.jiang.mall.config.CategoryConfig;
 import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.domain.cache.CategoryTreeCache;
 import com.jiang.mall.domain.entity.Category;
+import com.jiang.mall.domain.enums.ChangeType;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.event.CategoryChangedEvent;
 import com.jiang.mall.service.ICategoryRedisService;
 import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,24 +106,32 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     @Transactional
     public Boolean insertCategory(Category category) {
-//		if (bannerMapper.deleteById(id) == 1){
-//            // 调用轮播图检查机制，确保数据一致性
-//	        eventPublisher.publishEvent(
-//	            new BannerChangedEvent(this)
-//	        );
-//            return true;
-//        }else{
-//            // 删除失败，返回false
-//            return false;
-//        }
-        return categoryMapper.insert(category)==1;
+	    if (categoryMapper.insert(category)==1){
+			// 调用分类检查机制，确保数据一致性
+			eventPublisher.publishEvent(
+					new CategoryChangedEvent(this, category.getId(), ChangeType.CREATE)
+			);
+			return true;
+		}else{
+			return false;
+		}
     }
 
     @Override
     @Transactional
-    public Boolean updateCategory(Category category) {
+    public Boolean updateCategory(@NotNull Category category) {
+		Category oldCategory = categoryMapper.selectById(category.getId());
 		//TODO: 更新父分类同时也要更新子分类
-        return categoryMapper.updateById(category)==1;
+	    if (categoryMapper.updateById(category) == 1){
+			// 调用分类检查机制，确保数据一致性
+			eventPublisher.publishEvent(
+					new CategoryChangedEvent(this, category.getId(), ChangeType.UPDATE)
+			);
+			return true;
+		}else{
+			// 更新失败，返回false
+			return false;
+		}
     }
 
     @Override
@@ -134,16 +144,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     @Transactional
-    public Boolean deleteCategory(Category category) {
+    public Boolean deleteCategory(Long id) {
+		Category oldCategory = categoryMapper.selectById(id);
 		//TODO:删除父分类同时也要删除子分类
-	    return categoryMapper.deleteById(category) == 1;
+	    if (categoryMapper.deleteById(id) == 1){
+			// 调用分类检查机制，确保数据一致性
+			eventPublisher.publishEvent(
+					new CategoryChangedEvent(this, id, ChangeType.DELETE)
+			);
+			return true;
+		}else{
+			return false;
+		}
     }
 
     @Override
     public List<CategoryVo> getCategoryTopList() {
 	    if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
+			logger.debug("从redis中获取分类数据");
 			return getCategoryTopListFromRedis();
 	    }else {
+			logger.debug("从mysql中获取分类数据");
 	        return getCategoryTopListFromMySQL();
 	    }
     }
@@ -186,8 +207,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	@Override
     public String getCategoryName(Long id) {
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
+			logger.debug("从Redis中获取分类名称");
 			return getCategoryNameFromRedis(id);
 	    }else {
+			logger.debug("从MySQL中获取分类名称");
 			return getCategoryNameFromMySQL(id);
 	    }
     }
@@ -227,8 +250,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public @NotNull List<Long> getCategoryIds(Long id){
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
+			logger.debug("从Redis中获取子类别ID");
 			return getCategoryIdsFromRedis(id);
 	    }else {
+			logger.debug("从MySQL中获取子类别ID");
 	        return getCategoryIdsFromMySQL(id);
 	    }
 	}
@@ -299,16 +324,49 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		CategoryTreeCache rootCache = new CategoryTreeCache();
 		rootCache.setId(0L);
 		rootCache.setName("根分类");
-		rootCache.setParentId(0L);
+		rootCache.setParentId(-1L);
 		rootCache.setLevel(0);
 		rootCache.setSort(0);
 		rootCache.setChildren(findCategoryChildren(0L));
 		redisService.setCategory(rootCache);
 	}
 
-	private @NotNull List<Long> findCategoryChildren(@NotNull Long categoryId) {
+	@Override
+	public CategoryVo selectById(Long id) {
+		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
+			logger.debug("从Redis中获取分类");
+			return selectByIdFromRedis(id);
+	    }else {
+			logger.debug("从MySQL中获取分类");
+			return selectByIdFromMySQL(id);
+	    }
+	}
+
+	private @Nullable CategoryVo selectByIdFromMySQL(Long id) {
+		Category category = categoryMapper.selectById(id);
+		if (category != null){
+			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+			assert categoryVo != null;
+			categoryVo.setParent(getCategoryName(category.getParentId()));
+			return categoryVo;
+		}
+		return null;
+	}
+
+	private @Nullable CategoryVo selectByIdFromRedis(Long id) {
+		CategoryTreeCache category = redisService.getCategory(id);
+		if (category != null){
+			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+			assert categoryVo != null;
+			categoryVo.setParent(getCategoryName(category.getParentId()));
+			return categoryVo;
+		}
+		return null;
+	}
+
+	private @NotNull List<Long> findCategoryChildren(@NotNull Long id) {
 		QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("parent_id", categoryId);
+        queryWrapper.eq("parent_id", id);
 		List<Category> children = categoryMapper.selectList(queryWrapper);
 		List<Long> childIds = new ArrayList<>();
 		for (Category child : children) {
@@ -316,7 +374,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 			assert childCache != null;
 //			childCache.setId(child.getId());
 //			childCache.setName(child.getName());
-			childCache.setParentId(categoryId);
+			childCache.setParentId(id);
 //			childCache.setLevel(child.getLevel());
 //			childCache.setSort(child.getSort());
 			childCache.setChildren(findCategoryChildren(child.getId()));
@@ -352,15 +410,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	    }
 	}
 
-	private void deleteCategoryFromRedis(Long categoryId) {
+	private void deleteCategoryFromRedis(Long id) {
 
 	}
 
-	private void updateCategoryToRedis(Long categoryId) {
+	private void updateCategoryToRedis(Long id) {
 
 	}
 
-	private void insertCategoryToRedis(Long categoryId) {
+	private void insertCategoryToRedis(Long id) {
 
 	}
 

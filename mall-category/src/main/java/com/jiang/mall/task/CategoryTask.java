@@ -50,20 +50,20 @@ public class CategoryTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(CategoryTask.class);
 
-	private long timer = 0;
+	private long timer = -1;
 
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
     public void checkCategoryTask() {
 		if (categoryConfig.isCategoryCacheEnabled()){
-			timer=timer+1000;
-			if (timer==1000){
+			timer = timer + 1;
+			if (timer == 0){
 				logger.info("分类数据缓存预热");
 				categoryService.checkCategory();
 			}else if (timer>=categoryConfig.getCategorySyncTime()){
-				timer = 1;
+				timer = 0;
 				categoryService.checkCategory();
 			}
-		}else{
+		}else if (timer == -1){
 			logger.info("分类数据缓存已禁用。");
 		}
     }

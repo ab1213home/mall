@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * @since 2024年9月11日
  */
 @Component
-public class CategoryTask {
+public class ProductTask {
 
 	private ICategoryService categoryService;
 
@@ -41,7 +41,7 @@ public class CategoryTask {
 	}
 
 
-	private static final Logger logger = LoggerFactory.getLogger(CategoryTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
 
 	private long timer = 0;
 

@@ -50,7 +50,7 @@ public class BannerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(BannerTask.class);
 
-	private long timer = 0;
+	private long timer = -1;
 
 	/*
 	 * 每隔（BannerSyncTime/1000/60）分钟执行检查轮播图是否有过期的轮播图，如果有则删除
@@ -59,15 +59,15 @@ public class BannerTask {
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
     public void checkBannerTask() {
 		if (bannerConfig.isBannerCacheEnabled()){
-			timer=timer+1000;
-			if (timer==1000){
+			timer = timer + 1;
+			if (timer == 0){
 				logger.info("轮播图数据缓存预热");
 				bannerService.checkBanner();
 			}else if (timer>=bannerConfig.getBannerSyncTime()){
-				timer = 1;
+				timer = 0;
 				bannerService.checkBanner();
 			}
-		}else{
+		}else if (timer == -1){
 			logger.info("轮播图数据缓存已禁用。");
 		}
     }

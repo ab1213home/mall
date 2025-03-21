@@ -102,7 +102,7 @@ public class CategoryConfig {
         }
     }
 
-    public Boolean isCategoryCacheEnabled() {
+    public boolean isCategoryCacheEnabled() {
         return Boolean.parseBoolean(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), CategoryConfigItems.CATEGORY_CACHE.getDefaultValue()));
     }
 
