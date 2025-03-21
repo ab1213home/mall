@@ -11,17 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service;
+package com.jiang.mall.event;
 
-import com.jiang.mall.domain.cache.ProductCache;
+import com.jiang.mall.domain.enums.ChangeType;
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
 
-public interface IProductRedisService {
+@Getter
+public class ProductChangedEvent extends ApplicationEvent {
+    private final Long productId;
+    private final ChangeType changeType;
 
-    void setProduct(ProductCache product);
-
-    ProductCache getProduct(Long id);
-
-    Boolean hasProduct(Long id);
-
-    void deleteProduct(Long id);
+    public ProductChangedEvent(Object source, Long productId, ChangeType changeType) {
+        super(source);
+        this.productId = productId;
+        this.changeType = changeType;
+    }
 }

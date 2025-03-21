@@ -15,8 +15,9 @@ package com.jiang.mall.intercepter;
 
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -29,11 +30,11 @@ import java.io.IOException;
 @Component
 public class RepeatLoginInterceptor implements HandlerInterceptor {
 
-    private IUserService userService;
+    private IUserRedisService redisService;
 
     @Autowired
-    public void userService(IUserService userService) {
-        this.userService = userService;
+    public void setRedisService(IUserRedisService redisService) {
+        this.redisService = redisService;
     }
 
     private II18nService i18nService;
@@ -64,14 +65,25 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-        // 检查用户登录状态
-        if (userService.checkUserLogin(request.getSession().getId()).isSuccess()){
-            // 如果用户已登录，重定向到用户首页
-            redirectToUserIndex(request, response);
-            return false;
+        //获取token
+        String token = request.getHeader("Authorization");
+        if (i18nService.checkString(token)){
+            UserCache user = redisService.getUserByToken(token);
+            if (!userInterceptor.checkLogin(user)){
+                return true;
+            }else {
+                redirectToUserIndex(request, response);
+                return false;
+            }
+        } else {
+            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
+            if (!userInterceptor.checkLogin(user)){
+                return true;
+            }else {
+                redirectToUserIndex(request, response);
+                return false;
+            }
         }
-        // 允许其他请求继续执行
-        return true;
     }
 
     private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {

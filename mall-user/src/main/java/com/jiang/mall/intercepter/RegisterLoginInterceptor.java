@@ -36,11 +36,11 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
-    private ITemporaryRedisService temporaryRedisService;
+    private ITemporaryRedisService redisService;
 
 	@Autowired
-	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
-		this.temporaryRedisService = temporaryRedisService;
+	public void setRedisService(ITemporaryRedisService redisService) {
+		this.redisService = redisService;
 	}
 
     private UserInterceptor userInterceptor;
@@ -64,7 +64,7 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-        String userId = temporaryRedisService.getKey(request.getSession().getId());
+        String userId = redisService.getKey(request.getSession().getId());
         // 检查用户登录状态
         if (userId == null){
             // 如果用户未有注册状态，重定向到注册页面

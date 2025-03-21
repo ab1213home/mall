@@ -50,5 +50,5 @@ public interface ICategoryService extends IService<Category> {
 
 	void checkCategory();
 
-	CategoryVo selectById(Long id);
+	CategoryVo getCategory(Long id);
 }

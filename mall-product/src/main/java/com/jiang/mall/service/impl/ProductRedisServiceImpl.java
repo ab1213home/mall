@@ -13,8 +13,8 @@
 
 package com.jiang.mall.service.impl;
 
-import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.domain.cache.ProductCache;
 import com.jiang.mall.service.IProductRedisService;
 import jakarta.annotation.PostConstruct;
@@ -40,10 +40,10 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	private CoreConfig coreConfig;
+	private ProductConfig coreConfig;
 
 	@Autowired
-	public void setCoreConfig(CoreConfig coreConfig) {
+	public void setCoreConfig(ProductConfig coreConfig) {
 	    this.coreConfig = coreConfig;
 	}
 

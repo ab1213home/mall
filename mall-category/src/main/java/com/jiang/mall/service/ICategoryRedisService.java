@@ -31,9 +31,9 @@ public interface ICategoryRedisService {
 
     void setCategory(@NotNull CategoryTreeCache category);
 
-    CategoryTreeCache getCategory(Long categoryId);
+    CategoryTreeCache getCategory(Long id);
 
-    Boolean hasCategory(Long categoryId);
+    Boolean hasCategory(Long id);
 
-    void deleteCategory(Long categoryId);
+    void deleteCategory(Long id);
 }

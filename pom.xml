@@ -433,6 +433,12 @@
 
             <dependency>
                 <groupId>com.jiang</groupId>
+                <artifactId>mall-product</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jiang</groupId>
                 <artifactId>mall-sse</artifactId>
                 <version>${mall.version}</version>
             </dependency>
@@ -457,6 +463,7 @@
         <module>mall-address</module>
         <module>mall-monitor</module>
 		<module>mall-pay</module>
+        <module>mall-product</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->

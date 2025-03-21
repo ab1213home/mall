@@ -13,7 +13,7 @@
 
 package com.jiang.mall.task;
 
-import com.jiang.mall.config.CoreConfig;
+import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.service.IProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +41,10 @@ public class ProductTask {
 		this.productService = productService;
 	}
 
-	private CoreConfig coreConfig;
+	private ProductConfig coreConfig;
 
 	@Autowired
-	public void setCoreConfig(CoreConfig coreConfig) {
+	public void setCoreConfig(ProductConfig coreConfig) {
 		this.coreConfig = coreConfig;
 	}
 

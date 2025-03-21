@@ -14,8 +14,12 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
-import com.jiang.mall.domain.vo.*;
+import com.jiang.mall.domain.vo.CartVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.OrderAllVo;
+import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,12 +175,6 @@ public class OrderController {
 									  @RequestBody List<CheckoutVo> list_checkoutVo,
 									  HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
-	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-	    if (!result.isSuccess()) {
-	        // 如果未登录，则直接返回
-	        return result;
-	    }
-	    UserVo user = (UserVo) result.getData();
 		if (addressId == null|| paymentMethod<0||status<0||list_checkoutVo == null||addressId<=0){
 			return ResponseResult.failResult("参数错误");
 		}
@@ -185,6 +183,7 @@ public class OrderController {
 		}
 	    // 根据地址ID获取地址信息，以验证地址是否属于当前用户
 	    Address address = addressService.getById(addressId);
+		UserCache user = userService.getUserFromRedis(session.getId());
 	    if (!address.getUserId().equals(user.getId())) {
 	        return ResponseResult.failResult("您没有权限提交此订单");
 	    }

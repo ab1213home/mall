@@ -13,7 +13,7 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.enums.CoreConfigItems;
+import com.jiang.mall.domain.enums.ProductConfigItems;
 import com.jiang.mall.domain.enums.UserConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -28,9 +28,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Component
-public class CoreConfig {
+public class ProductConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(CoreConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductConfig.class);
 
     private GeneralConfig generalConfig;
 
@@ -46,7 +46,7 @@ public class CoreConfig {
     @PostConstruct
     public void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("core");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("product");
         loadProperties();
     }
 
@@ -58,7 +58,7 @@ public class CoreConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-                for (CoreConfigItems item : CoreConfigItems.values()) {
+                for (ProductConfigItems item : ProductConfigItems.values()) {
                     String keyToCheck = item.getKey();
                     if (!properties.containsKey(keyToCheck)) {
                         properties.setProperty(keyToCheck, item.getDefaultValue());
@@ -104,27 +104,27 @@ public class CoreConfig {
     }
 
     public boolean isProductCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), CoreConfigItems.PRODUCT_CACHE.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(ProductConfigItems.PRODUCT_CACHE.getKey(), ProductConfigItems.PRODUCT_CACHE.getDefaultValue()));
     }
 
     public Long getProductCacheTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(),CoreConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), ProductConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
     }
 
     public Long getProductSyncTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(),CoreConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), ProductConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
     }
 
     public void updateProductCache(Boolean cache) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), String.valueOf(cache));
+        properties.setProperty(ProductConfigItems.PRODUCT_CACHE.getKey(), String.valueOf(cache));
     }
 
     public void updateProductCacheTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+        properties.setProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
     public void updateProductSyncTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
+        properties.setProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 }

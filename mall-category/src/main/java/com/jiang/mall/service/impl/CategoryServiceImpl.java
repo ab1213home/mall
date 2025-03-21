@@ -161,10 +161,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public List<CategoryVo> getCategoryTopList() {
 	    if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
-			logger.debug("从redis中获取分类数据");
 			return getCategoryTopListFromRedis();
 	    }else {
-			logger.debug("从mysql中获取分类数据");
 	        return getCategoryTopListFromMySQL();
 	    }
     }
@@ -207,17 +205,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	@Override
     public String getCategoryName(Long id) {
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
-			logger.debug("从Redis中获取分类名称");
 			return getCategoryNameFromRedis(id);
 	    }else {
-			logger.debug("从MySQL中获取分类名称");
 			return getCategoryNameFromMySQL(id);
 	    }
     }
 
 	private String getCategoryNameFromRedis(Long id) {
 		CategoryTreeCache category = redisService.getCategory(id);
-		if (category.getParentId() == 0){
+		if (category.getParentId() == 0 || category.getParentId() == -1){
 			return category.getName();
 		}else{
 			return getCategoryName(category.getParentId()) + "-" + category.getName();
@@ -250,10 +246,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Override
     public @NotNull List<Long> getCategoryIds(Long id){
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
-			logger.debug("从Redis中获取子类别ID");
 			return getCategoryIdsFromRedis(id);
 	    }else {
-			logger.debug("从MySQL中获取子类别ID");
 	        return getCategoryIdsFromMySQL(id);
 	    }
 	}
@@ -332,12 +326,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
 	@Override
-	public CategoryVo selectById(Long id) {
+	public CategoryVo getCategory(Long id) {
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
-			logger.debug("从Redis中获取分类");
 			return selectByIdFromRedis(id);
 	    }else {
-			logger.debug("从MySQL中获取分类");
 			return selectByIdFromMySQL(id);
 	    }
 	}

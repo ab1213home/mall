@@ -16,7 +16,7 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.config.CoreConfig;
+import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.cache.ProductCache;
 import com.jiang.mall.domain.entity.EsProduct;
@@ -62,10 +62,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.redisService = redisService;
 	}
 
-	private CoreConfig coreConfig;
+	private ProductConfig coreConfig;
 
 	@Autowired
-	public void setCoreConfig(CoreConfig coreConfig) {
+	public void setCoreConfig(ProductConfig coreConfig) {
 		this.coreConfig = coreConfig;
 	}
 

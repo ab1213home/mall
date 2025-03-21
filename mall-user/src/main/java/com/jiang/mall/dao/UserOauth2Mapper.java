@@ -11,17 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.service;
+package com.jiang.mall.dao;
 
-import com.jiang.mall.domain.cache.ProductCache;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jiang.mall.domain.entity.UserOauth2;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface IProductRedisService {
-
-    void setProduct(ProductCache product);
-
-    ProductCache getProduct(Long id);
-
-    Boolean hasProduct(Long id);
-
-    void deleteProduct(Long id);
+@Mapper
+public interface UserOauth2Mapper extends BaseMapper<UserOauth2> {
 }

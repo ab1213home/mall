@@ -75,18 +75,18 @@ public class CategoryRedisServiceImpl implements ICategoryRedisService {
 	}
 
 	@Override
-	public CategoryTreeCache getCategory(Long categoryId) {
-		String categoryJson = stringRedisTemplate.opsForValue().get(prefix+categoryId);
+	public CategoryTreeCache getCategory(Long id) {
+		String categoryJson = stringRedisTemplate.opsForValue().get(prefix+ id);
 		return categoryJson == null ? null :JSON.parseObject(categoryJson, CategoryTreeCache.class);
 	}
 
 	@Override
-	public Boolean hasCategory(Long categoryId) {
-		return stringRedisTemplate.hasKey(prefix+categoryId);
+	public Boolean hasCategory(Long id) {
+		return stringRedisTemplate.hasKey(prefix+ id);
 	}
 
 	@Override
-	public void deleteCategory(Long categoryId) {
-        stringRedisTemplate.delete(prefix+categoryId);
+	public void deleteCategory(Long id) {
+        stringRedisTemplate.delete(prefix+ id);
 	}
 }
