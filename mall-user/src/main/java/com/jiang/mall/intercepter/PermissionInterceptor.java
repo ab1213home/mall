@@ -70,7 +70,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
             if (permission == null) {
                 return true;
             }
-			switch (permission.type()) {
+			switch (permission.value()) {
 			    case NONE:
 			        return true;
 			    case USER:
@@ -83,18 +83,18 @@ public class PermissionInterceptor implements HandlerInterceptor {
 			            return false;
 			        }
 			        // 根据权限类型细化校验
-				    return switch (permission.type()) {
+				    return switch (permission.value()) {
 					    case USER -> true;
 					    case SHOP -> checkShopPermission(user, request);
 					    case SYSTEM -> checkSystemPermission(user, permission.permission());
 					    default -> {
 						    // 理论上不可达
-						    logger.error("Unexpected permission type: {}", permission.type());
+						    logger.error("Unexpected permission type: {}", permission.value());
 						    yield false;
 					    }
 				    };
 			    default:
-			        logger.error("未知权限类型: {}", permission.type());
+			        logger.error("未知权限类型: {}", permission.value());
 			        return false;
 			}
         }else {

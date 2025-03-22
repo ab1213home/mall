@@ -29,7 +29,7 @@ public @interface Permission {
      *
      * @return 权限类型
      */
-    PermissionType type() default PermissionType.NONE;
+    PermissionType value() default PermissionType.NONE;
 
     /**
      * 权限值

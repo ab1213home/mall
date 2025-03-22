@@ -61,7 +61,7 @@ public class CategoryAdminController {
      * @return 返回分类列表或相关错误信息
      */
     @GetMapping("/getList")
-    @Permission(type = PermissionType.SYSTEM, permission = "category:list")
+    @Permission(value = PermissionType.SYSTEM, permission = "category:list")
     public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(required = false) Long parentId,
@@ -86,7 +86,7 @@ public class CategoryAdminController {
      * @return 返回包含分类数量的响应结果
      */
     @GetMapping("/getNum")
-    @Permission(type = PermissionType.SYSTEM, permission = "category:list")
+    @Permission(value = PermissionType.SYSTEM, permission = "category:list")
     public ResponseResult<Object> getCategoryNum(@RequestParam(required = false) Long parentId,
                                                  @RequestParam(required = false) Integer level) {
         return ResponseResult.okResult(categoryService.getCategoryNum(parentId, level));
@@ -103,7 +103,7 @@ public class CategoryAdminController {
      * @return 插入操作的结果或错误信息
      */
     @PostMapping("/add")
-    @Permission(type = PermissionType.SYSTEM, permission = "category:create")
+    @Permission(value = PermissionType.SYSTEM, permission = "category:create")
     public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
                                          @RequestParam("name")String name,
                                          @RequestParam("parent")Long parent,
@@ -139,7 +139,7 @@ public class CategoryAdminController {
      * @return 返回操作结果
      */
     @PostMapping("/update")
-    @Permission(type = PermissionType.SYSTEM, permission = "category:update")
+    @Permission(value = PermissionType.SYSTEM, permission = "category:update")
     public ResponseResult<Object> updateCategory(@RequestParam("id") Long id,
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
@@ -217,7 +217,7 @@ public class CategoryAdminController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
-    @Permission(type = PermissionType.SYSTEM, permission = "category:delete")
+    @Permission(value = PermissionType.SYSTEM, permission = "category:delete")
     public ResponseResult<Object> deleteCategory(@RequestParam("id") Long id,
                                                  HttpSession session) {
         if (id == null || id <= 0) {
@@ -245,7 +245,7 @@ public class CategoryAdminController {
     }
 
     @GetMapping("/getSetting")
-    @Permission(type = PermissionType.SYSTEM, permission = "system:category")
+    @Permission(value = PermissionType.SYSTEM, permission = "system:category")
     public ResponseResult<Object> getSetting() {
         // 获取分类设置
         CategorySettingVo categorySetting = categoryConfig.getSetting();
@@ -253,7 +253,7 @@ public class CategoryAdminController {
     }
 
     @PostMapping("/saveSetting")
-    @Permission(type = PermissionType.SYSTEM, permission = "system:category")
+    @Permission(value = PermissionType.SYSTEM, permission = "system:category")
     public ResponseResult<Object> saveSetting(@RequestBody CategorySettingVo categorySettingVo) {
         categoryConfig.updateSetting(categorySettingVo);
         return ResponseResult.okResult();

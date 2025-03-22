@@ -90,14 +90,14 @@ public class AdminInterceptor implements HandlerInterceptor {
 
             logger.debug("权限:{}",  requiredPermission);
 
-            if (permission.type() == PermissionType.SYSTEM) {
+            if (permission.value() == PermissionType.SYSTEM) {
                 if (user.getPermissions().contains(requiredPermission)){
                     return true;
                 }else {
                     redirectToUserIndex(request, response);
                     return false;
                 }
-            }else if (permission.type() == PermissionType.SHOP) {
+            }else if (permission.value() == PermissionType.SHOP) {
                 // 获取请求的URI
                 String[] uri = request.getRequestURI().split("/");
                 return false;

@@ -239,7 +239,7 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/getList")
-	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                      @RequestParam(defaultValue = "5") Integer pageSize,
 	                                      HttpSession session) {
@@ -258,13 +258,13 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/getNum")
-	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAllOrderNum() {
 		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 
 	@GetMapping("/admin/getAmount")
-	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAmount() {
 		double amount = Double.parseDouble(orderService.getAmount());
 		return ResponseResult.okResult(amount);

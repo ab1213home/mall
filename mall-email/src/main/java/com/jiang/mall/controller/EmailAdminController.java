@@ -57,7 +57,7 @@ public class EmailAdminController {
      * @return 包含邮箱设置信息的响应结果
      */
     @GetMapping("/getSetting")
-    @Permission(type = PermissionType.SYSTEM, permission = "system:email")
+    @Permission(value = PermissionType.SYSTEM, permission = "system:email")
     public ResponseResult<Object> getSetting() {
         return ResponseResult.okResult(emailConfig.getSetting());
     }
@@ -69,7 +69,7 @@ public class EmailAdminController {
      * @return 表示设置操作结果的响应结果
      */
     @PostMapping("/setSetting")
-    @Permission(type = PermissionType.SYSTEM, permission = "system:email")
+    @Permission(value = PermissionType.SYSTEM, permission = "system:email")
     public ResponseResult<Object> setSetting(@RequestBody EmailSettingVo emailSettingVo) {
         // 更新配置文件
         emailConfig.updateSetting(emailSettingVo);
@@ -84,7 +84,7 @@ public class EmailAdminController {
      * @return 包含验证码列表的响应结果
      */
     @GetMapping("/getList")
-    @Permission(type = PermissionType.SYSTEM, permission = "email:list")
+    @Permission(value = PermissionType.SYSTEM, permission = "email:list")
     public ResponseResult<Object> getList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                           @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize) {
         List<VerificationCodeVo> list = verificationCodeService.getList(pageNum, pageSize);
@@ -97,7 +97,7 @@ public class EmailAdminController {
      * @return 包含验证码数量的响应结果
      */
     @GetMapping("/getNum")
-    @Permission(type = PermissionType.SYSTEM, permission = "email:list")
+    @Permission(value = PermissionType.SYSTEM, permission = "email:list")
     public ResponseResult<Object> getNum() {
         return ResponseResult.okResult(verificationCodeService.getVerificationCodeNum());
     }
