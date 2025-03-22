@@ -29,12 +29,12 @@ public @interface Permission {
      *
      * @return 权限类型
      */
-    PermissionType type() default PermissionType.SYSTEM ;
+    PermissionType type() default PermissionType.NONE;
 
     /**
      * 权限值
      *
      * @return 权限值
      */
-    String value() default "";
+    String permission() default "";
 }

@@ -130,7 +130,7 @@ public class CategoryConfig {
 
 
     public CategorySettingVo getSetting() {
-        CategorySettingVo setting = new CategorySetting();
+        CategorySettingVo setting = new CategorySettingVo();
         setting.setCacheEnabled(isCategoryCacheEnabled());
         setting.setCacheTime(getCategoryCacheTime());
         setting.setSyncTime(getCategorySyncTime());

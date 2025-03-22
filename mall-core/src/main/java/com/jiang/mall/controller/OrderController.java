@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderAllVo;
@@ -236,7 +238,8 @@ public class OrderController {
 		return ResponseResult.okResult(orderService.getOrderNum(session.getId()));
 	}
 
-	@GetMapping("/getAllList")
+	@GetMapping("/admin/getList")
+	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                      @RequestParam(defaultValue = "5") Integer pageSize,
 	                                      HttpSession session) {
@@ -255,11 +258,13 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/getNum")
+	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAllOrderNum() {
 		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 
 	@GetMapping("/admin/getAmount")
+	@Permission(type = PermissionType.SYSTEM, permission = "order:list")
 	public ResponseResult<Object> getAmount() {
 		double amount = Double.parseDouble(orderService.getAmount());
 		return ResponseResult.okResult(amount);

@@ -51,7 +51,7 @@ public class PayAdminController {
 	}
 
     @GetMapping("/getSetting")
-    @Permission(type = PermissionType.SYSTEM, value = "system:pay")
+    @Permission(type = PermissionType.SYSTEM, permission = "system:pay")
     public ResponseResult<Object> getSetting() {
 		Map<String,Object> setting = new HashMap<>();
 		setting.put("wechatpayConfig", wechatpayConfig.readWechatpayConfig());
@@ -60,7 +60,7 @@ public class PayAdminController {
     }
 
     @PostMapping("/setSetting")
-    @Permission(type = PermissionType.SYSTEM, value = "system:pay")
+    @Permission(type = PermissionType.SYSTEM, permission = "system:pay")
     public ResponseResult<Object> setSetting(@RequestBody PaySettingVo paySettingVo) {
         // 更新配置文件
 //        payConfig.updateSetting(emailSettingVo);

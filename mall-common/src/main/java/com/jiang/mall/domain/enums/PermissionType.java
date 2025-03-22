@@ -15,5 +15,7 @@ package com.jiang.mall.domain.enums;
 
 public enum PermissionType {
 	SYSTEM,
-	SHOP;
+	SHOP,
+	USER,
+	NONE;
 }

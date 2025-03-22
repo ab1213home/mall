@@ -13,8 +13,10 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,7 @@ public class CommonController {
 
 
     @GetMapping("/getFooter")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getFooter() {
         Map<String, Object> map = new HashMap<>();
         map.put("phone", generalConfig.getPhone());

@@ -66,7 +66,15 @@ public class AdminInterceptor implements HandlerInterceptor {
 //            return true;
 //        }
         logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
-
+//        switch (event.getChangeType()) {
+//	            case CREATE:
+//	            case UPDATE:
+//	                syncProductToEs(event.getProductId());
+//	                break;
+//	            case DELETE:
+//	                deleteProductFromEs(event.getProductId());
+//	                break;
+//	        }
         // 仅处理HandlerMethod类型的处理器
         if (handler instanceof HandlerMethod handlerMethod) {
             // 直接使用 handlerMethod 变量
@@ -78,7 +86,7 @@ public class AdminInterceptor implements HandlerInterceptor {
             }
 
             UserCache user =redisService.getUserBySessionId(request.getSession().getId());
-            String requiredPermission = permission.value();
+            String requiredPermission = permission.permission();
 
             logger.debug("权限:{}",  requiredPermission);
 

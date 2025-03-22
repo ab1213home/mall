@@ -18,7 +18,7 @@ let num_order = 0;
 function queryOrders(pn, pz) {
 	$.ajax({
         type: "GET",
-        url: "/order/getAllList",
+        url: "/order/admin/getList",
         data: {
             pageNum: pn,
             pageSize: pz

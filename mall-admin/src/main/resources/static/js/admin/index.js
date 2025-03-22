@@ -72,7 +72,7 @@ function getOrdersNum(){
 }
 function getProductNum(){
 	$.ajax({
-		url:"/product/getNum",
+		url:"/product/admin/getNum",
 		type:"get",
 		data:{},
 		dataType:"json",

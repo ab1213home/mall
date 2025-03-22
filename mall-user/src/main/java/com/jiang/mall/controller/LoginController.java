@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import cn.hutool.core.lang.UUID;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.ICaptchaService;
@@ -114,8 +115,10 @@ public class LoginController {
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 
+		String token = UUID.fastUUID().toString();
+
         // 调用userService的login方法进行用户登录验证
-        flag = userService.login(username, password, clientIp, fingerprint,session.getId());
+        flag = userService.login(username, password, token, clientIp, fingerprint, session.getId());
         if (flag == null) {
 			//TODO:无状态
             return ResponseResult.failResult();
@@ -123,7 +126,7 @@ public class LoginController {
             // 登录失败，返回相应错误信息
             return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         }else {
-			return ResponseResult.okResult(i18nService.getMessage("user.login.success"));
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
     }
 

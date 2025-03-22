@@ -93,7 +93,8 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
 	    }else {
 			logger.debug("用户缓存已存在，更新用户缓存");
-	        stringRedisTemplate.expire(prefix+user.getId(), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+			stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+//	        stringRedisTemplate.expire(prefix+user.getId(), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
 	    }
 
 	    // 存储用户令牌与用户ID的映射关系，并设置过期时间

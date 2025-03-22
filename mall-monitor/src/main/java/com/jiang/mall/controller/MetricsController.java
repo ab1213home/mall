@@ -56,13 +56,13 @@ public class MetricsController {
     }
 
     @GetMapping("/admin/getRedis")
-    @Permission(type = PermissionType.SYSTEM, value = "system:redis")
+    @Permission(type = PermissionType.SYSTEM, permission = "system:redis")
     public ResponseResult<Object> getRedis() {
         return ResponseResult.okResult(metricsService.getRedisMetrics());
     }
 
     @GetMapping("/admin/system-info")
-    @Permission(type = PermissionType.SYSTEM, value = "system")
+    @Permission(type = PermissionType.SYSTEM, permission = "system")
     public ResponseResult<Object> getSystemInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("java", metricsService.getJavaMetrics());
@@ -71,19 +71,19 @@ public class MetricsController {
     }
 
     @GetMapping("/admin/data-info")
-    @Permission(type = PermissionType.SYSTEM, value = "system:data")
+    @Permission(type = PermissionType.SYSTEM, permission = "system:data")
     public ResponseResult<Object> getDatabaseInfo() {
         return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }
 
     @GetMapping("/admin/getMachineCode")
-    @Permission(type = PermissionType.SYSTEM, value = "system")
+    @Permission(type = PermissionType.SYSTEM, permission = "system")
     public ResponseResult<Object> getMachineCode() {
         return ResponseResult.okResult(generalConfig.getMachineCode());
     }
 
     @GetMapping("/admin/isDocker")
-    @Permission(type = PermissionType.SYSTEM, value = "system")
+    @Permission(type = PermissionType.SYSTEM, permission = "system")
     public ResponseResult<Object> isDocker() {
         return ResponseResult.okResult(generalConfig.isRunningInDocker());
     }

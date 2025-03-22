@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service.impl;
 
-import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -195,12 +194,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 *
 	 * @param username    用户名或者邮箱，用于登录验证
 	 * @param password    密文密码，用于登录验证
+	 * @param token
 	 * @param clientIp    客户端IP地址
 	 * @param fingerprint 浏览器指纹，用于登录验证
 	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回false
 	 */
 	@Override
-	public Boolean login(String username, String password, String clientIp, String fingerprint,String sessionId) {
+	public Boolean login(String username, String password, String token, String clientIp, String fingerprint, String sessionId) {
 		User user = getUserByUserNameOrEmail(username, password);
 		if (user == null) {
 			// 登录失败，记录登录记录
@@ -227,7 +227,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 //                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
 				userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
-			String token = UUID.randomUUID().toString();
 			// 将用户信息存储到Redis中，并设置过期时间
 			redisService.setUser(sessionId, token, userCache);
 			// 登录成功，记录登录记录

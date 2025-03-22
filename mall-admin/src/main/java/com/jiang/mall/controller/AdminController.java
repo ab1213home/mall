@@ -13,11 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.intercepter.ApiRequestCounterInterceptor;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
 	@GetMapping("/getRequestNum")
+	@Permission(type = PermissionType.SYSTEM, permission = "system")
 	public ResponseResult<Object> getRequestNum(HttpSession session) {
 		return ResponseResult.okResult(ApiRequestCounterInterceptor.getCount());
 	}

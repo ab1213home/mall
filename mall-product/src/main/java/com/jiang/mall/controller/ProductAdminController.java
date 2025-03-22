@@ -88,7 +88,7 @@ public class ProductAdminController {
      * @return 返回包含产品列表的响应结果，具体结构由productService定义
      */
     @GetMapping("/getList")
-    @Permission(type = PermissionType.SYSTEM, value = "product:list")
+    @Permission(type = PermissionType.SYSTEM, permission = "product:list")
     public ResponseResult<Object> getProductList(@RequestParam(required = false) String name,
                                          @RequestParam(required = false) Long categoryId,
                                          @RequestParam(defaultValue = "1") Integer pageNum,
@@ -286,7 +286,7 @@ public class ProductAdminController {
     }
 
     @GetMapping("/getNum")
-    @Permission(type = PermissionType.SYSTEM, value = "product:list")
+    @Permission(type = PermissionType.SYSTEM, permission = "product:list")
     public ResponseResult<Object> getProductNum(HttpSession session) {
         return ResponseResult.okResult(productService.getProductNum());
     }
