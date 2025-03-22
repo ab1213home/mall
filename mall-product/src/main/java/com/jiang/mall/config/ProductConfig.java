@@ -15,7 +15,9 @@ package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.ProductConfigItems;
 import com.jiang.mall.domain.enums.UserConfigItems;
+import com.jiang.mall.domain.vo.ProductSettingVo;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +127,22 @@ public class ProductConfig {
 
     public void updateProductSyncTime(Long time) {
         properties.setProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
+    }
+
+    public ProductSettingVo getSetting() {
+        ProductSettingVo settingVo = new ProductSettingVo();
+        settingVo.setCacheEnabled(isProductCacheEnabled());
+        settingVo.setCacheTime(getProductCacheTime());
+        settingVo.setSyncTime(getProductSyncTime());
+        return settingVo;
+    }
+
+    public void updateSetting(@NotNull ProductSettingVo settingVo) {
+        updateProductCache(settingVo.isCacheEnabled());
+        updateProductCacheTime(settingVo.getCacheTime());
+        updateProductSyncTime(settingVo.getSyncTime());
+        saveProperties();
+        loadProperties();
     }
 
 }

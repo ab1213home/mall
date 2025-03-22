@@ -212,13 +212,13 @@ public class BannerAdminController {
     @GetMapping("/getSetting")
     @Permission(type = PermissionType.SYSTEM, value = "system:banner")
     public ResponseResult<Object> getSetting() {
-        return ResponseResult.okResult(bannerConfig.getBannerSetting());
+        return ResponseResult.okResult(bannerConfig.getSetting());
     }
 
     @PostMapping("/saveSetting")
     @Permission(type = PermissionType.SYSTEM, value = "system:banner")
     public ResponseResult<Object> saveSetting(@RequestBody BannerSettingVo bannerSettingVo) {
-        bannerConfig.updateBannerSetting(bannerSettingVo);
+        bannerConfig.updateSetting(bannerSettingVo);
         return ResponseResult.okResult();
     }
 }

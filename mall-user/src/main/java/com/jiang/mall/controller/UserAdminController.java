@@ -13,10 +13,12 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
@@ -64,6 +66,7 @@ public class UserAdminController {
 
 
     @GetMapping("/getList")
+    @Permission(type = PermissionType.SYSTEM, value = "user:list")
     public ResponseResult<Object> getUserList(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "20") Integer pageSize,
                                               HttpSession session){
@@ -75,6 +78,7 @@ public class UserAdminController {
     }
 
     @GetMapping("/getNum")
+    @Permission(type = PermissionType.SYSTEM, value = "user:list")
     public ResponseResult<Object> getUserNum(HttpSession session){
         return ResponseResult.okResult(userService.getUserNum());
     }
@@ -89,6 +93,7 @@ public class UserAdminController {
      * @return ResponseResult表示操作结果，包含成功、失败、未找到资源、服务器错误等状态
      */
     @PostMapping("/lock")
+    @Permission(type = PermissionType.SYSTEM, value = "user:lock")
     public ResponseResult<Object> selfLock(@RequestParam("userId") Long userId,
 										   @RequestHeader("X-Real-IP") String clientIp,
                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
@@ -128,6 +133,7 @@ public class UserAdminController {
      * 如果解锁失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/unlock")
+    @Permission(type = PermissionType.SYSTEM, value = "user:lock")
     public ResponseResult<Object> unlockUser(@RequestParam("userId") Long userId,
 											 @RequestHeader("X-Real-IP") String clientIp,
 											 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,

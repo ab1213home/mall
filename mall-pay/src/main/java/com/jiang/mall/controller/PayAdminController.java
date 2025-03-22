@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.PaySettingVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +51,7 @@ public class PayAdminController {
 	}
 
     @GetMapping("/getSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:pay")
     public ResponseResult<Object> getSetting() {
 		Map<String,Object> setting = new HashMap<>();
 		setting.put("wechatpayConfig", wechatpayConfig.readWechatpayConfig());
@@ -57,6 +60,7 @@ public class PayAdminController {
     }
 
     @PostMapping("/setSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:pay")
     public ResponseResult<Object> setSetting(@RequestBody PaySettingVo paySettingVo) {
         // 更新配置文件
 //        payConfig.updateSetting(emailSettingVo);

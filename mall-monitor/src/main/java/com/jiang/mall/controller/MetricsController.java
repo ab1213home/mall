@@ -13,8 +13,10 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IMetricsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,11 +56,13 @@ public class MetricsController {
     }
 
     @GetMapping("/admin/getRedis")
+    @Permission(type = PermissionType.SYSTEM, value = "system:redis")
     public ResponseResult<Object> getRedis() {
         return ResponseResult.okResult(metricsService.getRedisMetrics());
     }
 
     @GetMapping("/admin/system-info")
+    @Permission(type = PermissionType.SYSTEM, value = "system")
     public ResponseResult<Object> getSystemInfo() {
         Map<String, Object> info = new HashMap<>();
         info.put("java", metricsService.getJavaMetrics());
@@ -67,16 +71,19 @@ public class MetricsController {
     }
 
     @GetMapping("/admin/data-info")
+    @Permission(type = PermissionType.SYSTEM, value = "system:data")
     public ResponseResult<Object> getDatabaseInfo() {
         return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }
 
     @GetMapping("/admin/getMachineCode")
+    @Permission(type = PermissionType.SYSTEM, value = "system")
     public ResponseResult<Object> getMachineCode() {
         return ResponseResult.okResult(generalConfig.getMachineCode());
     }
 
     @GetMapping("/admin/isDocker")
+    @Permission(type = PermissionType.SYSTEM, value = "system")
     public ResponseResult<Object> isDocker() {
         return ResponseResult.okResult(generalConfig.isRunningInDocker());
     }

@@ -137,7 +137,7 @@ public class CategoryConfig {
         return setting;
     }
 
-    public void updateCategorySetting(@NotNull CategorySettingVo categorySettingVo) {
+    public void updateSetting(@NotNull CategorySettingVo categorySettingVo) {
         updateCategoryCache(categorySettingVo.isCacheEnabled());
         updateCategoryCacheTime(categorySettingVo.getCacheTime());
         updateCategorySyncTime(categorySettingVo.getSyncTime());

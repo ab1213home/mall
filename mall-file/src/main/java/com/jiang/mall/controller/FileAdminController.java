@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.FileConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.config.LocalSetting;
@@ -20,6 +21,7 @@ import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
 import com.jiang.mall.domain.enums.FileConfigItems;
 import com.jiang.mall.domain.enums.FileType;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.enums.StorageType;
 import com.jiang.mall.domain.vo.DirectoryVo;
 import com.jiang.mall.domain.vo.FileMainSettingVo;
@@ -71,6 +73,7 @@ public class FileAdminController {
      * @return 包含文件夹总大小和文件数量的响应结果
      */
     @GetMapping("/getFileSize")
+    @Permission(type = PermissionType.SYSTEM, value = "file:list")
     public ResponseResult<Object> getSize(){
         Map<String, Object> data = fileOperation.getFolderStats(fileConfig.defaultStorageConfig.getName());
         // 返回包含数据Map的成功响应结果
@@ -78,6 +81,7 @@ public class FileAdminController {
     }
 
     @GetMapping("/getList")
+    @Permission(type = PermissionType.SYSTEM, value = "file:list")
     public ResponseResult<Object> getList(@RequestParam String path,
                                           @RequestParam String storageName
                                           ){
@@ -94,6 +98,7 @@ public class FileAdminController {
      * @return ResponseResult<Object> 返回包含设置信息的响应结果
      */
     @GetMapping("/getMainSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:file")
     public ResponseResult<Object> getMainSetting(){
         // 创建一个HashMap用于存储设置信息
         Map<String,Object> setting = new HashMap<>();
@@ -135,6 +140,7 @@ public class FileAdminController {
      * @return ResponseResult<Object> 返回包含配置信息的响应结果
      */
     @GetMapping("/getDetailSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:file")
     public ResponseResult<Object> getDetailSetting(){
         // 创建一个列表，用于存储所有存储配置的详细信息
         List<Map<String,Object>> storageList = new ArrayList<>();
@@ -191,6 +197,7 @@ public class FileAdminController {
      * @return 返回一个ResponseResult对象，表示配置更新的结果
      */
     @PostMapping("/saveMainSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:file")
     public ResponseResult<Object> setMainSetting(@RequestBody FileMainSettingVo mainSettingVo){
         // 标准图片后缀集合，用于校验传入的图片后缀是否合法
         Set<String> standard_imageSuffix = Stream.of(FileConfigItems.IMAGE_SUFFIX.getDefaultValue().split(",")).map(String::trim).collect(Collectors.toSet());
@@ -231,6 +238,7 @@ public class FileAdminController {
      * @return 返回一个ResponseResult对象，包含处理结果
      */
     @PostMapping("/saveDetailSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:file")
     public ResponseResult<Object> setDetailSetting(@RequestBody StorageConfigVo storageConfigVo){
         // 检查存储名称是否为空或无效
         if (storageConfigVo.getName()==null||storageConfigVo.getName().isEmpty()){
@@ -288,6 +296,7 @@ public class FileAdminController {
      * @return ResponseResult 包含操作结果或文件用途信息
      */
     @GetMapping("/getPurpose")
+    @Permission(type = PermissionType.SYSTEM, value = "file:list")
     public ResponseResult<Object> getPurpose(@RequestParam("path") String path){
         // 调用服务层方法，获取文件的用途
         String purpose = fileService.getPurpose(path);

@@ -254,7 +254,7 @@ public class CategoryAdminController {
     @PostMapping("/saveSetting")
     @Permission(type = PermissionType.SYSTEM, value = "system:category")
     public ResponseResult<Object> saveSetting(@RequestBody CategorySettingVo categorySettingVo) {
-        categoryConfig.updateCategorySetting(categorySettingVo);
+        categoryConfig.updateSetting(categorySettingVo);
         return ResponseResult.okResult();
     }
 }

@@ -224,7 +224,7 @@ public class CaptchaConfig {
         properties.setProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), String.valueOf(type));
     }
 
-    public @NotNull CaptchaSettingVo getCaptchaSetting() {
+    public @NotNull CaptchaSettingVo getSetting() {
         CaptchaSettingVo settingVo = new CaptchaSettingVo();
         settingVo.setCaptchaNum(getCaptchaNum());
         settingVo.setCaptchaExpireTime(getCaptchaExpireTime());
@@ -233,7 +233,7 @@ public class CaptchaConfig {
         return settingVo;
     }
 
-    public void updateCaptchaSetting(@NotNull CaptchaSettingVo settingVo) {
+    public void updateSetting(@NotNull CaptchaSettingVo settingVo) {
         updateCaptchaNum(settingVo.getCaptchaNum());
         updateCaptchaExpireTime(settingVo.getCaptchaExpireTime());
         updateCaptchaFont(settingVo.getCaptchaFont());

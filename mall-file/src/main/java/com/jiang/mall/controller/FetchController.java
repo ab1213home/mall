@@ -13,10 +13,10 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.enums.FilePurpose;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IFileOperation;
-import io.minio.errors.MinioException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -50,6 +50,7 @@ public class FetchController {
     }
 
     @GetMapping("/upload/{storageName}/**")
+    @Permission(type = PermissionType.SYSTEM, value = "file:list")
     public ResponseEntity<Object> getFile(HttpServletRequest request, @PathVariable String storageName) throws IOException {
 
         // 获取请求 URI（例如：/upload/text/dir1/dir2/file.txt）

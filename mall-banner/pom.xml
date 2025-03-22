@@ -131,6 +131,7 @@
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-user</artifactId>
 		</dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-common</artifactId>

@@ -157,7 +157,7 @@ public class BannerConfig {
         properties.setProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), String.valueOf(seconds));
     }
 
-    public @NotNull BannerSettingVo getBannerSetting() {
+    public @NotNull BannerSettingVo getSetting() {
         BannerSettingVo bannerSettingVo = new BannerSettingVo();
         bannerSettingVo.setCacheEnabled(isBannerCacheEnabled());
         bannerSettingVo.setSyncTime(getBannerSyncTime());
@@ -165,7 +165,7 @@ public class BannerConfig {
         return bannerSettingVo;
     }
 
-    public void updateBannerSetting(@NotNull BannerSettingVo bannerSettingVo) {
+    public void updateSetting(@NotNull BannerSettingVo bannerSettingVo) {
         updateBannerCache(bannerSettingVo.isCacheEnabled());
         updateBannerSyncTime(bannerSettingVo.getSyncTime());
         updateBannerCacheTime(bannerSettingVo.getCacheTime());
