@@ -149,7 +149,7 @@
 
         <dependency>
             <groupId>com.jiang</groupId>
-            <artifactId>mall-category</artifactId>
+            <artifactId>mall-product</artifactId>
         </dependency>
 
 <!--        <dependency>-->

@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.BannerConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerSettingVo;
 import com.jiang.mall.service.IBannerService;
@@ -64,6 +66,7 @@ public class BannerAdminController {
      * @return 轮播图列表或未找到资源的提示
      */
     @GetMapping("/getList")
+    @Permission(type = PermissionType.SYSTEM, value = "banner:list")
     public ResponseResult<Object> getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                 @RequestParam(defaultValue = "10") Integer pageSize
                                                 ) {
@@ -80,6 +83,7 @@ public class BannerAdminController {
      * @return 轮播图数量
      */
     @GetMapping("/getNum")
+    @Permission(type = PermissionType.SYSTEM, value = "banner:list")
     public ResponseResult<Object> getBannerNum() {
         return ResponseResult.okResult(bannerService.getBannerNum());
     }
@@ -94,6 +98,7 @@ public class BannerAdminController {
      * @return 添加结果或错误信息
      */
     @PostMapping("/add")
+    @Permission(type = PermissionType.SYSTEM, value = "banner:create")
     public ResponseResult<Object> insertBanner(@RequestParam("img") String img,
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,
@@ -132,6 +137,7 @@ public class BannerAdminController {
      * @return 更新结果或错误信息
      */
     @PostMapping("/update")
+    @Permission(type = PermissionType.SYSTEM, value = "banner:update")
     public ResponseResult<Object> updateBanner(@RequestParam("id") Long id,
                                        @RequestParam("img") String img,
                                        @RequestParam("url") String url,
@@ -177,6 +183,7 @@ public class BannerAdminController {
      * @return 删除结果或错误信息
      */
     @GetMapping("/delete")
+    @Permission(type = PermissionType.SYSTEM, value = "banner:delete")
     public ResponseResult<Object> deleteBanner(@RequestParam("id") Long id,
                                                 HttpSession session) {
         if (id==null||id<=0){
@@ -203,11 +210,13 @@ public class BannerAdminController {
     }
 
     @GetMapping("/getSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:banner")
     public ResponseResult<Object> getSetting() {
         return ResponseResult.okResult(bannerConfig.getBannerSetting());
     }
 
     @PostMapping("/saveSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:banner")
     public ResponseResult<Object> saveSetting(@RequestBody BannerSettingVo bannerSettingVo) {
         bannerConfig.updateBannerSetting(bannerSettingVo);
         return ResponseResult.okResult();

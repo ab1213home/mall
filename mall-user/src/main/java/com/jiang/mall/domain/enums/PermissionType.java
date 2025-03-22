@@ -11,12 +11,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.dao;
+package com.jiang.mall.domain.enums;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.ProductSnapshot;
-import org.apache.ibatis.annotations.Mapper;
-
-@Mapper
-public interface ProductSnapshotMapper extends BaseMapper<ProductSnapshot> {
+public enum PermissionType {
+	SYSTEM,
+	SHOP;
 }

@@ -14,7 +14,9 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.CategoryConfigItems;
+import com.jiang.mall.domain.vo.CategorySettingVo;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,4 +129,19 @@ public class CategoryConfig {
     }
 
 
+    public CategorySettingVo getSetting() {
+        CategorySettingVo setting = new CategorySetting();
+        setting.setCacheEnabled(isCategoryCacheEnabled());
+        setting.setCacheTime(getCategoryCacheTime());
+        setting.setSyncTime(getCategorySyncTime());
+        return setting;
+    }
+
+    public void updateCategorySetting(@NotNull CategorySettingVo categorySettingVo) {
+        updateCategoryCache(categorySettingVo.isCacheEnabled());
+        updateCategoryCacheTime(categorySettingVo.getCacheTime());
+        updateCategorySyncTime(categorySettingVo.getSyncTime());
+        saveProperties();
+        loadProperties();
+    }
 }

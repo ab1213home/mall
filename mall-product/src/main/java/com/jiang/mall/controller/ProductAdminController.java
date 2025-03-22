@@ -19,7 +19,6 @@ import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IProductSnapshotService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -38,13 +37,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/product/admin")
 public class ProductAdminController {
-
-    private IUserService userService;
-
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
-    }
 
     IProductService productService;
 

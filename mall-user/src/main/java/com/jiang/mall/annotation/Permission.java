@@ -11,50 +11,30 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.annotation;
 
-import lombok.Data;
+import com.jiang.mall.domain.enums.PermissionType;
 
-@Data
-public class ProductSnapshotVo {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	/**
-     * 快照ID
-     */
-    private Long id;
-
-    /**
-     * 商品ID
-     */
-    private Long prodId;
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Permission {
 
     /**
-     * 商品编码
+     * 权限类型
+     *
+     * @return 权限类型
      */
-    private String code;
+    PermissionType type() default PermissionType.SYSTEM ;
 
     /**
-     * 商品标题
+     * 权限值
+     *
+     * @return 权限值
      */
-    private String title;
-
-    /**
-     * 商品分类
-     */
-    private String category;
-
-    /**
-     * 商品图片地址
-     */
-    private String img;
-
-    /**
-     * 商品价格
-     */
-    private Double price;
-
-    /**
-     * 商品描述
-     */
-    private String description;
+    String value() default "";
 }

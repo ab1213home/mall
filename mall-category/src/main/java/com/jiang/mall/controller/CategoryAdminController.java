@@ -13,8 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.config.CategoryConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Category;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
 import jakarta.servlet.http.HttpSession;
@@ -37,14 +40,16 @@ public class CategoryAdminController {
 
     private ICategoryService categoryService;
 
-    /**
-     * 注入分类服务实例
-     *
-     * @param categoryService 分类服务实例
-     */
     @Autowired
     public void setCategoryService(ICategoryService categoryService) {
         this.categoryService = categoryService;
+    }
+
+    private CategoryConfig categoryConfig;
+
+    @Autowired
+    public void setCategoryConfig(CategoryConfig categoryConfig) {
+        this.categoryConfig = categoryConfig;
     }
 
     /**
@@ -55,6 +60,7 @@ public class CategoryAdminController {
      * @return 返回分类列表或相关错误信息
      */
     @GetMapping("/getList")
+    @Permission(type = PermissionType.SYSTEM, value = "category:list")
     public ResponseResult<Object> getCategoryList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                   @RequestParam(defaultValue = "10") Integer pageSize,
                                                   @RequestParam(required = false) Long parentId,
@@ -79,6 +85,7 @@ public class CategoryAdminController {
      * @return 返回包含分类数量的响应结果
      */
     @GetMapping("/getNum")
+    @Permission(type = PermissionType.SYSTEM, value = "category:list")
     public ResponseResult<Object> getCategoryNum(@RequestParam(required = false) Long parentId,
                                                  @RequestParam(required = false) Integer level) {
         return ResponseResult.okResult(categoryService.getCategoryNum(parentId, level));
@@ -95,6 +102,7 @@ public class CategoryAdminController {
      * @return 插入操作的结果或错误信息
      */
     @PostMapping("/add")
+    @Permission(type = PermissionType.SYSTEM, value = "category:create")
     public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
                                          @RequestParam("name")String name,
                                          @RequestParam("parent")Long parent,
@@ -130,6 +138,7 @@ public class CategoryAdminController {
      * @return 返回操作结果
      */
     @PostMapping("/update")
+    @Permission(type = PermissionType.SYSTEM, value = "category:update")
     public ResponseResult<Object> updateCategory(@RequestParam("id") Long id,
                                          @RequestParam("code") String code,
                                          @RequestParam("name") String name,
@@ -207,6 +216,7 @@ public class CategoryAdminController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
+    @Permission(type = PermissionType.SYSTEM, value = "category:delete")
     public ResponseResult<Object> deleteCategory(@RequestParam("id") Long id,
                                                  HttpSession session) {
         if (id == null || id <= 0) {
@@ -231,5 +241,20 @@ public class CategoryAdminController {
             // 删除失败，返回服务器错误信息
             return ResponseResult.serverErrorResult("修改失败");
         }
+    }
+
+    @GetMapping("/getSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:category")
+    public ResponseResult<Object> getSetting() {
+        // 获取分类设置
+        CategorySettingVo categorySetting = categoryConfig.getSetting();
+        return ResponseResult.okResult(categorySetting);
+    }
+
+    @PostMapping("/saveSetting")
+    @Permission(type = PermissionType.SYSTEM, value = "system:category")
+    public ResponseResult<Object> saveSetting(@RequestBody CategorySettingVo categorySettingVo) {
+        categoryConfig.updateCategorySetting(categorySettingVo);
+        return ResponseResult.okResult();
     }
 }

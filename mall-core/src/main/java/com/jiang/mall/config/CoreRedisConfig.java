@@ -23,15 +23,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Configuration
 public class CoreRedisConfig {
 
-//#### **(1) 商品信息**
-//- **缓存内容**：商品详情、库存、价格等。
-//- **缓存理由**：商品信息是高频读取的数据，缓存可以减轻数据库压力。
-//- **缓存策略**：
-//  - 设置合理的过期时间（如 1 小时）。
-//  - 当商品信息更新时，主动更新缓存。
-	@Value("${redis.database.product:0}")
-	private int product;
-
 //#### **(3) 购物车数据**
 //- **缓存内容**：用户的购物车商品列表、数量、选中状态等。
 //- **缓存理由**：购物车数据需要频繁读写，缓存可以提升性能。
@@ -73,11 +64,6 @@ public class CoreRedisConfig {
 		this.generalRedisConfig = generalRedisConfig;
 	}
 
-	@Bean
-    public LettuceConnectionFactory productConnectionFactory() {
-        return generalRedisConfig.redisConnectionFactory(product);
-    }
-
     @Bean
     public LettuceConnectionFactory cartConnectionFactory() {
         return generalRedisConfig.redisConnectionFactory(cart);
@@ -96,13 +82,6 @@ public class CoreRedisConfig {
 	@Bean
     public LettuceConnectionFactory searchConnectionFactory() {
         return generalRedisConfig.redisConnectionFactory(search);
-    }
-
-	@Bean(name = "ProductRedisTemplate")
-    public StringRedisTemplate ProductRedisTemplate() {
-        StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(productConnectionFactory());
-        return template;
     }
 
 	@Bean(name = "CartRedisTemplate")

@@ -15,8 +15,6 @@ package com.jiang.mall.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.OrderListMapper;
-import com.jiang.mall.dao.OrderMapper;
 import com.jiang.mall.dao.ProductSnapshotMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.ProductSnapshot;
@@ -26,8 +24,6 @@ import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Service
 public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMapper, ProductSnapshot> implements IProductSnapshotService {
@@ -39,19 +35,19 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
-	private OrderMapper orderMapper;
-
-	@Autowired
-	public void setOrderMapper(OrderMapper orderMapper) {
-		this.orderMapper = orderMapper;
-	}
-
-	private OrderListMapper orderListMapper;
-
-	@Autowired
-	public void setOrderListMapper(OrderListMapper orderListMapper) {
-		this.orderListMapper = orderListMapper;
-	}
+//	private OrderMapper orderMapper;
+//
+//	@Autowired
+//	public void setOrderMapper(OrderMapper orderMapper) {
+//		this.orderMapper = orderMapper;
+//	}
+//
+//	private OrderListMapper orderListMapper;
+//
+//	@Autowired
+//	public void setOrderListMapper(OrderListMapper orderListMapper) {
+//		this.orderListMapper = orderListMapper;
+//	}
 
 	private IUserService userService;
 
@@ -62,8 +58,9 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 
 	@Override
 	public ProductSnapshotVo getSnapshot(Long id) {
-		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
-	    if (orderId!= null){
+		//TODO:使用拦截器判断是否合法
+//		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
+//	    if (orderId!= null){
 			// 查询与指定产品ID关联的产品快照
 		    QueryWrapper<ProductSnapshot> queryWrapper = new QueryWrapper<>();
 			queryWrapper.eq("id", id);
@@ -72,20 +69,20 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 				return null;
 			}
 			return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-	    }else{
-	        return null;
-	    }
+//	    }else{
+//	        return null;
+//	    }
 	}
 
 	@Override
 	public ProductSnapshotVo getSnapshot(Long id, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
-	    if (orderId!= null){
-	        // 验证订单是否属于指定的用户
-	        if (!Objects.equals(orderMapper.selectOneUserIdById(orderId), user.getId())) {
-	            return null;
-	        }else{
+//		Long orderId = orderListMapper.selectOneOrderIdByProdId(id);
+//	    if (orderId!= null){
+//	        // 验证订单是否属于指定的用户
+//	        if (!Objects.equals(orderMapper.selectOneUserIdById(orderId), user.getId())) {
+//	            return null;
+//	        }else{
 	            // 查询与指定产品ID关联的产品快照
 	            QueryWrapper<ProductSnapshot> queryWrapper = new QueryWrapper<>();
 	            queryWrapper.eq("id", id);
@@ -94,10 +91,10 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	                return null;
 	            }
 		        return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
-	        }
-	    }else{
-	        return null;
-	    }
+//	        }
+//	    }else{
+//	        return null;
+//	    }
 	}
 
 }
