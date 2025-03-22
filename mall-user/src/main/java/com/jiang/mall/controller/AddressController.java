@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
@@ -74,6 +76,7 @@ public class AddressController {
      * @return 返回收货地址列表或相关错误提示的响应结果
      */
     @GetMapping("/getList")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                  @RequestParam(defaultValue = "10") Integer pageSize,
                                                  HttpSession session) {
@@ -95,6 +98,7 @@ public class AddressController {
 	 * @return 返回获取地址数据数量的结果，包括是否成功、失败原因以及数据本身（如果成功）
 	 */
 	@GetMapping("/getNum")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getNum(HttpSession session){
 	    // 返回地址服务中与该用户相关的地址数据数量
 	    return ResponseResult.okResult(addressService.getAddressNum(session.getId()));
@@ -114,6 +118,7 @@ public class AddressController {
 	 * @return ResponseResult 插入地址操作的结果
 	 */
 	@PostMapping("/add")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> insertAddress(@RequestParam("firstName") String firstName,
 	                                            @RequestParam("lastName") String lastName,
 	                                            @RequestParam("phone") String phone,
@@ -174,6 +179,7 @@ public class AddressController {
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> updateAddress(@RequestParam("id") Long id,
 	                                    @RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
@@ -228,6 +234,7 @@ public class AddressController {
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
 	                                    HttpSession session){
 		if (id==null||id<=0){

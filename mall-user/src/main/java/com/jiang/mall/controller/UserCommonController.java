@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,7 @@ public class UserCommonController {
      * 如果生日已设置，则计算距离下一次生日的天数，并返回成功结果。
      */
     @GetMapping("/user/getDays")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
         UserCache user =userService.getUserFromRedis(session.getId());
         // 检查是否设置了用户生日
@@ -82,6 +85,7 @@ public class UserCommonController {
      *         状态码表示请求处理的结果，盐值为配置好的固定值。
      */
     @GetMapping("/common/getSalt")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getSalt(HttpSession session) {
         return ResponseResult.okResult(generalConfig.getAesSalt(),"获取随机盐值");
     }

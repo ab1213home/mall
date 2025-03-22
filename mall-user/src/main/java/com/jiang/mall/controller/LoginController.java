@@ -14,8 +14,11 @@
 package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserLogService;
@@ -79,6 +82,7 @@ public class LoginController {
      * @return ResponseResult 登录结果
      */
     @PostMapping("/login")
+    @RequireGuest
     public ResponseResult<Object> login(@RequestParam("username") String username,
                                         @RequestParam("password") String password,
                                         @RequestParam("captcha") String captcha,
@@ -138,6 +142,7 @@ public class LoginController {
      * @return 返回一个ResponseResult对象，表示登出操作的结果
      */
     @GetMapping("/logout")
+	@Permission(PermissionType.USER)
     public ResponseResult<Object> logout(HttpSession session){
         // 检查会话中是否存在用户并移除
 	    userService.logout(session.getId());
@@ -154,6 +159,7 @@ public class LoginController {
      * @return ResponseResult 包含用户是否登录的结果或用户详细信息
      */
     @GetMapping("/isLogin")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> isLogin(HttpSession session){
         return userService.checkUserLogin(session.getId());
 //	    return ResponseResult.okResult(true);
@@ -168,6 +174,7 @@ public class LoginController {
      *         否则，返回OK结果包含true，表示用户是管理员
      */
     @GetMapping("/isAdminUser")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> isAdminUser(HttpSession session){
 //		userService.checkAdminUser(session.getId()).isSuccess()
         return ResponseResult.okResult(true);

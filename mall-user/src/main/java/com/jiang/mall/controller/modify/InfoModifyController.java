@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -63,6 +65,7 @@ public class InfoModifyController {
 
 
     @PostMapping("/info")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> modifyUserInfo(@RequestParam("phone") String phone,
                                                  @RequestParam("firstName") String firstName,
                                                  @RequestParam("lastName") String lastName,

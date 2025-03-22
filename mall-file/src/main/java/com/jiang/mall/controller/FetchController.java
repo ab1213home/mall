@@ -42,6 +42,7 @@ public class FetchController {
      * 获取上传的文件
      */
     @GetMapping("/upload/{storageName}/{filename}")
+    @Permission(PermissionType.NONE)
     public ResponseEntity<Object> getFile(@PathVariable String filename, @PathVariable String storageName) throws IOException {
         if (filename.matches("[^\\x00-\\xFF]")) {
             return ResponseEntity.badRequest().build();
@@ -77,6 +78,7 @@ public class FetchController {
     }
 
     @GetMapping("/faces/{storageName}/{filename}")
+    @Permission(PermissionType.NONE)
     public ResponseEntity<Object> getFace(@PathVariable String filename, @PathVariable String storageName) throws IOException {
         if (filename.matches("[^\\x00-\\xFF]")) {
             return ResponseEntity.badRequest().build();

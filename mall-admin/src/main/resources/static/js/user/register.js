@@ -234,7 +234,7 @@ function submitRegisterStepFourForm() {
 
     // 发送 AJAX 请求
   $.ajax({
-    url: '/user/registerStep3',
+    url: '/user/register/step3',
     type: 'POST',
     data: data,
     success: function (data) {

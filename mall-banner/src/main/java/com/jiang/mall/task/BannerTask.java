@@ -69,6 +69,7 @@ public class BannerTask {
 			}
 		}else if (timer == -1){
 			logger.info("轮播图数据缓存已禁用。");
+			timer = 0;
 		}
     }
 

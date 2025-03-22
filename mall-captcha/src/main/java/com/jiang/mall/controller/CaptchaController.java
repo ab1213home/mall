@@ -13,6 +13,8 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +53,7 @@ public class CaptchaController {
      * @throws IOException 如果在写入响应体过程中发生I/O错误
      */
     @RequestMapping("/captcha")
+    @Permission(PermissionType.NONE)
     public void generateCaptcha(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws FontFormatException, IOException {
         // 禁止缓存响应数据，确保不同浏览器或缓存服务器下验证码图像不会被缓存
         response.setHeader("Cache-Control", "no-store");

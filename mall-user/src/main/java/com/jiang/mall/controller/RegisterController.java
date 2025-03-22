@@ -13,10 +13,13 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,6 +100,8 @@ public class RegisterController {
      * @return 注册结果
      */
     @PostMapping("/step1")
+    @RequireGuest
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> registerStep1(@RequestParam("username") String username,
                                                 @RequestParam("email") String email,
                                                 @RequestParam("password") String password,
@@ -162,6 +167,8 @@ public class RegisterController {
      * @return 注册结果
      */
     @PostMapping("/step2")
+    @RequireGuest
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> registerStep2(@RequestParam("code")String code,
                                                 @RequestHeader("X-Real-IP") String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
@@ -208,7 +215,9 @@ public class RegisterController {
      * @param session HTTP会话，用于存储用户会话信息
      * @return ResponseResult表示注册结果或错误信息
      */
-    @PostMapping("/registerStep3")
+    @PostMapping("/step3")
+    @RequireGuest
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> registerStep3(@RequestParam("phone") String phone,
                                                 @RequestParam("firstName") String firstName,
                                                 @RequestParam("lastName") String lastName,

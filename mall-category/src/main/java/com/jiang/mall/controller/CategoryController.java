@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class CategoryController {
     }
 
     @GetMapping("/getTopList")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getCategoryTopList() {
         // 调用服务方法获取分类列表
         List<CategoryVo> categoryVos = categoryService.getCategoryTopList();

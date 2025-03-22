@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +60,7 @@ public class PayController {
 
 	//获取可用支付方式
 	@RequestMapping("/getPaymentList")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getPaymentList() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("wechatpay", wechatpayConfig.getIsEnabled());

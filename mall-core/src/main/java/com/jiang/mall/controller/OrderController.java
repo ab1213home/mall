@@ -85,6 +85,7 @@ public class OrderController {
 	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
 	 */
 	@PostMapping("/checkout")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
 		if (list_checkoutVo == null) {
@@ -129,6 +130,7 @@ public class OrderController {
 	 * 购物车ID列表获取相应的购物车商品列表，并返回成功结果包含该列表
 	 */
 	@GetMapping("/getTemporaryList")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize,
 	                                            HttpSession session) {
@@ -152,6 +154,7 @@ public class OrderController {
 	 * @return 返回一个响应结果，包含临时购物车中的商品数量或相关错误信息
 	 */
 	@GetMapping("/getTemporaryNum")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
 	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
 	    if (list_cartId.isEmpty()){
@@ -171,6 +174,7 @@ public class OrderController {
 	 * @return ResponseResult 包含操作结果和订单ID的响应对象
 	 */
 	@PostMapping("/insert")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> insertOrder(@RequestParam("addressId") Long addressId,
 									  @RequestParam("paymentMethod") byte paymentMethod,
 									  @RequestParam("status") byte status,
@@ -216,6 +220,7 @@ public class OrderController {
 	 * @return 返回订单列表或相关错误信息
 	 */
 	@GetMapping("/getList")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                   @RequestParam(defaultValue = "5") Integer pageSize,
 	                                   HttpSession session) {
@@ -234,6 +239,7 @@ public class OrderController {
 	}
 
 	@GetMapping("/getNum")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getOrderNum(HttpSession session) {
 		return ResponseResult.okResult(orderService.getOrderNum(session.getId()));
 	}

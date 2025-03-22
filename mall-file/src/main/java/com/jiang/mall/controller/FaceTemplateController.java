@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IFileOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,7 @@ public class FaceTemplateController {
 	}
 
 	@GetMapping("/getFaceTemplateList")
+	@Permission(PermissionType.USER)
     public ResponseResult<Object> getFaceTemplateList(){
 
         List<String> fileList = fileOperation.getFaceTemplateList();

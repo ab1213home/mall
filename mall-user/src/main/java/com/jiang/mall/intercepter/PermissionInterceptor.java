@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
@@ -77,16 +76,17 @@ public class PermissionInterceptor implements HandlerInterceptor {
 			    case SHOP:
 			    case SYSTEM:
 			        // 统一登录校验
-			        UserCache user = checkAndRefreshUserLogin(request, response);
+			        UserCache user = checkAndRefreshUserLogin(request);
 			        if (user == null) {
 			            // checkAndRefreshUserLogin 已处理重定向逻辑
+				        redirectToLogin(request, response);
 			            return false;
 			        }
 			        // 根据权限类型细化校验
 				    return switch (permission.value()) {
 					    case USER -> true;
-					    case SHOP -> checkShopPermission(user, request);
-					    case SYSTEM -> checkSystemPermission(user, permission.permission());
+					    case SHOP -> checkShopPermission(user, request, response);
+					    case SYSTEM -> checkSystemPermission(user, permission.permission() , request, response);
 					    default -> {
 						    // 理论上不可达
 						    logger.error("Unexpected permission type: {}", permission.value());
@@ -102,15 +102,17 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
 	}
 
-	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request) {
+	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
 		Long shopId = parseShopId(request);
 	    if (shopId == null) {
 	        logger.warn("店铺ID参数缺失");
+			redirectToUserIndex(request, response);
 	        return false;
 	    }
 
 	    // TODO: 实现店铺员工校验逻辑
 	    // 示例：return shopService.isShopEmployee(user.getId(), shopId);
+		redirectToUserIndex(request, response);
 	    return false; // 临时返回
 	}
 
@@ -126,20 +128,34 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	}
 
 	// 系统权限校验
-	private boolean checkSystemPermission(@NotNull UserCache user, String requiredPermission) {
+	private boolean checkSystemPermission(@NotNull UserCache user, String requiredPermission, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
 	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-	        // 使用Set提高查询效率
-	        return new HashSet<>(user.getPermissions()).contains(requiredPermission);
+		    if (user.getPermissions().contains(requiredPermission)) {
+		        return true;
+		    } else {
+		        logger.debug("用户无权限访问");
+				redirectToUserIndex(request, response);
+		        return false;
+		    }
 	    }
 	    logger.debug("用户无任何系统权限");
 	    return false;
 	}
 
-	// 统一登录校验及会话刷新
-	private @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+	/**
+	 * 检查并刷新用户登录状态
+	 * 该方法首先尝试通过请求头中的Authorization令牌或SessionId来获取用户信息，
+	 * 然后检查用户是否已登录如果未登录，则重定向到登录页面
+	 * 对于已登录的用户，方法会刷新其会话状态，确保用户登录状态的活跃
+	 *
+	 * @param request  HTTP请求对象，用于获取请求头和会话信息
+	 * @return 返回刷新后的用户缓存对象，如果用户未登录，则返回null
+	 */
+	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
 	    // 双渠道获取用户信息
 	    String token = request.getHeader("Authorization");
-	    UserCache user = null;
+	    UserCache user;
 
 	    if (i18nService.checkString(token)) {
 	        user = redisService.getUserByToken(token);
@@ -150,7 +166,6 @@ public class PermissionInterceptor implements HandlerInterceptor {
 
 	    // 登录状态检查
 	    if (!checkLogin(user)) {
-	        redirectToLogin(request, response);
 	        return null;
 	    }
 
@@ -163,7 +178,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	    return user;
 	}
 
-	private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+	public void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         String agent = request.getHeader("User-Agent");
         if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
         UserAgent userAgent = UserAgentUtil.parse(agent);
@@ -174,7 +189,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
     }
 
-	private void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+	public void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         //TODO:根据请求来源返回未登录响应
         String agent = request.getHeader("User-Agent");
         logger.debug("agent:{}",agent);

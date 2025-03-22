@@ -13,8 +13,10 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.FilePurpose;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
 import com.jiang.mall.service.IUserService;
@@ -74,6 +76,7 @@ public class UploadController {
      */
     @RequestMapping("/uploadFile")
     @ResponseBody
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         return fileOperation.FileWrite(file, session.getId(), FilePurpose.DEFAULT_IMAGE);
 
@@ -89,6 +92,7 @@ public class UploadController {
      */
     @RequestMapping("/uploadFaces")
     @ResponseBody
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         return fileOperation.FileWrite(file,session.getId(), FilePurpose.USER_FACE);
     }

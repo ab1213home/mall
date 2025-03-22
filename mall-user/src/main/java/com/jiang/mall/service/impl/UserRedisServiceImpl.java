@@ -81,7 +81,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    userBindingCache.setSessionId(sessionId);
 	    userBindingCache.setToken(token);
 	    // 将用户信息转换为JSON字符串并存储到Redis中，同时设置过期时间
-		if (!stringRedisTemplate.hasKey(prefix+user.getId())){
+		if (stringRedisTemplate.hasKey(prefix+"binding:"+user.getId())){
 			logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
 			deleteUser(user.getId());
 		}
@@ -94,7 +94,6 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    }else {
 			logger.debug("用户缓存已存在，更新用户缓存");
 			stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
-//	        stringRedisTemplate.expire(prefix+user.getId(), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
 	    }
 
 	    // 存储用户令牌与用户ID的映射关系，并设置过期时间

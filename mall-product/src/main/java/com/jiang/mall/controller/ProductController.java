@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
@@ -54,6 +56,7 @@ public class ProductController {
     }
 
     @GetMapping("/getSnapshot")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id,
                                           HttpSession session) {
         if (id == null|| id < 0) {
@@ -87,6 +90,7 @@ public class ProductController {
      * @return 返回包含产品列表的响应结果，具体结构由productService定义
      */
     @GetMapping("/getList")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getProductList(@RequestParam(required = false) String name,
                                          @RequestParam(required = false) Long categoryId,
                                          @RequestParam(defaultValue = "1") Integer pageNum,
@@ -105,6 +109,7 @@ public class ProductController {
      * @return 返回产品信息或者错误信息
      */
     @GetMapping("/getProduct")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getProduct(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");

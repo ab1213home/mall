@@ -13,6 +13,8 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ISseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -32,6 +34,7 @@ public class SseController {
 
     // 客户端订阅
     @GetMapping(path = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Permission(PermissionType.USER)
     public SseEmitter subscribe() {
         return sseService.subscribe();
     }

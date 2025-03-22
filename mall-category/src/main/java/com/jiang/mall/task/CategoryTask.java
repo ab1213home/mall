@@ -65,6 +65,7 @@ public class CategoryTask {
 			}
 		}else if (timer == -1){
 			logger.info("分类数据缓存已禁用。");
+			timer = 0;
 		}
     }
 

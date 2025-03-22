@@ -13,6 +13,8 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ISeoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,6 +54,7 @@ public class SeoController {
      * @throws IOException 如果发生输入输出错误
      */
     @GetMapping("/robots.txt")
+    @Permission(PermissionType.NONE)
     public void robots(HttpServletResponse response, HttpServletRequest request) throws IOException{
         // 构建 sitemap.xml 的完整 URL，以便搜索引擎能够发现它
         String sitemapUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/sitemap.xml";
@@ -82,6 +85,7 @@ public class SeoController {
      * @throws ParseException 当解析请求内容失败时抛出
      */
     @GetMapping("/sitemap.xml")
+    @Permission(PermissionType.NONE)
     public void sitemap(HttpServletResponse response, HttpServletRequest request) throws IOException, ParseException {
         // 设置响应内容类型为 XML
         response.setContentType(MediaType.APPLICATION_XML_VALUE);

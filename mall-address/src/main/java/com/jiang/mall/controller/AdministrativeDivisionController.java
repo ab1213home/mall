@@ -13,8 +13,10 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.AdministrativeDivision;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -50,6 +52,7 @@ public class AdministrativeDivisionController {
 	 * @return 返回行政区划列表的响应结果
 	 */
 	@GetMapping("/getList")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getList(@RequestParam("level")Integer level,
 	                                      @RequestParam("parentCode")Long parentCode) {
 		if (level == null || parentCode == null){
@@ -81,6 +84,7 @@ public class AdministrativeDivisionController {
 	 * @return 返回邮政编码的响应结果
 	 */
 	@GetMapping("/getPostalCode")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getPostalCode(@RequestParam("areaCode")Long areaCode) {
 		if (areaCode == null){
 			return ResponseResult.failResult("参数错误");

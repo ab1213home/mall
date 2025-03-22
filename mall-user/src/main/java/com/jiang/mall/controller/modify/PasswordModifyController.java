@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -56,6 +58,7 @@ public class PasswordModifyController {
      * @return ResponseResult 修改密码结果的响应对象
      */
     @PostMapping("/password")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
                                                  @RequestHeader("X-Real-IP") String clientIp,

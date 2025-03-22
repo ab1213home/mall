@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.service.ICartService;
 import jakarta.servlet.http.HttpSession;
@@ -53,6 +55,7 @@ public class CartController {
      * 如果用户已登录，则根据会话中的用户ID调用服务方法获取该用户的购物车列表，并返回购物车列表的响应结果
      */
     @GetMapping("/getList")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> getCartList(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "5") Integer pageSize,
                                               HttpSession session) {
@@ -67,6 +70,7 @@ public class CartController {
      * @return 返回包含购物车商品数量的响应结果；如果用户未登录，则返回登录相关的响应结果
      */
     @GetMapping("/getNum")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> getCartNum(HttpSession session) {
         // 调用服务方法获取购物车商品数量，并返回结果
         return ResponseResult.okResult(cartService.getCartNum(session.getId()));
@@ -81,6 +85,7 @@ public class CartController {
      * @return 添加结果
      */
     @PostMapping("/add")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> addCart(@RequestParam("productId") Long productId,
                                           @RequestParam("num") Long num,
                                           HttpSession session) {
@@ -114,6 +119,7 @@ public class CartController {
      * @return 更新操作的结果，包括是否成功、失败或用户未登录的情况
      */
     @PostMapping("/update")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> updateCart(@RequestParam("id") Long id,
                                             @RequestParam("num") Long num,
                                             HttpSession session) {
@@ -152,6 +158,7 @@ public class CartController {
      * @return 删除操作的结果响应
      */
     @GetMapping("/delete")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> deleteCart(@RequestParam("id") Long id,
                                      HttpSession session) {
 

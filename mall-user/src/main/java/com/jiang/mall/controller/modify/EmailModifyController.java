@@ -13,9 +13,11 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,7 @@ public class EmailModifyController {
 	}
 
 	@PostMapping("/step1")
+	@Permission(PermissionType.USER)
     public ResponseResult<Object> emailStep1(@RequestParam("password") String password,
 	                                         @RequestParam("email") String email,
 	                                         @RequestParam("captcha") String captcha,
@@ -141,6 +144,7 @@ public class EmailModifyController {
 	 * @return 返回修改结果
 	 */
 	@PostMapping("/step2")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> emailStep2(@RequestParam("code") String code,
 	                                         @RequestHeader("X-Real-IP") String clientIp,
 	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,

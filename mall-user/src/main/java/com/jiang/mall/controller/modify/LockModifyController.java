@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller.modify;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -58,6 +60,7 @@ public class LockModifyController {
      *         如果用户锁定失败，返回表示服务器错误的响应结果
      */
     @PostMapping("/self-lock")
+    @Permission(PermissionType.USER)
     public ResponseResult<Object> lockUser(@RequestHeader("X-Real-IP") String clientIp,
                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 	                                       HttpSession session) {

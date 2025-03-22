@@ -13,19 +13,18 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Collection;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CollectionVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.ICollectionService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -40,29 +39,13 @@ public class CollectionController {
 
 	private ICollectionService collectionService;
 
-	/**
-	 * 注入收藏服务
-	 *
-	 * @param collectionService 收藏服务
-	 */
 	@Autowired
 	public void setCollectionService(ICollectionService collectionService) {
 		this.collectionService = collectionService;
 	}
 
-	private IUserService userService;
-
-	/**
-	 * 注入用户服务
-	 *
-	 * @param userService 用户服务
-	 */
-	@Autowired
-	public void setUserService(IUserService userService) {
-		this.userService = userService;
-	}
-
 	@PostMapping("/add")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> insertCollection(@RequestParam("productId") Long productId,
 	                                               HttpSession session) {
         // 校验商品ID是否为空
@@ -81,6 +64,7 @@ public class CollectionController {
 	}
 
 	@GetMapping("/delete")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> deleteCollection(@RequestParam("productId") Long productId,
                                                     HttpSession session) {
 		if (productId == null|| productId <= 0) {
@@ -131,6 +115,7 @@ public class CollectionController {
 //	}
 
 	@GetMapping("/getList")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getCollectionList(@RequestParam(defaultValue = "1") Integer pageNum,
                                             @RequestParam(defaultValue = "10") Integer pageSize,
                                             HttpSession session){
@@ -142,11 +127,13 @@ public class CollectionController {
 	}
 
 	@GetMapping("/getNum")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getCollectionNum(HttpSession session) {
 		return ResponseResult.okResult(collectionService.getCollectionNum(session.getId()));
 	}
 
 	@GetMapping("/isCollected")
+	@Permission(PermissionType.USER)
 	public ResponseResult<Object> isCollected(@RequestParam("productId") Long productId,
 	                                  HttpSession session) {
 		if (productId == null|| productId <= 0) {

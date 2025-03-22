@@ -13,10 +13,12 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.AlipayConfig;
 import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.dto.PayCallbackDto;
 import com.jiang.mall.domain.enums.AlipayType;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.enums.WechatpayType;
 import com.jiang.mall.service.IPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,6 +65,7 @@ public class PayNotifyController {
      * 给支付宝的回调接口
      */
     @PostMapping("/alipay")
+    @Permission(PermissionType.NONE)
     public void notifyAlipay(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (!alipayConfig.getIsEnabled()){
 			response.getWriter().write("fail");
@@ -102,6 +105,7 @@ public class PayNotifyController {
     }
 
 	@PostMapping("/notify/wechatpay")
+	@Permission(PermissionType.NONE)
     public void notifyWechatpay(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (!wechatpayConfig.getIsEnabled()){
 			response.setStatus(HttpServletResponse.SC_BAD_GATEWAY);

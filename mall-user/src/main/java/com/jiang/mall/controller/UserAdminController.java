@@ -157,6 +157,7 @@ public class UserAdminController {
     }
 
     @PostMapping("/update")
+    @Permission(value = PermissionType.SYSTEM, permission = "user:update")
     public ResponseResult<Object> updateUser(@RequestParam("id") Long id,
                                              @RequestParam("phone") String phone,
                                              @RequestParam("firstName") String firstName,

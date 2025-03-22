@@ -65,6 +65,7 @@ public class ProductTask {
 			}
 		}else if (timer == -1){
 			logger.info("商品数据缓存已禁用。");
+			timer = 0;
 		}
     }
 }

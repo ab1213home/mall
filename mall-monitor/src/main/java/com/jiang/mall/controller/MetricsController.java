@@ -51,12 +51,13 @@ public class MetricsController {
     }
 
     @GetMapping("/getGit")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getGit() {
         return ResponseResult.okResult(metricsService.getGitMetrics());
     }
 
     @GetMapping("/admin/getRedis")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:redis")
+    @Permission(value = PermissionType.SYSTEM, permission = "system")
     public ResponseResult<Object> getRedis() {
         return ResponseResult.okResult(metricsService.getRedisMetrics());
     }
@@ -71,7 +72,7 @@ public class MetricsController {
     }
 
     @GetMapping("/admin/data-info")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:data")
+    @Permission(value = PermissionType.SYSTEM, permission = "system")
     public ResponseResult<Object> getDatabaseInfo() {
         return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }

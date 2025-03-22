@@ -13,15 +13,15 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.entity.Banner;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.BannerVo;
 import com.jiang.mall.service.IBannerService;
-import com.jiang.mall.service.IUserService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -49,6 +49,7 @@ public class BannerController {
      * @return 轮播图列表或未找到资源的提示
      */
     @GetMapping("/getList")
+    @Permission(PermissionType.NONE)
     public ResponseResult<Object> getBannerList() {
         List<BannerVo> banner_list = bannerService.getBannerListFromRedis();
         return ResponseResult.okResult(banner_list);
