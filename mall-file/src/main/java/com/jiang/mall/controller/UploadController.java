@@ -13,13 +13,11 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.annotation.Upload;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.FilePurpose;
-import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IFileService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,20 +35,8 @@ import java.io.IOException;
  * @since 2024年9月8日
  */
 @Controller
-@RequestMapping("/common")
+@RequestMapping("/file/upload")
 public class UploadController {
-
-    private IUserService userService;
-
-    /**
-     * 注入用户服务对象
-     *
-     * @param userService 用户服务对象
-     */
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
-    }
 
     private IFileService fileService;
 
@@ -74,9 +60,9 @@ public class UploadController {
      * @return 返回文件上传结果，包含上传后的文件访问路径
      * @throws IOException 如果文件读写过程中发生错误
      */
-    @RequestMapping("/uploadFile")
+    @RequestMapping("/image")
     @ResponseBody
-    @Permission(PermissionType.USER)
+    @Upload
     public ResponseResult<Object> upLoadFile(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         return fileOperation.FileWrite(file, session.getId(), FilePurpose.DEFAULT_IMAGE);
 
@@ -90,9 +76,9 @@ public class UploadController {
      * @return 包含上传结果和文件访问路径的响应对象
      * @throws IOException 文件处理或I/O过程中可能出现的异常
      */
-    @RequestMapping("/uploadFaces")
+    @RequestMapping("/faces")
     @ResponseBody
-    @Permission(PermissionType.USER)
+    @Upload
     public ResponseResult<Object> upLoadFaces(@RequestParam("file")MultipartFile file, HttpSession session) throws IOException {
         return fileOperation.FileWrite(file,session.getId(), FilePurpose.USER_FACE);
     }

@@ -73,14 +73,14 @@ public class MyMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         // 用户登录拦截器
         registry.addInterceptor(userInterceptor)
-                .addPathPatterns("/cart")
+//                .addPathPatterns("/cart")
                 .addPathPatterns("/cart.html")
-                .addPathPatterns("/orders")
+//                .addPathPatterns("/orders")
                 .addPathPatterns("/orders.html")
                 .addPathPatterns("/tradeSnap.html")
-                .addPathPatterns("/checkout")
+//                .addPathPatterns("/checkout")
                 .addPathPatterns("/checkout.html")
-                .addPathPatterns("/collections")
+//                .addPathPatterns("/collections")
                 .addPathPatterns("/collections.html");
         // 系统管理员登录拦截器
 //        registry.addInterceptor(adminLoginInterceptor)
@@ -117,6 +117,16 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("*")
                 .allowedHeaders("*");
     }
+
+//	@Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")  // 所有接口
+//                .allowedOrigins("http://localhost:8080")  // Vue 前端地址
+//                .allowedMethods("GET", "POST", "PUT", "DELETE")
+//                .allowedHeaders("*")
+//                .allowCredentials(true)
+//                .maxAge(3600);
+//    }
 
 //	@Override
 //    public void addCorsMappings(@NotNull CorsRegistry registry) {

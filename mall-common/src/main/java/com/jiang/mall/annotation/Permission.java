@@ -20,7 +20,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+/**
+ * 用于指定权限控制
+ * 此注解可以应用于类、方法和其它注解类型
+ * 可以通过反射访问注解信息
+ *
+ * @author Jiang Rongjun
+ */
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Permission {
 

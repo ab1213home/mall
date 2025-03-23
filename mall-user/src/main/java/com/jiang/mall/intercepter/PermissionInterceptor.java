@@ -13,12 +13,10 @@
 
 package com.jiang.mall.intercepter;
 
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentUtil;
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,15 +26,13 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
@@ -57,62 +53,86 @@ public class PermissionInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
+	private GeneralInterceptor generalInterceptor;
+
+	@Autowired
+	public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
+		this.generalInterceptor = generalInterceptor;
+	}
+
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
-        logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
         // 仅处理HandlerMethod类型的处理器
         if (handler instanceof HandlerMethod handlerMethod) {
+			logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
             // 直接使用 handlerMethod 变量
             Method method = handlerMethod.getMethod();
             // 获取方法上的@Permission注解
-            Permission permission = method.getAnnotation(Permission.class);
+//            Permission permission = method.getAnnotation(Permission.class);
+	        Permission permission = AnnotationUtils.findAnnotation(method,Permission.class);
+			RequireGuest requireGuest = AnnotationUtils.findAnnotation(method, RequireGuest.class);
             if (permission == null) {
                 return true;
-            }
-			switch (permission.value()) {
-			    case NONE:
-			        return true;
-			    case USER:
-			    case SHOP:
-			    case SYSTEM:
-			        // 统一登录校验
-			        UserCache user = checkAndRefreshUserLogin(request);
-			        if (user == null) {
-			            // checkAndRefreshUserLogin 已处理重定向逻辑
-				        redirectToLogin(request, response);
+            }else if (permission.value() == PermissionType.NONE) {
+				if (requireGuest != null && requireGuest.value()) {
+					// 防止重复登录
+					UserCache userCache = checkAndRefreshUserLogin(request);
+					logger.debug("用户登录状态：{}", checkLogin(userCache));
+					if (!checkLogin(userCache)){
+			            return true;
+			        }else {
+			            generalInterceptor.redirectToUserIndex(request, response);
 			            return false;
 			        }
-			        // 根据权限类型细化校验
-				    return switch (permission.value()) {
-					    case USER -> true;
-					    case SHOP -> checkShopPermission(user, request, response);
-					    case SYSTEM -> checkSystemPermission(user, permission.permission() , request, response);
-					    default -> {
-						    // 理论上不可达
-						    logger.error("Unexpected permission type: {}", permission.value());
-						    yield false;
-					    }
-				    };
-			    default:
-			        logger.error("未知权限类型: {}", permission.value());
+				}else {
+					return true;
+				}
+			}else {
+				// 登录校验
+		        UserCache user = checkAndRefreshUserLogin(request);
+				if (!checkLogin(user)){
+					// 重定向到登录页面
+					generalInterceptor.redirectToLogin(request, response);
+					return false;
+				}
+				assert user != null;
+				if (permission.value() == PermissionType.USER){
+					return true;
+				}else if (permission.value() == PermissionType.SHOP){
+					if (checkShopPermission(user, request)){
+						return true;
+					}else {
+						// 重定向到用户首页
+						generalInterceptor.redirectToUserIndex(request, response);
+						return false;
+					}
+				}else if (permission.value() == PermissionType.SYSTEM){
+					if (checkSystemPermission(user, permission.permission())){
+						return true;
+					}else {
+						// 重定向到用户首页
+						generalInterceptor.redirectToUserIndex(request, response);
+						return false;
+					}
+				}else {
+					logger.error("未知权限类型: {}", permission.value());
 			        return false;
-			}
+				}
+            }
         }else {
             return true;
         }
 	}
 
-	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request){
 		Long shopId = parseShopId(request);
 	    if (shopId == null) {
 	        logger.warn("店铺ID参数缺失");
-			redirectToUserIndex(request, response);
 	        return false;
 	    }
 
 	    // TODO: 实现店铺员工校验逻辑
 	    // 示例：return shopService.isShopEmployee(user.getId(), shopId);
-		redirectToUserIndex(request, response);
 	    return false; // 临时返回
 	}
 
@@ -127,21 +147,30 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	    }
 	}
 
-	// 系统权限校验
-	private boolean checkSystemPermission(@NotNull UserCache user, String requiredPermission, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+	/**
+	 * 检查用户是否具有所需的系统权限
+	 *
+	 * @param user 用户缓存对象，用于获取用户权限信息
+	 * @param requiredPermission 必需的权限字符串
+	 * @return 如果用户具有所需的权限，则返回true；否则返回false
+	 */
+	private boolean checkSystemPermission(@NotNull UserCache user, String requiredPermission){
+	    // 检查用户是否具有任何系统权限
 	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-		    if (user.getPermissions().contains(requiredPermission)) {
-		        return true;
-		    } else {
-		        logger.debug("用户无权限访问");
-				redirectToUserIndex(request, response);
-		        return false;
-		    }
+	        // 检查用户是否具有所需的特定权限
+	        if (user.getPermissions().contains(requiredPermission)) {
+	            return true;
+	        } else {
+	            // 当用户没有所需权限时，记录调试信息
+	            logger.debug("用户{}无权限访问", user.getUsername());
+	            return false;
+	        }
+	    }else {
+	        // 当用户没有任何系统权限时，记录调试信息
+	        logger.debug("用户{}无任何系统权限", user.getUsername());
+	        return false;
 	    }
-	    logger.debug("用户无任何系统权限");
-	    return false;
 	}
-
 
 	/**
 	 * 检查并刷新用户登录状态
@@ -178,92 +207,20 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	    return user;
 	}
 
-	public void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        String agent = request.getHeader("User-Agent");
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        if (!userAgent.getBrowser().isUnknown()){
-            redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.checkAdmin.noAdmin"));
-        }else {
-            redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
-        }
-    }
-
-	public void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        //TODO:根据请求来源返回未登录响应
-        String agent = request.getHeader("User-Agent");
-        logger.debug("agent:{}",agent);
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        if (!userAgent.getBrowser().isUnknown()){
-            redirectInBrowser(response,request.getRequestURI(),request.getContextPath() + "/user/login.html", i18nService.getMessage("user.checkUser.noLogin"));
-        }else {
-            redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
-        }
-    }
-
+	/**
+     * 检查用户登录状态
+     *
+     * @param user 用户缓存对象，用于检查用户是否已登录
+     * @return 如果用户存在且用户ID不为空，则返回true，表示用户已登录；否则返回false
+     */
     public boolean checkLogin(UserCache user){
+        // 检查传入的用户对象是否为空
         if (user == null){
+            // 如果用户对象为空，则返回false，表示未登录
             return false;
         }else{
-	        return user.getId() != null;
+            // 如果用户对象不为空，进一步检查用户ID是否为空
+            return user.getId() != null;
         }
-    }
-
-
-    /**
-     * 向浏览器发送重定向响应，可选地包含原始请求URL和提示信息
-     * 此方法用于在处理完用户请求后，将用户重定向到另一个页面，并可选地携带提示信息
-     * 它确保了在重定向过程中，所有传递的参数都经过适当的URL编码，以防止URL中的特殊字符造成问题
-     *
-     * @param response      HTTP响应对象，用于设置重定向
-     * @param requestUrl    原始请求的URL，如果需要在重定向URL中包含此URL，则不应为null
-     * @param redirectUrl   重定向的目标URL
-     * @param message       要传递给目标页面的提示信息，将被编码后附加到重定向URL
-     * @throws IOException 如果在执行重定向时发生I/O错误
-     */
-    public void redirectInBrowser(@NotNull HttpServletResponse response, String requestUrl, String redirectUrl, String message) throws IOException {
-        String url = redirectUrl != null ? redirectUrl : "/index.html";
-        // 设置响应的内容类型和字符编码，确保浏览器能够正确解析重定向的URL
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        if (requestUrl != null){
-            // 对请求URI进行编码，确保URL中的特殊字符能够正确传递
-            String urlParam = URLEncoder.encode(requestUrl, StandardCharsets.UTF_8);
-            url += "?url=" + urlParam;
-        }
-        if (message != null){
-            // 对提示信息进行编码，确保非ASCII字符能够正确传递
-            String messageParam = URLEncoder.encode(message, StandardCharsets.UTF_8);
-            url += "&message=" + messageParam;
-        }
-        // 将编码后的重定向URL和提示信息拼接，执行重定向
-        response.sendRedirect(url);
-    }
-
-    /**
-     * 重定向到API接口的响应方法。
-     * <p>
-     * 该方法用于在API调用中返回一个标准化的JSON格式错误响应。
-     * 它会设置HTTP响应状态码、内容类型，并将错误信息以JSON格式写入响应体。
-     *
-     * @param response HTTP响应对象，用于设置状态码和写入响应内容。不能为空。
-     * @param message  错误信息，描述当前请求失败的原因。
-     * @param status   HTTP状态码，表示请求的处理结果（如400、404、500等）。
-     *
-     * @throws IOException 如果在写入响应内容时发生I/O异常，则抛出此异常。
-     */
-    public void redirectInApi(@NotNull HttpServletResponse response, String message, int status) throws IOException {
-        // 设置HTTP响应的状态码
-        response.setStatus(status);
-
-        // 设置响应的内容类型为JSON，并指定字符编码为UTF-8
-        response.setContentType("application/json;charset=UTF-8");
-
-        // 将错误信息封装为标准化的JSON格式字符串
-        String json = JSON.toJSONString(ResponseResult.failResult(status, message));
-
-        // 将生成的JSON字符串写入HTTP响应体
-        response.getWriter().write(json);
     }
 }

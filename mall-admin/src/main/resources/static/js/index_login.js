@@ -31,7 +31,15 @@ function isLogin(){
         // 无需发送额外数据
 		data:{},
         // 设置同步请求
-		async:false,
+		async : true,
+		//token设置localStorage.setItem('token', res.data);
+		headers: {
+			Authorization:localStorage.getItem('token')
+		},
+		// beforeSend:function(xhr){
+        //     // 设置请求头，将token发送到服务器
+		// 	xhr.setRequestHeader("Authorization",localStorage.getItem('token'));
+		// },
         // 期望服务器返回JSON格式数据
 		dataType:"json",
         // 请求成功时的回调函数

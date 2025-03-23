@@ -48,16 +48,17 @@ function submitLoginForm() {
     beforeSend: function() {
        // 在发送请求之前，显示加载
     },
-    success: function (data) {
+    success: function (res) {
         // 处理成功响应
-        if (data.code === 200) {
+        if (res.code === 200) {
+            localStorage.setItem('token', res.data);
             if (url!=null){
                 window.location.href = url;
             }else {
                 window.location.href = '../index.html';
             }
         } else {
-            show_error('登录失败:'+data.message);
+            show_error('登录失败:'+res.message);
             refreshCaptcha()
         }
     },

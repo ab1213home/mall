@@ -13,8 +13,6 @@
 
 package com.jiang.mall.intercepter;
 
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentUtil;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
@@ -24,8 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import java.io.IOException;
 
 @Component
 public class RepeatLoginInterceptor implements HandlerInterceptor {
@@ -44,11 +40,18 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
-    private UserInterceptor userInterceptor;
+    private PermissionInterceptor permissionInterceptor;
+
+	@Autowired
+	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+		this.permissionInterceptor = permissionInterceptor;
+	}
+
+    private GeneralInterceptor generalInterceptor;
 
     @Autowired
-    public void setUserInterceptor(UserInterceptor userInterceptor) {
-        this.userInterceptor = userInterceptor;
+    public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
+        this.generalInterceptor = generalInterceptor;
     }
 
     /**
@@ -69,31 +72,20 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         if (i18nService.checkString(token)){
             UserCache user = redisService.getUserByToken(token);
-            if (!userInterceptor.checkLogin(user)){
+            if (!permissionInterceptor.checkLogin(user)){
                 return true;
             }else {
-                redirectToUserIndex(request, response);
+                generalInterceptor.redirectToUserIndex(request, response);
                 return false;
             }
         } else {
             UserCache user = redisService.getUserBySessionId(request.getSession().getId());
-            if (!userInterceptor.checkLogin(user)){
+            if (!permissionInterceptor.checkLogin(user)){
                 return true;
             }else {
-                redirectToUserIndex(request, response);
+                generalInterceptor.redirectToUserIndex(request, response);
                 return false;
             }
-        }
-    }
-
-    private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        String agent = request.getHeader("User-Agent");
-        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        if (!userAgent.getBrowser().isUnknown()){
-            userInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.login.error.repeated"));
-        }else {
-            userInterceptor.redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
         }
     }
 }

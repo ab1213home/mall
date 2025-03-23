@@ -13,7 +13,7 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.UploadAllowedInterceptor;
+import com.jiang.mall.intercepter.GeneralInterceptor;
 import com.jiang.mall.intercepter.UserInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class FileMvcConfig implements WebMvcConfigurer {
 
-    private UploadAllowedInterceptor uploadAllowedInterceptor;
+    private GeneralInterceptor uploadInterceptor;
 
     @Autowired
-    public void setUploadAllowedInterceptor(UploadAllowedInterceptor uploadAllowedInterceptor) {
-        this.uploadAllowedInterceptor = uploadAllowedInterceptor;
+    public void setUploadAllowedInterceptor(GeneralInterceptor uploadInterceptor) {
+        this.uploadInterceptor = uploadInterceptor;
     }
 
     private UserInterceptor userInterceptor;
@@ -46,7 +46,7 @@ public class FileMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        registry.addInterceptor(uploadAllowedInterceptor)
+        registry.addInterceptor(uploadInterceptor)
                 .addPathPatterns("/common/uploadFile?*")
                 .addPathPatterns("/common/uploadFile")
                 .addPathPatterns("/common/uploadFaces?*")

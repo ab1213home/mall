@@ -21,7 +21,6 @@ import com.jiang.mall.dao.BannerMapper;
 import com.jiang.mall.domain.entity.Banner;
 import com.jiang.mall.domain.vo.BannerAdminVo;
 import com.jiang.mall.domain.vo.BannerVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.event.BannerChangedEvent;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
@@ -116,8 +115,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 			assert bannerAdminVo != null;
 			//获取创建者和更新者信息
 			bannerAdminVo.setCreator(userService.getUserById(banner.getCreator()));
-			bannerAdminVo.setCreator(BeanCopyUtils.copyBean(banner.getCreator(), UserVo.class));
-			bannerAdminVo.setUpdater(BeanCopyUtils.copyBean(banner.getUpdater(), UserVo.class));
+			bannerAdminVo.setUpdater(userService.getUserById(banner.getUpdater()));
 			bannerAdminVos.add(bannerAdminVo);
 		}
 	    return bannerAdminVos;

@@ -95,6 +95,12 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
 
+        <!-- 高性能的JSON库 -->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

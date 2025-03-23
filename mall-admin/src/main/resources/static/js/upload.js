@@ -17,7 +17,7 @@ function uploadFile(purpose) {
     const formData = new FormData();
     formData.append('file', file);
     $.ajax({
-        url: '/common/uploadFile',
+        url: '/file/upload/image',
         type: 'post',
         data:formData,
         contentType: false,
@@ -34,7 +34,7 @@ function uploadFaces() {
     const formData = new FormData();
     formData.append('file', file);
     $.ajax({
-        url: '/common/uploadFaces',
+        url: '/file/upload/faces',
         type: 'post',
         data:formData,
         contentType: false,

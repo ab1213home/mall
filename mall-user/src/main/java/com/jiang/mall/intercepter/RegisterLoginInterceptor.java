@@ -43,12 +43,19 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
 		this.redisService = redisService;
 	}
 
-    private UserInterceptor userInterceptor;
+    private PermissionInterceptor permissionInterceptor;
 
-    @Autowired
-    public void setUserInterceptor(UserInterceptor userInterceptor) {
-        this.userInterceptor = userInterceptor;
-    }
+	@Autowired
+	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+		this.permissionInterceptor = permissionInterceptor;
+	}
+
+	private GeneralInterceptor generalInterceptor;
+
+	@Autowired
+	public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
+		this.generalInterceptor = generalInterceptor;
+	}
 
     /**
      * 在请求处理之前进行预处理
@@ -77,12 +84,12 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
 
     private void redirectToRegister(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         String agent = request.getHeader("User-Agent");
-        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
+        if (agent == null) generalInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
         UserAgent userAgent = UserAgentUtil.parse(agent);
         if (!userAgent.getBrowser().isUnknown()){
-            userInterceptor.redirectInBrowser(response, request.getRequestURI(),request.getContextPath() + "/user/register.html", i18nService.getMessage("user.register.error.previous"));
+            generalInterceptor.redirectInBrowser(response, request.getRequestURI(),request.getContextPath() + "/user/register.html", i18nService.getMessage("user.register.error.previous"));
         }else {
-            userInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
+            generalInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
         }
     }
 }

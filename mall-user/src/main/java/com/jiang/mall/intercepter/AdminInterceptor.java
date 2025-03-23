@@ -13,11 +13,6 @@
 
 package com.jiang.mall.intercepter;
 
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentUtil;
-import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,11 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
 
 @Component
 public class AdminInterceptor implements HandlerInterceptor {
@@ -45,13 +36,6 @@ public class AdminInterceptor implements HandlerInterceptor {
         this.redisService = redisService;
     }
 
-    private UserInterceptor userInterceptor;
-
-    @Autowired
-    public void setUserInterceptor(UserInterceptor userInterceptor) {
-        this.userInterceptor = userInterceptor;
-    }
-
     private II18nService i18nService;
 
     @Autowired
@@ -61,98 +45,8 @@ public class AdminInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
-        // 判断是否为web文件，如果是则直接放行
-//        if (request.getRequestURI().contains(".css") || request.getRequestURI().contains(".js")) {
-//            return true;
-//        }
-        logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
-//        switch (event.getChangeType()) {
-//	            case CREATE:
-//	            case UPDATE:
-//	                syncProductToEs(event.getProductId());
-//	                break;
-//	            case DELETE:
-//	                deleteProductFromEs(event.getProductId());
-//	                break;
-//	        }
-        // 仅处理HandlerMethod类型的处理器
-        if (handler instanceof HandlerMethod handlerMethod) {
-            // 直接使用 handlerMethod 变量
-            Method method = handlerMethod.getMethod();
-            // 获取方法上的@Permission注解
-            Permission permission = method.getAnnotation(Permission.class);
-            if (permission == null) {
-                return true;
-            }
-
-            UserCache user =redisService.getUserBySessionId(request.getSession().getId());
-            String requiredPermission = permission.permission();
-
-            logger.debug("权限:{}",  requiredPermission);
-
-            if (permission.value() == PermissionType.SYSTEM) {
-                if (user.getPermissions().contains(requiredPermission)){
-                    return true;
-                }else {
-                    redirectToUserIndex(request, response);
-                    return false;
-                }
-            }else if (permission.value() == PermissionType.SHOP) {
-                // 获取请求的URI
-                String[] uri = request.getRequestURI().split("/");
-                return false;
-            }else {
-                logger.error("未知权限类型");
-                return true;
-            }
-        }else {
-            return true;
-        }
-
-//        int flag_admin = -1;
-//        StringBuilder permission = new StringBuilder();
-//
-//        for (int i = 0; i < uri.length; i++) {
-//            if (uri[i].equals("admin")) {
-//                flag_admin = i;
-//            }else {
-//                if (!permission.isEmpty()) {
-//                    permission.append(":");
-//                }
-//                //去除.html
-//                if (uri[i].contains(".html")) {
-//                    uri[i] = uri[i].substring(0, uri[i].indexOf(".html"));
-//                }
-//                permission.append(uri[i]);
-//            }
-//        }
-
-//        // 如果请求的URI中没有admin，则直接放行
-//        if (flag_admin == -1) {
-//            return true;
-//        }
-//
-//        // 判断是否为网页
-//        if (request.getRequestURI().contains(".html")) {
-//            permission.append(":html");
-//        }
-
-
-
-//        return false;
         //TODO: 由于重构基于角色的访问控制（RBAC），暂时放行，后续再处理权限问题
-//        return true;
+        //TODO: 前后端预计分离，后续再处理html权限问题
+        return true;
 	}
-
-    private void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        String agent = request.getHeader("User-Agent");
-        if (agent == null) userInterceptor.redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        if (!userAgent.getBrowser().isUnknown()){
-            userInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.checkAdmin.noAdmin"));
-        }else {
-            userInterceptor.redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
-        }
-    }
-
 }

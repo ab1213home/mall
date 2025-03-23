@@ -13,16 +13,21 @@
 
 package com.jiang.mall.intercepter;
 
+import com.jiang.mall.annotation.Register;
 import com.jiang.mall.config.UserConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.lang.reflect.Method;
+
 @Component
-public class RegisterAllowedInterceptor implements HandlerInterceptor {
+public class RegisterInterceptor implements HandlerInterceptor {
 
     private UserConfig userConfig;
 
@@ -43,7 +48,7 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
      *
      * @param request  HTTP请求对象，用于获取请求信息
      * @param response HTTP响应对象，用于发送响应信息
-     * @param o        处理请求的处理器，通常是一个控制器方法
+     * @param handler  处理请求的处理器，通常是一个控制器方法
      * @return boolean 返回值决定是否继续执行其他拦截器和当前请求的处理器方法
      *                 如果返回true，表示继续执行；如果返回false，表示中断执行
      * <p>
@@ -51,12 +56,19 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
      * 以避免未授权的访问此拦截器对所有请求生效，但只对未登录的用户进行重定向操作
      */
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         // 检查是否允许注册
-        if (!userConfig.isAllowRegistration()){
-            //重定向到首页
-            generalInterceptor.redirectToIndex(request,response);
-            return false;
+	    if (handler instanceof HandlerMethod handlerMethod) {
+            // 直接使用 handlerMethod 变量
+            Method method = handlerMethod.getMethod();
+            // 获取方法上的@RequireGuest注解
+//            RequireGuest requireGuest = method.getAnnotation(RequireGuest.class);
+		    Register register = AnnotationUtils.findAnnotation(method, Register.class);
+			if (register != null && !userConfig.isAllowRegistration()) {
+				//重定向到首页
+	            generalInterceptor.redirectToIndex(request,response);
+	            return false;
+            }
         }
         // 允许其他请求继续执行
         return true;

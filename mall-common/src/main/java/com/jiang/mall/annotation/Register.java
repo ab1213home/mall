@@ -13,24 +13,16 @@
 
 package com.jiang.mall.annotation;
 
+import com.jiang.mall.domain.enums.PermissionType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * 只有以游客身份的用户才能访问的资源
- * 只会应用于低于@Permission(PermissionType.NONE)的方法
- * 常用于登录，注册，找回密码等API
- *
- * @author Jiang Rongjun
- */
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+@RequireGuest
+@Permission(PermissionType.NONE)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequireGuest {
-    /**
-     * 是否强制检查未登录状态
-     * @return 默认true
-     */
-    boolean value() default true;
+public @interface Register {
 }

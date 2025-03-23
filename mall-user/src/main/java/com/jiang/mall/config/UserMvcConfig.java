@@ -74,6 +74,13 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.permissionInterceptor = permissionInterceptor;
     }
 
+    private RegisterInterceptor registerInterceptor;
+
+    @Autowired
+    public void setRegisterInterceptor(RegisterInterceptor registerInterceptor) {
+        this.registerInterceptor = registerInterceptor;
+    }
+
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -136,9 +143,9 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**/**.html?*");
         //是否允许注册
         registry.addInterceptor(registerAllowedInterceptor)
-                .addPathPatterns("/user/register/step1")
-                .addPathPatterns("/user/register/step2")
-                .addPathPatterns("/user/register/step3")
+//                .addPathPatterns("/user/register/step1")
+//                .addPathPatterns("/user/register/step2")
+//                .addPathPatterns("/user/register/step3")
                 .addPathPatterns("/user/register.html");
         // 注册第三步拦截器
         registry.addInterceptor(registerLoginInterceptor)
@@ -146,5 +153,6 @@ public class UserMvcConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authStateInterceptor).addPathPatterns("/**");
         registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(registerInterceptor).addPathPatterns("/**");
     }
 }
