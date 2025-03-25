@@ -15,7 +15,6 @@ package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
@@ -82,7 +81,7 @@ public class LoginController {
      * @return ResponseResult 登录结果
      */
     @PostMapping("/login")
-    @RequireGuest
+    @Permission(PermissionType.GUEST)
     public ResponseResult<Object> login(@RequestParam("username") String username,
                                         @RequestParam("password") String password,
                                         @RequestParam("captcha") String captcha,

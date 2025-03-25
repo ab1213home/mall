@@ -43,8 +43,6 @@ public interface IUserService extends IService<User> {
 
     List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize);
 
-//    ResponseResult<Object> checkAdminUser(String sessionId);
-
     ResponseResult<Object> checkUserLogin(String sessionId);
 
     UserCache getUserFromRedis(String sessionId);
@@ -76,4 +74,12 @@ public interface IUserService extends IService<User> {
     Boolean modifyInfo(User user, String sessionId);
 
     UserVo getUserById(Long userId);
+
+    boolean getTotpStatus(String sessionId);
+
+    String enableTotp(String sessionId);
+
+    boolean disableTotp(String sessionId);
+
+    boolean enableTotp(String sessionId, int code);
 }

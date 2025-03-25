@@ -72,4 +72,15 @@ public interface UserMapper extends BaseMapper<User> {
     @Update("UPDATE tb_users SET default_address_id = #{addressId} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
     void updateDefaultAddressId(Long id, Long addressId);
 
+    @Select("SELECT totp_enabled FROM tb_users WHERE id = #{id} AND is_active = true LIMIT 1")
+    boolean selectTotpStatusById(Long id);
+
+    @Update("UPDATE tb_users SET totp_secret = #{secretKey} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    int updateTotpSecretById(Long id, String secretKey);
+
+    @Update("UPDATE tb_users SET totp_enabled = #{status} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    int updateTotpStatusById(Long id, boolean status);
+
+    @Select("SELECT totp_secret FROM tb_users WHERE id = #{id} AND is_active = true LIMIT 1")
+    String selectTotpSecretById(Long id);
 }

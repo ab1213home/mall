@@ -14,7 +14,6 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.entity.User;
@@ -78,8 +77,7 @@ public class ForgotController {
      * @return 操作结果
      */
     @PostMapping("/step1")
-    @RequireGuest
-    @Permission(PermissionType.NONE)
+    @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep1(@RequestParam("username") String username,
                                               @RequestParam("captcha") String captcha,
                                               HttpSession session) {
@@ -134,8 +132,7 @@ public class ForgotController {
      * @return 返回密码重置结果的响应对象
      */
     @PostMapping("/step2")
-    @RequireGuest
-    @Permission(PermissionType.NONE)
+    @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
                                               @RequestHeader("X-Real-IP") String clientIp,

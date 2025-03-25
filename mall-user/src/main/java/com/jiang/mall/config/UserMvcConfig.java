@@ -60,11 +60,11 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.registerAllowedInterceptor = registerAllowedInterceptor;
     }
 
-    private AuthStateInterceptor authStateInterceptor;
+    private RegisterInterceptor registerInterceptor;
 
     @Autowired
-    public void setAuthStateInterceptor(AuthStateInterceptor authStateInterceptor) {
-        this.authStateInterceptor = authStateInterceptor;
+    public void setRegisterInterceptor(RegisterInterceptor registerInterceptor) {
+        this.registerInterceptor = registerInterceptor;
     }
 
     private PermissionInterceptor permissionInterceptor;
@@ -72,13 +72,6 @@ public class UserMvcConfig implements WebMvcConfigurer {
     @Autowired
     public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
         this.permissionInterceptor = permissionInterceptor;
-    }
-
-    private RegisterInterceptor registerInterceptor;
-
-    @Autowired
-    public void setRegisterInterceptor(RegisterInterceptor registerInterceptor) {
-        this.registerInterceptor = registerInterceptor;
     }
 
     /**
@@ -151,8 +144,7 @@ public class UserMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(registerLoginInterceptor)
                 .addPathPatterns("/user/register/step3");
 
-        registry.addInterceptor(authStateInterceptor).addPathPatterns("/**");
-        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
         registry.addInterceptor(registerInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
     }
 }

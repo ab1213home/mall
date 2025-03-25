@@ -100,6 +100,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		// HTML拦截器
 		registry.addInterceptor(htmlInterceptor)
 				.addPathPatterns("/**");
+		// 权限拦截器
+//		registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
     }
 
     /**

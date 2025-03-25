@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
 	@GetMapping("/getRequestNum")
-	@Permission(value = PermissionType.SYSTEM, permission = "system")
+	@Permission(value = PermissionType.SYSTEM, permission = "api")
 	public ResponseResult<Object> getRequestNum(HttpSession session) {
 		return ResponseResult.okResult(ApiRequestCounterInterceptor.getCount());
 	}

@@ -66,7 +66,7 @@ public class BannerAdminController {
      * @return 轮播图列表或未找到资源的提示
      */
     @GetMapping("/getList")
-    @Permission(value = PermissionType.SYSTEM, permission = "banner:list")
+    @Permission(value = PermissionType.ADMIN, permission = "banner:list")
     public ResponseResult<Object> getBannerList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                 @RequestParam(defaultValue = "10") Integer pageSize
                                                 ) {
@@ -83,7 +83,7 @@ public class BannerAdminController {
      * @return 轮播图数量
      */
     @GetMapping("/getNum")
-    @Permission(value = PermissionType.SYSTEM, permission = "banner:list")
+    @Permission(value = PermissionType.ADMIN, permission = "banner:list")
     public ResponseResult<Object> getBannerNum() {
         return ResponseResult.okResult(bannerService.getBannerNum());
     }
@@ -98,7 +98,7 @@ public class BannerAdminController {
      * @return 添加结果或错误信息
      */
     @PostMapping("/add")
-    @Permission(value = PermissionType.SYSTEM, permission = "banner:create")
+    @Permission(value = PermissionType.ADMIN, permission = "banner:create")
     public ResponseResult<Object> insertBanner(@RequestParam("img") String img,
                                        @RequestParam("url") String url,
                                        @RequestParam("description") String description,
@@ -137,7 +137,7 @@ public class BannerAdminController {
      * @return 更新结果或错误信息
      */
     @PostMapping("/update")
-    @Permission(value = PermissionType.SYSTEM, permission = "banner:update")
+    @Permission(value = PermissionType.ADMIN, permission = "banner:update")
     public ResponseResult<Object> updateBanner(@RequestParam("id") Long id,
                                        @RequestParam("img") String img,
                                        @RequestParam("url") String url,
@@ -183,7 +183,7 @@ public class BannerAdminController {
      * @return 删除结果或错误信息
      */
     @GetMapping("/delete")
-    @Permission(value = PermissionType.SYSTEM, permission = "banner:delete")
+    @Permission(value = PermissionType.ADMIN, permission = "banner:delete")
     public ResponseResult<Object> deleteBanner(@RequestParam("id") Long id,
                                                 HttpSession session) {
         if (id==null||id<=0){
@@ -210,13 +210,13 @@ public class BannerAdminController {
     }
 
     @GetMapping("/getSetting")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:banner")
+    @Permission(value = PermissionType.SYSTEM, permission = "banner")
     public ResponseResult<Object> getSetting() {
         return ResponseResult.okResult(bannerConfig.getSetting());
     }
 
     @PostMapping("/saveSetting")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:banner")
+    @Permission(value = PermissionType.SYSTEM, permission = "banner")
     public ResponseResult<Object> saveSetting(@RequestBody BannerSettingVo bannerSettingVo) {
         bannerConfig.updateSetting(bannerSettingVo);
         return ResponseResult.okResult();

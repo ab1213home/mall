@@ -23,6 +23,10 @@ public enum PermissionType {
 	*/
     SYSTEM,
 	/**
+	* 管理员级别的权限
+	*/
+	ADMIN,
+	/**
 	* 店铺级别的权限
 	*/
     SHOP,

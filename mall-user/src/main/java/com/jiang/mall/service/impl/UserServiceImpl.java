@@ -13,15 +13,21 @@
 
 package com.jiang.mall.service.impl;
 
+import cn.hutool.core.codec.Base32;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.otp.TOTP;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.GroupMapper;
+import com.jiang.mall.dao.ShopStaffMapper;
 import com.jiang.mall.dao.UserGroupRelationMapper;
 import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.entity.VerificationCode;
@@ -35,9 +41,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static cn.hutool.crypto.digest.otp.HOTP.generateSecretKey;
 import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
@@ -102,7 +110,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.groupMapper = groupMapper;
 	}
 
-
 	private UserGroupRelationMapper userGroupRelationMapper;
 
 	@Autowired
@@ -110,11 +117,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.userGroupRelationMapper = userGroupRelationMapper;
 	}
 
+	private ShopStaffMapper shopStaffMapper;
+
+	@Autowired
+	public void setShopStaffMapper(ShopStaffMapper shopStaffMapper) {
+		this.shopStaffMapper = shopStaffMapper;
+	}
+
 	private UserConfig userConfig;
 
 	@Autowired
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
+	}
+
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+		this.generalConfig = generalConfig;
 	}
 
 
@@ -162,39 +183,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    return userMapper.selectCount(null);
 	}
 
-//	/**
-//	 * 检查当前用户是否为管理员
-//	 * 此方法首先调用checkUserLogin方法验证用户是否已登录
-//	 * 如果用户未登录，则返回相应的未登录结果
-//	 * 如果用户已登录但不是管理员，则返回无权限访问的结果
-//	 * 如果用户已登录且是管理员，则返回成功的验证结果
-//	 *
-//	 * @param sessionId 当前用户的会话Id
-//	 * @return ResponseResult 包含验证结果的对象，包括用户是否已登录和是否有管理员权限
-//	 */
-//	@Override
-//	public ResponseResult<Object> checkAdminUser(String sessionId) {
-//	    // 检查用户是否已登录
-//	    ResponseResult<Object> result = checkUserLogin(sessionId);
-//	    if (!result.isSuccess()) {
-//	        // 如果未登录，则直接返回
-//	        return result;
-//	    }
-//		UserVo user = (UserVo) result.getData();
-//		if (user.isAdmin()){
-//			return ResponseResult.okResult(user);
-//		}else{
-//			return ResponseResult.failResult(i18nService.getMessage("user.checkAdmin.noAdmin"));
-//		}
-//	}
-
 	/**
 	 * 用户登录方法
 	 * 通过用户名(邮箱)和密码尝试登录系统。用户密码是经过MD5加密的，以提高安全性。
 	 *
 	 * @param username    用户名或者邮箱，用于登录验证
 	 * @param password    密文密码，用于登录验证
-	 * @param token
+	 * @param token       token，用于登录状态
 	 * @param clientIp    客户端IP地址
 	 * @param fingerprint 浏览器指纹，用于登录验证
 	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回false
@@ -208,23 +203,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			logger.debug("用户名或密码错误");
 			return false;
 		} else {
-//			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
 			UserCache userCache = BeanCopyUtils.copyBean(user, UserCache.class);
 			assert userCache != null;
 			Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
 			userCache.setGroups(groupIds);
-			StringBuilder permissions_str = new StringBuilder();
-			for (Long groupId : groupIds) {
-				permissions_str.append(groupMapper.selectPermissionByGroupId(groupId)).append(",");
-			}
-			permissions_str.append(user.getPermission());
+			Set<String> deniedPermissions = new HashSet<>();
+	        if (user.getDeniedPermission() != null && !user.getDeniedPermission().isEmpty()) {
+	            deniedPermissions = new HashSet<>(Arrays.asList(user.getDeniedPermission().split(",")));
+	        }
+			Set<String> permissions = new HashSet<>();
+			if (!groupIds.isEmpty()){
+				for (Long groupId : groupIds) {
+					String groupPermission = groupMapper.selectPermissionByGroupId(groupId);
+					permissions.addAll(Arrays.asList(groupPermission.split(",")));
+				}
 
-			Set<String> permissions = new HashSet<>(Arrays.asList(permissions_str.toString().split(",")));
+			}
+			permissions.addAll(Arrays.asList(user.getPermission().split(",")));
+			// 去除权限user.getDeniedPermission()
+			permissions.removeAll(deniedPermissions);
+			// 获取店铺权限与id
+			List<ShopPermissionDto> shopPermissions = shopStaffMapper.selectShopPermissionByUserId(user.getId());
+			if (!shopPermissions.isEmpty()){
+				for (ShopPermissionDto entry : shopPermissions){
+					String[] shopPermissionList = entry.getPermission().split(",");
+					for (String permission : shopPermissionList) {
+						permissions.add("shop_"+entry.getShopId()+":"+permission);
+					}
+				}
+			}
+
+
 			userCache.setPermissions(permissions);
-//	        userCache.setAdmin(!permissions.isEmpty());
-			// 设置用户的出生日期，并计算下个生日的天数
             if (user.getBirthDate()!=null){
-//                userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
 				userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
             }
 			// 将用户信息存储到Redis中，并设置过期时间
@@ -232,7 +243,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
 			logger.debug("用户{}登录成功", user.getUsername());
-			//TODO:返回token
 			return true;
 		}
 	}
@@ -562,6 +572,52 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 	}
 
+	@Override
+	public boolean getTotpStatus(String sessionId) {
+		UserCache user = getUserFromRedis(sessionId);
+		return userMapper.selectTotpStatusById(user.getId());
+	}
+
+	@Override
+	public String enableTotp(String sessionId) {
+		UserCache user = getUserFromRedis(sessionId);
+		if (userMapper.selectTotpStatusById(user.getId())){
+			return null;
+		}else {
+			Map<String, String> map = generateSecretKeyAndQRCodeUrl(user.getUsername());
+			logger.debug("用户{}生成TOTP密钥和二维码URL", user.getUsername());
+			if (userMapper.updateTotpSecretById(user.getId(),map.get("secretKey"))>0){
+				return map.get("qrCodeUrl");
+			}else {
+				return null;
+			}
+		}
+	}
+
+	@Override
+	public boolean disableTotp(String sessionId) {
+		UserCache user = getUserFromRedis(sessionId);
+		return userMapper.updateTotpStatusById(user.getId(), false) > 0;
+	}
+
+	@Override
+	public boolean enableTotp(String sessionId, int code) {
+		UserCache user = getUserFromRedis(sessionId);
+		String secretKey = userMapper.selectTotpSecretById(user.getId());
+		if (verifyTOTP(secretKey, code)){
+			if (userMapper.updateTotpStatusById(user.getId(), true) > 0){
+				//TODO: 修改成功后记录日志,用户行为日志计划重构
+//				userRecordService.successModifyTotpLog(user.getId(),clientIp,fingerprint);
+				return true;
+			}else {
+//				userRecordService.failedModifyTotpLog(user.getId(),clientIp,fingerprint);
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
+
 
 	/**
 	 * 修改用户密码
@@ -638,12 +694,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      */
 	@Override
     public List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize) {
-        // 通过用户ID获取用户信息
-//        User user = userMapper.selectById(userId);
         // 创建分页对象
         Page<User> userPage = new Page<>(pageNum, pageSize);
-        // 创建查询条件对象，并限制角色ID
-//        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>().le(User::getRoleId,user.getRoleId()+0.1);
+        // 创建查询条件对象
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         // 根据分页和查询条件获取用户列表
         List<User> users = userMapper.selectPage(userPage,queryWrapper).getRecords();
@@ -654,14 +707,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			UserAdminVo userVo = BeanCopyUtils.copyBean(user, UserAdminVo.class);
 	        assert userVo != null;
 	        userVo.setUpdater(getUserById(user.getUpdater()));
-//			userVo.setActive(userMapper.selectById(userVo.getId()).getIsActive());
-//			if (userVo.getBirthDate() != null) {
-//				userVo.setNextBirthday(getDaysUntilNextBirthday(userVo.getBirthDate()));
-//			}
-//            userVo.setAdmin(!userVo.getPermissions().isEmpty());
 	        userVos.add(userVo);
         }
         // 返回处理后的用户列表Vo对象
         return userVos;
     }
+
+	//生成密钥和返回二维码URL
+	private Map<String, String> generateSecretKeyAndQRCodeUrl(String username) {
+	    String secretKey = generateSecretKey(15);
+	    String qrCodeUrl = StrUtil.format("otpauth://totp/{}?secret={}&issuer={}", username, secretKey, "Jiang Mall("+generalConfig.getDomain()+")");
+	    Map<String, String> result = new HashMap<>();
+	    result.put("secretKey", secretKey);
+	    result.put("qrCodeUrl", qrCodeUrl);
+	    return result;
+	}
+
+	//通过一次性密码和密钥验证是否适配
+	private boolean verifyTOTP(String secretKey, int oneTime) {
+	    byte[] keyBytes = Base32.decode(secretKey);
+		TOTP totp = new TOTP(keyBytes);
+		return totp.validate(Instant.now(), 1, oneTime);
+	}
 }

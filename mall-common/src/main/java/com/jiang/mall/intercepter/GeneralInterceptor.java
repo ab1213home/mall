@@ -52,7 +52,7 @@ public class GeneralInterceptor{
      * @param response HTTP响应对象，用于发送重定向或错误响应
      * @throws IOException 如果在重定向过程中发生I/O错误
      */
-    public void redirectToUserIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+    public void redirectToUserIndexBecauseNotAdmin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         // 获取请求的User-Agent头
         String agent = request.getHeader("User-Agent");
         // 如果User-Agent头为空，则通过API返回禁止访问的响应
@@ -67,6 +67,34 @@ public class GeneralInterceptor{
         }else {
             // 否则，通过API返回禁止访问的响应
             redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+        }
+    }
+
+    /**
+     * 根据用户代理重定向到用户首页
+     * 此方法通过检查HTTP请求的User-Agent头来决定是通过API还是浏览器进行重定向
+     * 如果User-Agent头表明这是一个已知的浏览器请求，则通过浏览器重定向到用户首页
+     * 否则，通过API返回重复访问的响应
+     *
+     * @param request  HTTP请求对象，用于获取请求头和上下文路径
+     * @param response HTTP响应对象，用于发送重定向或错误响应
+     * @throws IOException 如果在重定向过程中发生I/O错误
+     */
+    public void redirectToUserIndexBecauseRepeated(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        // 获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.login.error.repeated"));
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
         }
     }
 

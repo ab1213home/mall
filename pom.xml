@@ -134,10 +134,19 @@
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
+            <!-- Google TOTP 库 -->
+<!--            <dependency>-->
+<!--                <groupId>com.google.auth</groupId>-->
+<!--                <artifactId>google-auth-library-oauth2-http</artifactId>-->
+<!--                <version>1.33.1</version>-->
+<!--            </dependency>-->
+
+            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+            <!-- 编码器和解码器 -->
             <dependency>
-                <groupId>com.google.auth</groupId>
-                <artifactId>google-auth-library-oauth2-http</artifactId>
-                <version>1.33.1</version>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.18.0</version>
             </dependency>
 
             <!--邮件-->
@@ -204,18 +213,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring-boot.version}</version>
-            </dependency>
-
-            <!--security-->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-security</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>6.4.2</version>
             </dependency>
 
             <!--modelmapper对象映射库-->
@@ -456,6 +453,7 @@
         <module>mall-seo</module>
         <module>mall-captcha</module>
         <module>mall-category</module>
+        <module>mall-shop</module>
 <!--        <module>mall-websocket</module>-->
         <module>mall-sse</module>
         <module>mall-banner</module>

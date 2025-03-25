@@ -14,7 +14,6 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.annotation.RequireGuest;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
@@ -68,55 +67,58 @@ public class PermissionInterceptor implements HandlerInterceptor {
             // 直接使用 handlerMethod 变量
             Method method = handlerMethod.getMethod();
             // 获取方法上的@Permission注解
-//            Permission permission = method.getAnnotation(Permission.class);
 	        Permission permission = AnnotationUtils.findAnnotation(method,Permission.class);
-			RequireGuest requireGuest = AnnotationUtils.findAnnotation(method, RequireGuest.class);
             if (permission == null) {
                 return true;
             }else if (permission.value() == PermissionType.NONE) {
-				if (requireGuest != null && requireGuest.value()) {
-					// 防止重复登录
-					UserCache userCache = checkAndRefreshUserLogin(request);
-					logger.debug("用户登录状态：{}", checkLogin(userCache));
-					if (!checkLogin(userCache)){
-			            return true;
-			        }else {
-			            generalInterceptor.redirectToUserIndex(request, response);
-			            return false;
-			        }
-				}else {
-					return true;
-				}
+				return true;
 			}else {
 				// 登录校验
 		        UserCache user = checkAndRefreshUserLogin(request);
-				if (!checkLogin(user)){
-					// 重定向到登录页面
-					generalInterceptor.redirectToLogin(request, response);
-					return false;
-				}
-				assert user != null;
-				if (permission.value() == PermissionType.USER){
-					return true;
-				}else if (permission.value() == PermissionType.SHOP){
-					if (checkShopPermission(user, request)){
-						return true;
-					}else {
-						// 重定向到用户首页
-						generalInterceptor.redirectToUserIndex(request, response);
+				if (checkLogin(user)){
+					// 登录校验成功
+					assert user != null;
+					if (permission.value() == PermissionType.GUEST){
+						generalInterceptor.redirectToUserIndexBecauseRepeated(request, response);
 						return false;
-					}
-				}else if (permission.value() == PermissionType.SYSTEM){
-					if (checkSystemPermission(user, permission.permission())){
+					}else if (permission.value() == PermissionType.USER){
 						return true;
+					}else if (permission.value() == PermissionType.SHOP){
+						if (checkShopPermission(user, request, permission.permission())){
+							return true;
+						}else {
+							// 重定向到用户首页
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							return false;
+						}
+					} else if (permission.value() == PermissionType.ADMIN){
+						if (checkPermission(user, permission.permission())){
+							return true;
+						}else {
+							// 重定向到用户首页
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							return false;
+						}
+					} else if (permission.value() == PermissionType.SYSTEM){
+						if (checkSystemPermission(user, permission.permission())){
+							return true;
+						}else {
+							// 重定向到用户首页
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							return false;
+						}
 					}else {
-						// 重定向到用户首页
-						generalInterceptor.redirectToUserIndex(request, response);
+						logger.error("未知权限类型: {}", permission.value());
 						return false;
 					}
 				}else {
-					logger.error("未知权限类型: {}", permission.value());
-			        return false;
+					// 登录校验失败
+					if (permission.value() == PermissionType.GUEST){
+						return true;
+					}else {
+						generalInterceptor.redirectToLogin(request, response);
+						return false;
+					}
 				}
             }
         }else {
@@ -124,16 +126,32 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
 	}
 
-	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request){
+	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, String permission){
 		Long shopId = parseShopId(request);
 	    if (shopId == null) {
 	        logger.warn("店铺ID参数缺失");
 	        return false;
 	    }
+		// 检查用户是否具有任何系统权限
+	    return checkPermission(user, "shop_" + shopId + ":" + permission);
+	}
 
-	    // TODO: 实现店铺员工校验逻辑
-	    // 示例：return shopService.isShopEmployee(user.getId(), shopId);
-	    return false; // 临时返回
+	private boolean checkPermission(@NotNull UserCache user, String permission){
+		// 检查用户是否具有任何系统权限
+	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
+	        // 检查用户是否具有所需的特定权限
+	        if (user.getPermissions().contains(permission)) {
+	            return true;
+	        } else {
+	            // 当用户没有所需权限时，记录调试信息
+	            logger.debug("用户{}无权限访问{}", user.getUsername(),permission);
+	            return false;
+	        }
+	    }else {
+	        // 当用户没有任何系统权限时，记录调试信息
+	        logger.debug("用户{}无任何权限", user.getUsername());
+	        return false;
+	    }
 	}
 
 	// 安全解析店铺ID
@@ -151,25 +169,11 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 * 检查用户是否具有所需的系统权限
 	 *
 	 * @param user 用户缓存对象，用于获取用户权限信息
-	 * @param requiredPermission 必需的权限字符串
+	 * @param permission 必需的权限字符串
 	 * @return 如果用户具有所需的权限，则返回true；否则返回false
 	 */
-	private boolean checkSystemPermission(@NotNull UserCache user, String requiredPermission){
-	    // 检查用户是否具有任何系统权限
-	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-	        // 检查用户是否具有所需的特定权限
-	        if (user.getPermissions().contains(requiredPermission)) {
-	            return true;
-	        } else {
-	            // 当用户没有所需权限时，记录调试信息
-	            logger.debug("用户{}无权限访问", user.getUsername());
-	            return false;
-	        }
-	    }else {
-	        // 当用户没有任何系统权限时，记录调试信息
-	        logger.debug("用户{}无任何系统权限", user.getUsername());
-	        return false;
-	    }
+	private boolean checkSystemPermission(@NotNull UserCache user, String permission){
+	    return checkPermission(user, "system:" + permission);
 	}
 
 	/**

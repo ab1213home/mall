@@ -120,7 +120,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			logger.debug("用户{}信息更新成功", user.getUsername());
 	    }else {
 	        // 如果缓存不存在，则直接返回
-	        logger.warn("用户{}信息更新失败，缓存不存在", user.getUsername());
+	        logger.debug("用户{}信息更新失败，缓存不存在", user.getUsername());
 	    }
 	}
 
@@ -130,7 +130,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			return JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
 		}else {
 			// 如果用户详细信息不存在，则返回null
-			logger.warn("用户{}信息获取失败，缓存不存在", userId);
+			logger.debug("用户{}信息获取失败，缓存不存在", userId);
 			return null;
 		}
 	}
@@ -154,7 +154,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        return getUser(id);
 	    }else {
 	        // 如果用户ID不存在，则返回null
-		    logger.warn("用户{}信息获取失败，token关联缓存不存在", token);
+		    logger.debug("用户{}信息获取失败，token关联缓存不存在", token);
 	        return null;
 	    }
 	}
@@ -178,7 +178,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        return getUser(id);
 	    }else {
 	        // 如果会话ID未找到关联的用户ID，返回null
-		    logger.warn("用户{}信息获取失败，会话ID关联缓存不存在", sessionId);
+		    logger.debug("用户{}信息获取失败，会话ID关联缓存不存在", sessionId);
 	        return null;
 	    }
 	}
@@ -219,7 +219,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        return map;
 	    }else {
 	        // 如果没有找到用户缓存信息，返回null
-		    logger.warn("用户{}关联信息获取失败，关联缓存不存在，无法获取用户登录状态，因为用户未登录", userId);
+		    logger.debug("用户{}关联信息获取失败，关联缓存不存在，无法获取用户登录状态，因为用户未登录", userId);
 	        return null;
 	    }
 	}
@@ -245,7 +245,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        return stringRedisTemplate.hasKey(prefix + "token:" + userBindingCache.getToken());
 	    }else {
 	        // 如果用户ID对应的缓存不存在，则返回false
-		    logger.warn("用户{}关联信息获取失败，关联缓存不存在，判断用户是否登录", userId);
+		    logger.debug("用户{}关联信息获取失败，关联缓存不存在，判断用户是否登录", userId);
 	        return false;
 	    }
 	}
@@ -313,7 +313,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	        return result;
 	    }else {
 	        // 如果Redis中没有与用户ID关联的数据，返回null
-		    logger.warn("用户{}信息删除失败，缓存不存在", userId);
+		    logger.debug("用户{}信息删除失败，缓存不存在", userId);
 	        return null;
 	    }
 	}
@@ -337,7 +337,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		    return deleteUser(Long.parseLong(userId));
 	    }else {
 	        // 如果Redis中没有与用户ID关联的数据，返回null
-		    logger.warn("用户{}信息删除失败，会话ID关联缓存不存在", sessionId);
+		    logger.debug("用户{}信息删除失败，会话ID关联缓存不存在", sessionId);
 	        return null;
 	    }
 	}
@@ -351,7 +351,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		    return deleteUser(Long.parseLong(userId));
 	    }else {
 	        // 如果Redis中没有与用户ID关联的数据，返回null
-		    logger.warn("用户{}信息删除失败，token关联缓存不存在", token);
+		    logger.debug("用户{}信息删除失败，token关联缓存不存在", token);
 	        return null;
 	    }
 	}

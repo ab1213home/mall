@@ -43,13 +43,6 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
 		this.redisService = redisService;
 	}
 
-    private PermissionInterceptor permissionInterceptor;
-
-	@Autowired
-	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
-		this.permissionInterceptor = permissionInterceptor;
-	}
-
 	private GeneralInterceptor generalInterceptor;
 
 	@Autowired

@@ -51,7 +51,7 @@ public class FetchController {
     }
 
     @GetMapping("/upload/{storageName}/**")
-    @Permission(value = PermissionType.SYSTEM, permission = "file:list")
+    @Permission(value = PermissionType.ADMIN, permission = "file:list")
     public ResponseEntity<Object> getFile(HttpServletRequest request, @PathVariable String storageName) throws IOException {
 
         // 获取请求 URI（例如：/upload/text/dir1/dir2/file.txt）

@@ -11,17 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.annotation;
+package com.jiang.mall.controller.admin;
 
-import com.jiang.mall.domain.enums.PermissionType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Permission(PermissionType.GUEST)
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Register {
+@RestController
+@RequestMapping("/user/admin/group")
+public class UserGroupController {
 }

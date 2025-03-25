@@ -53,7 +53,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
 	 */
 	@Override
 	public @NotNull Locale resolveLocale(@NotNull HttpServletRequest request) {
-		logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+//		logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
 	    // 如果参数中提供了语言信息，将其解析为Locale对象
 		Locale locale = resolveFromParam(request);
 		// 来源

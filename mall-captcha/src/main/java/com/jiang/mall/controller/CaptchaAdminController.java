@@ -40,13 +40,13 @@ public class CaptchaAdminController {
     }
 
     @GetMapping("/getSetting")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:captcha")
+    @Permission(value = PermissionType.SYSTEM, permission = "captcha")
     public ResponseResult<Object> getSetting() {
         return ResponseResult.okResult(captchaConfig.getSetting());
     }
 
     @PostMapping("/saveSetting")
-    @Permission(value = PermissionType.SYSTEM, permission = "system:captcha")
+    @Permission(value = PermissionType.SYSTEM, permission = "captcha")
     public ResponseResult<Object> saveSetting(@RequestBody CaptchaSettingVo captchaSettingVo) {
         captchaConfig.updateSetting(captchaSettingVo);
         return ResponseResult.okResult();
