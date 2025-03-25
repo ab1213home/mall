@@ -20,7 +20,7 @@ $(document).ready(function() {
 function queryGitInfo() {
     $.ajax({
         type: "GET",
-        url: "/common/getGit",
+        url: "/metrics/git",
         dataType: "json",
         success: function(res) {
             $("#version").text(res.data["git.build.version"]);

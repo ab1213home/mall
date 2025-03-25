@@ -13,7 +13,9 @@
 
 package com.jiang.mall.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ICaptchaService;
 import com.wf.captcha.SpecCaptcha;
@@ -71,8 +73,11 @@ public class CaptchaController {
             logger.error("生成验证码图像失败", e);
             // 清空响应内容并设置错误状态码
             response.reset();
+            response.setContentType("application/json;charset=UTF-8");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("无法生成验证码图像");
+            String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "无法生成验证码图像"));
+            // 将生成的JSON字符串写入HTTP响应体
+            response.getWriter().write(json);
         }
     }
 }

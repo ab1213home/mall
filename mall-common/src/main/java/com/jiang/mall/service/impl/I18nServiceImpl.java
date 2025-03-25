@@ -230,8 +230,8 @@ public class I18nServiceImpl implements II18nService {
 	}
 
 	@Override
-	public void generateQRCode(String content, int width, int height, OutputStream out) {
-		QrCodeUtil.generate(content, width, height, "png", out);
+	public void generateQRCode(String content, int width, int height, OutputStream outputStream) {
+		QrCodeUtil.generate(content, width, height, "png", outputStream);
 	}
 
 }

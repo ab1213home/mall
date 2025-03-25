@@ -33,7 +33,7 @@ import java.util.Map;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/common")
+@RequestMapping("/metrics")
 public class MetricsController {
 
     private IMetricsService metricsService;
@@ -50,19 +50,19 @@ public class MetricsController {
         this.generalConfig = generalConfig;
     }
 
-    @GetMapping("/getGit")
+    @GetMapping("/git")
     @Permission(PermissionType.NONE)
     public ResponseResult<Object> getGit() {
         return ResponseResult.okResult(metricsService.getGitMetrics());
     }
 
-    @GetMapping("/admin/getRedis")
+    @GetMapping("/redis")
     @Permission(value = PermissionType.SYSTEM, permission = "redis")
     public ResponseResult<Object> getRedis() {
         return ResponseResult.okResult(metricsService.getRedisMetrics());
     }
 
-    @GetMapping("/admin/system-info")
+    @GetMapping("/system")
     @Permission(value = PermissionType.SYSTEM, permission = "info")
     public ResponseResult<Object> getSystemInfo() {
         Map<String, Object> info = new HashMap<>();
@@ -71,19 +71,19 @@ public class MetricsController {
         return ResponseResult.okResult(info);
     }
 
-    @GetMapping("/admin/data-info")
+    @GetMapping("/data")
     @Permission(value = PermissionType.SYSTEM, permission = "data")
     public ResponseResult<Object> getDatabaseInfo() {
         return ResponseResult.okResult(metricsService.getDatabaseMetrics());
     }
 
-    @GetMapping("/admin/getMachineCode")
+    @GetMapping("/getMachineCode")
     @Permission(value = PermissionType.SYSTEM, permission = "info")
     public ResponseResult<Object> getMachineCode() {
         return ResponseResult.okResult(generalConfig.getMachineCode());
     }
 
-    @GetMapping("/admin/isDocker")
+    @GetMapping("/isDocker")
     @Permission(value = PermissionType.SYSTEM, permission = "info")
     public ResponseResult<Object> isDocker() {
         return ResponseResult.okResult(generalConfig.isRunningInDocker());

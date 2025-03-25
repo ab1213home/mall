@@ -111,7 +111,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 						logger.error("未知权限类型: {}", permission.value());
 						return false;
 					}
-				}else {
+				} else {
 					// 登录校验失败
 					if (permission.value() == PermissionType.GUEST){
 						return true;
@@ -129,7 +129,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, String permission){
 		Long shopId = parseShopId(request);
 	    if (shopId == null) {
-	        logger.warn("店铺ID参数缺失");
+	        logger.debug("店铺ID参数缺失");
 	        return false;
 	    }
 		// 检查用户是否具有任何系统权限
@@ -160,7 +160,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	        String shopIdParam = request.getParameter("shopId");
 	        return shopIdParam != null ? Long.parseLong(shopIdParam) : null;
 	    } catch (NumberFormatException e) {
-	        logger.warn("非法店铺ID格式: {}", request.getParameter("shopId"));
+	        logger.debug("非法店铺ID格式: {}", request.getParameter("shopId"));
 	        return null;
 	    }
 	}

@@ -13,6 +13,7 @@
 
 package com.jiang.mall.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
@@ -23,11 +24,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
-@RestController
+@Controller
 @RequestMapping("/user/totp")
 public class TotpController {
 
@@ -48,22 +51,41 @@ public class TotpController {
 	//获取用户TOTP状态
 	@GetMapping("/status")
 	@Permission(PermissionType.USER)
+	@ResponseBody
 	public ResponseResult<Object> getTotpStatus(HttpSession session) {
 		return ResponseResult.okResult(userService.getTotpStatus(session.getId()));
 	}
 
 	//启用TOTP第一步
-	@GetMapping("/enable/step1")
+	@RequestMapping("/enable/step1")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> enableTotpStep1(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+	public void enableTotpStep1(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
 		String totpUrl = userService.enableTotp(request.getSession().getId());
-		ii18nService.generateQRCode(totpUrl, 200, 200, response.getOutputStream());
-		return ResponseResult.okResult(totpUrl);
+		response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+        // 设置响应内容类型为PNG图像，告知浏览器将接收的数据显示为图像
+        response.setContentType("image/png");
+		try (OutputStream out = response.getOutputStream()) {
+            // 输出图像到HTTP响应中
+            ii18nService.generateQRCode(totpUrl, 200, 200, out);
+        } catch (IOException e) {
+            // 记录异常日志
+//            logger.error("生成二维码图像失败", e);
+            // 清空响应内容并设置错误状态码
+            response.reset();
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "无法生成TOTP二维码"));
+            // 将生成的JSON字符串写入HTTP响应体
+            response.getWriter().write(json);
+        }
 	}
 
 	//启用TOTP第二步
 	@PostMapping("/enable/step2")
 	@Permission(PermissionType.USER)
+	@ResponseBody
 	public ResponseResult<Object> enableTotpStep2(@RequestParam("code") int code, HttpSession session) {
 		return ResponseResult.okResult(userService.enableTotp(session.getId(), code));
 	}
@@ -71,9 +93,9 @@ public class TotpController {
 	//禁用TOTP
 	@GetMapping("/disable")
 	@Permission(PermissionType.USER)
+	@ResponseBody
 	public ResponseResult<Object> disableTotp(HttpSession session) {
 		return ResponseResult.okResult(userService.disableTotp(session.getId()));
 	}
-
 
 }

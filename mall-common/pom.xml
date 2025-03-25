@@ -89,6 +89,17 @@
             <artifactId>lettuce-core</artifactId>
         </dependency>
 
+        <!-- ZXing -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+        </dependency>
+
         <!-- Hutool工具库 -->
         <dependency>
             <groupId>cn.hutool</groupId>
