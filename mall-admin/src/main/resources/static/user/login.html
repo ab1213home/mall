@@ -65,7 +65,7 @@
                             <h1 class="h3 mb-3 font-weight-normal">统一用户管理系统</h1>
                         </div>
                         <!-- /.login-logo -->
-                        <form>
+                        <form id="step1" class="step1">
                             <div class="form-group has-feedback">
                                 <span class="fa fa-user form-control-feedback"></span>
                                 <label for="username"></label><input type="text" id="username" name="username" class="form-control" placeholder="请输入用户名或者邮箱"
@@ -108,6 +108,27 @@
                                 <div class="col-4">
                                     <button type="submit" class="btn btn-primary btn-block btn-flat">登录
                                     </button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="step2" class="step2" style="display: none;">
+                            <!-- 两步验证 -->
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-group has-feedback">
+                                    <span class="fa fa-shield form-control-feedback"></span>
+                                    <label for="code"></label>
+                                    <input type="text" id="code" name="code" class="form-control" placeholder="请输入两步验证码" required  maxlength="20">
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <div class="col-8 text-left">
+                                        <div class="row">
+                                            <a href="/user/forgot.html" >无法验证?</a>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">登录
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>

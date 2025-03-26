@@ -46,7 +46,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static cn.hutool.crypto.digest.otp.HOTP.generateSecretKey;
-import static com.jiang.mall.util.TimeUtils.getDaysUntilNextBirthday;
 
 /**
  * <p>
@@ -197,54 +196,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean login(String username, String password, String token, String clientIp, String fingerprint, String sessionId) {
 		User user = getUserByUserNameOrEmail(username, password);
+		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
 		if (user == null) {
 			// 登录失败，记录登录记录
 			userRecordService.failedLoginLog(username, clientIp, fingerprint);
 			logger.debug("用户名或密码错误");
+			return null;
+		} else if (user.isTotpEnabled()) {
+			//TODO:需要完善逻辑
+			temporaryRedisService.setKey("login:"+sessionId, String.valueOf(user.getId()), 30, TimeUnit.MINUTES);
 			return false;
 		} else {
-			UserCache userCache = BeanCopyUtils.copyBean(user, UserCache.class);
-			assert userCache != null;
-			Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
-			userCache.setGroups(groupIds);
-			Set<String> deniedPermissions = new HashSet<>();
-	        if (user.getDeniedPermission() != null && !user.getDeniedPermission().isEmpty()) {
-	            deniedPermissions = new HashSet<>(Arrays.asList(user.getDeniedPermission().split(",")));
-	        }
-			Set<String> permissions = new HashSet<>();
-			if (!groupIds.isEmpty()){
-				for (Long groupId : groupIds) {
-					String groupPermission = groupMapper.selectPermissionByGroupId(groupId);
-					permissions.addAll(Arrays.asList(groupPermission.split(",")));
-				}
-
-			}
-			permissions.addAll(Arrays.asList(user.getPermission().split(",")));
-			// 去除权限user.getDeniedPermission()
-			permissions.removeAll(deniedPermissions);
-			// 获取店铺权限与id
-			List<ShopPermissionDto> shopPermissions = shopStaffMapper.selectShopPermissionByUserId(user.getId());
-			if (!shopPermissions.isEmpty()){
-				for (ShopPermissionDto entry : shopPermissions){
-					String[] shopPermissionList = entry.getPermission().split(",");
-					for (String permission : shopPermissionList) {
-						permissions.add("shop_"+entry.getShopId()+":"+permission);
-					}
-				}
-			}
-
-
-			userCache.setPermissions(permissions);
-            if (user.getBirthDate()!=null){
-				userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
-            }
-			// 将用户信息存储到Redis中，并设置过期时间
-			redisService.setUser(sessionId, token, userCache);
 			// 登录成功，记录登录记录
 			userRecordService.successLoginLog(user, clientIp, fingerprint);
-			logger.debug("用户{}登录成功", user.getUsername());
+			login(user, token, sessionId);
 			return true;
 		}
+	}
+
+	private void login(@NotNull User user, String token, String sessionId) {
+		UserCache userCache = BeanCopyUtils.copyBean(user, UserCache.class);
+		assert userCache != null;
+		Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
+		userCache.setGroups(groupIds);
+		Set<String> deniedPermissions = new HashSet<>();
+		if (user.getDeniedPermission() != null && !user.getDeniedPermission().isEmpty()) {
+			deniedPermissions = new HashSet<>(Arrays.asList(user.getDeniedPermission().split(",")));
+		}
+		Set<String> permissions = new HashSet<>();
+		if (!groupIds.isEmpty()){
+			for (Long groupId : groupIds) {
+				String groupPermission = groupMapper.selectPermissionByGroupId(groupId);
+				permissions.addAll(Arrays.asList(groupPermission.split(",")));
+			}
+		}
+		permissions.addAll(Arrays.asList(user.getPermission().split(",")));
+		// 去除权限user.getDeniedPermission()
+		permissions.removeAll(deniedPermissions);
+		// 获取店铺权限与id
+		List<ShopPermissionDto> shopPermissions = shopStaffMapper.selectShopPermissionByUserId(user.getId());
+		if (!shopPermissions.isEmpty()){
+			for (ShopPermissionDto entry : shopPermissions){
+				String[] shopPermissionList = entry.getPermission().split(",");
+				for (String permission : shopPermissionList) {
+					permissions.add("shop_"+entry.getShopId()+":"+permission);
+				}
+			}
+		}
+
+		userCache.setPermissions(permissions);
+//		if (user.getBirthDate()!=null){
+//			userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+//		}
+		// 将用户信息存储到Redis中，并设置过期时间
+		redisService.setUser(sessionId, token, userCache);
+		logger.debug("用户{}登录成功", user.getUsername());
 	}
 
 	public User getUserByUserNameOrEmail(String username, String password) {
@@ -388,7 +394,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		user.setIsActive(true);
 		user.setTotpEnabled(false);
 		if (userMapper.insert(user) > 0){
-			temporaryRedisService.setKey(sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
+			temporaryRedisService.setKey("register:"+sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
 			verificationCodeService.useCode(user.getId(), verificationCode);
 			userRecordService.successRegisterLog(user, clientIp, fingerprint);
 			if (userConfig.getDefaultGroup()!=-1){
@@ -407,7 +413,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean register(User user, String sessionId) {
 		if (userMapper.updateById(user)>0){
-			temporaryRedisService.deleteKey(sessionId);
+			temporaryRedisService.deleteKey("register:"+sessionId);
 			return true;
 		}else {
 			logger.error("{}用户信息补充失败", user);
@@ -524,22 +530,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    // 尝试更新用户信息
 	    if (userMapper.updateById(user)>0){
 	        // 如果更新成功，从Redis中获取当前用户信息
-	        UserCache userVo = getUserFromRedis(sessionId);
+	        UserCache userCache = getUserFromRedis(sessionId);
 
 	        // 更新用户信息
-	        userVo.setFirstName(user.getFirstName());
-	        userVo.setLastName(user.getLastName());
-	        userVo.setPhone(user.getPhone());
-	        userVo.setAvatar(user.getAvatar());
-	        userVo.setBirthDate(user.getBirthDate());
+	        userCache.setFirstName(user.getFirstName());
+	        userCache.setLastName(user.getLastName());
+	        userCache.setPhone(user.getPhone());
+	        userCache.setAvatar(user.getAvatar());
+	        userCache.setBirthDate(user.getBirthDate());
 
 	        // 如果用户生日不为空，则计算并设置距离下一次生日的天数
-	        if (user.getBirthDate()!=null){
-	            userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
-	        }
+//	        if (user.getBirthDate()!=null){
+//	            userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
+//	        }
 
 	        // 更新Redis中的用户信息
-	        setUserToRedis(userVo);
+	        setUserToRedis(userCache);
 	        return true;
 	    }else {
 	        // 如果更新失败，记录错误日志
@@ -616,6 +622,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}else {
 			return false;
 		}
+	}
+
+	@Override
+	public List<Long> getOnlineUser() {
+		return redisService.getOnlineUser();
+	}
+
+	@Override
+	public boolean login(String sessionId, int code, String token, String clientIp, String fingerprint) {
+		if (temporaryRedisService.hasKey("login:"+sessionId)){
+			Long userId = Long.parseLong(temporaryRedisService.getKey("login:"+sessionId));
+			String secretKey = userMapper.selectTotpSecretById(userId);
+			if (verifyTOTP(secretKey, code)){
+				User user = userMapper.selectById(userId);
+				// 登录成功，记录登录记录
+				userRecordService.successLoginLog(user, clientIp, fingerprint);
+				login(user, token, sessionId);
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+
 	}
 
 
@@ -714,7 +745,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 	//生成密钥和返回二维码URL
-	private Map<String, String> generateSecretKeyAndQRCodeUrl(String username) {
+	private @NotNull Map<String, String> generateSecretKeyAndQRCodeUrl(String username) {
 	    String secretKey = generateSecretKey(15);
 	    String qrCodeUrl = StrUtil.format("otpauth://totp/{}?secret={}&issuer={}", username, secretKey, "Jiang Mall("+generalConfig.getDomain()+")");
 	    Map<String, String> result = new HashMap<>();

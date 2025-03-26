@@ -22,16 +22,14 @@ import com.jiang.mall.dao.CategoryMapper;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Cart;
-import com.jiang.mall.domain.entity.Category;
-import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.service.ICartRedisService;
-import com.jiang.mall.service.ICartService;
-import com.jiang.mall.service.IUserService;
+import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtils;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +46,8 @@ import java.util.List;
  */
 @Service
 public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements ICartService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CartServiceImpl.class);
 
     private CartMapper cartMapper;
 
@@ -77,58 +77,25 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         this.userService = userService;
     }
 
-    private ICartRedisService redisService;
+    private ICartRedisService cartRedisService;
 
 	@Autowired
-	private void setCartRedisService(ICartRedisService redisService) {
-		this.redisService = redisService;
+	private void setCartRedisService(ICartRedisService cartRedisService) {
+		this.cartRedisService = cartRedisService;
 	}
 
-    /**
-     * 根据用户ID、页码、页面大小和购物车项ID列表，获取购物车项列表的视图对象
-     *
-     * @param sessionId
-     * @param pageNum    页码，用于分页查询
-     * @param pageSize   页面大小，用于分页查询
-     * @param listCartId 购物车项ID列表，用于查询特定的购物车项
-     * @return 返回购物车项的视图列表，如果列表为空或不属于该用户，则返回null
-     */
-    @Override
-    public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize, List<Long> listCartId) {
-        UserCache user = userService.getUserFromRedis(sessionId);
-        // 创建分页对象，指定页码和页面大小
-        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-        // 创建查询构造器，条件是购物车项ID
-        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
-        // 执行分页查询，获取查询结果
-        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
-        // 如果查询结果为空，则返回null
-        if (carts.isEmpty()) {
-            return null;
-        }
-        // 遍历查询结果，验证购物车项是否属于指定的用户
-        for (Cart cart : carts) {
-            if (!cart.getUserId().equals(user.getId())){
-                return null;
-            }
-        }
-        // 将购物车项列表转换为购物车项视图对象列表
-        List<CartVo> cartVos = new ArrayList<>();
-        for (Cart cart : carts) {
-            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
-            // 根据购物车项中的产品ID，查询产品信息
-            Product product = productMapper.selectById(cart.getProdId());
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
-            Category category = categoryMapper.selectById(product.getCategoryId());
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert productVo != null;
-	        productVo.setCategory(categoryVo);
-	        assert cartVo != null;
-	        cartVo.setProduct(productVo);
-            cartVos.add(cartVo);
-        }
-        // 返回购物车项视图对象列表
-        return cartVos;
+    private ICheckoutRedisService checkoutRedisService;
+
+    @Autowired
+    public void setCheckoutRedisService(ICheckoutRedisService checkoutRedisService) {
+        this.checkoutRedisService = checkoutRedisService;
+    }
+
+    private IProductService productService;
+
+    @Autowired
+    public void setProductService(IProductService productService) {
+        this.productService = productService;
     }
 
     /**
@@ -136,7 +103,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * 该方法主要用于在用户下单后，更新购物车中相关商品的数量或删除已购买的商品
      *
      * @param listCartId     购物车商品ID列表，用于定位需要更新的购物车商品
-     * @param sessionId
+     * @param sessionId     会话ID，用于获取用户信息
      * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
      * @return 如果成功更新购物车则返回true，否则返回false
      */
@@ -186,18 +153,14 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, user.getId());
         List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
+        //TODO:购物车缓存
         List<CartVo> cartVos = new ArrayList<>();
         for (Cart cart : carts) {
             CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
+            assert cartVo != null;
             // 根据购物车项中的产品ID，查询产品信息
-            Product product = productMapper.selectById(cart.getProdId());
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
-            Category category = categoryMapper.selectById(product.getCategoryId());
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
-	        assert productVo != null;
-	        productVo.setCategory(categoryVo);
-	        assert cartVo != null;
-	        cartVo.setProduct(productVo);
+            ProductVo product = productService.getProduct(cart.getProdId());
+	        cartVo.setProduct(product);
             cartVos.add(cartVo);
         }
         return cartVos;
@@ -290,18 +253,57 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
-    public void checkoutToRedis(List<Long> listCartId, String sessionId) {
-        redisService.setCartIdList(sessionId, listCartId);
+    public void setCheckoutToRedis(@NotNull List<Long> listCartId, String sessionId) {
+        UserCache user = userService.getUserFromRedis(sessionId);
+        // TODO:同步redis到数据库
+        // 遍历购物车ID列表，检查每个购物车项是否属于当前用户
+        for (Long cartId : listCartId){
+            //检查是否合法
+            if (!cartMapper.selectUserIdById(cartId).equals(user.getId())){
+                logger.error("{}非法操作！试图添加不属于自己的购物车到预订单",user.getUsername());
+                return;
+            }
+        }
+        checkoutRedisService.setCartIdList(user.getId(), listCartId);
     }
 
     @Override
-    public List<Long> getCartIdListFormRedis(String sessionId) {
-        return redisService.getCartIdList(sessionId);
+    public List<Long> getCheckoutCartIdListFormRedis(String sessionId) {
+        UserCache user = userService.getUserFromRedis(sessionId);
+        return checkoutRedisService.getCartIdList(user.getId());
     }
 
     @Override
-    public void deleteCartIdListInRedis(String sessionId) {
-        redisService.deleteCartIdList(sessionId);
+    public void deleteCheckoutCartIdListInRedis(String sessionId) {
+        UserCache user = userService.getUserFromRedis(sessionId);
+        checkoutRedisService.deleteCartIdList(user.getId());
+    }
+
+    @Override
+    public List<CartVo> getCheckoutCartIdList(String sessionId, Integer pageNum, Integer pageSize) {
+        List<Long> listCartId = getCheckoutCartIdListFormRedis(sessionId);
+        // 创建分页对象，指定页码和页面大小
+        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
+        // 创建查询构造器，条件是购物车项ID
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
+        // 执行分页查询，获取查询结果
+        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
+        // 如果查询结果为空，则返回null
+        if (carts.isEmpty()) {
+            return null;
+        }
+        // 将购物车项列表转换为购物车项视图对象列表
+        List<CartVo> cartVos = new ArrayList<>();
+        for (Cart cart : carts) {
+            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
+            assert cartVo != null;
+            // 根据购物车项中的产品ID，查询产品信息
+            ProductVo product = productService.getProduct(cart.getProdId());
+	        cartVo.setProduct(product);
+            cartVos.add(cartVo);
+        }
+        // 返回购物车项视图对象列表
+        return cartVos;
     }
 
 }

@@ -122,16 +122,53 @@ public class LoginController {
 
         // 调用userService的login方法进行用户登录验证
         flag = userService.login(username, password, token, clientIp, fingerprint, session.getId());
+
+		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
         if (flag == null) {
-			//TODO:无状态
-            return ResponseResult.failResult();
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         } else if (!flag){
             // 登录失败，返回相应错误信息
-            return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+            return ResponseResult.okResult("false","需要二次验证");
         }else {
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
     }
+
+	/**
+	 * 处理登录的两步验证请求
+	 * 该方法首先验证客户端IP和指纹的有效性，然后生成一个令牌，并调用用户服务完成登录过程
+	 *
+	 * @param code 验证码，用户输入的验证码以验证其身份
+	 * @param clientIp 客户端IP地址，用于安全检查
+	 * @param fingerprint 客户端指纹，唯一标识客户端的字符串
+	 * @param session HTTP会话，用于存储用户登录状态
+	 * @return 登录结果，包括是否成功和相应的消息
+	 */
+	@PostMapping("/login/twoVerify")
+	@Permission(PermissionType.GUEST)
+	public ResponseResult<Object> loginTwoVerify(@RequestParam("code") int code,
+	                                         @RequestHeader("X-Real-IP") String clientIp,
+	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                         HttpSession session) {
+	    // 验证客户端IP是否有效
+	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+	    }
+	    // 验证客户端指纹是否有效
+	    if (!i18nService.checkString(fingerprint)){
+	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+	    }
+	    // 生成唯一令牌
+	    String token = UUID.fastUUID().toString();
+	    // 调用用户服务进行登录验证
+	    boolean flag = userService.login(session.getId(), code, token, clientIp, fingerprint);
+	    // 根据登录结果返回相应信息
+	    if (flag){
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+	    }else {
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+	    }
+	}
 
 	/**
      * 处理用户登出请求

@@ -16,6 +16,7 @@ package com.jiang.mall.service;
 import com.jiang.mall.domain.cache.UserCache;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IUserRedisService {
@@ -116,4 +117,7 @@ public interface IUserRedisService {
 	 * @param sessionId 新的会话ID，需要与用户ID建立绑定关系
 	 */
 	void refreshSessionId(String token, String sessionId);
+
+	//获取在线用户
+	List<Long> getOnlineUser();
 }

@@ -64,15 +64,21 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-        String userId = redisService.getKey(request.getSession().getId());
-        // 检查用户登录状态
-        if (userId == null){
-            // 如果用户未有注册状态，重定向到注册页面
-            redirectToRegister(request, response);
-            return false;
-        }
-        // 允许其他请求继续执行
-        return true;
+//        String userId = redisService.getKey("register:"+request.getSession().getId());
+//        // 检查用户登录状态
+//        if (userId == null){
+//            // 如果用户未有注册状态，重定向到注册页面
+//            redirectToRegister(request, response);
+//            return false;
+//        }
+//        // 允许其他请求继续执行
+//        return true;
+	    if (redisService.hasKey("register:"+request.getSession().getId())){
+			return true;
+	    }else {
+	    	redirectToRegister(request, response);
+	    	return false;
+	    }
     }
 
     private void redirectToRegister(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {

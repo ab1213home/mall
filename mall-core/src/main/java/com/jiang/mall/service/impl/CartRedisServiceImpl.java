@@ -57,17 +57,6 @@ public class CartRedisServiceImpl implements ICartRedisService {
 		stringRedisTemplate.opsForValue().set(key(sessionId), JSON.toJSONString(cartIdList), 60*60*24, java.util.concurrent.TimeUnit.SECONDS);
 	}
 
-	/**
-     * 设置一个键值对
-     *
-     * @param key 键，用于唯一标识一个值
-     * @param value 值，与键关联的数据
-     */
-    @Override
-    public void setKey(String key, String value) {
-        stringRedisTemplate.opsForValue().set(key(key), value);
-    }
-
     /**
      * 根据键获取对应的字符串值
      *

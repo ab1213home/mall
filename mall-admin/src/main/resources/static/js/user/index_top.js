@@ -22,8 +22,8 @@ const signList = ["我感到难过，不是因为你欺骗了我，而是因为�
 // 定义登出函数
 function logout() {
   // 清除登录状态（清除 token 或 session）
-  localStorage.removeItem('token');
-  sessionStorage.removeItem('user');
+  // localStorage.removeItem('token');
+  // sessionStorage.removeItem('token');
   $.ajax({
 		type:"GET",
 		url:"/user/logout",
@@ -33,6 +33,7 @@ function logout() {
 		success:function(res){
 			if(res.code == 200){
 				// 跳转到登录页面
+				localStorage.removeItem('token');
 				window.location.href = '/user/login.html';
 			}
 		}
@@ -40,11 +41,15 @@ function logout() {
 }
 
 function queryMyUserInfo(){
+	const token = localStorage.getItem('token');
 	$.ajax({
 		type:"GET",
 		url:"/user/isLogin",
 		data:{},
-		async:false,	//设置同步请求
+		// async:false,	//设置同步请求
+		headers: {
+			Token:token
+		},
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){

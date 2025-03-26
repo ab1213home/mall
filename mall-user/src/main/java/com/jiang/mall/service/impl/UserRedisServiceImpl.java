@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -100,7 +99,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    stringRedisTemplate.opsForValue().set(prefix+"token:"+token, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 	    // 存储会话ID与用户ID的映射关系，并设置过期时间
 	    stringRedisTemplate.opsForValue().set(prefix+"sessionId:"+sessionId, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
-		logger.debug("用户{}登录成功", user.getUsername());
+		logger.debug("用户{}信息缓存成功", user.getUsername());
 	}
 
 	/**
@@ -379,6 +378,16 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			userBindingCache.setToken(token);
 			stringRedisTemplate.opsForValue().set(prefix+"binding:"+userId, JSON.toJSONString(userBindingCache), expire, TimeUnit.MINUTES);
 	    }
+	}
+
+	@Override
+	public List<Long> getOnlineUser() {
+		Set<String> userIds = stringRedisTemplate.keys(prefix+"binding:*");
+		List<Long> onlineUser = new ArrayList<>();
+		for (String userId : userIds) {
+			onlineUser.add(Long.parseLong(userId.substring(userId.lastIndexOf(":")+1)));
+		}
+		return onlineUser;
 	}
 
 }

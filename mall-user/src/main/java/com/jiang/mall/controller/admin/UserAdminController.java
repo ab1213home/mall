@@ -121,5 +121,10 @@ public class UserAdminController {
         return ResponseResult.okResult();
     }
 
+    @GetMapping("/getOnlineList")
+    @Permission(value = PermissionType.SYSTEM, permission = "user:list")
+    public ResponseResult<Object> getOnlineList(){
+        return ResponseResult.okResult(userService.getOnlineUser());
+    }
 
 }

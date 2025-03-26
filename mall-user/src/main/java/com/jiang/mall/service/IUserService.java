@@ -82,4 +82,8 @@ public interface IUserService extends IService<User> {
     boolean disableTotp(String sessionId);
 
     boolean enableTotp(String sessionId, int code);
+
+    List<Long> getOnlineUser();
+
+    boolean login(String sessionId, int code, String token, String clientIp, String fingerprint);
 }

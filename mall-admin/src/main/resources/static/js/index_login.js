@@ -22,6 +22,7 @@
 function isLogin(){
     // 默认设置result为false，表示未登录
 	let result = false;
+	const token = localStorage.getItem('token');
     // 初始化AJAX请求
 	$.ajax({
         // 请求方式为GET
@@ -31,10 +32,10 @@ function isLogin(){
         // 无需发送额外数据
 		data:{},
         // 设置同步请求
-		async : true,
+		// async : true,
 		//token设置localStorage.setItem('token', res.data);
 		headers: {
-			Authorization:localStorage.getItem('token')
+			Token:token
 		},
 		// beforeSend:function(xhr){
         //     // 设置请求头，将token发送到服务器
@@ -61,6 +62,10 @@ function isLogin(){
 			}else{
                 // 设置result为false，表示未登录
 				result = false;
+				//如果存在token，则删除
+				if (token){
+					localStorage.removeItem('token');
+				}
 			}
 		}
 	});

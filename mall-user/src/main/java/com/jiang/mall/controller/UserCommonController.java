@@ -16,7 +16,6 @@ package com.jiang.mall.controller;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
@@ -60,17 +59,17 @@ public class UserCommonController {
      * 如果没有设置或者设置的值是"null"字符串，则返回失败结果并提示用户未设置生日。
      * 如果生日已设置，则计算距离下一次生日的天数，并返回成功结果。
      */
-    @GetMapping("/user/getDays")
-    @Permission(PermissionType.USER)
-    public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
-        UserCache user =userService.getUserFromRedis(session.getId());
-        // 检查是否设置了用户生日
-        if (user.getBirthDate() == null){
-            return ResponseResult.failResult("未设置生日！");
-        }
-        // 计算并返回距离下一次生日的天数
-        return ResponseResult.okResult(user.getNextBirthday());
-    }
+//    @GetMapping("/user/getDays")
+//    @Permission(PermissionType.USER)
+//    public ResponseResult<Object> getDaysNextBirthday(HttpSession session){
+//        UserCache user =userService.getUserFromRedis(session.getId());
+//        // 检查是否设置了用户生日
+//        if (user.getBirthDate() == null){
+//            return ResponseResult.failResult("未设置生日！");
+//        }
+//        // 计算并返回距离下一次生日的天数
+//        return ResponseResult.okResult(user.getNextBirthday());
+//    }
 
     /**
      * 获取随机盐值

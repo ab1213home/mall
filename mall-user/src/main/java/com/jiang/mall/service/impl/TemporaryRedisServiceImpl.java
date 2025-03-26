@@ -40,16 +40,12 @@ public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "register-";
+	String prefix = "";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-register-";
+	    prefix = generalConfig.getRedisKeyPrefix();
 	}
-
-    String key(String key){
-        return prefix+key;
-    }
 
     /**
      * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
@@ -61,7 +57,7 @@ public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
      */
     @Override
     public void setKey(String key, String value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
+        stringRedisTemplate.opsForValue().set(prefix+":"+key, value, timeout, unit);
     }
 
     /**
@@ -72,17 +68,21 @@ public class TemporaryRedisServiceImpl implements ITemporaryRedisService {
      */
     @Override
     public String getKey(String key) {
-        return stringRedisTemplate.opsForValue().get(key(key));
+        return stringRedisTemplate.opsForValue().get(prefix+":"+key);
+    }
+
+	@Override
+	public boolean hasKey(String key) {
+	    return stringRedisTemplate.hasKey(prefix+":"+key);
     }
 
 	/**
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
-     */
+	 */
     @Override
-    public Boolean deleteKey(String key) {
-        return stringRedisTemplate.delete(key(key));
+    public void deleteKey(String key) {
+	    stringRedisTemplate.delete(prefix + ":" + key);
     }
 }

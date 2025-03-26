@@ -78,7 +78,7 @@ public class UserCache {
     /**
      * 距离下次生日的天数
      */
-    private Integer nextBirthday;
+//    private Integer nextBirthday;
 
     /**
      * 权限set集合

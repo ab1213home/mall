@@ -187,9 +187,9 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 */
 	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
 	    // 双渠道获取用户信息
-	    String token = request.getHeader("Authorization");
+	    String token = request.getHeader("Token");
 	    UserCache user;
-
+//		logger.debug("尝试获取用户信息: {}", token);
 	    if (i18nService.checkString(token)) {
 	        user = redisService.getUserByToken(token);
 	    } else {

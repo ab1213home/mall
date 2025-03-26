@@ -19,21 +19,23 @@ $(document).ready(function(){
 function queryBirthday() {
 	$.ajax({
 		type:"GET",
-		url:"/user/getDays",
+		url:"/user/isLogin",
 		data:{},
-		async:false,	//设置同步请求
+		// async:false,	//设置同步请求
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				if (res.data == 0){
+				const birthday = res.data.birthDate;
+				const days = getNextBirthdayInterval(birthday);
+				if (days == 0){
 					show_info( "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
 					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
-				}if (res.data == 365){
+				}if (days == 365){
 					show_info("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
 					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
 				}
 				else {
-					$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+res.data+" 天。");
+					$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+days+" 天。");
 				}
 
 			}
@@ -41,4 +43,25 @@ function queryBirthday() {
 	});
 }
 
+function getNextBirthdayInterval(birthDateString) {
+    // 获取当前时间
+    const now = new Date();
 
+    // 解析生日字符串为日期对象
+    const birthDate = new Date(birthDateString);
+    const thisYearBirthday = new Date(now.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+
+    let nextBirthday;
+    if (now > thisYearBirthday) {
+        // 如果今年的生日已经过去，则计算明年的生日
+        nextBirthday = new Date(now.getFullYear() + 1, birthDate.getMonth(), birthDate.getDate());
+    } else {
+        // 否则，计算今年的生日
+        nextBirthday = thisYearBirthday;
+    }
+
+    // 计算相差的毫秒数
+    const diffTime = Math.abs(nextBirthday - now);
+    // 将毫秒数转换为天数
+	return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}

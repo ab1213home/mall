@@ -34,12 +34,12 @@ public interface ITemporaryRedisService {
      */
     String getKey(String key);
 
+    boolean hasKey(String key);
+
     /**
      * 删除指定键对应的数据
      *
      * @param key 要删除数据的键
-     * @return 如果删除成功，返回true；否则返回false
      */
-    @SuppressWarnings("UnusedReturnValue")
-    Boolean deleteKey(String key);
+    void deleteKey(String key);
 }

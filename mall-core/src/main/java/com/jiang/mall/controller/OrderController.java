@@ -111,7 +111,7 @@ public class OrderController {
 	            list_cartId.add(checkoutVo.getId());
 	        }
 	    }
-		cartService.checkoutToRedis(list_cartId, session.getId());
+		cartService.setCheckoutToRedis(list_cartId, session.getId());
 	    // 返回操作成功结果
 	    return ResponseResult.okResult();
 	}
@@ -132,13 +132,9 @@ public class OrderController {
 	@GetMapping("/getTemporaryList")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                            @RequestParam(defaultValue = "5") Integer pageSize,
-	                                            HttpSession session) {
-		List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
-	    if (list_cartId.isEmpty()){
-	        return ResponseResult.failResult("请先选择商品");
-	    }
-	    List<CartVo> list_checkout = cartService.getCartList(session.getId(), pageNum, pageSize, list_cartId);
+	                                                    @RequestParam(defaultValue = "5") Integer pageSize,
+	                                                    HttpSession session) {
+	    List<CartVo> list_checkout = cartService.getCheckoutCartIdList(session.getId(), pageNum, pageSize);
 	    if (list_checkout.isEmpty()) {
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -156,7 +152,7 @@ public class OrderController {
 	@GetMapping("/getTemporaryNum")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
-	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
+	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -199,11 +195,11 @@ public class OrderController {
 	    // 调用服务层方法插入新订单
 	    Long orderId = orderService.insertOrder(session.getId(), addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
-	    List<Long> list_cartId = cartService.getCartIdListFormRedis(session.getId());
+	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
 	    // 根据订单删除购物车中的商品
 	    cartService.deleteCartByOrder(list_cartId, session.getId(), list_checkoutVo);
 		//删除redis中的缓存
-		cartService.deleteCartIdListInRedis(session.getId());
+		cartService.deleteCheckoutCartIdListInRedis(session.getId());
 	    if (orderId == null) {
 	        return ResponseResult.failResult("提交失败");
 	    }
@@ -245,7 +241,7 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/getList")
-	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                      @RequestParam(defaultValue = "5") Integer pageSize,
 	                                      HttpSession session) {
@@ -264,13 +260,13 @@ public class OrderController {
 	}
 
 	@GetMapping("/admin/getNum")
-	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAllOrderNum() {
 		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 
 	@GetMapping("/admin/getAmount")
-	@Permission(value = PermissionType.SYSTEM, permission = "order:list")
+	@Permission(value = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAmount() {
 		double amount = Double.parseDouble(orderService.getAmount());
 		return ResponseResult.okResult(amount);

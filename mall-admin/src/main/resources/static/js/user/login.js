@@ -51,11 +51,23 @@ function submitLoginForm() {
     success: function (res) {
         // 处理成功响应
         if (res.code === 200) {
-            localStorage.setItem('token', res.data);
-            if (url!=null){
-                window.location.href = url;
+            if (res.data == 'false'){
+                const step2 = document.querySelectorAll('.step2');
+                const step1 = document.querySelectorAll('.step1');
+                step1.forEach(element => {
+					element.style.display = 'none';
+				});
+                step2.forEach(element => {
+					element.style.display = 'block';
+				});
             }else {
-                window.location.href = '../index.html';
+                localStorage.setItem('token', res.data);
+                // sessionStorage.setItem('token', res.data);
+                if (url!=null){
+                    window.location.href = url;
+                }else {
+                    window.location.href = '../index.html';
+                }
             }
         } else {
             show_error('登录失败:'+res.message);
@@ -78,8 +90,59 @@ function refreshCaptcha() {
 }
 // 绑定表单提交事件
 $(document).ready(function() {
-  $('form').on('submit', function(event) {
+  $('#step1').on('submit', function(event) {
     event.preventDefault(); // 阻止默认提交行为
     submitLoginForm(); // 自定义提交处理
+  });
+});
+
+function submitTwoVerifyForm() {
+  // 获取表单数据
+  const code = $('#code').val();
+
+  // 构建请求体
+  const data = {
+    code:code
+  };
+
+  // 发送 AJAX 请求
+  $.ajax({
+    url: '/user/login/twoVerify',
+    type: 'POST',
+    data: data,
+    headers: {
+        'X-Real-FINGERPRINT':fingerprint,
+        'X-Real-IP':ip,
+    },
+    beforeSend: function() {
+       // 在发送请求之前，显示加载
+    },
+    success: function (res) {
+        // 处理成功响应
+        if (res.code === 200) {
+            localStorage.setItem('token', res.data);
+            // sessionStorage.setItem('token', res.data);
+            if (url!=null){
+                window.location.href = url;
+            }else {
+                window.location.href = '../index.html';
+            }
+        } else {
+            show_error('登录失败:'+res.message);
+            refreshCaptcha()
+        }
+    },
+    fail: function(xhr, status, error) {
+      // 显示错误信息给用户
+      show_error('登录失败，请联系管理员！'+error);
+      refreshCaptcha()
+    }
+  });
+}
+
+$(document).ready(function() {
+  $('#step2').on('submit', function(event) {
+    event.preventDefault(); // 阻止默认提交行为
+    submitTwoVerifyForm(); // 自定义提交处理
   });
 });
