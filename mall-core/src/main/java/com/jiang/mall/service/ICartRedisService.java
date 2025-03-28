@@ -15,7 +15,6 @@ package com.jiang.mall.service;
 
 import com.jiang.mall.domain.dto.CartDto;
 import com.jiang.mall.domain.dto.CartListDto;
-import com.jiang.mall.domain.dto.CartVersionDto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,17 +22,17 @@ import java.util.List;
 public interface ICartRedisService {
 
     //初始化购物车
-    void initCart(Long userId,List<CartDto> cartList , Long version);
+    void initCart(Long userId ,List<CartDto> cartList , Long version);
 
     boolean setCart(Long userId, @NotNull Long productId, @NotNull Long num);
 
     Long getCart(Long userId, @NotNull Long productId);
 
+    List<CartDto> getCart(Long userId, Integer pageNum, Integer pageSize);
+
     List<CartDto> getCart(Long userId);
 
     List<CartListDto> getCart();
-
-    List<CartVersionDto> getUserIdAndVersionList();
 
     boolean hasCart(Long userId, @NotNull Long productId);
 
@@ -52,4 +51,6 @@ public interface ICartRedisService {
     void deleteChangeList(Long userId);
 
     boolean hasVersion(Long userId);
+
+    int getCartNum(Long userId);
 }

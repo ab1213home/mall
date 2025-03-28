@@ -33,7 +33,7 @@ public class CartCache {
     /**
      * 商品信息
      */
-    private Long productId;
+    private Long prodId;
 
     /**
      * 商品数量

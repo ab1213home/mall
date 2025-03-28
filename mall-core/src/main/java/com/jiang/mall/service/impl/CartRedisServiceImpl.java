@@ -17,7 +17,6 @@ import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.dto.CartDto;
 import com.jiang.mall.domain.dto.CartListDto;
-import com.jiang.mall.domain.dto.CartVersionDto;
 import com.jiang.mall.service.ICartRedisService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +34,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,8 +81,9 @@ public class CartRedisServiceImpl implements ICartRedisService {
 		//删除旧数据
 		stringRedisTemplate.delete(prefix+userId);
 		for (CartDto cartDto : cartList) {
-			stringRedisTemplate.opsForHash().put(prefix+userId, cartDto.getProductId(), cartDto.getNum());
+			stringRedisTemplate.opsForHash().put(prefix+userId, cartDto.getProdId(), cartDto.getNum());
 		}
+		stringRedisTemplate.expire(prefix+userId, coreConfig.getCartCacheTime(), TimeUnit.SECONDS);
 		stringRedisTemplate.opsForHash().put(version_prefix, userId , version);
 		stringRedisTemplate.opsForSet().remove(change_prefix, userId);
 	}
@@ -106,6 +107,7 @@ public class CartRedisServiceImpl implements ICartRedisService {
              -- ARGV[3]: cartKey前缀（如 "cart:"）
              -- ARGV[4]: versionKey名（如 "cart_versions"）
              -- ARGV[5]: changedSetKey名（如 "cart_change_list"）
+             -- ARGV[6]: 缓存时间
              local cartKey = ARGV[3] .. KEYS[1]
              local newVal = redis.call('HINCRBY', cartKey, ARGV[1], ARGV[2])
              if newVal <= 0 then
@@ -113,6 +115,7 @@ public class CartRedisServiceImpl implements ICartRedisService {
              end
              redis.call('HINCRBY', ARGV[4] .. KEYS[1], 1)
              redis.call('SADD', ARGV[5], KEYS[1])
+             redis.call('EXPIRE', cartKey, ARGV[6])
              return newVal
          """;
 	    RedisScript<Number> script = new DefaultRedisScript<>(luaScript, Number.class);
@@ -123,7 +126,8 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	        num.toString(),             // ARGV[2]
 	        prefix,                     // ARGV[3]
 	        version_prefix,             // ARGV[4]
-	        change_prefix               // ARGV[5]
+	        change_prefix,              // ARGV[5]
+			coreConfig.getCartCacheTime()// ARGV[6]
 	    );
 	    return result.longValue() > 0;
 	}
@@ -137,15 +141,21 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	}
 
 	@Override
-	public List<CartDto> getCart(Long userId) {
+	public List<CartDto> getCart(Long userId, Integer pageNum, Integer pageSize) {
+		// 参数校验
+	    if (pageNum == null || pageNum < 1) pageNum = 1;
+	    if (pageSize == null || pageSize < 1) pageSize = 10;
 	    Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(prefix + userId);
+		// 2. 计算分页参数
+	    int skip = (pageNum - 1) * pageSize;
+	    int limit = pageSize;
 	    return entries.entrySet().stream()
 	        .map(entry -> {
 	            try {
 			        CartDto cart = new CartDto();
-			        cart.setProductId(Long.parseLong(entry.getKey().toString()));
+			        cart.setProdId(Long.parseLong(entry.getKey().toString()));
 			        cart.setNum(Long.parseLong(entry.getValue().toString()));
-					logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, cart.getProductId(), cart.getNum());
+					logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, cart.getProdId(), cart.getNum());
 			        return cart;
 			    } catch (NumberFormatException e) {
 			        // 日志记录异常或返回null，后续过滤掉无效项
@@ -153,7 +163,33 @@ public class CartRedisServiceImpl implements ICartRedisService {
 			        return null;
 			    }
 	        })
-			.filter(Objects::nonNull)
+			.filter(Objects::nonNull) // 过滤转换失败的记录
+	        // 按商品ID排序保证分页稳定性
+	        .sorted(Comparator.comparingLong(CartDto::getProdId))
+	        // 应用分页
+	        .skip(skip)
+	        .limit(limit)
+	        .collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CartDto> getCart(Long userId) {
+		Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(prefix + userId);
+	    return entries.entrySet().stream()
+	        .map(entry -> {
+	            try {
+			        CartDto cart = new CartDto();
+			        cart.setProdId(Long.parseLong(entry.getKey().toString()));
+			        cart.setNum(Long.parseLong(entry.getValue().toString()));
+					logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, cart.getProdId(), cart.getNum());
+			        return cart;
+			    } catch (NumberFormatException e) {
+			        // 日志记录异常或返回null，后续过滤掉无效项
+		            logger.warn("购物车中存在无效商品ID或数量，请检查购物车缓存数据！");
+			        return null;
+			    }
+	        })
+			.filter(Objects::nonNull) // 过滤转换失败的记录
 	        .collect(Collectors.toList());
 	}
 
@@ -202,26 +238,6 @@ public class CartRedisServiceImpl implements ICartRedisService {
 			}
 		}
 	    return userCartMap;
-	}
-
-	@Override
-	public List<CartVersionDto> getUserIdAndVersionList() {
-		Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(version_prefix);
-	    return entries.entrySet().stream()
-	        .map(entry -> {
-	            try {
-			        CartVersionDto cart = new CartVersionDto();
-					cart.setUserId(Long.parseLong(entry.getKey().toString()));
-					cart.setVersion(Long.parseLong(entry.getValue().toString()));
-			        return cart;
-			    } catch (NumberFormatException e) {
-			        // 日志记录异常或返回null，后续过滤掉无效项
-		            logger.warn("购物车版本哈希表中存在无效用户ID或版本，请检查购物车版本哈希表缓存数据！");
-			        return null;
-			    }
-	        })
-			.filter(Objects::nonNull)
-	        .collect(Collectors.toList());
 	}
 
 	@Override
@@ -304,5 +320,10 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	@Override
 	public boolean hasVersion(Long userId) {
 		return stringRedisTemplate.opsForHash().hasKey(version_prefix, userId);
+	}
+
+	@Override
+	public int getCartNum(Long userId) {
+		return stringRedisTemplate.opsForHash().keys(prefix + userId).size();
 	}
 }

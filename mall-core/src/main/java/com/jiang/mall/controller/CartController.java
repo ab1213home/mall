@@ -156,7 +156,7 @@ public class CartController {
     @GetMapping("/delete")
     @Permission(PermissionType.USER)
     public ResponseResult<Object> deleteCart(@RequestParam("productId") Long productId,
-                                            HttpSession session) {
+                                             HttpSession session) {
 
         if (productId == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
