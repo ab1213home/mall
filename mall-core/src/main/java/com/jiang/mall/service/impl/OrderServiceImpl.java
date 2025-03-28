@@ -368,18 +368,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 		String amount = orderMapper.getAmount(firstDayOfMonth, lastDayOfMonth);
 
-        // 使用Lambda表达式构建查询条件
-//        QueryWrapper<Order> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.between("date", Timestamp.valueOf(firstDayOfMonth.atStartOfDay()), Timestamp.valueOf(lastDayOfMonth.atTime(23, 59, 59)));
-//        queryWrapper.select("SUM(total_amount) as total_amount");
-//
-//        // 执行查询
-//        List<Map<String, Object>> resultList = orderMapper.selectMaps(queryWrapper);
-//
-//        // 返回结果
-//        if (!resultList.isEmpty() && resultList.get(0) != null) {
-//            return resultList.get(0).get("total_amount").toString();
-//        }
         return amount != null ? amount: "0.00";
 	}
 }

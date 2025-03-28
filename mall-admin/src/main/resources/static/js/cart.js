@@ -94,23 +94,23 @@ function sub(id){
 		show_warning('不能更小了');
 	}else{
 		// num = num -1;
-		updateCart(id,-1);
+		updateCart(cartArr[id].product.id,-1);
 	}
 }
 
 function add(id){
 	// let num = parseInt($("#num_text" + id).val()) + 1;
-	updateCart(id, 1);
+	updateCart(cartArr[id].product.id, 1);
 }
 
 function updateCart(id, num){
 	const data = {
-		id:id,
+		productId:id,
 		num:num
 	};
 	$.ajax({
 		type:"POST",
-		url:"/cart/update",
+		url:"/cart/addOrUpdate",
 		data:data,
 		dataType:"json",
 		success:function(res){
@@ -128,7 +128,7 @@ function updateCart(id, num){
 
 function deleteCartGood(id){
 	const data={
-		id:id
+		productId:id
 	}
 	$.ajax({
 		type:"GET",
@@ -204,7 +204,7 @@ function queryCart(pn, pz){
                             </td>
                             <td id="sum_price`+ cart.id +`" class="cartli5">${(cart.product.price * cart.num)}</td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteCartGood(${cart.id})">删除</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteCartGood(${cart.product.id})">删除</button>
                             </td>
                         </tr>
                         `;

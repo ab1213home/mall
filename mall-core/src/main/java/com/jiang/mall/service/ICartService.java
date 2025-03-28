@@ -61,7 +61,7 @@ public interface ICartService extends IService<Cart> {
      * @param sessionId 用户会话ID
      * @return 布尔值，表示购物车记录是否成功插入或更新
      */
-	Boolean insertCart(Long productId, Long num, String sessionId);
+	Boolean insertOrUpdateCart(Long productId, Long num, String sessionId);
 
 	/**
      * 更新购物车中商品的数量
@@ -74,7 +74,7 @@ public interface ICartService extends IService<Cart> {
      * @param sessionId 用户的会话ID，用于识别和验证用户
      * @return 如果商品不属于当前用户，返回null；否则，返回更新是否成功的布尔值
      */
-	Boolean updateCart(Long id, Long num, String sessionId);
+//	Boolean updateCart(Long id, Long num, String sessionId);
 
 	/**
      * 删除购物车项
@@ -84,11 +84,11 @@ public interface ICartService extends IService<Cart> {
      * 方法返回null，表示删除操作未经授权如果用户ID匹配，则执行删除操作，
      * 并返回一个布尔值，指示删除操作是否成功
      *
-     * @param id 购物车项的唯一标识符
+     * @param productId 购物车项的唯一标识符
      * @param sessionId 当前用户的会话标识符，用于识别用户
      * @return 如果删除成功，返回true；如果删除失败或未经授权，返回false或null
      */
-	Boolean deleteCart(Long id, String sessionId);
+	Boolean deleteCart(Long productId, String sessionId);
 
 	void setCheckoutListToRedis(List<Long> listCartId, String sessionId);
 

@@ -170,7 +170,7 @@ function addCart(){
 		};
 		$.ajax({
 			type:"POST",
-			url:"/cart/add",
+			url:"/cart/addOrUpdate",
 			data:data,
 			async:false,	//设置同步请求
 			dataType:"json",

@@ -14,27 +14,30 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.dto.CartDto;
+import com.jiang.mall.domain.dto.CartListDto;
+import com.jiang.mall.domain.dto.CartVersionDto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ICartRedisService {
 
     //初始化购物车
     void initCart(Long userId,List<CartDto> cartList , Long version);
 
-    void setCart(Long userId, @NotNull Long productId, @NotNull Long num);
+    boolean setCart(Long userId, @NotNull Long productId, @NotNull Long num);
 
     Long getCart(Long userId, @NotNull Long productId);
 
     List<CartDto> getCart(Long userId);
 
-    Map<Long, List<CartDto>> getCart();
+    List<CartListDto> getCart();
+
+    List<CartVersionDto> getUserIdAndVersionList();
 
     boolean hasCart(Long userId, @NotNull Long productId);
 
-    void deleteCart(Long userId, @NotNull Long productId);
+    boolean deleteCart(Long userId, @NotNull Long productId);
 
     //设置版本
     void setVersion(Long userId, Long version);
@@ -47,4 +50,6 @@ public interface ICartRedisService {
 
     //删除记录有变更的用户ID从集合中
     void deleteChangeList(Long userId);
+
+    boolean hasVersion(Long userId);
 }
