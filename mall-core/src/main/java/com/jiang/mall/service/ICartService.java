@@ -36,13 +36,12 @@ public interface ICartService extends IService<Cart> {
 	 * 此方法的目的是在用户完成订单购买后，根据订单信息删除相应的购物车记录
 	 * 它接收一个购物车ID列表、一个用户ID和一个结账列表作为参数，以确保只有属于当前用户的购物车项目被删除
 	 *
-	 * @param listCartId     购物车ID列表，标识需要删除的购物车记录
 	 * @param sessionId      会话ID，用于获取用户信息
 	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
 	 * @return 返回一个布尔值，表示删除操作是否成功
 	 */
 	@SuppressWarnings("UnusedReturnValue")
-	Boolean deleteCartByOrder(List<Long> listCartId, String sessionId, List<CheckoutVo> listCheckoutVo);
+	Boolean deleteCartByOrder(String sessionId, List<CheckoutVo> listCheckoutVo);
 
 	List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize);
 
@@ -91,11 +90,15 @@ public interface ICartService extends IService<Cart> {
      */
 	Boolean deleteCart(Long id, String sessionId);
 
-	void setCheckoutToRedis(List<Long> listCartId, String sessionId);
+	void setCheckoutListToRedis(List<Long> listCartId, String sessionId);
 
-	List<Long> getCheckoutCartIdListFormRedis(String sessionId);
+	List<Long> getCheckoutListFormRedis(String sessionId);
 
-	void deleteCheckoutCartIdListInRedis(String sessionId);
+	void deleteCheckoutListInRedis(String sessionId);
 
-	List<CartVo> getCheckoutCartIdList(String sessionId, Integer pageNum, Integer pageSize);
+	List<CartVo> getCheckoutList(String sessionId, Integer pageNum, Integer pageSize);
+
+	void checkCartFormMySQLToRedis();
+
+	void checkCartFromRedisToMySQL();
 }

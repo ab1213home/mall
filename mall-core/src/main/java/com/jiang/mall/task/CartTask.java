@@ -13,8 +13,8 @@
 
 package com.jiang.mall.task;
 
-import com.jiang.mall.config.ProductConfig;
-import com.jiang.mall.service.IProductService;
+import com.jiang.mall.config.CoreConfig;
+import com.jiang.mall.service.ICartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +22,30 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * Product定时任务
+ * Cart定时任务
  *
  * @email  jiangrongjun2004@163.com
  * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
- * @apiNote Product定时任务
+ * @apiNote Cart定时任务
  * @version 1.0
  * @author jiang
  * @since 2024年9月11日
  */
 @Component
-public class ProductTask {
+public class CartTask {
 
-	private IProductService productService;
+	private ICartService cartService;
 
 	@Autowired
-	public void setProductService(IProductService productService) {
-		this.productService = productService;
+	public void setCartService(ICartService cartService) {
+		this.cartService = cartService;
 	}
 
-	private ProductConfig productConfig;
+	private CoreConfig coreConfig;
 
 	@Autowired
-	public void setCoreConfig(ProductConfig productConfig) {
-		this.productConfig = productConfig;
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
@@ -53,18 +53,18 @@ public class ProductTask {
 	private long timer = -1;
 
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
-    public void checkProductTask() {
-		if (productConfig.isProductCacheEnabled()){
+    public void checkCartTask() {
+		if (coreConfig.isCartCacheEnabled()){
 			timer = timer + 1;
 			if (timer == 0){
-				logger.info("商品数据缓存预热");
-				productService.checkProduct();
-			}else if (timer>= productConfig.getProductSyncTime()){
+				logger.info("购物车数据缓存预热");
+				cartService.checkCartFormMySQLToRedis();
+			}else if (timer>=coreConfig.getCartSyncTime()){
 				timer = 0;
-				productService.checkProduct();
+//				cartService.checkCartFromRedisToMySQL();
 			}
 		}else if (timer == -1){
-			logger.info("商品数据缓存已禁用。");
+			logger.info("购物车数据缓存已禁用。");
 			timer = 0;
 		}
     }

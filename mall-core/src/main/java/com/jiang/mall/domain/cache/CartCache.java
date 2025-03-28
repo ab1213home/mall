@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+package com.jiang.mall.domain.cache;
 
 import lombok.Data;
 
@@ -23,22 +23,22 @@ import lombok.Data;
  * @since 2024年9月8日
  */
 @Data
-public class CartVo {
+public class CartCache {
 
     /**
      * 购物车项ID
      */
-    private Long id;
+//    private Long id;
 
     /**
      * 商品信息
      */
-    private ProductVo product;
+    private Long productId;
 
     /**
      * 商品数量
      */
-    private Long num;
+    private Integer num;
 
 }
 

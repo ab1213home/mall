@@ -18,9 +18,9 @@ import lombok.Getter;
 @Getter
 public enum CoreConfigItems {
 
-	PRODUCT_CACHE("allow.product.cache", "是否启用缓存", "false"),
-	PRODUCT_SYNC_TIME("product.sync.time", "同步时间(秒)", "600"),
-	PRODUCT_CACHE_TIME("product.cache.time", "缓存时间(秒)", "7200");
+	CART_CACHE("allow.cart.cache", "是否启用缓存", "false"),
+	CART_SYNC_TIME("cart.sync.time", "同步时间(秒)", "900"),
+	CART_CACHE_TIME("cart.cache.time", "缓存时间(秒)", "7200");
 
 	private final String key;
 	private final String description;

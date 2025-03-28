@@ -111,7 +111,7 @@ public class OrderController {
 	            list_cartId.add(checkoutVo.getId());
 	        }
 	    }
-		cartService.setCheckoutToRedis(list_cartId, session.getId());
+		cartService.setCheckoutListToRedis(list_cartId, session.getId());
 	    // 返回操作成功结果
 	    return ResponseResult.okResult();
 	}
@@ -134,7 +134,7 @@ public class OrderController {
 	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                                    @RequestParam(defaultValue = "5") Integer pageSize,
 	                                                    HttpSession session) {
-	    List<CartVo> list_checkout = cartService.getCheckoutCartIdList(session.getId(), pageNum, pageSize);
+	    List<CartVo> list_checkout = cartService.getCheckoutList(session.getId(), pageNum, pageSize);
 	    if (list_checkout.isEmpty()) {
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -152,7 +152,7 @@ public class OrderController {
 	@GetMapping("/getTemporaryNum")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
-	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
+	    List<Long> list_cartId = cartService.getCheckoutListFormRedis(session.getId());
 	    if (list_cartId.isEmpty()){
 	        return ResponseResult.failResult("请先选择商品");
 	    }
@@ -195,11 +195,11 @@ public class OrderController {
 	    // 调用服务层方法插入新订单
 	    Long orderId = orderService.insertOrder(session.getId(), addressId, paymentMethod, status, list_checkoutVo);
 	    // 处理购物车ID列表，以便在订单提交后清除购物车
-	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
+//	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
 	    // 根据订单删除购物车中的商品
-	    cartService.deleteCartByOrder(list_cartId, session.getId(), list_checkoutVo);
+	    cartService.deleteCartByOrder(session.getId(), list_checkoutVo);
 		//删除redis中的缓存
-		cartService.deleteCheckoutCartIdListInRedis(session.getId());
+		cartService.deleteCheckoutListInRedis(session.getId());
 	    if (orderId == null) {
 	        return ResponseResult.failResult("提交失败");
 	    }

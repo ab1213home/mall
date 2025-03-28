@@ -63,28 +63,12 @@ public class Cart implements Serializable {
     private Long userId;
 
     /**
-     * 构造方法：创建一个购物车对象
-     * 该构造方法用于初始化购物车对象的属性，包括购物车项的ID、产品ID、数量和用户ID
-     *
-     * @param id 购物车项的ID，唯一标识一个购物车项
-     * @param prodId 产品ID，标识添加到购物车中的产品
-     * @param num 产品数量，表示用户希望购买的产品数量
-     * @param userId 用户ID，标识拥有该购物车的用户
+     * 版本号，用于redis缓存同步锁
      */
-    public Cart(Long id, Long prodId, Long num, Long userId) {
-        this.id = id;
-        this.prodId = prodId;
-        this.num = num;
-        this.userId = userId;
-    }
+    private Long version;
+
 
     public Cart() {
-    }
-
-    public Cart(Long productId, Long num, Long userId) {
-        prodId = productId;
-        this.num = num;
-        this.userId = userId;
     }
 
 	/**
@@ -97,6 +81,7 @@ public class Cart implements Serializable {
             ", prodId = " + prodId +
             ", num = " + num +
             ", userId = " + userId +
+            ", version = " + version +
         "}";
     }
 }

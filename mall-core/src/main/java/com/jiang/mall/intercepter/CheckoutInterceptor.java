@@ -13,7 +13,9 @@
 
 package com.jiang.mall.intercepter;
 
-import com.jiang.mall.service.ICartRedisService;
+import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.service.ICheckoutRedisService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -21,17 +23,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class CheckoutInterceptor implements HandlerInterceptor {
 
-	private ICartRedisService redisService;
+	private ICheckoutRedisService redisService;
 
 	@Autowired
-	public void setCartRedisService(ICartRedisService redisService) {
+	public void setCartRedisService(ICheckoutRedisService redisService) {
 		this.redisService = redisService;
+	}
+
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
 	}
 
 	/**
@@ -47,42 +53,15 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	 */
 	@Override
 	public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-//	    // 从 session 中获取购物车中的商品 ID 列表
-//	    Object listObj = request.getSession().getAttribute("List_cartId");
-//
-//	    // 定义用于存储商品 ID 的列表
-//	    List<Long> list_cartId;
-//
-//	    if (listObj == null) {
-//	        list_cartId = new ArrayList<>();
-//	    } else if (listObj instanceof List<?> tempList) {
-//	        list_cartId = new ArrayList<>();
-//	        for (Object obj : tempList) {
-//	            if (obj instanceof Long) {
-//	                list_cartId.add((Long) obj);
-//	            }
-//	        }
-//	    } else {
-//	        // 如果从 session 中获取的商品 ID 列表不是 List 类型，则重定向到购物车页面
-//	        response.sendRedirect(request.getContextPath() + "/cart.html");
-//	        return false;
-//	    }
-//
-//	    // 如果商品 ID 列表为空，则重定向到购物车页面，并返回 false 终止后续处理
-//	    if (list_cartId.isEmpty()) {
-//	        response.sendRedirect(request.getContextPath() + "/cart.html");
-//	        return false;
-//	    }
-		if (!redisService.hasCartIdList(request.getSession().getId())) {
+		UserCache userCache = userService.getUserFromRedis(request.getSession().getId());
+		if (!redisService.hasCheckoutList(userCache.getId())) {
 	        response.sendRedirect(request.getContextPath() + "/cart.html");
 	        return false;
-	    }else if(redisService.getCartIdList(request.getSession().getId()).isEmpty()){
+	    }else if(redisService.getCheckoutList(userCache.getId()).isEmpty()){
 	    	response.sendRedirect(request.getContextPath() + "/cart.html");
 	        return false;
 	    }
-
 	    // 如果所有检查都通过，则继续后续处理
 	    return true;
 	}
-
 }

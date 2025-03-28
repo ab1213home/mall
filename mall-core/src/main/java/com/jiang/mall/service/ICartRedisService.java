@@ -13,32 +13,38 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.dto.CartDto;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
+import java.util.Map;
 
 public interface ICartRedisService {
 
-    void setCartIdList(String sessionId, List<Long> cartIdList);
+    //初始化购物车
+    void initCart(Long userId,List<CartDto> cartList , Long version);
 
-    /**
-     * 根据键获取对应的字符串值
-     *
-     * @param sessionId 字符串的键，用于唯一标识一个字符串值
-     * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
-     */
-    List<Long> getCartIdList(String sessionId);
+    void setCart(Long userId, @NotNull Long productId, @NotNull Long num);
 
-    /**
-     * 检查给定的键是否存在于当前数据结构中
-     *
-     * @param sessionId 要检查的键
-     * @return 如果键存在，则返回true；否则返回false
-     */
-    Boolean hasCartIdList(String sessionId);
+    Long getCart(Long userId, @NotNull Long productId);
 
-    /**
-     * 删除指定键对应的数据
-     *
-     * @param sessionId 要删除数据的键
-     */
-    void deleteCartIdList(String sessionId);
+    List<CartDto> getCart(Long userId);
+
+    Map<Long, List<CartDto>> getCart();
+
+    boolean hasCart(Long userId, @NotNull Long productId);
+
+    void deleteCart(Long userId, @NotNull Long productId);
+
+    //设置版本
+    void setVersion(Long userId, Long version);
+
+    //获取版本
+    Long getVersion(Long userId);
+
+    //获取记录有变更的用户ID集合
+    List<Long> getChangeList();
+
+    //删除记录有变更的用户ID从集合中
+    void deleteChangeList(Long userId);
 }

@@ -58,27 +58,23 @@ public class CheckoutRedisServiceImpl implements ICheckoutRedisService {
 	 * @param cartIdList 购物车ID列表，包含该用户的所有购物车项的ID，这些ID被转换为JSON字符串并存储
 	 */
 	@Override
-	public void setCartIdList(Long userId, List<Long> cartIdList) {
-	    // 使用JSON库将购物车ID列表转换为JSON字符串
-//	    String cartIdListJson = JSON.toJSONString(cartIdList);
-	    // 在Redis中存储格式为"prefix:userId"的键，值为转换后的JSON字符串，并设置过期时间为24小时
-//	    stringRedisTemplate.opsForValue().set(prefix+":"+userId, cartIdListJson, 60*60*24, java.util.concurrent.TimeUnit.SECONDS);
+	public void setCheckoutList(Long userId, List<Long> cartIdList) {
 		//是否存在该用户ID的购物车列表
-		if (stringRedisTemplate.hasKey(prefix+":"+userId)){
+		if (stringRedisTemplate.hasKey(prefix+userId)){
 			//如果存在，则增加
-			String old_cartIdListJson = stringRedisTemplate.opsForValue().get(prefix+":"+userId);
+			String old_cartIdListJson = stringRedisTemplate.opsForValue().get(prefix+userId);
 			List<Long> old_cartIdList = JSON.parseArray(old_cartIdListJson, Long.class);
 			assert old_cartIdList != null;
 			//将新购物车ID列表与旧购物车ID列表合并
 			old_cartIdList.addAll(cartIdList);
 			String new_cartIdListJson = JSON.toJSONString(old_cartIdList);
-			stringRedisTemplate.opsForValue().set(prefix+":"+userId, new_cartIdListJson, 60*60*24, TimeUnit.SECONDS);
+			stringRedisTemplate.opsForValue().set(prefix+userId, new_cartIdListJson, 60*60*24, TimeUnit.SECONDS);
 		}else {
 			//如果不存在，则新增
 			//使用JSON库将购物车ID列表转换为JSON字符串
 		    String cartIdListJson = JSON.toJSONString(cartIdList);
 			//在Redis中存储格式为"prefix:userId"的键，值为转换后的JSON字符串，并设置过期时间为24小时
-		    stringRedisTemplate.opsForValue().set(prefix+":"+userId, cartIdListJson, 60*60*24, TimeUnit.SECONDS);
+		    stringRedisTemplate.opsForValue().set(prefix+userId, cartIdListJson, 60*60*24, TimeUnit.SECONDS);
 		}
 	}
 
@@ -89,9 +85,9 @@ public class CheckoutRedisServiceImpl implements ICheckoutRedisService {
      * @return 返回购物车ID列表，如果用户没有购物车，则返回null
      */
     @Override
-    public List<Long> getCartIdList(Long userId) {
+    public List<Long> getCheckoutList(Long userId) {
         // 从Redis中获取用户购物车ID列表的JSON字符串
-        String cartIdListJson = stringRedisTemplate.opsForValue().get(prefix+":"+userId);
+        String cartIdListJson = stringRedisTemplate.opsForValue().get(prefix+userId);
         // 如果购物车ID列表的JSON字符串为空，则返回null，否则解析JSON字符串为Long类型的列表并返回
         return cartIdListJson == null ? null :JSON.parseArray(cartIdListJson, Long.class);
     }
@@ -105,9 +101,9 @@ public class CheckoutRedisServiceImpl implements ICheckoutRedisService {
      * @return 如果存在购物车ID列表，则返回true；否则返回false
      */
     @Override
-    public Boolean hasCartIdList(Long userId) {
+    public Boolean hasCheckoutList(Long userId) {
         // 检查Redis中是否存在指定用户ID的购物车信息
-        return stringRedisTemplate.hasKey(prefix+":"+userId);
+        return stringRedisTemplate.hasKey(prefix+userId);
     }
 
 
@@ -120,7 +116,7 @@ public class CheckoutRedisServiceImpl implements ICheckoutRedisService {
      * @param userId 用户ID，用于定位Redis中对应的购物车数据
      */
     @Override
-    public void deleteCartIdList(Long userId) {
-        stringRedisTemplate.delete(prefix+":"+userId);
+    public void deleteCheckoutList(Long userId) {
+        stringRedisTemplate.delete(prefix+userId);
     }
 }

@@ -25,7 +25,7 @@ public interface ICheckoutRedisService {
 	 * @param userId 用户ID，用作Redis中的键的一部分，以便后续检索或操作该用户的预定单的购物车信息
 	 * @param cartIdList 购物车ID列表，包含该用户的所有购物车项的ID，这些ID被转换为JSON字符串并存储
 	 */
-	void setCartIdList(Long userId, List<Long> cartIdList);
+	void setCheckoutList(Long userId, List<Long> cartIdList);
 
     /**
      * 根据用户ID获取购物车ID列表
@@ -33,7 +33,7 @@ public interface ICheckoutRedisService {
      * @param userId 用户ID，用于查询对应的购物车ID列表
      * @return 返回购物车ID列表，如果用户没有购物车，则返回null
      */
-	List<Long> getCartIdList(Long userId);
+	List<Long> getCheckoutList(Long userId);
 
     /**
      * 判断用户是否有购物车ID列表
@@ -43,7 +43,7 @@ public interface ICheckoutRedisService {
      * @param userId 用户ID，用于查询购物车信息
      * @return 如果存在购物车ID列表，则返回true；否则返回false
      */
-	Boolean hasCartIdList(Long userId);
+	Boolean hasCheckoutList(Long userId);
 
 	/**
      * 根据用户ID删除购物车列表
@@ -53,5 +53,5 @@ public interface ICheckoutRedisService {
      *
      * @param userId 用户ID，用于定位Redis中对应的购物车数据
      */
-	void deleteCartIdList(Long userId);
+	void deleteCheckoutList(Long userId);
 }

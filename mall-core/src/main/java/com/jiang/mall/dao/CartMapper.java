@@ -15,6 +15,7 @@ package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Cart;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -41,4 +42,10 @@ public interface CartMapper extends BaseMapper<Cart> {
 
 	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
 	Long selectUserIdById(Long id);
+
+	@Update("UPDATE tb_carts SET num =#{num} WHERE id = #{id}")
+	void setNumById(Long id, Long num);
+
+	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{productId}, #{num}, #{userId})")
+	void insert(Long productId, Long num, Long userId);
 }

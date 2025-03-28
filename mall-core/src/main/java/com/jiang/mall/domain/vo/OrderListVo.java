@@ -48,6 +48,6 @@ public class OrderListVo {
     /**
      * 商品数量
      */
-    private Integer num;
+    private Long num;
 
 }

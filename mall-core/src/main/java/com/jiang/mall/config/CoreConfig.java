@@ -103,28 +103,28 @@ public class CoreConfig {
         }
     }
 
-    public boolean isProductCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), CoreConfigItems.PRODUCT_CACHE.getDefaultValue()));
+    public boolean isCartCacheEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.CART_CACHE.getKey(), CoreConfigItems.CART_CACHE.getDefaultValue()));
     }
 
-    public Long getProductCacheTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(),CoreConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+    public Long getCartCacheTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.CART_CACHE_TIME.getKey(),CoreConfigItems.CART_CACHE_TIME.getDefaultValue()));
     }
 
-    public Long getProductSyncTime() {
-        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(),CoreConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
+    public Long getCartSyncTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.CART_SYNC_TIME.getKey(),CoreConfigItems.CART_SYNC_TIME.getDefaultValue()));
     }
 
-    public void updateProductCache(Boolean cache) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE.getKey(), String.valueOf(cache));
+    public void updateCartCache(Boolean cache) {
+        properties.setProperty(CoreConfigItems.CART_CACHE.getKey(), String.valueOf(cache));
     }
 
-    public void updateProductCacheTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+    public void updateCartCacheTime(Long time) {
+        properties.setProperty(CoreConfigItems.CART_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
-    public void updateProductSyncTime(Long time) {
-        properties.setProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
+    public void updateCartSyncTime(Long time) {
+        properties.setProperty(CoreConfigItems.CART_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 }

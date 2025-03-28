@@ -126,10 +126,6 @@ public class CartController {
         if (id == null|| num == null||id <= 0){
             return ResponseResult.failResult("参数错误");
         }
-		// 检查购物车数量是否小于等于0
-//        if (num <= 0) {
-//            return ResponseResult.failResult("购物车数量必须大于0");
-//        }
         if (!StringUtils.hasText(id.toString())){
             return ResponseResult.failResult("请输入购物车项Id");
         }
