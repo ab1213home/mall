@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.1</version>
+		<version>3.4.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.jiang</groupId>
@@ -45,8 +45,8 @@
 		<java.version>17</java.version>
         <mall.version>2.0.1</mall.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>3.4.1</spring-boot.version>
-        <mysql.version>9.1.0</mysql.version>
+        <spring-boot.version>3.4.3</spring-boot.version>
+        <mysql.version>9.2.0</mysql.version>
         <mybatis-plus.version>3.5.8</mybatis-plus.version>
         <mybatis.version>3.0.3</mybatis.version>
         <hikaricp.version>5.0.1</hikaricp.version>
@@ -63,6 +63,13 @@
         <spring-messaging.version>6.2.2</spring-messaging.version>
         <git-commit.version>9.0.1</git-commit.version>
         <pool2.version>2.12.1</pool2.version>
+        <oshi.version>6.4.2</oshi.version>
+        <zxing.version>3.3.3</zxing.version>
+        <hutool.version>5.8.24</hutool.version>
+        <wechatpay.version>0.2.16</wechatpay.version>
+        <alipay.version>2.2.3</alipay.version>
+        <jsoup.version>1.18.3</jsoup.version>
+        <logback.version>1.5.16</logback.version>
 	</properties>
 	<dependencies>
 
@@ -174,7 +181,7 @@
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
-                <version>${logback.version}</version>
+                <version>${lombok.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -190,15 +197,14 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.5.8</version>
-                <scope>runtime</scope>
+                <version>${logback.version}</version>
+<!--                <scope>runtime</scope>-->
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.5.10</version>
-<!--                <version>1.5.13</version>-->
-                <scope>runtime</scope>
+                <version>${logback.version}</version>
+<!--                <scope>runtime</scope>-->
             </dependency>
 
             <!-- sitemap -->
@@ -253,7 +259,7 @@
             <dependency>
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
-                <version>1.18.3</version>
+                <version>${jsoup.version}</version>
             </dependency>
 
             <!-- minio对象存储 -->
@@ -270,6 +276,13 @@
                 <version>${git-commit.version}</version>
             </dependency>
 
+            <!-- 阿里云短信验证码 -->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dysmsapi20170525</artifactId>
+                <version>3.1.1</version>
+            </dependency>
+
             <!-- 支付宝支付 -->
             <dependency>
                 <groupId>com.alipay.sdk</groupId>
@@ -281,22 +294,21 @@
             <dependency>
                 <groupId>com.alipay.sdk</groupId>
                 <artifactId>alipay-easysdk</artifactId>
-                <version>2.2.3</version>
+                <version>${alipay.version}</version>
             </dependency>
 
             <!-- 微信支付 -->
             <dependency>
               <groupId>com.github.wechatpay-apiv3</groupId>
               <artifactId>wechatpay-java</artifactId>
-              <version>0.2.16</version>
+              <version>${wechatpay.version}</version>
             </dependency>
 
             <!-- 获取系统信息 -->
             <dependency>
                 <groupId>com.github.oshi</groupId>
                 <artifactId>oshi-core</artifactId>
-                <version>6.4.2</version>
-    <!--            <version>${oshi.version}</version>-->
+                <version>${oshi.version}</version>
             </dependency>
 
             <!-- 数据库迁移 -->
@@ -316,20 +328,38 @@
             <dependency>
                 <groupId>com.google.zxing</groupId>
                 <artifactId>core</artifactId>
-                <version>3.3.3</version>
+                <version>${zxing.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.google.zxing</groupId>
                 <artifactId>javase</artifactId>
-                <version>3.3.3</version>
+                <version>${zxing.version}</version>
             </dependency>
 
             <!-- Hutool工具库 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
-                <version>5.8.24</version>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>1.75</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>1.70</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.79</version>
             </dependency>
 
             <dependency>
@@ -446,6 +476,18 @@
                 <version>${mall.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-shop</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-phone</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -469,6 +511,7 @@
         <module>mall-monitor</module>
 		<module>mall-pay</module>
         <module>mall-product</module>
+        <module>mall-phone</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->
