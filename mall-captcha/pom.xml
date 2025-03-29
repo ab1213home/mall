@@ -42,10 +42,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
         <!--验证码-->
         <dependency>
@@ -53,35 +49,6 @@
             <artifactId>easy-captcha</artifactId>
         </dependency>
 
-        <!-- redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-        </dependency>
-
-        <!--监控-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!--servlet-->
-        <dependency>
-        	<groupId>javax.servlet</groupId>
-        	<artifactId>javax.servlet-api</artifactId>
-        	<scope>provided</scope>
-    	</dependency>
-
-        <!--JSR303-->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-common</artifactId>

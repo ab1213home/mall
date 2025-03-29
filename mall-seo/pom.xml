@@ -42,63 +42,8 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
-        <!--servlet-->
-        <dependency>
-        	<groupId>javax.servlet</groupId>
-        	<artifactId>javax.servlet-api</artifactId>
-        	<scope>provided</scope>
-    	</dependency>
-
-        <!--lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--JSR303-->
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!--logback-->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!--监控-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-        </dependency>
-
-        <!-- 高性能的JSON库 -->
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-        </dependency>
-
-         <!-- sitemap(seo) -->
+         <!-- sitemap seo工具 -->
          <dependency>
              <groupId>com.github.dfabulich</groupId>
              <artifactId>sitemapgen4j</artifactId>
@@ -106,7 +51,7 @@
 
 		<dependency>
 			<groupId>com.jiang</groupId>
-			<artifactId>mall-core</artifactId>
+			<artifactId>mall-product</artifactId>
 		</dependency>
 
         <dependency>
