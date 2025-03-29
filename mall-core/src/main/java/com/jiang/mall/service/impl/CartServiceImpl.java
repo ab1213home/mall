@@ -411,6 +411,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
+    public void cleanAllCart() {
+        cartMapper.cleanAllCart();
+        cartRedisService.cleanAllCart();
+    }
+
+
+    @Override
     public void checkCartFormMySQLToRedis() {
         List<Long> listUserId = cartMapper.selectUserIdList();
         for (Long userId : listUserId) {

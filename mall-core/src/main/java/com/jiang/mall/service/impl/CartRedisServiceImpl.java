@@ -543,4 +543,11 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    // 计算以指定前缀和用户ID为键的哈希表中所有键的数量，表示购物车中商品的种类数。
 	    return stringRedisTemplate.opsForHash().keys(prefix + userId).size();
 	}
+
+	@Override
+	public void cleanAllCart() {
+		stringRedisTemplate.delete(prefix);
+		stringRedisTemplate.delete(version_prefix);
+		stringRedisTemplate.delete(change_prefix);
+	}
 }

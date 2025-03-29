@@ -62,4 +62,7 @@ public interface CartMapper extends BaseMapper<Cart> {
 
 	@Select("SELECT user_id FROM tb_carts GROUP BY user_id")
 	List<Long> selectUserIdList();
+
+	@Delete("DELETE FROM tb_carts")
+	void cleanAllCart();
 }

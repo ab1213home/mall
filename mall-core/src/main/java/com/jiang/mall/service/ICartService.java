@@ -98,6 +98,8 @@ public interface ICartService extends IService<Cart> {
 
 	List<CartVo> getCheckoutList(String sessionId, Integer pageNum, Integer pageSize);
 
+	void cleanAllCart();
+
 	void checkCartFormMySQLToRedis();
 
 	void checkCartFromRedisToMySQL();

@@ -179,4 +179,6 @@ public interface ICartRedisService {
 	 * @return 返回该用户购物车中商品的数量。如果没有对应用户的购物车数据，则返回值为0。
 	 */
     int getCartNum(Long userId);
+
+    void cleanAllCart();
 }
