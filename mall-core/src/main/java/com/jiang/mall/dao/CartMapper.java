@@ -45,20 +45,20 @@ public interface CartMapper extends BaseMapper<Cart> {
 	@Update("UPDATE tb_carts SET num =#{num} WHERE id = #{id}")
 	void setNumById(Long id, Long num);
 
-	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{productId}, #{num}, #{userId})")
-	void insert(Long productId, Long num, Long userId);
+	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId})")
+	void insert(Long prodId, Long num, Long userId);
 
-	@Select("SELECT * FROM tb_carts WHERE prod_id = #{productId} AND user_id = #{userId} AND version = #{version} LIMIT 1")
-	Cart selectOneByProdIdAndUserIdAndVersion(Long productId, Long userId, Long version);
+	@Select("SELECT * FROM tb_carts WHERE prod_id = #{prodId} AND user_id = #{userId} AND version = #{version} LIMIT 1")
+	Cart selectOneByProdIdAndUserIdAndVersion(Long prodId, Long userId, Long version);
 
 	@Select("SELECT MAX(version) AS version FROM tb_carts WHERE user_id = #{userId}")
 	Long getVersionByUserId(Long userId);
 
-	@Delete("DELETE FROM tb_carts WHERE prod_id = #{productId} AND user_id = #{userId}")
-	int deleteByProdIdAndUserId(Long productId, Long userId);
+	@Delete("DELETE FROM tb_carts WHERE prod_id = #{prodId} AND user_id = #{userId}")
+	int deleteByProdIdAndUserId(Long prodId, Long userId);
 
-	@Insert("INSERT INTO tb_carts (prod_id, num, user_id, version) VALUES (#{productId}, #{num}, #{userId}, #{version})")
-	int checkCart(Long userId, Long productId, Long num, Long version);
+	@Insert("INSERT INTO tb_carts (prod_id, num, user_id, version) VALUES (#{prodId}, #{num}, #{userId}, #{version})")
+	int checkCart(Long userId, Long prodId, Long num, Long version);
 
 	@Select("SELECT user_id FROM tb_carts GROUP BY user_id")
 	List<Long> selectUserIdList();
