@@ -15,7 +15,10 @@ package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Cart;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -33,23 +36,14 @@ import java.util.List;
 @Mapper
 public interface CartMapper extends BaseMapper<Cart> {
 
-	@Select("SELECT * FROM tb_carts WHERE prod_id = #{productId} AND user_id = #{userId} LIMIT 1")
-	Cart selectOneByProdIdAndUserId(Long productId, Long userId);
-
-	@Update("UPDATE tb_carts SET num = num + #{num} WHERE id = #{id}")
-	int updateNumById(Long id, Long num);
+	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId}) ON DUPLICATE KEY UPDATE num = num + #{num}")
+	int insertOrUpdateCart(Long prodId, Long num, Long userId);
 
 	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
 	Long selectUserIdById(Long id);
 
-	@Update("UPDATE tb_carts SET num =#{num} WHERE id = #{id}")
-	void setNumById(Long id, Long num);
-
 	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId})")
 	void insert(Long prodId, Long num, Long userId);
-
-	@Select("SELECT * FROM tb_carts WHERE prod_id = #{prodId} AND user_id = #{userId} AND version = #{version} LIMIT 1")
-	Cart selectOneByProdIdAndUserIdAndVersion(Long prodId, Long userId, Long version);
 
 	@Select("SELECT MAX(version) AS version FROM tb_carts WHERE user_id = #{userId}")
 	Long getVersionByUserId(Long userId);
