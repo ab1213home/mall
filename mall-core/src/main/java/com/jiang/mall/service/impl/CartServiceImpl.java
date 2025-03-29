@@ -266,7 +266,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     private @NotNull Boolean insertOrUpdateCartToRedis(Long productId, Long num, Long userId) {
         //购物车缓存redis
-        if (cartRedisService.hasCart(userId, productId)){
+        if (cartRedisService.hasCart(userId)){
             //Redis存在该商品该用户的购物车记录，则更新购物车记录
             return cartRedisService.setCart(userId, productId, num);
         }else{
@@ -340,7 +340,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
     private @NotNull Boolean deleteCartInRedis(Long productId, Long userId) {
         //购物车缓存redis
-        if (cartRedisService.hasCart(userId, productId)){
+        if (cartRedisService.hasCart(userId)){
             //Redis存在该商品该用户的购物车记录，则更新购物车记录
             return cartRedisService.deleteCart(userId, productId);
         }else{
@@ -463,7 +463,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 logger.error("MySQL数据插入出错{}", cartDto);
             }
         }
-        cartRedisService.deleteChangeList(userId);
+        cartRedisService.removeChangeList(userId);
     }
 
 }

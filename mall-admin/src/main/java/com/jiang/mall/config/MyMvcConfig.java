@@ -72,16 +72,16 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
         // 用户登录拦截器
-        registry.addInterceptor(userInterceptor)
-//                .addPathPatterns("/cart")
-                .addPathPatterns("/cart.html")
-//                .addPathPatterns("/orders")
-                .addPathPatterns("/orders.html")
-                .addPathPatterns("/tradeSnap.html")
-//                .addPathPatterns("/checkout")
-                .addPathPatterns("/checkout.html")
-//                .addPathPatterns("/collections")
-                .addPathPatterns("/collections.html");
+//        registry.addInterceptor(userInterceptor)
+////                .addPathPatterns("/cart")
+//                .addPathPatterns("/cart.html")
+////                .addPathPatterns("/orders")
+//                .addPathPatterns("/orders.html")
+//                .addPathPatterns("/tradeSnap.html")
+////                .addPathPatterns("/checkout")
+//                .addPathPatterns("/checkout.html")
+////                .addPathPatterns("/collections")
+//                .addPathPatterns("/collections.html");
         // 系统管理员登录拦截器
 //        registry.addInterceptor(adminLoginInterceptor)
 //                .addPathPatterns("/**/admin/**")

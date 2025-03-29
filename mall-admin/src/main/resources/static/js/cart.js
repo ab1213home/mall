@@ -16,11 +16,15 @@ let currentPageNum_cart = 1;
 let num_cart = 0;
 
 $(document).ready(function(){
-	isLogin();
-	getCartNum();
+	let res = isLogin();
 	getFooterInfo();
-	queryCart(1, 10);
-	bindPreNextPage();
+	if (res){
+		getCartNum();
+		queryCart(1, 10);
+		bindPreNextPage();
+	}else{
+		window.location.href = "./user/login.html?url=%2Fcart.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+	}
 })
 function search_item(){
 	let keyword = document.getElementById("search").value;

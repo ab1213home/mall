@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
@@ -56,6 +57,9 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
+	@Autowired
+    private ResourceLoader resourceLoader;
+
 	private CoreConfig coreConfig;
 
 	@Autowired
@@ -65,14 +69,14 @@ public class CartRedisServiceImpl implements ICartRedisService {
 
 	String prefix = "cart:";
 
-	String version_prefix = "cart_versions:";
+	String version_prefix = "cart_versions";
 
 	String change_prefix = "cart_change_list";
 
 	@PostConstruct
 	private void init() {
 	    prefix = generalConfig.getRedisKeyPrefix()+":cart:";
-		version_prefix = generalConfig.getRedisKeyPrefix()+":cart_versions:";
+		version_prefix = generalConfig.getRedisKeyPrefix()+":cart_versions";
 		change_prefix = generalConfig.getRedisKeyPrefix()+":cart_change_list";
 	}
 
@@ -81,11 +85,11 @@ public class CartRedisServiceImpl implements ICartRedisService {
 		//删除旧数据
 		stringRedisTemplate.delete(prefix+userId);
 		for (CartDto cartDto : cartList) {
-			stringRedisTemplate.opsForHash().put(prefix+userId, cartDto.getProdId(), cartDto.getNum());
+			stringRedisTemplate.opsForHash().put(prefix+userId, cartDto.getProdId().toString(), cartDto.getNum().toString());
 		}
 		stringRedisTemplate.expire(prefix+userId, coreConfig.getCartCacheTime(), TimeUnit.SECONDS);
-		stringRedisTemplate.opsForHash().put(version_prefix, userId , version);
-		stringRedisTemplate.opsForSet().remove(change_prefix, userId);
+		stringRedisTemplate.opsForHash().put(version_prefix, userId.toString() , version.toString());
+		stringRedisTemplate.opsForSet().remove(change_prefix, userId.toString());
 	}
 
 
@@ -96,47 +100,56 @@ public class CartRedisServiceImpl implements ICartRedisService {
 //		stringRedisTemplate.opsForHash().increment(version_prefix, userId, 1);
 //		stringRedisTemplate.opsForSet().add(change_prefix,  userId.toString());
 //		logger.debug("用户ID为{}的购物车中添加了商品ID为{}的商品，数量为{}", userId, productId, num);
-
 	@Override
 	public boolean setCart(@NotNull Long userId, @NotNull Long productId, @NotNull Long num) {
 	    String luaScript =
 	    """
-             -- KEYS[1]: userId
-             -- ARGV[1]: productId
-             -- ARGV[2]: 商品数量
-             -- ARGV[3]: cartKey前缀（如 "cart:"）
-             -- ARGV[4]: versionKey名（如 "cart_versions"）
-             -- ARGV[5]: changedSetKey名（如 "cart_change_list"）
-             -- ARGV[6]: 缓存时间
-             local cartKey = ARGV[3] .. KEYS[1]
-             local newVal = redis.call('HINCRBY', cartKey, ARGV[1], ARGV[2])
+             local cartKey = ARGV[1] .. KEYS[1]
+             local productId = ARGV[2]
+             local delta = tonumber(ARGV[3])
+             local versionKey = ARGV[4]
+             local changedSetKey = ARGV[5]
+             local expireTime = tonumber(ARGV[6])
+             local newVal = redis.call('HINCRBY', cartKey, productId, delta)
              if newVal <= 0 then
-                 redis.call('HDEL', cartKey, ARGV[1])
+                 redis.call('HDEL', cartKey, productId)
+                 newVal = 1
              end
-             redis.call('HINCRBY', ARGV[4] .. KEYS[1], 1)
-             redis.call('SADD', ARGV[5], KEYS[1])
-             redis.call('EXPIRE', cartKey, ARGV[6])
+             redis.call('HINCRBY', versionKey, KEYS[1], 1)
+             redis.call('SADD', changedSetKey, KEYS[1])
+             redis.call('EXPIRE', cartKey, expireTime)
              return newVal
-         """;
-	    RedisScript<Number> script = new DefaultRedisScript<>(luaScript, Number.class);
-	    Number result = stringRedisTemplate.execute(
-	        script,
-	        List.of(userId.toString()), // KEYS[1]
-	        productId.toString(),       // ARGV[1]
-	        num.toString(),             // ARGV[2]
-	        prefix,                     // ARGV[3]
-	        version_prefix,             // ARGV[4]
-	        change_prefix,              // ARGV[5]
-			coreConfig.getCartCacheTime()// ARGV[6]
-	    );
-	    return result.longValue() > 0;
+        """;
+//		Resource resource = resourceLoader.getResource("classpath:redis/setCart.lua");
+//		String luaScript;
+//        try {
+//            luaScript = new String(resource.getInputStream().readAllBytes());
+//        } catch (Exception e) {
+//            throw new RuntimeException("Unable to read Lua script file.");
+//        }
+	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
+		List<String> keys = Collections.singletonList(userId.toString());
+		Object[] args = {
+            prefix,                                         // ARGV[1] 购物车键前缀
+	        productId.toString(),                           // ARGV[2] 商品ID
+	        num.toString(),                                 // ARGV[3] 变化量
+	        version_prefix,                                 // ARGV[4] 版本哈希表
+	        change_prefix,                                  // ARGV[5] 变更集合
+			coreConfig.getCartCacheTime().toString()        // ARGV[6] 过期时间30天
+	    };
+		try {
+			Long result = stringRedisTemplate.execute(script, keys, args);
+		    return result > 0;
+		} catch (Exception e) {
+			logger.error("Lua脚本执行出错", e);
+			return false;
+		}
 	}
 
 
 	@Override
 	public Long getCart(Long userId, @NotNull Long productId) {
-		Object value = stringRedisTemplate.opsForHash().get(prefix+userId, productId);
-		logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, productId, value);
+		Object value = stringRedisTemplate.opsForHash().get(prefix+userId, productId.toString());
 		return value == null ? null : Long.parseLong(value.toString());
 	}
 
@@ -243,50 +256,57 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	@Override
 	public boolean hasCart(Long userId, @NotNull Long productId) {
 		logger.debug("用户ID为{}的购物车中判断了商品ID为{}的商品是否存在", userId, productId);
-		return stringRedisTemplate.opsForHash().hasKey(prefix+userId, productId);
+		return stringRedisTemplate.opsForHash().hasKey(prefix+userId, productId.toString());
+	}
+
+	@Override
+	public boolean hasCart(Long userId) {
+		return stringRedisTemplate.hasKey(prefix+userId);
 	}
 
 	@Override
 	public boolean deleteCart(@NotNull Long userId, @NotNull Long productId) {
         String luaScript =
         """
-        -- KEYS[1]: userId
-        -- ARGV[1]: productId
-        -- ARGV[2]: cartKey前缀（如 "cart:"）
-        -- ARGV[3]: versionKey名（如 "cart_versions"）
-        -- ARGV[4]: changedSetKey名（如 "cart_change_list"）
-        
-        local cartKey = ARGV[2] .. KEYS[1]
+        local cartKey = ARGV[1] .. KEYS[1]
+        local productId = ARGV[2]
+        local versionKey = ARGV[3]
+        local changedSetKey = ARGV[4]
+        local expireTime = tonumber(ARGV[5])
         local delResult = redis.call('HDEL', cartKey, ARGV[1])
-        
-        -- 仅当实际删除成功时更新版本
         if delResult > 0 then
             redis.call('HINCRBY', ARGV[3], KEYS[1], 1)
             redis.call('SADD', ARGV[4], KEYS[1])
         end
-        
+        redis.call('EXPIRE', cartKey, expireTime)
         return delResult
         """;
-	    RedisScript<Number> script = new DefaultRedisScript<>(luaScript, Number.class);
-	    Number result = stringRedisTemplate.execute(
-	        script,
-	        List.of(userId.toString()), // KEYS[1]
-	        productId.toString(),       // ARGV[1]
-	        prefix,                     // ARGV[2]
-	        version_prefix,             // ARGV[3]
-	        change_prefix               // ARGV[4]
-	    );
-	    return result.longValue() > 0;
+	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
+		List<String> keys = Collections.singletonList(userId.toString());
+		Object[] args = {
+            prefix,                                         // ARGV[1] 购物车键前缀
+	        productId.toString(),                           // ARGV[2] 商品ID
+	        version_prefix,                                 // ARGV[3] 版本哈希表
+	        change_prefix,                                  // ARGV[4] 变更集合
+			coreConfig.getCartCacheTime().toString()        // ARGV[5] 过期时间30天
+	    };
+		try {
+			Long result = stringRedisTemplate.execute(script, keys, args);
+		    return result > 0;
+		} catch (Exception e) {
+			logger.error("Lua脚本执行出错", e);
+			return false;
+		}
 	}
 
 	@Override
-	public void setVersion(Long userId, Long version) {
-		stringRedisTemplate.opsForHash().put(version_prefix, userId, version);
+	public void setVersion(@NotNull Long userId, @NotNull Long version) {
+		stringRedisTemplate.opsForHash().put(version_prefix, userId.toString(), version.toString());
 	}
 
 	@Override
-	public Long getVersion(Long userId) {
-		Object value = stringRedisTemplate.opsForHash().get(version_prefix, userId);
+	public Long getVersion(@NotNull Long userId) {
+		Object value = stringRedisTemplate.opsForHash().get(version_prefix, userId.toString());
 		return value == null ? null : Long.parseLong(value.toString());
 	}
 
@@ -313,13 +333,13 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	}
 
 	@Override
-	public void deleteChangeList(Long userId) {
-		stringRedisTemplate.opsForSet().remove(change_prefix, userId);
+	public void removeChangeList(@NotNull Long userId) {
+		stringRedisTemplate.opsForSet().remove(change_prefix, userId.toString());
 	}
 
 	@Override
-	public boolean hasVersion(Long userId) {
-		return stringRedisTemplate.opsForHash().hasKey(version_prefix, userId);
+	public boolean hasVersion(@NotNull Long userId) {
+		return stringRedisTemplate.opsForHash().hasKey(version_prefix, userId.toString());
 	}
 
 	@Override

@@ -32,7 +32,7 @@ function isLogin(){
         // 无需发送额外数据
 		data:{},
         // 设置同步请求
-		// async : true,
+		async : false,
 		//token设置localStorage.setItem('token', res.data);
 		headers: {
 			Token:token

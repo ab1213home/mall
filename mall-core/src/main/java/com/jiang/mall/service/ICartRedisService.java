@@ -21,10 +21,12 @@ import java.util.List;
 
 public interface ICartRedisService {
 
-    //初始化购物车
-    void initCart(Long userId ,List<CartDto> cartList , Long version);
+    void initCart(Long userId, @NotNull List<CartDto> cartList, Long version);
 
-    boolean setCart(Long userId, @NotNull Long productId, @NotNull Long num);
+    //		stringRedisTemplate.opsForHash().increment(version_prefix, userId, 1);
+    //		stringRedisTemplate.opsForSet().add(change_prefix,  userId.toString());
+    //		logger.debug("用户ID为{}的购物车中添加了商品ID为{}的商品，数量为{}", userId, productId, num);
+    boolean setCart(@NotNull Long userId, @NotNull Long productId, @NotNull Long num);
 
     Long getCart(Long userId, @NotNull Long productId);
 
@@ -36,21 +38,19 @@ public interface ICartRedisService {
 
     boolean hasCart(Long userId, @NotNull Long productId);
 
-    boolean deleteCart(Long userId, @NotNull Long productId);
+    boolean hasCart(Long userId);
 
-    //设置版本
-    void setVersion(Long userId, Long version);
+    boolean deleteCart(@NotNull Long userId, @NotNull Long productId);
 
-    //获取版本
-    Long getVersion(Long userId);
+    void setVersion(@NotNull Long userId, @NotNull Long version);
 
-    //获取记录有变更的用户ID集合
+    Long getVersion(@NotNull Long userId);
+
     List<Long> getChangeList();
 
-    //删除记录有变更的用户ID从集合中
-    void deleteChangeList(Long userId);
+    void removeChangeList(@NotNull Long userId);
 
-    boolean hasVersion(Long userId);
+    boolean hasVersion(@NotNull Long userId);
 
     int getCartNum(Long userId);
 }

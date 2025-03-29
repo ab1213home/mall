@@ -61,7 +61,7 @@ public class CartTask {
 				cartService.checkCartFormMySQLToRedis();
 			}else if (timer>=coreConfig.getCartSyncTime()){
 				timer = 0;
-//				cartService.checkCartFromRedisToMySQL();
+				cartService.checkCartFromRedisToMySQL();
 			}
 		}else if (timer == -1){
 			logger.info("购物车数据缓存已禁用。");
