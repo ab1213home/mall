@@ -55,9 +55,12 @@ public enum NoticePurpose {
 	}
 
     public static String getNameByValue(int value) {
-        for (EmailPurpose emailPurpose : EmailPurpose.values()) {
-            if (emailPurpose.getValue() == value) {
-                return emailPurpose.getName();
+		if (value == -1){
+			return "未关联";
+		}
+        for (NoticePurpose noticePurpose : NoticePurpose.values()) {
+            if (noticePurpose.getValue() == value) {
+                return noticePurpose.getName();
             }
         }
         throw new IllegalArgumentException("No Purpose enum constant with value: " + value);

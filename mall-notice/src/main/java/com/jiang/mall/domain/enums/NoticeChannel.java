@@ -20,13 +20,30 @@ public enum NoticeChannel {
 	/**
 	 * 邮件
 	 */
-	EMAIL,
+	EMAIL(0, "邮件"),
 	/**
 	 * 短信
 	 */
-	SMS,
+	SMS(1, "短信"),
 	/**
 	 * 站内信
 	 */
-	WEB;
+	WEB(2, "站内信");
+
+	private final int value;
+	private final String name;
+
+	NoticeChannel(int value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	public static String getNameByValue(int value) {
+        for (NoticeChannel noticeChannel : NoticeChannel.values()) {
+            if (noticeChannel.getValue() == value) {
+                return noticeChannel.getName();
+            }
+        }
+        throw new IllegalArgumentException("No Status enum constant with value: " + value);
+    }
 }

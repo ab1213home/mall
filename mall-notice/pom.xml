@@ -63,6 +63,11 @@
             <artifactId>mall-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-user</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

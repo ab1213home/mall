@@ -33,9 +33,9 @@ public enum NoticeStatus {
 	}
 
 	public static String getNameByValue(int value) {
-        for (EmailStatus emailStatus : EmailStatus.values()) {
-            if (emailStatus.getValue() == value) {
-                return emailStatus.getName();
+        for (NoticeStatus noticeStatus : NoticeStatus.values()) {
+            if (noticeStatus.getValue() == value) {
+                return noticeStatus.getName();
             }
         }
         throw new IllegalArgumentException("No Status enum constant with value: " + value);

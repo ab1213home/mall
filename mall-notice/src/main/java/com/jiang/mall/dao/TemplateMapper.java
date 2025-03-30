@@ -16,7 +16,11 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.Template;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface TemplateMapper extends BaseMapper<Template> {
+
+	@Update("UPDATE tb_templates SET purpose = -1 , updater = #{id} , updated_at = NOW() WHERE purpose = #{purpose}  AND channel = #{channel}")
+	void removePurposeByChannelAndPurpose(Integer channel, Integer purpose , Long userId);
 }

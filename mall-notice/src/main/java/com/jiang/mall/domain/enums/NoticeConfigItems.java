@@ -17,8 +17,11 @@ import lombok.Getter;
 
 @Getter
 public enum NoticeConfigItems {
-	//模板保存位置
-	TEMPLATE_PATH("template_path", "模板保存位置", "templates");
+
+	Notice_EXPIRATION_TIME("notice.expiration.time", "验证码过期时间", "15"),
+	Notice_MAX_REQUEST_NUM("notice.max.request_num", "通知最大请求次数", "10"),
+	Notice_MIN_REQUEST_NUM("notice.min.request_num", "通知最小请求次数", "5"),
+	Notice_MAX_FAIL("notice.max.fail", "通知最大失败率", "0.4");
 
 	private final String key;
 	private final String description;

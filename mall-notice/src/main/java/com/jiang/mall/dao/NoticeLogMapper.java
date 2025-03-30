@@ -16,7 +16,19 @@ package com.jiang.mall.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.jiang.mall.domain.entity.NoticeLog;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Date;
 
 @Mapper
 public interface NoticeLogMapper extends BaseMapper<NoticeLog> {
+
+	@Select("SELECT COUNT(DISTINCT templates.id) FROM tb_templates templates JOIN tb_notice_logs log ON templates.id = log.templateId WHERE log.receiver = #{receiver} AND templates.channel = #{channel} AND log.trigger_time BETWEEN #{start} AND #{end}")
+	long selectCountByReceiverAndChannelAndTimeRange(String receiver, int channel, Date start, Date end);
+
+	@Select("SELECT COUNT(id) FROM tb_notice_logs WHERE templateId = #{templateId}")
+	long selectCountByTemplateId(Long templateId);
+
+	@Select("SELECT COUNT(DISTINCT templates.id) FROM tb_templates templates JOIN tb_notice_logs log ON templates.id = log.templateId WHERE log.receiver = #{receiver} AND templates.channel = #{channel} AND log.trigger_time BETWEEN #{start} AND #{end} AND log.status = #{status}")
+	long selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(String receiver, int channel, int status, Date start, Date end);
 }

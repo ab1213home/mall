@@ -13,5 +13,20 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.enums.NoticeChannel;
+import com.jiang.mall.domain.enums.NoticeStatus;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+
 public interface INoticeLogService {
+
+	Integer countSendNumber(String receiver,@NotNull NoticeChannel channel);
+
+	@SuppressWarnings("UnusedReturnValue")
+	boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, Map<String, Object> properties);
+
+	boolean updateStatus(Long id, @NotNull NoticeStatus status);
+
+	void clean();
 }

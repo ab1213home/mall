@@ -14,4 +14,6 @@
 package com.jiang.mall.service;
 
 public interface INoticeService {
+
+	//发送通知
 }

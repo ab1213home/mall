@@ -13,5 +13,21 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.entity.Template;
+import com.jiang.mall.domain.vo.TemplateVo;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+
 public interface ITemplateService {
+
+	List<TemplateVo> getTemplateList(Integer pageNum, Integer pageSize);
+
+	Long getTemplateNum();
+
+	boolean insertTemplate(@NotNull Template template, String sessionId);
+
+	boolean updateTemplate(@NotNull Template template, String sessionId);
+
+	boolean deleteTemplate(Long id);
 }

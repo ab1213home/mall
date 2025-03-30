@@ -11,9 +11,9 @@ CREATE TABLE `tb_categories`  (
   `level` tinyint NOT NULL DEFAULT 1 COMMENT '分类层级（1-一级分类 2-二级分类）',
   `sort` int NOT NULL DEFAULT 0 COMMENT '分类排序',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分类名称',
-  `creator` bigint UNSIGNED NOT NULL COMMENT '创建人',
+  `creator` bigint NOT NULL COMMENT '创建人',
   `created_at` datetime NOT NULL COMMENT '创建时间',
-  `updater` bigint UNSIGNED NOT NULL COMMENT '更新人',
+  `updater` bigint NOT NULL COMMENT '更新人',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE,
@@ -40,9 +40,9 @@ CREATE TABLE `tb_products`  (
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '商品描述',
   `properties` json NULL COMMENT '属性',
   `status` int NOT NULL DEFAULT 4 COMMENT '商品状态，1-上架，2-下架，3-审核中，4-编辑中',
-  `creator` bigint UNSIGNED NOT NULL COMMENT '创建人',
+  `creator` bigint NOT NULL COMMENT '创建人',
   `created_at` datetime NOT NULL COMMENT '创建时间',
-  `updater` bigint UNSIGNED NOT NULL COMMENT '更新人 ',
+  `updater` bigint NOT NULL COMMENT '更新人 ',
   `updated_at` datetime NOT NULL COMMENT '更新时间',
   `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE,
@@ -66,13 +66,13 @@ CREATE TABLE `tb_shop_staffs`  (
   `user_id` bigint UNSIGNED NOT NULL COMMENT '员工用户ID',
   `permission` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '员工权限',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `creator` bigint UNSIGNED NOT NULL COMMENT '创建人',
-  `updater` bigint UNSIGNED NOT NULL COMMENT '更新人',
+  `creator` bigint  NOT NULL COMMENT '创建人',
+  `updater` bigint  NOT NULL COMMENT '更新人',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_shop_id`(`shop_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '店铺员工关系表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '店铺员工关系表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_shops
@@ -82,8 +82,8 @@ CREATE TABLE `tb_shops`  (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '店铺ID',
   `user_id` bigint UNSIGNED NOT NULL COMMENT '店主用户ID',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '店铺名称',
-  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '店铺描述',
-  `logo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '店铺LOGO URL',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT NULL COMMENT '店铺描述',
+  `logo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT NULL COMMENT '店铺LOGO URL',
   `status` tinyint NOT NULL DEFAULT 0 COMMENT '状态：0-正常 1-已关闭 2-审核中',
   `creator` bigint NOT NULL COMMENT '创建人',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -93,7 +93,7 @@ CREATE TABLE `tb_shops`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '店铺表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '店铺表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for tb_orderlists
@@ -104,8 +104,6 @@ CREATE TABLE `tb_orderlists`  (
   `order_id` bigint UNSIGNED NOT NULL COMMENT '订单ID',
   `prod_id` bigint UNSIGNED NOT NULL COMMENT '商品快照ID',
   `num` int NOT NULL COMMENT '数量',
-  `created_at` datetime NOT NULL COMMENT '创建时间',
-  `updated_at` datetime NOT NULL COMMENT '更新时间',
   `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除标志',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `order`(`order_id` ASC) USING BTREE,
@@ -149,7 +147,7 @@ CREATE TABLE `tb_product_snapshots`  (
   `img` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '当前商品图片',
   `price` decimal(10, 2) NOT NULL COMMENT '当前商品价格',
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '当前商品描述',
-  `creator` bigint UNSIGNED NOT NULL COMMENT '创建人',
+  `creator` bigint NOT NULL COMMENT '创建人',
   `created_at` datetime NOT NULL COMMENT '创建时间',
   `is_del` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE,
