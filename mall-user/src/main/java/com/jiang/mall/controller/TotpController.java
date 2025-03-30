@@ -48,7 +48,7 @@ public class TotpController {
 		this.ii18nService = ii18nService;
 	}
 
-	//获取用户TOTP状态
+
 	@GetMapping("/status")
 	@Permission(PermissionType.USER)
 	@ResponseBody
@@ -56,7 +56,7 @@ public class TotpController {
 		return ResponseResult.okResult(userService.getTotpStatus(session.getId()));
 	}
 
-	//启用TOTP第一步
+
 	@RequestMapping("/enable/step1")
 	@Permission(PermissionType.USER)
 	public void enableTotpStep1(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
@@ -70,8 +70,6 @@ public class TotpController {
             // 输出图像到HTTP响应中
             ii18nService.generateQRCode(totpUrl, 200, 200, out);
         } catch (IOException e) {
-            // 记录异常日志
-//            logger.error("生成二维码图像失败", e);
             // 清空响应内容并设置错误状态码
             response.reset();
             response.setContentType("application/json;charset=UTF-8");
@@ -82,7 +80,6 @@ public class TotpController {
         }
 	}
 
-	//启用TOTP第二步
 	@PostMapping("/enable/step2")
 	@Permission(PermissionType.USER)
 	@ResponseBody
@@ -90,7 +87,6 @@ public class TotpController {
 		return ResponseResult.okResult(userService.enableTotp(session.getId(), code));
 	}
 
-	//禁用TOTP
 	@GetMapping("/disable")
 	@Permission(PermissionType.USER)
 	@ResponseBody

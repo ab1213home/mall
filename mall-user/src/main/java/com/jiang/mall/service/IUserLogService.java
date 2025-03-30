@@ -15,7 +15,7 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.UserLog;
-import com.jiang.mall.domain.enums.LogStatus;
+import com.jiang.mall.domain.enums.UserStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -47,6 +47,6 @@ public interface IUserLogService extends IService<UserLog> {
 	 * @return 返回日志记录是否成功，如果插入数据库成功则返回true，否则返回false
 	 */
 	@SuppressWarnings("UnusedReturnValue")
-	boolean defaultLog(String username, String clientIp, String fingerprint ,@NotNull LogStatus status, Map<String, Object> properties);
+	boolean defaultLog(String username, String clientIp, String fingerprint , @NotNull UserStatus status, Map<String, Object> properties);
 
 }

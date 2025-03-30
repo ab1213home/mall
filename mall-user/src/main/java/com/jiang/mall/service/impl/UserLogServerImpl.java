@@ -19,7 +19,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserLogMapper;
 import com.jiang.mall.domain.entity.UserLog;
-import com.jiang.mall.domain.enums.LogStatus;
+import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.service.IUserLogService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -71,21 +71,21 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    QueryWrapper<UserLog> queryWrapper_username = new QueryWrapper<>();
 	    queryWrapper_username.eq("username",username);
 	    queryWrapper_username.between("trigger_time", yesterday, now);
-	    queryWrapper_username.eq("state", LogStatus.FAIL_LOGIN.getValue());
+	    queryWrapper_username.eq("state", UserStatus.FAIL_LOGIN.getValue());
 	    List<UserLog> list_username = userLogMapper.selectList(queryWrapper_username);
 
 	    // 查询过去24小时内，IP地址匹配且登录失败的记录数量
 	    QueryWrapper<UserLog> queryWrapper_ip = new QueryWrapper<>();
 	    queryWrapper_ip.eq("ip",clientIp);
 	    queryWrapper_ip.between("trigger_time", yesterday, now);
-	    queryWrapper_ip.eq("state", LogStatus.FAIL_LOGIN.getValue());
+	    queryWrapper_ip.eq("state", UserStatus.FAIL_LOGIN.getValue());
 	    Long list_ip = userLogMapper.selectCount(queryWrapper_ip);
 
 	    // 查询过去24小时内，设备指纹匹配且登录失败的记录数量
 	    QueryWrapper<UserLog> queryWrapper_fingerprint = new QueryWrapper<>();
 	    queryWrapper_fingerprint.eq("fingerprint",fingerprint);
 	    queryWrapper_fingerprint.between("trigger_time", yesterday, now);
-	    queryWrapper_fingerprint.eq("state", LogStatus.FAIL_LOGIN.getValue());
+	    queryWrapper_fingerprint.eq("state", UserStatus.FAIL_LOGIN.getValue());
 	    Long list_fingerprint = userLogMapper.selectCount(queryWrapper_fingerprint);
 
 	    // 如果设备指纹匹配的失败登录次数超过最大尝试次数的平方，返回最大尝试次数+1
@@ -135,7 +135,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	 * @return 返回日志记录是否成功，如果插入数据库成功则返回true，否则返回false
 	 */
 	@Override
-	public boolean defaultLog(String username, String clientIp, String fingerprint, @NotNull LogStatus status, Map<String, Object> properties) {
+	public boolean defaultLog(String username, String clientIp, String fingerprint, @NotNull UserStatus status, Map<String, Object> properties) {
 	    // 创建UserLog对象以记录用户操作日志
 	    UserLog userLog = new UserLog();
 	    // 设置日志中的用户名
