@@ -70,13 +70,13 @@ public class CartRedisServiceImpl implements ICartRedisService {
 
 	String version_prefix = "cart_versions";
 
-	String change_prefix = "cart_change";
+	String change_prefix = "cart_changes";
 
 	@PostConstruct
 	private void init() {
 	    prefix = generalConfig.getRedisKeyPrefix()+":cart:";
 		version_prefix = generalConfig.getRedisKeyPrefix()+":cart_versions";
-		change_prefix = generalConfig.getRedisKeyPrefix()+":cart_change";
+		change_prefix = generalConfig.getRedisKeyPrefix()+":cart_changes";
 	}
 
 	/**

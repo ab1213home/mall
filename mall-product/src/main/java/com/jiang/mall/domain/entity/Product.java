@@ -70,6 +70,12 @@ public class Product implements Serializable {
     private String img;
 
     /**
+     * 商品属性
+     */
+    @TableField(exist=false)
+	private String properties;
+
+    /**
      * 商品价格
      */
     private BigDecimal price;

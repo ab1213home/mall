@@ -69,7 +69,7 @@
         <wechatpay.version>0.2.16</wechatpay.version>
         <alipay.version>2.2.3</alipay.version>
         <jsoup.version>1.18.3</jsoup.version>
-        <logback.version>1.5.16</logback.version>
+        <logback.version>1.5.18</logback.version>
 	</properties>
 	<dependencies>
 

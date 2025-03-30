@@ -292,20 +292,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     private @NotNull Boolean insertOrUpdateCartToMySQL(Long productId, Long num, Long userId) {
-//        Cart cart = cartMapper.selectOneByProdIdAndUserId(productId, userId);
-//         // 如果记录存在，则增加商品数量
-//        if (cart != null) {
-//            // 更新购物车记录，并返回操作结果
-//            return cartMapper.updateNumById(cart.getId(), num) > 0;
-//        } else {
-//            // 如果记录不存在，则新建购物车记录
-//            cart = new Cart();
-//            cart.setProdId(productId);
-//            cart.setNum(num);
-//            cart.setUserId(userId);
-//            // 插入新的购物车记录，并返回操作结果
-//            return cartMapper.insert(cart) > 0;
-//        }
         return cartMapper.insertOrUpdateCart(productId, num, userId)>0;
     }
 

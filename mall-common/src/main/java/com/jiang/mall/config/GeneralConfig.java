@@ -196,68 +196,56 @@ public class GeneralConfig {
         return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), GeneralConfigItems.MALL_DEMO_MODE.getDefaultValue()));
     }
 
+    public String getName() {
+        return properties.getProperty(GeneralConfigItems.MALL_NAME.getKey(), GeneralConfigItems.MALL_NAME.getDefaultValue());
+    }
+
+    public String getRecord() {
+        return properties.getProperty(GeneralConfigItems.MALL_RECORD.getKey(), GeneralConfigItems.MALL_RECORD.getDefaultValue());
+    }
+
     public void updateDateFormat(String format) {
         properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
-        saveProperties();
     }
 
     public void updateTimeZone(String zone) {
         properties.setProperty(GeneralConfigItems.TIME_ZONE.getKey(), zone);
-        saveProperties();
     }
 
     public void updateAllowModify(boolean allow) {
         properties.setProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), String.valueOf(allow));
-        saveProperties();
-        loadProperties();
     }
 
     public void updatePhone(String phone) {
         properties.setProperty(GeneralConfigItems.MALL_PHONE.getKey(), phone);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateEmail(String email) {
         properties.setProperty(GeneralConfigItems.MALL_EMAIL.getKey(), email);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateAesSalt(String salt) {
         properties.setProperty(GeneralConfigItems.AES_SALT.getKey(), salt);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateRegexEmail(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), regex);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateRegexPhone(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_PHONE.getKey(), regex);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateRegexPassword(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), regex);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateRegexUsername(String regex) {
         properties.setProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), regex);
-        saveProperties();
-        loadProperties();
     }
 
     public void updateRedisKeyPrefix(String prefix) {
         properties.setProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), prefix);
-        saveProperties();
-        loadProperties();
     }
 
     public void  updateDateFormatPattern(String pattern) {
@@ -270,5 +258,13 @@ public class GeneralConfig {
 
     public void updateDemoMode(boolean demoMode) {
         properties.setProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), String.valueOf(demoMode));
+    }
+
+    public void updateName(String name) {
+        properties.setProperty(GeneralConfigItems.MALL_NAME.getKey(), name);
+    }
+
+    public void updateRecord(String record) {
+        properties.setProperty(GeneralConfigItems.MALL_RECORD.getKey(), record);
     }
 }
