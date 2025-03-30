@@ -11,6 +11,19 @@
  * See the Mulan PSL v2 for more details.
  */
 
+const urlParams = new URLSearchParams(window.location.search);
+const url = urlParams.get('url');
+const message = urlParams.get('message');
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (url != null) {
+        document.getElementById('error-url').innerHTML = url;
+    }
+    if (message != null) {
+        document.getElementById('error-message').innerHTML = message;
+    }
+});
+
 const stackContainer = document.querySelector('.stack-container');
 const cardNodes = document.querySelectorAll('.card-container');
 const perspecNodes = document.querySelectorAll('.perspec');

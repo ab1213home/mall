@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.io.IOException;
 
@@ -48,48 +49,31 @@ public class GlobalExceptionHandler {
 		this.generalInterceptor = generalInterceptor;
 	}
 
+    //TODO:错误推送到kafka
+
     @ExceptionHandler(IllegalArgumentException.class)
     public void handleIllegalArgumentException(@NotNull IllegalArgumentException ex,@NotNull HttpServletResponse response ,@NotNull HttpServletRequest request) throws IOException {
         // 记录异常信息
-        logger.error("非法参数异常: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
-        redirectTo400(response,request,ex.getMessage());
-//        return new ResponseEntity<>("无效请求", HttpStatus.BAD_REQUEST);
-    }
-
-    private void redirectTo400(@NotNull HttpServletResponse response, @NotNull HttpServletRequest request, String message) throws IOException {
+        logger.error("非法数据异常: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
         //获取请求的User-Agent头
         String agent = request.getHeader("User-Agent");
         // 如果User-Agent头为空，则通过API返回禁止访问的响应
-        if (agent == null) generalInterceptor.redirectInApi(response, "无效请求", HttpServletResponse.SC_BAD_REQUEST);
-
+        if (agent == null) generalInterceptor.redirectInApi(response, "非法数据异常", HttpServletResponse.SC_BAD_REQUEST);
         // 解析User-Agent头
         UserAgent userAgent = UserAgentUtil.parse(agent);
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/400.html","无效请求");
+            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/400.html","非法数据异常");
         }else {
             // 否则，通过API返回禁止访问的响应
-            generalInterceptor.redirectInApi(response, "无效请求", HttpServletResponse.SC_BAD_REQUEST);
+            generalInterceptor.redirectInApi(response, "非法数据异常", HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 
-    // 处理500错误
     @ExceptionHandler(Exception.class)
     public void handleException(@NotNull Exception e, @NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
         logger.error("服务器内部错误: {}，请求路径:{}{}", e.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
-        //TODO:错误推送到kafka
-        redirectTo500(response,request,e.getMessage());
-//        if (UserAgentUtils.isCurl(request)) {
-            // 返回JSON错误实体
-//            return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).body(JSON.toJSONString(ResponseResult.failResult(i18nService.getMessage("server.error"))));
-//        } else {
-//            // 返回HTML错误页面
-//            return ResponseEntity.status(500).body("forward:/err/500.html");
-//        }
-    }
-
-    private void redirectTo500(@NotNull HttpServletResponse response, @NotNull HttpServletRequest request, String message) throws IOException {
         //获取请求的User-Agent头
         String agent = request.getHeader("User-Agent");
         // 如果User-Agent头为空，则通过API返回禁止访问的响应
@@ -107,18 +91,44 @@ public class GlobalExceptionHandler {
         }
     }
 
-
-//    // 捕获 PathVariable 参数类型不匹配或格式错误的异常，并返回错误信息
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public void handleMethodArgumentTypeMismatchException(@NotNull MethodArgumentTypeMismatchException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) {
-        String message = "请求参数有误: " + ex.getMessage();
-        logger.error("参数类型不匹配异常: {}", message);
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    public void handleMethodArgumentTypeMismatchException(@NotNull MethodArgumentTypeMismatchException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        logger.error("参数类型不匹配: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+        //获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) generalInterceptor.redirectInApi(response, "参数类型不匹配异常", HttpServletResponse.SC_BAD_REQUEST);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/400.html", "参数类型不匹配异常");
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            generalInterceptor.redirectInApi(response,"参数类型不匹配异常", HttpServletResponse.SC_BAD_REQUEST);
+        }
     }
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ResponseBody
-//    public Map<String, Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-//        return createErrorResponse(HttpStatus.BAD_REQUEST.value(), "请求参数有误: " + ex.getMessage());
-//    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public void handleNoHandlerFoundException(@NotNull NoHandlerFoundException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        logger.error("接口未找: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+        //获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) generalInterceptor.redirectInApi(response, "接口未找到", HttpServletResponse.SC_NOT_FOUND);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/404.html", "接口未找到");
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            generalInterceptor.redirectInApi(response,"接口未找到", HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
 
 }
