@@ -121,124 +121,37 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    return (int) count;
 	}
 
+	/**
+	 * 记录用户日志的默认实现方法
+	 * <p>
+	 * 该方法用于记录用户的操作日志，包括用户名、客户端IP、指纹信息、日志状态以及附加属性
+	 * 它通过创建一个UserLog对象，填充这些信息，并将其插入到数据库中来实现日志记录的功能
+	 *
+	 * @param username 用户名，标识操作的用户
+	 * @param clientIp 客户端IP地址，记录操作的来源
+	 * @param fingerprint 指纹信息，用于唯一标识用户的设备或会话
+	 * @param status 日志状态，表示日志的类型或结果，不能为空
+	 * @param properties 附加属性，以键值对形式记录额外的信息，可能为null
+	 * @return 返回日志记录是否成功，如果插入数据库成功则返回true，否则返回false
+	 */
 	@Override
 	public boolean defaultLog(String username, String clientIp, String fingerprint, @NotNull LogStatus status, Map<String, Object> properties) {
-		UserLog userLog = new UserLog();
-		userLog.setUsername(username);
-		userLog.setIp(clientIp);
-		userLog.setFingerprint(fingerprint);
-		userLog.setState(status.getValue());
-		if (properties!=null){
-			userLog.setProperties(JSON.toJSONString(properties));
-		}
-		return userLogMapper.insert(userLog) > 0;
+	    // 创建UserLog对象以记录用户操作日志
+	    UserLog userLog = new UserLog();
+	    // 设置日志中的用户名
+	    userLog.setUsername(username);
+	    // 设置日志中的客户端IP地址
+	    userLog.setIp(clientIp);
+	    // 设置日志中的指纹信息
+	    userLog.setFingerprint(fingerprint);
+	    // 设置日志的状态，使用LogStatus的getValue方法获取状态值
+	    userLog.setState(status.getValue());
+	    // 如果附加属性不为空，则将其转换为JSON字符串并设置到日志中
+	    if (properties!=null){
+	        userLog.setProperties(JSON.toJSONString(properties));
+	    }
+	    // 将日志对象插入数据库，如果插入成功则返回true，否则返回false
+	    return userLogMapper.insert(userLog) > 0;
 	}
-
-
-//	/**
-//	 * 创建成功的登录记录
-//	 *
-//	 * @param user        用户对象，包含用户的具体信息，此处标记为非空，确保用户信息已提供
-//	 * @param clientIp    客户端IP地址，记录登录者的IP地址
-//	 * @param fingerprint 用户指纹，唯一标识用户的设备信息
-//	 * @return 返回一个布尔值，表示登录记录是否成功插入到数据库中
-//	 */
-//	@Override
-//	public Boolean successLoginLog(@NotNull User user, String clientIp, String fingerprint) {
-//	    // 创建一个登录记录对象，包含用户ID、用户名、客户端IP、登录状态为成功和用户指纹
-//	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_LOGIN.getValue(),fingerprint);
-//	    // 插入登录记录到数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	/**
-//	 * 记录失败的登录尝试
-//	 * <p>
-//	 * 此方法用于在用户登录失败时调用，以记录登录尝试的相关信息
-//	 * 它创建一个表示登录失败记录的UserRecord对象，并将其插入到数据库中
-//	 *
-//	 * @param username 用户名，用于标识尝试登录的用户
-//	 * @param clientIp 客户端IP地址，记录尝试登录的设备来源
-//	 * @param fingerprint 用户设备的唯一标识符，用于增强登录记录的准确性
-//	 * @return 返回一个布尔值，表示登录失败记录是否成功插入到数据库中
-//	 *         如果返回true，则表示记录成功；如果返回false，则表示记录失败
-//	 */
-//	@Override
-//	public Boolean failedLoginLog(String username, String clientIp, String fingerprint) {
-//	    // 创建一个UserRecord对象，表示登录失败的用户记录
-//	    UserLog userLog = new UserLog(username,clientIp,fingerprint, LogStatus.FAIL_LOGIN.getValue());
-//	    // 将登录失败记录插入数据库，并判断插入操作是否成功
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	/**
-//	 * 成功注册用户记录
-//	 * <p>
-//	 * 此方法用于在用户成功注册后记录相关信息它创建一个用户记录对象，
-//	 * 包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹，
-//	 * 然后将此记录插入数据库中
-//	 *
-//	 * @param user 注册成功的用户对象，不能为空
-//	 * @param clientIp 客户端IP地址，用于记录用户注册的来源
-//	 * @param fingerprint 用户设备的唯一标识符，用于增强安全性
-//	 * @return 返回一个布尔值，表示记录是否成功插入数据库true表示成功，false表示失败
-//	 */
-//	@Override
-//	public Boolean successRegisterLog(@NotNull User user, String clientIp, String fingerprint) {
-//	    // 创建用户记录对象，包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹
-//	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_REGISTER.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successModifyEmailLog(@NotNull User user, String email, String clientIp, String fingerprint) {
-//		// 创建用户记录对象，包含用户ID、用户名、客户端IP、成功注册的状态值和用户指纹
-//	    UserLog userLog = new UserLog(user.getId(), user.getUsername(), clientIp, LogStatus.SUCCESS_MODIFY_EMAIL.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean failedModifyPasswordLog(Long user, String clientIp, String fingerprint) {
-//	    UserLog userLog = new UserLog(user, clientIp, LogStatus.FAIL_MODIFY_PASSWORD.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successForgotLog(Long user, String clientIp, String fingerprint) {
-//		UserLog userLog = new UserLog(user, clientIp, LogStatus.FORGET_PASSWORD.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successModifyPasswordLog(Long user, String clientIp, String fingerprint) {
-//		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_MODIFY_PASSWORD.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successLockLog(Long user, String clientIp, String fingerprint) {
-//		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_LOCK.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successLockAdminLog(Long user, String clientIp, String fingerprint) {
-//		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_ADMIN_LOCK.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
-//
-//	@Override
-//	public Boolean successUnlockAdminLog(Long user, String clientIp, String fingerprint) {
-//		UserLog userLog = new UserLog(user, clientIp, LogStatus.SUCCESS_UNLOCK.getValue(),fingerprint);
-//	    // 将用户记录插入数据库，如果插入成功返回true，否则返回false
-//	    return loginRecordMapper.insert(userLog)>0;
-//	}
 
 }
