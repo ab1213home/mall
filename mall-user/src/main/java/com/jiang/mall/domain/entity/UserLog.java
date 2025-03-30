@@ -51,7 +51,7 @@ public class UserLog implements Serializable {
 	/**
 	 * 状态
 	 */
-	private Byte state;
+	private Integer state;
 
 	/**
      * 属性

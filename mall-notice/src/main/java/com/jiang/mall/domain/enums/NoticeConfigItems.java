@@ -18,17 +18,16 @@ import lombok.Getter;
 @Getter
 public enum NoticeConfigItems {
 	//模板保存位置
+	TEMPLATE_PATH("template_path", "模板保存位置", "templates");
 
+	private final String key;
+	private final String description;
+	private final String defaultValue;
 
-
-//	private final String key;
-//	private final String description;
-//	private final String defaultValue;
-//
-//	NoticeConfigItems(String key, String description, String defaultValue) {
-//		this.key = key;
-//		this.description = description;
-//		this.defaultValue = defaultValue;
-//	}
+	NoticeConfigItems(String key, String description, String defaultValue) {
+		this.key = key;
+		this.description = description;
+		this.defaultValue = defaultValue;
+	}
 
 }

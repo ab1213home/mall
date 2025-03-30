@@ -31,11 +31,11 @@ public enum LogStatus {
 	SUCCESS_ADMIN_LOCK( 10, "管理员锁定用户成功"),
 	SUCCESS_UNLOCK( 11, "解锁用户成功");
 
-	private final byte value;
+	private final Integer value;
 	private final String name;
 
 	LogStatus(int value, String name) {
-		this.value = (byte)value;
+		this.value = value;
 		this.name = name;
 	}
 
