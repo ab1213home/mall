@@ -39,16 +39,6 @@ public class UserLog implements Serializable {
 	private String username;
 
 	/**
-	 * 邮箱
-	 */
-	private String oldEmail;
-
-	/**
-	 * 用户id
-	 */
-	private Long userId;
-
-	/**
 	 * ip地址
 	 */
 	private String ip;
@@ -63,57 +53,33 @@ public class UserLog implements Serializable {
 	 */
 	private Byte state;
 
+	/**
+     * 属性
+     */
+	private String properties;
+
 	@TableField(fill = FieldFill.INSERT)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private LocalDateTime triggerTime;
 
-	/**
-	 * 更新人
-	 */
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private Long updater;
+	@TableField(fill = FieldFill.INSERT)
+	private Long triggerPerson;
 
 	public UserLog() {
-		this.triggerTime = LocalDateTime.now();
 	}
 
-	public UserLog(Long userId, String username, String clientIp, byte value, String fingerprint) {
-		this.userId = userId;
-		this.username = username;
-		this.ip = clientIp;
-		this.state = value;
-		this.fingerprint = fingerprint;
-		this.triggerTime = LocalDateTime.now();
-	}
-
-	public UserLog(String username, String clientIp, String fingerprint, byte value) {
-		this.username = username;
-		this.ip = clientIp;
-		this.state = value;
-		this.fingerprint = fingerprint;
-		this.triggerTime = LocalDateTime.now();
-	}
-
-	public UserLog(Long userId, String clientIp, byte value, String fingerprint) {
-		this.userId = userId;
-		this.ip = clientIp;
-		this.state = value;
-		this.fingerprint = fingerprint;
-		this.triggerTime = LocalDateTime.now();
-	}
 
 	@Override
 	public String toString() {
 		return "UserLog{" +
 				"id=" + id +
-				", username='" + username + '\'' +
-				", oldEmail='" + oldEmail + '\'' +
-				", userId=" + userId +
-				", ip='" + ip + '\'' +
-				", fingerprint='" + fingerprint + '\'' +
+				", username='" + username  +
+				", ip='" + ip  +
+				", fingerprint='" + fingerprint  +
 				", state=" + state +
+				", properties='" + properties  +
 				", triggerTime=" + triggerTime +
-				", updater=" + updater +
+				", triggerPerson=" + triggerPerson +
 				'}';
 	}
 }

@@ -18,6 +18,7 @@ import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.reflection.MetaObject;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -49,24 +50,38 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      * @param metaObject 元数据对象，代表了要插入的数据实体
      */
     @Override
-    public void insertFill(MetaObject metaObject) {
-        if(redisService.getUserBySessionId(request.getSession().getId())!=null){
-            // 从会话中获取当前用户的ID
-            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
-            // 设置创建者ID为当前用户的ID
-            this.setFieldValByName("creator", user.getId(), metaObject);
-            // 设置更新者ID为当前用户的ID
-            this.setFieldValByName("updater", user.getId(), metaObject);
-        }else{
-            // 设置创建者ID为未知的ID
-            this.setFieldValByName("creator", 0L, metaObject);
-            // 设置更新者ID为未知的ID
-            this.setFieldValByName("updater", 0L, metaObject);
+    public void insertFill(@NotNull MetaObject metaObject) {
+        //如果存在triggerTime，则表示元数据对象是日志对象
+        if (metaObject.hasGetter("triggerTime")) {
+            this.setFieldValByName("triggerTime", LocalDateTime.now(), metaObject);
+            if(redisService.getUserBySessionId(request.getSession().getId())!=null){
+                // 从会话中获取当前用户的ID
+                UserCache user = redisService.getUserBySessionId(request.getSession().getId());
+                // 设置触发者ID为当前用户的ID
+                this.setFieldValByName("triggerPerson", user.getId(), metaObject);
+            }else{
+                // 设置触发者ID为系统的ID
+                this.setFieldValByName("triggerPerson", -1L, metaObject);
+            }
+        }else {
+            if(redisService.getUserBySessionId(request.getSession().getId())!=null){
+                // 从会话中获取当前用户的ID
+                UserCache user = redisService.getUserBySessionId(request.getSession().getId());
+                // 设置创建者ID为当前用户的ID
+                this.setFieldValByName("creator", user.getId(), metaObject);
+                // 设置更新者ID为当前用户的ID
+                this.setFieldValByName("updater", user.getId(), metaObject);
+            }else{
+                // 设置创建者ID为未知的ID
+                this.setFieldValByName("creator", 0L, metaObject);
+                // 设置更新者ID为未知的ID
+                this.setFieldValByName("updater", 0L, metaObject);
+            }
+            // 设置创建时间为当前时间
+            this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
+            // 设置更新时间为当前时间
+            this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
         }
-        // 设置创建时间为当前时间
-        this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
-        // 设置更新时间为当前时间
-        this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
     }
 
     /**

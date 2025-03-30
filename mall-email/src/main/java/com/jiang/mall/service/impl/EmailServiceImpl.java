@@ -288,4 +288,9 @@ public class EmailServiceImpl implements IEmailService {
 		return emailCodeDto;
 	}
 
+	@Override
+	public void useCode(Long userId, VerificationCode verificationCode) {
+		verificationCodeService.useCode(userId, verificationCode);
+	}
+
 }

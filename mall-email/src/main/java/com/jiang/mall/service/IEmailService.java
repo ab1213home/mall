@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 
 import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.entity.VerificationCode;
 
 public interface IEmailService {
 
@@ -76,5 +77,7 @@ public interface IEmailService {
 	 * @return 验证结果，(state)true表示验证成功，false表示验证失败，null表示验证码已过期
 	 */
 	EmailCodeDto validateCaptcha(String code, String sessionId);
+
+	void useCode(Long userId, VerificationCode verificationCode);
 
 }

@@ -31,6 +31,7 @@ import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.enums.LogStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
@@ -67,11 +68,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    this.userMapper = userMapper;
 	}
 
-	private IUserLogService userRecordService;
+	private IUserLogService userLogService;
 
     @Autowired
-    public void setLoginRecordService(IUserLogService userRecordService) {
-        this.userRecordService = userRecordService;
+    public void setLoginRecordService(IUserLogService userLogService) {
+        this.userLogService = userLogService;
     }
 
 	private II18nService i18nService;
@@ -88,12 +89,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         this.redisService = redisService;
     }
 
-	private IVerificationCodeService verificationCodeService;
+	private IEmailService emailService;
 
-    @Autowired
-    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-        this.verificationCodeService = verificationCodeService;
-    }
+	@Autowired
+	public void setEmailService(IEmailService emailService) {
+		this.emailService = emailService;
+	}
 
 	private ITemporaryRedisService temporaryRedisService;
 
@@ -199,7 +200,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
 		if (user == null) {
 			// 登录失败，记录登录记录
-			userRecordService.failedLoginLog(username, clientIp, fingerprint);
+			Map<String, Object> map = new HashMap<>();
+			map.put("username", username);
+			map.put("password", password);
+			userLogService.defaultLog(username, clientIp, fingerprint, LogStatus.FAIL_LOGIN , map);
 			logger.debug("用户名或密码错误");
 			return null;
 		} else if (user.isTotpEnabled()) {
@@ -208,7 +212,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return false;
 		} else {
 			// 登录成功，记录登录记录
-			userRecordService.successLoginLog(user, clientIp, fingerprint);
+			userLogService.defaultLog(username, clientIp, fingerprint, LogStatus.SUCCESS_LOGIN , null);
 			login(user, token, sessionId);
 			return true;
 		}
@@ -371,16 +375,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 		UserCache userVo = getUserFromRedis(sessionId);
 		User user = userMapper.selectUserByIdAndActive(userVo.getId());
+		Map<String,Object> map = new HashMap<>();
+		map.put("new_email",verificationCode.getEmail());
+		map.put("old_email",user.getEmail());
 		if (userMapper.updateEmail(user.getId(),verificationCode.getEmail())>0){
 			// 验证码使用标记
-			verificationCodeService.useCode(getUserFromRedis(sessionId).getId(), verificationCode);
+			emailService.useCode(userVo.getId(), verificationCode);
 			// 记录邮箱修改成功日志
-			userRecordService.successModifyEmailLog(user,verificationCode.getEmail(),clientIp,fingerprint);
+			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint,LogStatus.SUCCESS_MODIFY_EMAIL,map);
 			userVo.setEmail(verificationCode.getEmail());
 			setUserToRedis(userVo);
 			return true;
 		}else {
 			logger.error("修改{}用户邮箱失败", getUserFromRedis(sessionId).getId());
+			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint,LogStatus.FAIL_MODIFY_EMAIL,map);
 			return false;
 		}
 	}
@@ -393,10 +401,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		user.setEmail(verificationCode.getEmail());
 		user.setIsActive(true);
 		user.setTotpEnabled(false);
+		Map<String,Object> map = new HashMap<>();
+		map.put("email",user.getEmail());
+		map.put("password",user.getPassword());
 		if (userMapper.insert(user) > 0){
 			temporaryRedisService.setKey("register:"+sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
-			verificationCodeService.useCode(user.getId(), verificationCode);
-			userRecordService.successRegisterLog(user, clientIp, fingerprint);
+			emailService.useCode(user.getId(), verificationCode);
+			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint,LogStatus.SUCCESS_REGISTER,map);
 			if (userConfig.getDefaultGroup()!=-1){
 				UserGroupRelation userGroupRelation = new UserGroupRelation();
 				userGroupRelation.setUserId(user.getId());
@@ -434,7 +445,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public Boolean forgot(@NotNull VerificationCode verificationCode, String password, String clientIp, String fingerprint) {
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectById(verificationCode.getUserId());
-
+		Map<String,Object> map = new HashMap<>();
+		map.put("new_password",password);
 	    // 验证用户是否存在
 	    if (user != null) {
 	        // 如果验证成功，更新用户密码为新密码。
@@ -446,9 +458,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	            // 更新验证码对象的密码信息
 	            verificationCode.setPassword(password);
 	            // 使用验证码，并记录使用信息
-	            verificationCodeService.useCode(user.getId(), verificationCode);
+	            emailService.useCode(user.getId(), verificationCode);
 	            // 记录用户成功找回密码的日志
-	            userRecordService.successForgotLog(user.getId(),clientIp,fingerprint);
+		        userLogService.defaultLog(user.getUsername(),clientIp,fingerprint,LogStatus.SUCCESS_FORGET_PASSWORD,map);
 	            // 更新成功，返回true
 	            return true;
 	        }else {
@@ -457,6 +469,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        }
 	    }else {
 	        // 如果用户不存在，返回false。
+		    userLogService.defaultLog(verificationCode.getUsername(),clientIp,fingerprint,LogStatus.FAIL_FORGET_PASSWORD,map);
 	        return false;
 	    }
 	}
@@ -464,9 +477,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean lock(String sessionId, String clientIp, String fingerprint) {
 		UserCache user = getUserFromRedis(sessionId);
-
 		if(userMapper.lockById(user.getId(),user.getId())>0) {
-			userRecordService.successLockLog(user.getId(),clientIp,fingerprint);
+			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint,LogStatus.SUCCESS_LOCK,null);
 			logout(sessionId);
 			return true;
 		}else {
@@ -483,7 +495,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return null;
 		}
 		if(userMapper.lockById(userId,user.getId())>0) {
-			userRecordService.successLockAdminLog(userId,clientIp,fingerprint);
+//			userLogService.successLockAdminLog(userId,clientIp,fingerprint);
+			userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint,LogStatus.SUCCESS_ADMIN_LOCK, null);
 //			if (redisService.hasUser(String.valueOf(userId))){
 //				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
 //				logger.debug("管理员锁定{}用户在一个地方登录，自动注销用户登录状态", user.getUsername());
@@ -506,7 +519,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return null;
 		}
 		if(userMapper.unlockById(userId,user.getId())>0) {
-			userRecordService.successUnlockAdminLog(userId, clientIp, fingerprint);
+			userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint,LogStatus.SUCCESS_UNLOCK, null);
+//			userLogService.successUnlockAdminLog(userId, clientIp, fingerprint);
 			logger.debug("管理员解锁{}用户成功", userId);
 			return true;
 		}else {
@@ -637,13 +651,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			if (verifyTOTP(secretKey, code)){
 				User user = userMapper.selectById(userId);
 				// 登录成功，记录登录记录
-				userRecordService.successLoginLog(user, clientIp, fingerprint);
+				userLogService.defaultLog(user.getUsername(), clientIp, fingerprint,LogStatus.SUCCESS_LOGIN, null);
 				login(user, token, sessionId);
 				return true;
 			}else {
+				Map<String,Object> map = new HashMap<>();
+				map.put("code",code);
+				userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint,LogStatus.FAIL_LOGIN, map);
 				return false;
 			}
 		}else {
+			logger.error("登录失败，sessionId不存在");
 			return false;
 		}
 
@@ -664,18 +682,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public Boolean modifyPassword(@NotNull String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
 	    // 从Redis中获取当前用户信息
 	    UserCache user = getUserFromRedis(sessionId);
-
+		Map<String,Object> map = new HashMap<>();
+		map.put("old_password",oldPassword);
+		map.put("new_password",newPassword);
 	    // 验证旧密码是否正确
 	    if (!oldPassword.equals(userMapper.selectById(user.getId()).getPassword())){
 	        // 记录失败的修改密码日志
-	        userRecordService.failedModifyPasswordLog(user.getId(),clientIp,fingerprint);
+	        userLogService.defaultLog(user.getUsername(), clientIp, fingerprint,LogStatus.FAIL_MODIFY_PASSWORD, map);
 	        return false;
 	    }
 
 	    // 尝试修改密码
 	    if (userMapper.modifyPasswordById(user.getId(), newPassword) > 0){
 	        // 记录成功的修改密码日志
-	        userRecordService.successModifyPasswordLog(user.getId(),clientIp,fingerprint);
+	        userLogService.defaultLog(user.getUsername(), clientIp, fingerprint,LogStatus.SUCCESS_MODIFY_PASSWORD, map);
 	        // 清除会话中的用户信息，因为密码已修改
 	        logout(sessionId);
 	        return true;
