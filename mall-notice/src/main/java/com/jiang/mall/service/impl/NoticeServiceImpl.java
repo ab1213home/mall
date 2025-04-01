@@ -13,14 +13,27 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.NoticeConfig;
+import com.jiang.mall.domain.enums.NoticeChannel;
+import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.service.INoticeLogService;
+import com.jiang.mall.service.INoticeRedisService;
 import com.jiang.mall.service.INoticeService;
 import com.jiang.mall.service.ITemplateService;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Service
 public class NoticeServiceImpl implements INoticeService {
+
+	private static final Logger logger = LoggerFactory.getLogger(NoticeServiceImpl.class);
 
 	private INoticeLogService noticeLogService;
 
@@ -36,5 +49,66 @@ public class NoticeServiceImpl implements INoticeService {
 		this.templateService = templateService;
 	}
 
+	private INoticeRedisService redisService;
 
+	@Autowired
+	public void setRedisService(INoticeRedisService redisService) {
+		this.redisService = redisService;
+	}
+
+	private NoticeConfig noticeConfig;
+
+	@Autowired
+	public void setNoticeConfig(NoticeConfig noticeConfig) {
+	    this.noticeConfig = noticeConfig;
+	}
+
+
+	@Override
+	public boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
+		String template;
+		if (redisService.hasTemplate(purpose, channel)){
+			template = redisService.getTemplate(purpose, channel);
+		}else {
+			template = templateService.getTemplate(purpose, channel);
+			if (template == null){
+				logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
+				return false;
+			}else {
+				redisService.setTemplate(purpose, channel, template);
+			}
+		}
+		properties.put("expiration_time", noticeConfig.getNoticeExpirationTime());
+		String html = applyPropertiesToTemplate(template, properties);
+		return false;
+	}
+
+	@Override
+	public boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
+		return false;
+	}
+
+	@Override
+	public boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
+		return false;
+	}
+
+	@Override
+	public boolean validateAccountCaptcha(String code, String sessionId, String token) {
+		return false;
+	}
+
+	public static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
+        // 遍历 properties 映射，替换模板字符串中的相应内容
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            // 使用正则表达式确保只替换占位符，避免误替换
+            String placeholderPattern = "\\$\\{" + Pattern.quote(key) + "}";
+            template = template.replaceAll(placeholderPattern, Matcher.quoteReplacement(value.toString()));
+        }
+
+        return template;
+    }
 }

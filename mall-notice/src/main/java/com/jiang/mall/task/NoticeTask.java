@@ -43,7 +43,7 @@ public class NoticeTask {
 	private long timer = -1;
 
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
-    public void checkNoticeTask() {
+    public void checkNoticeTemplateTask() {
 //		if (bannerConfig.isBannerCacheEnabled()){
 //			timer = timer + 1;
 //			if (timer == 0){
@@ -60,20 +60,8 @@ public class NoticeTask {
     }
 
 	@Scheduled(fixedRate = 3600 * 1000, initialDelay = 300000)
-    public void cleanNoticeTask() {
+    public void cleanNoticeLogTask() {
 		noticeLogService.clean();
-//		if (bannerConfig.isBannerCacheEnabled()){
-//			timer = timer + 1;
-//			if (timer == 0){
-//				logger.info("轮播图数据缓存预热");
-//				bannerService.checkBanner();
-//			}else if (timer>=bannerConfig.getBannerSyncTime()){
-//				timer = 0;
-//				bannerService.checkBanner();
-//			}
-//		}else if (timer == -1){
-//			logger.info("轮播图数据缓存已禁用。");
-//			timer = 0;
-//		}
+		logger.info("通知记录清理完成");
     }
 }

@@ -390,4 +390,57 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		return onlineUser;
 	}
 
+	@Override
+	public void setTwoLogin(Long userId, @NotNull String sessionId) {
+		stringRedisTemplate.opsForValue().set(prefix+"twoLogin:"+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
+	}
+
+	@Override
+	public boolean validateTwoLogin(@NotNull String sessionId) {
+		return stringRedisTemplate.hasKey(prefix+"twoLogin:"+sessionId);
+	}
+
+	@Override
+	public Long getTwoLogin(@NotNull String sessionId) {
+		String userId = stringRedisTemplate.opsForValue().get(prefix+"twoLogin:"+sessionId);
+		return userId == null ? null : Long.parseLong(userId);
+	}
+
+	@Override
+	public void setTwoRegister(Long userId, @NotNull String sessionId) {
+		stringRedisTemplate.opsForValue().set(prefix+"twoRegister:"+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
+	}
+
+	@Override
+	public boolean validateTwoRegister(@NotNull String sessionId) {
+		return stringRedisTemplate.hasKey(prefix+"twoRegister:"+sessionId);
+	}
+
+	@Override
+	public Long getTwoRegister(@NotNull String sessionId) {
+		String userId = stringRedisTemplate.opsForValue().get(prefix+"twoRegister:"+sessionId);
+		return userId == null ? null : Long.parseLong(userId);
+	}
+
+	@Override
+	public void deleteTwoRegister(@NotNull String sessionId) {
+		stringRedisTemplate.delete(prefix+"twoRegister:"+sessionId);
+	}
+
+	@Override
+	public void setRememberMe(Long userId, @NotNull String token) {
+		stringRedisTemplate.opsForValue().set(prefix+"rememberMe:"+token, String.valueOf(userId), 7 , TimeUnit.DAYS);
+	}
+
+	@Override
+	public boolean validateRememberMe(@NotNull String token) {
+		return stringRedisTemplate.hasKey(prefix+"rememberMe:"+token);
+	}
+
+	@Override
+	public Long getRememberMe(@NotNull String token) {
+		String userId = stringRedisTemplate.opsForValue().get(prefix+"rememberMe:"+token);
+		return userId == null ? null : Long.parseLong(userId);
+	}
+
 }

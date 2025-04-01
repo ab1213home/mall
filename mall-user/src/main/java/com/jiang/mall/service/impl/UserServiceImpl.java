@@ -44,7 +44,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static cn.hutool.crypto.digest.otp.HOTP.generateSecretKey;
 
@@ -96,13 +95,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.emailService = emailService;
 	}
 
-	private ITemporaryRedisService temporaryRedisService;
-
-	@Autowired
-	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
-		this.temporaryRedisService = temporaryRedisService;
-	}
-
 	private GroupMapper groupMapper;
 
 	@Autowired
@@ -137,7 +129,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public void setGeneralConfig(GeneralConfig generalConfig) {
 		this.generalConfig = generalConfig;
 	}
-
 
 	/**
 	 * 检查用户是否已登录
@@ -208,7 +199,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return null;
 		} else if (user.isTotpEnabled()) {
 			//TODO:需要完善逻辑
-			temporaryRedisService.setKey("login:"+sessionId, String.valueOf(user.getId()), 30, TimeUnit.MINUTES);
+			redisService.setTwoLogin(user.getId(), sessionId);
 			return false;
 		} else {
 			// 登录成功，记录登录记录
@@ -405,7 +396,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		map.put("email",user.getEmail());
 		map.put("password",user.getPassword());
 		if (userMapper.insert(user) > 0){
-			temporaryRedisService.setKey("register:"+sessionId, String.valueOf(user.getId()),30, TimeUnit.MINUTES);
+			redisService.setTwoRegister(user.getId(),sessionId);
 			emailService.useCode(user.getId(), verificationCode);
 			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint, UserStatus.SUCCESS_REGISTER,map);
 			if (userConfig.getDefaultGroup()!=-1){
@@ -422,9 +413,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public Boolean register(User user, String sessionId) {
+	public Boolean register(@NotNull User user, String sessionId) {
+		Long userId = redisService.getTwoRegister(sessionId);
+		user.setId(userId);
 		if (userMapper.updateById(user)>0){
-			temporaryRedisService.deleteKey("register:"+sessionId);
+			redisService.deleteTwoRegister(sessionId);
 			return true;
 		}else {
 			logger.error("{}用户信息补充失败", user);
@@ -645,8 +638,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public boolean login(String sessionId, int code, String token, String clientIp, String fingerprint) {
-		if (temporaryRedisService.hasKey("login:"+sessionId)){
-			Long userId = Long.parseLong(temporaryRedisService.getKey("login:"+sessionId));
+		if (redisService.validateTwoLogin(sessionId)){
+			Long userId = redisService.getTwoLogin(sessionId);
 			String secretKey = userMapper.selectTotpSecretById(userId);
 			if (verifyTOTP(secretKey, code)){
 				User user = userMapper.selectById(userId);

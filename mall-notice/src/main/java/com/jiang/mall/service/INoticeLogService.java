@@ -23,6 +23,8 @@ public interface INoticeLogService {
 
 	Integer countSendNumber(String receiver,@NotNull NoticeChannel channel);
 
+	boolean inspectByChannel(String receiver,@NotNull NoticeChannel channel);
+
 	@SuppressWarnings("UnusedReturnValue")
 	boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, Map<String, Object> properties);
 

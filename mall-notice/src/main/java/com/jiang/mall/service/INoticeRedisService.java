@@ -13,25 +13,29 @@
 
 package com.jiang.mall.service;
 
-import com.jiang.mall.domain.entity.Template;
+import com.jiang.mall.domain.cache.CodeCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
-import com.jiang.mall.domain.vo.TemplateVo;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+public interface INoticeRedisService {
 
-public interface ITemplateService {
-
-	List<TemplateVo> getTemplateList(Integer pageNum, Integer pageSize);
-
-	Long getTemplateNum();
-
-	boolean insertTemplate(@NotNull Template template, String sessionId);
-
-	boolean updateTemplate(@NotNull Template template, String sessionId);
-
-	boolean deleteTemplate(Long id);
+	//模板缓存
+	void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull String template);
 
 	String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
+
+	boolean hasTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
+
+	void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
+
+	//通知验证码缓存
+	void setCode(@NotNull CodeCache code, @NotNull String key);
+
+	CodeCache getCode(@NotNull String key);
+
+	boolean hasCode(@NotNull String key);
+
+	void deleteCode(@NotNull String key);
+
 }

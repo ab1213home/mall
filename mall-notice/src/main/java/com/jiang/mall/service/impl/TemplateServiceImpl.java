@@ -122,4 +122,15 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		}
 		return templateMapper.deleteById(id) > 0;
 	}
+
+	@Override
+	public String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
+		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("purpose", purpose.getValue());
+		queryWrapper.eq("channel", channel.getValue());
+		if (templateMapper.selectCount(queryWrapper) == 0){
+			return null;
+		}
+		return templateMapper.selectOne(queryWrapper).getContent();
+	}
 }

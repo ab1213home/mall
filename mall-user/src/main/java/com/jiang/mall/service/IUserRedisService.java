@@ -120,4 +120,31 @@ public interface IUserRedisService {
 
 	//获取在线用户
 	List<Long> getOnlineUser();
+
+	//二步登录验证相关Two step login verification related
+
+	void setTwoLogin(Long userId, @NotNull String sessionId);
+
+	boolean validateTwoLogin(@NotNull String sessionId);
+
+	Long getTwoLogin(@NotNull String sessionId);
+
+	//二步注册相关Two step registration
+
+	void setTwoRegister(Long userId, @NotNull String sessionId);
+
+	boolean validateTwoRegister(@NotNull String sessionId);
+
+	Long getTwoRegister(@NotNull String sessionId);
+
+	void deleteTwoRegister(@NotNull String sessionId);
+
+	//记住我相关Remember Me
+
+	void setRememberMe(Long userId, @NotNull String token);
+
+	boolean validateRememberMe(@NotNull String token);
+
+	Long getRememberMe(@NotNull String token);
+
 }

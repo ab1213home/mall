@@ -59,13 +59,6 @@ public class RegisterController {
         this.i18nService = i18nService;
     }
 
-    private ITemporaryRedisService temporaryRedisService;
-
-	@Autowired
-	public void setTemporaryRedisService(ITemporaryRedisService temporaryRedisService) {
-		this.temporaryRedisService = temporaryRedisService;
-	}
-
     private IEmailService emailService;
 
     @Autowired
@@ -219,9 +212,6 @@ public class RegisterController {
                                                 @RequestParam("birthday") String birthDate,
                                                 @RequestParam("avatar") String avatar,
                                                 HttpSession session) {
-        // 检查会话中是否包含账号id，以确保用户已开始注册过程
-        Long userId = Long.parseLong(temporaryRedisService.getKey(session.getId()));
-
         // 验证手机号格式
         if (!i18nService.isValidPhone(phone)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.phone"));
@@ -230,10 +220,8 @@ public class RegisterController {
         if (!i18nService.checkString(avatar,255)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.img"));
         }
-
         // 创建User对象以保存用户信息
         User user = new User();
-        user.setId(userId);
         user.setPhone(phone);
         user.setFirstName(firstName);
         user.setLastName(lastName);

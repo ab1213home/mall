@@ -20,6 +20,7 @@ import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public interface IUserService extends IService<User> {
 
     Long register(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
 
-    Boolean register(User user, String sessionId);
+    Boolean register(@NotNull User user, String sessionId);
 
     Boolean forgot(VerificationCode verificationCode, String password, String clientIp, String fingerprint);
 

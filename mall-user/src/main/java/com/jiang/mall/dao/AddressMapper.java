@@ -37,7 +37,7 @@ public interface AddressMapper extends BaseMapper<Address> {
 	@Select("SELECT user_id FROM tb_addresses WHERE id = #{id} AND is_del = false")
 	Long selectUserIdById(Long id);
 
-	@Select("SELECT id,user_id,first_name,last_name,phone,country,area_code,address_detail,postal_code,created_at,updated_at,is_del FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
+	@Select("SELECT * FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
 	List<Address> selectListByUserId(Long userId);
 
 	@Select("SELECT id FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")

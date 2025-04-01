@@ -21,19 +21,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
-public class ProductRedisConfig {
-
-	/**
-	 * 商品信息
-	 * <p>
-	 * - 缓存内容：商品详情、库存、价格等。
-	 * <p>
-	 * - 缓存理由：商品信息是高频读取的数据，缓存可以减轻数据库压力。
-	 * <p>
-	 * - 缓存策略：当商品信息更新时，主动更新缓存。
-	 */
-	@Value("${redis.database.product:0}")
-	private int product;
+public class NoticeRedisConfig {
 
 	private GeneralRedisConfig generalRedisConfig;
 
@@ -42,15 +30,27 @@ public class ProductRedisConfig {
 		this.generalRedisConfig = generalRedisConfig;
 	}
 
+	/**
+	 * 验证码和消息数据
+	 * <p>
+	 * - 缓存内容：短信验证码、邮箱验证码、临时令牌等。
+	 * <p>
+	 * - 缓存理由：这类数据时效性短，适合用 Redis 存储。
+	 * <p>
+	 * - 缓存策略：验证成功后清除缓存。
+	 */
+	@Value("${redis.database.notice:1}")
+	private int notice;
+
 	@Bean
-    public LettuceConnectionFactory productConnectionFactory() {
-        return generalRedisConfig.redisConnectionFactory(product);
+    public LettuceConnectionFactory noticeConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(notice);
     }
 
-	@Bean(name = "ProductRedisTemplate")
-    public StringRedisTemplate ProductRedisTemplate() {
+	@Bean(name = "NoticeRedisTemplate")
+	public StringRedisTemplate NoticeRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
-        template.setConnectionFactory(productConnectionFactory());
+        template.setConnectionFactory(noticeConnectionFactory());
         return template;
     }
 }

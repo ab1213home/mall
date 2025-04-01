@@ -16,7 +16,7 @@ package com.jiang.mall.intercepter;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.ITemporaryRedisService;
+import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -36,10 +36,10 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
         this.i18nService = i18nService;
     }
 
-    private ITemporaryRedisService redisService;
+    private IUserRedisService redisService;
 
 	@Autowired
-	public void setRedisService(ITemporaryRedisService redisService) {
+	public void setRedisService(IUserRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -73,7 +73,7 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
 //        }
 //        // 允许其他请求继续执行
 //        return true;
-	    if (redisService.hasKey("register:"+request.getSession().getId())){
+	    if (redisService.validateTwoRegister(request.getSession().getId())){
 			return true;
 	    }else {
 	    	redirectToRegister(request, response);

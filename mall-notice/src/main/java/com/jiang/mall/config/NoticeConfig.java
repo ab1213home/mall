@@ -101,4 +101,37 @@ public class NoticeConfig {
         }
     }
 
+    public Long getNoticeExpirationTime() {
+        return Long.parseLong(properties.getProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), NoticeConfigItems.NOTICE_CONFIG_ITEMS.getDefaultValue()));
+    }
+
+    public Integer getNoticeMaxRequestNum() {
+        return Integer.parseInt(properties.getProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getDefaultValue()));
+    }
+
+    public Integer getNoticeMinRequestNum() {
+        return Integer.parseInt(properties.getProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getDefaultValue()));
+    }
+
+    public Double getNoticeMaxFail() {
+        return Double.parseDouble(properties.getProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), NoticeConfigItems.NOTICE_MAX_FAIL.getDefaultValue()));
+    }
+
+    public void updateNoticeExpirationTime(Long noticeExpirationTime) {
+        properties.setProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), String.valueOf(noticeExpirationTime));
+    }
+
+    public void updateNoticeMaxRequestNum(Integer noticeMaxRequestNum) {
+        properties.setProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), String.valueOf(noticeMaxRequestNum));
+    }
+
+    public void updateNoticeMinRequestNum(Integer noticeMinRequestNum) {
+        properties.setProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), String.valueOf(noticeMinRequestNum));
+    }
+
+    public void updateNoticeMaxFail(Double noticeMaxFail) {
+        properties.setProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), String.valueOf(noticeMaxFail));
+    }
+
+
 }

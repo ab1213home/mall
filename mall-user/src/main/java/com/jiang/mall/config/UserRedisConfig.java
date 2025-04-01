@@ -23,12 +23,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Configuration
 public class UserRedisConfig {
 
-	/*(2) 用户会话（Session）**
-		  - **缓存内容**：用户登录状态、权限信息等。
-		  - **缓存理由**：用户会话数据需要频繁读取，使用 Redis 可以支持分布式会话。
-		  - **缓存策略**：
-		  - 设置过期时间（如 30 分钟）。
-		  - 用户退出时清除缓存。
+	/** 用户会话（Session）
+	 * <p>
+	 * - 缓存内容：用户登录状态、权限信息等。
+	 * <p>
+	 * - 缓存理由：用户会话数据需要频繁读取，使用 Redis 可以支持分布式会话。
+	 * <p>
+	 * - 缓存策略：用户退出时清除缓存。
 	 */
 	@Value("${redis.database.user:1}")
 	private int user;
