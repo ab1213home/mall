@@ -660,6 +660,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	}
 
+	@Override
+	public int countTryNumber(String username, String clientIp, String fingerprint) {
+		return userLogService.countTryNumber(username, clientIp, fingerprint);
+	}
+
 
 	/**
 	 * 修改用户密码

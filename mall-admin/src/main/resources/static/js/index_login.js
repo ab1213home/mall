@@ -60,8 +60,6 @@ function isLogin(){
                 // 设置result为true，表示已登录
 				result = true;
 			}else{
-                // 设置result为false，表示未登录
-				result = false;
 				//如果存在token，则删除
 				if (token){
 					localStorage.removeItem('token');

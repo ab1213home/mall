@@ -87,4 +87,6 @@ public interface IUserService extends IService<User> {
     List<Long> getOnlineUser();
 
     boolean login(String sessionId, int code, String token, String clientIp, String fingerprint);
+
+	int countTryNumber(String username, String clientIp, String fingerprint);
 }

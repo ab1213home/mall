@@ -412,11 +412,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             if (cartRedisService.hasVersion(userId)){
                 version_redis = cartRedisService.getVersion(userId);
             }
-            if (version_redis == null || version_redis < version_mysql){
+            if (version_redis == null || version_redis <= version_mysql){
                 checkCartFormMySQLToRedis(userId, version_mysql);
             }else {
-                //redis版本号大于等于数据库版本号
-                logger.info("Redis版本号大于等于MySQL数据库版本号，{}用户购物车缓存已同步", userId);
+                //redis版本号大于数据库版本号
+                logger.info("Redis版本号大于MySQL数据库版本号，{}用户购物车缓存已同步", userId);
             }
         }
     }

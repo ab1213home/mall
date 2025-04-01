@@ -12,9 +12,13 @@
  */
 
 $(document).ready(function(){
-	isAdminUser();
-	queryMyUserInfo();
-    getFaceTemplateList();
+    let res = queryMyUserInfo();
+	if (res){
+        isAdminUser();
+        getFaceTemplateList();
+	}else{
+		window.location.href = "/user/login.html?url=%2Fuser%2Fmodify%2Fportrait.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+	}
 })
 let imagesArr=[];
 function getRandomImages(images, n) {

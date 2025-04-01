@@ -19,8 +19,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (message != null) {
         show_error(message);
     }
+    const remember = localStorage.getItem('remember');
+    if (remember == 'true') {
+        $('#username').val(localStorage.getItem('username'));
+        $('#password').val(localStorage.getItem('password'));
+        $('#remember').prop('checked', true);
+    } else {
+        $('#remember').prop('checked', false);
+    }
 });
 
+document.getElementById('remember').addEventListener('change', function() {
+    if(this.checked) {
+        console.log('复选框被选中');
+        // 在这里添加您想要执行的代码
+    } else {
+        console.log('复选框未被选中');
+        // 在这里添加其他代码
+    }
+});
 
 // 登录表单提交处理函数
 function submitLoginForm() {
@@ -51,6 +68,7 @@ function submitLoginForm() {
     success: function (res) {
         // 处理成功响应
         if (res.code === 200) {
+            const rememberCheckbox = document.getElementById('remember');
             if (res.data == 'false'){
                 const step2 = document.querySelectorAll('.step2');
                 const step1 = document.querySelectorAll('.step1');
@@ -60,9 +78,24 @@ function submitLoginForm() {
                 step2.forEach(element => {
 					element.style.display = 'block';
 				});
+                if (rememberCheckbox.checked){
+                    localStorage.setItem('remember', 'true');
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('password', sha256(password));
+                }else {
+                    localStorage.setItem('remember', 'false');
+                }
             }else {
                 localStorage.setItem('token', res.data);
                 // sessionStorage.setItem('token', res.data);
+                if (rememberCheckbox.checked){
+                    localStorage.setItem('remember', 'true');
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('password', sha256(password));
+                    localStorage.setItem('remember_token', res.data);
+                }else {
+                    localStorage.setItem('remember', 'false');
+                }
                 if (url!=null){
                     window.location.href = url;
                 }else {
@@ -120,8 +153,12 @@ function submitTwoVerifyForm() {
     success: function (res) {
         // 处理成功响应
         if (res.code === 200) {
+            const rememberCheckbox = document.getElementById('remember');
             localStorage.setItem('token', res.data);
             // sessionStorage.setItem('token', res.data);
+            if (rememberCheckbox.checked){
+                localStorage.setItem('remember_token', res.data);
+            }
             if (url!=null){
                 window.location.href = url;
             }else {
@@ -129,7 +166,7 @@ function submitTwoVerifyForm() {
             }
         } else {
             show_error('登录失败:'+res.message);
-            refreshCaptcha()
+            $('#code').val('');
         }
     },
     fail: function(xhr, status, error) {

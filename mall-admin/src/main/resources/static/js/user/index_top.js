@@ -40,13 +40,22 @@ function logout() {
 	});
 }
 
+/**
+ * 检查用户是否已登录
+ *
+ * 通过发送AJAX请求到服务器检查用户登录状态
+ * 使用同步请求以确保在获取结果前页面不会继续执行
+ *
+ * @return {boolean} 返回用户是否已登录的状态 true表示已登录，false表示未登录
+ */
 function queryMyUserInfo(){
+	let result = false;
 	const token = localStorage.getItem('token');
 	$.ajax({
 		type:"GET",
 		url:"/user/isLogin",
 		data:{},
-		// async:false,	//设置同步请求
+		async:false,	//设置同步请求
 		headers: {
 			Token:token
 		},
@@ -54,6 +63,7 @@ function queryMyUserInfo(){
 		success:function(res){
 			if(res.code == 200){
 				//已登录
+				result = true;
 				// 选择所有具有 class="example" 的元素
         		const username = document.querySelectorAll('.username');
 				// 遍历所有选中的元素并更改文本
@@ -119,10 +129,13 @@ function queryMyUserInfo(){
 				if (document.getElementById("phone_show")!= null){
 					document.getElementById("phone_show").textContent = res.data.phone;
 				}
-			}else {
-				show_error("未登录");
-				window.location.href = '/user/login.html';
+			}else{
+				//如果存在token，则删除
+				if (token){
+					localStorage.removeItem('token');
+				}
 			}
 		}
 	});
+	return result;
 }

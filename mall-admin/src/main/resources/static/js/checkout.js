@@ -16,16 +16,21 @@ let currentPageNum_cart = 1;
 let num_cart = 0;
 
 $(document).ready(function(){
-    isLogin();
-	getTemporaryNum();
+    let res = isLogin();
 	getFooterInfo();
-	queryCart(1, 10);
-	bindPreNextPage_product();
-	queryAddress(1,10);
-	bindPreNextPage_address();
-	document.getElementById('submitOrder').addEventListener('click', function() {
-		checkOut();
-	});
+	if (res){
+		getTemporaryNum();
+		queryCart(1, 10);
+		bindPreNextPage_product();
+		queryAddress(1,10);
+		getAddressNum();
+		bindPreNextPage_address();
+		document.getElementById('submitOrder').addEventListener('click', function() {
+			checkOut();
+		});
+	}else{
+		window.location.href = "/user/login.html?url=%2Fcheckout.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+	}
 })
 function getTemporaryNum(){
 	$.ajax({

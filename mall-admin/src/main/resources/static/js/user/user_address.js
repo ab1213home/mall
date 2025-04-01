@@ -14,10 +14,6 @@
 let addressArr = {};
 let currentPageNum_address = 1;
 let num_address = 0;
-$(document).ready(function(){
-	getAddressNum();
-	queryAddress(1,10);
-})
 
 document.addEventListener('DOMContentLoaded', function() {
     var itemModal = document.getElementById('addressModal');

@@ -17,11 +17,15 @@ import cn.hutool.core.lang.UUID;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
+import com.jiang.mall.domain.vo.UserVo;
+import com.jiang.mall.intercepter.PermissionInterceptor;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.BeanCopyUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,13 +47,6 @@ public class LoginController {
         this.userService = userService;
     }
 
-    private IUserLogService userRecordService;
-
-    @Autowired
-    public void setLoginRecordService(IUserLogService userRecordService) {
-        this.userRecordService = userRecordService;
-    }
-
 	private II18nService i18nService;
 
 	@Autowired
@@ -69,6 +66,13 @@ public class LoginController {
 	@Autowired
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
+	}
+
+	private PermissionInterceptor permissionInterceptor;
+
+	@Autowired
+	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+		this.permissionInterceptor = permissionInterceptor;
 	}
 
 	/**
@@ -114,7 +118,7 @@ public class LoginController {
 		}
 
         // 检查用户尝试登录失败次数
-        if (userRecordService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry()){
+        if (userService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry()){
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 
@@ -191,14 +195,19 @@ public class LoginController {
      * 通过检查会话（session）中的用户信息来判断用户是否已登录
      * 如果用户已登录，则返回用户的详细信息
      *
-     * @param session HTTP会话，用于获取用户登录状态和相关信息
+	 * @param request HttpServletRequest对象，用于获取会话信息
      * @return ResponseResult 包含用户是否登录的结果或用户详细信息
      */
     @GetMapping("/isLogin")
-    @Permission(PermissionType.USER)
-    public ResponseResult<Object> isLogin(HttpSession session){
-        return userService.checkUserLogin(session.getId());
-//	    return ResponseResult.okResult(true);
+    @Permission(PermissionType.NONE)
+    public ResponseResult<Object> isLogin(HttpServletRequest request){
+	    UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request);
+		if (permissionInterceptor.checkLogin(userCache)){
+			UserVo userVo = BeanCopyUtils.copyBean(userCache, UserVo.class);
+			return ResponseResult.okResult(userVo);
+		}else {
+			return ResponseResult.notLoggedResult(i18nService.getMessage("user.error.notLogin"));
+		}
     }
 
     /**

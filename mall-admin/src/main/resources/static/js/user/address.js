@@ -12,9 +12,15 @@
  */
 
 $(document).ready(function(){
-	isAdminUser();
-	queryMyUserInfo();
-	bindPreNextPage();
+    let res = queryMyUserInfo();
+	if (res){
+        isAdminUser();
+        getAddressNum();
+	    queryAddress(1,10);
+	    bindPreNextPage();
+	}else{
+		window.location.href = "/user/login.html?url=%2Fuser%2Fmodify%2Faddress.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+	}
 })
 function queryAddress(pn, pz) {
     $.ajax({
