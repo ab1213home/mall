@@ -54,7 +54,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static com.jiang.mall.util.EncryptAndDecryptUtils.calculateToMD5;
+import static com.jiang.mall.util.SecureUtil.md5Hex;
 
 @Service
 public class FileOperationImpl implements IFileOperation {
@@ -262,6 +262,26 @@ public class FileOperationImpl implements IFileOperation {
         }
         return isImage;
     }
+
+//    由来
+//文件名操作工具类，主要针对文件名获取主文件名、扩展名等操作，同时针对Windows平台，清理无效字符。
+//
+//此工具类在5.4.1之前是FileUtil的一部分，后单独剥离为FileNameUtil工具。
+//
+//使用
+//获取文件名
+//File file = FileUtil.file("/opt/test.txt");
+//
+//// test.txt
+//String name = FileNameUtil.getName(file);
+//获取主文件名和扩展名
+//File file = FileUtil.file("/opt/test.txt");
+//
+//// "test"
+//String name = FileNameUtil.mainName(file);
+//
+//// "txt"
+//String name = FileNameUtil.extName(file);
 
     @Override
     public ResponseResult<Object> FileWrite(@NotNull MultipartFile file, String sessionId, FilePurpose type) throws IOException {
@@ -477,7 +497,7 @@ public class FileOperationImpl implements IFileOperation {
 	                directoryVo.getSubDirectories().add(directory);
 	            } else {
 	                // 如果是文件，则将其转换为FileVo
-	                FileVo fileVo = new FileVo(file.getName(), file.length(), calculateToMD5(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
+	                FileVo fileVo = new FileVo(file.getName(), file.length(), md5Hex(file),getTypeFromName(file.getName()),new Date(file.lastModified()));
                     fileVo.setPurpose("null");
 	                // 将文件Vo添加到当前目录的文件列表中
 	                directoryVo.getFiles().add(fileVo);

@@ -59,7 +59,6 @@ public class WechatpayConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("wechatpay");
         loadProperties();
-        readWechatpayConfig();
         if (getIsEnabled() && health){
             logger.debug("微信支付已启用");
             //初始化微信支付服务
@@ -81,7 +80,7 @@ public class WechatpayConfig {
     }
 
     @NotNull
-    public WechatpayConfigVo readWechatpayConfig() {
+    public WechatpayConfigVo getSetting() {
         WechatpayConfigVo wechatpayConfigVo = new WechatpayConfigVo();
         wechatpayConfigVo.setAppId(properties.getProperty(WechatpayConfigItems.WECHATPAY_APP_ID.getKey()));
         wechatpayConfigVo.setMerchantId(properties.getProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey()));
@@ -121,7 +120,6 @@ public class WechatpayConfig {
 
     public RefundService refundService;
 
-
     public boolean health = false;
 
     /**
@@ -132,13 +130,13 @@ public class WechatpayConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-//                for (WechatpayConfigItems item : WechatpayConfigItems.values()){
-//                    String keyToCheck = item.getKey();
-//                    if (!properties.containsKey(keyToCheck)) {
-//                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
-//                        saveProperties();
-//                    }
-//                }
+                for (WechatpayConfigItems item : WechatpayConfigItems.values()){
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        saveProperties();
+                    }
+                }
                 logger.debug("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -176,7 +174,7 @@ public class WechatpayConfig {
         }
     }
 
-    public void updateWechatpayConfig(@NotNull WechatpayConfigVo config){
+    public void updateSetting(@NotNull WechatpayConfigVo config){
         properties.setProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_ID.getKey(), config.getMerchantId());
         properties.setProperty(WechatpayConfigItems.WECHATPAY_PRIVATE_KEY_PATH.getKey(), config.getPrivateKeyPath());
         properties.setProperty(WechatpayConfigItems.WECHATPAY_MERCHANT_SERIAL_NUMBER.getKey(), config.getSerialNumber());

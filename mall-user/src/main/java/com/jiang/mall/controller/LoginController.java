@@ -24,7 +24,7 @@ import com.jiang.mall.intercepter.PermissionInterceptor;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,8 +170,36 @@ public class LoginController {
 	    if (flag){
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 	    }else {
-	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));
 	    }
+	}
+
+	@PostMapping("/login/rememberMe")
+	@Permission(PermissionType.GUEST)
+	public ResponseResult<Object> loginRememberMe(@RequestParam("password") String password,
+                                                 @RequestParam("token") String token,
+                                                 @RequestHeader("X-Real-IP") String clientIp,
+                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                                 HttpSession session) {
+	    // 验证客户端IP是否有效
+	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+	    }
+	    // 验证客户端指纹是否有效
+	    if (!i18nService.checkString(fingerprint)){
+	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+	    }
+	    // 调用用户服务进行登录验证
+	    Boolean flag = userService.login(password, token, clientIp, fingerprint,session.getId());
+	    //flag==null账号密码token错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
+        if (flag == null) {
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+        } else if (!flag){
+            // 登录失败，返回相应错误信息
+            return ResponseResult.okResult("false","需要二次验证");
+        }else {
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+        }
 	}
 
 	/**
@@ -203,10 +231,10 @@ public class LoginController {
     public ResponseResult<Object> isLogin(HttpServletRequest request){
 	    UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request);
 		if (permissionInterceptor.checkLogin(userCache)){
-			UserVo userVo = BeanCopyUtils.copyBean(userCache, UserVo.class);
+			UserVo userVo = BeanCopyUtil.copyBean(userCache, UserVo.class);
 			return ResponseResult.okResult(userVo);
 		}else {
-			return ResponseResult.notLoggedResult(i18nService.getMessage("user.error.notLogin"));
+			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}
     }
 

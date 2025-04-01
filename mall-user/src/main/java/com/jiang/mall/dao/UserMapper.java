@@ -33,14 +33,14 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = true LIMIT 1")
-    User selectUserByIdAndActive(Long userId);
+    @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = #{active} LIMIT 1")
+    User selectUserByIdAndActive(Long userId, boolean active);
 
-    @Select("SELECT * FROM tb_users WHERE username = #{username} AND is_active = true LIMIT 1")
-    User selectByUsernameAndIsActive(String username);
+    @Select("SELECT * FROM tb_users WHERE username = #{username} AND is_active = #{active} LIMIT 1")
+    User selectByUsernameAndIsActive(String username, boolean active);
 
-    @Select("SELECT * FROM tb_users WHERE email = #{email} AND is_active = true LIMIT 1")
-    User selectByEmailAndIsActive(String email);
+    @Select("SELECT * FROM tb_users WHERE email = #{email} AND is_active = #{active} LIMIT 1")
+    User selectByEmailAndIsActive(String email, boolean active);
 
     @Select("SELECT * FROM tb_users WHERE username = #{username} LIMIT 1")
     User selectByUsername(String username);
@@ -63,24 +63,27 @@ public interface UserMapper extends BaseMapper<User> {
     @Update("UPDATE tb_users SET is_active = true , updater = #{updater} , updated_at = NOW() WHERE id = #{id}")
     int unlockById(Long id, Long updater);
 
-    @Select("SELECT COUNT(*) FROM tb_users WHERE id = #{id} AND password = #{password} AND is_active = true")
-    int validatePassword(Long id, String password);
+    @Select("SELECT COUNT(*) FROM tb_users WHERE id = #{id} AND password = #{password} AND is_active = #{active}")
+    int validatePassword(Long id, String password, boolean active);
 
-    @Update("UPDATE tb_users SET email = #{email} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    @Update("UPDATE tb_users SET email = #{email} , updater = #{id} , updated_at = NOW() WHERE id = #{id}")
     int updateEmail(Long id, String email);
 
-    @Update("UPDATE tb_users SET default_address_id = #{addressId} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    @Update("UPDATE tb_users SET default_address_id = #{addressId} , updater = #{id} , updated_at = NOW() WHERE id = #{id}")
     void updateDefaultAddressId(Long id, Long addressId);
 
     @Select("SELECT totp_enabled FROM tb_users WHERE id = #{id} AND is_active = true LIMIT 1")
     boolean selectTotpStatusById(Long id);
 
-    @Update("UPDATE tb_users SET totp_secret = #{secretKey} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    @Update("UPDATE tb_users SET totp_secret = #{secretKey} , updater = #{id} , updated_at = NOW() WHERE id = #{id}")
     int updateTotpSecretById(Long id, String secretKey);
 
-    @Update("UPDATE tb_users SET totp_enabled = #{status} , updater = #{id} , updated_at = NOW() WHERE id = #{id} AND is_active = true")
+    @Update("UPDATE tb_users SET totp_enabled = #{status} , updater = #{id} , updated_at = NOW() WHERE id = #{id}")
     int updateTotpStatusById(Long id, boolean status);
 
-    @Select("SELECT totp_secret FROM tb_users WHERE id = #{id} AND is_active = true LIMIT 1")
+    @Select("SELECT totp_secret FROM tb_users WHERE id = #{id} LIMIT 1")
     String selectTotpSecretById(Long id);
+
+    @Select("SELECT * FROM tb_users WHERE id = #{userId} AND is_active = #{active} AND password = #{password} LIMIT 1")
+    User selectUserByIdAndActiveAndPassword(Long userId, boolean active, String password);
 }

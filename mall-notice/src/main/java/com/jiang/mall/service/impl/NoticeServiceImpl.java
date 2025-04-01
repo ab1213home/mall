@@ -16,10 +16,9 @@ package com.jiang.mall.service.impl;
 import com.jiang.mall.config.NoticeConfig;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
-import com.jiang.mall.service.INoticeLogService;
-import com.jiang.mall.service.INoticeRedisService;
-import com.jiang.mall.service.INoticeService;
-import com.jiang.mall.service.ITemplateService;
+import com.jiang.mall.domain.enums.NoticeStatus;
+import com.jiang.mall.service.*;
+import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +62,12 @@ public class NoticeServiceImpl implements INoticeService {
 	    this.noticeConfig = noticeConfig;
 	}
 
+	private IEmailService emailService;
+
+	@Autowired
+	public void setEmailService(IEmailService emailService) {
+		this.emailService = emailService;
+	}
 
 	@Override
 	public boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
@@ -78,8 +83,20 @@ public class NoticeServiceImpl implements INoticeService {
 				redisService.setTemplate(purpose, channel, template);
 			}
 		}
+		//模板哈希值
+		String  templateHash = SecureUtil.sha256Hex(template);
 		properties.put("expiration_time", noticeConfig.getNoticeExpirationTime());
 		String html = applyPropertiesToTemplate(template, properties);
+		if (channel == NoticeChannel.EMAIL){
+			Boolean flag = emailService.sendEmail(receiver, "Jiang Mall | "+purpose.getName(), html);
+			if (flag){
+				noticeLogService.defaultLog(null, receiver, NoticeStatus.SUCCESS, properties);
+				return true;
+			}else {
+				noticeLogService.defaultLog(null, receiver, NoticeStatus.FAILED, properties);
+				return false;
+			}
+		}
 		return false;
 	}
 
@@ -98,7 +115,7 @@ public class NoticeServiceImpl implements INoticeService {
 		return false;
 	}
 
-	public static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
+	private static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
         // 遍历 properties 映射，替换模板字符串中的相应内容
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String key = entry.getKey();

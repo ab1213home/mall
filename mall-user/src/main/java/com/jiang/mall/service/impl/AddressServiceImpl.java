@@ -25,7 +25,7 @@ import com.jiang.mall.domain.entity.AdministrativeDivision;
 import com.jiang.mall.domain.vo.AddressVo;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +80,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return AddressVo对象，包含地址信息和省市县信息
 	 */
 	public AddressVo getAddress(Address address) {
-		AddressVo addressVo = BeanCopyUtils.copyBean(address, AddressVo.class);
+		AddressVo addressVo = BeanCopyUtil.copyBean(address, AddressVo.class);
 		assert addressVo != null;
 		AdministrativeDivision township = divisionMapper.selectByAreaCode(address.getAreaCode());
 		if (township.getLevel() == 4){

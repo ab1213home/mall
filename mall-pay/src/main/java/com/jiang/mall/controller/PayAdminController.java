@@ -54,8 +54,8 @@ public class PayAdminController {
     @Permission(value = PermissionType.SYSTEM, permission = "pay")
     public ResponseResult<Object> getSetting() {
 		Map<String,Object> setting = new HashMap<>();
-		setting.put("wechatpayConfig", wechatpayConfig.readWechatpayConfig());
-		setting.put("alipayConfig", alipayConfig.readAlipayConfig());
+		setting.put("wechatpayConfig", wechatpayConfig.getSetting());
+		setting.put("alipayConfig", alipayConfig.getSetting());
         return ResponseResult.okResult(setting);
     }
 

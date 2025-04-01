@@ -25,7 +25,7 @@ import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.ICollectionService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -98,14 +98,14 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		List<Collection> collectionList = collectionMapper.selectPage(page, queryWrapper).getRecords();
 		List<CollectionVo> collectionVo = new ArrayList<>();
 		for (Collection collection : collectionList){
-			CollectionVo collectionVoMin = BeanCopyUtils.copyBean(collection, CollectionVo.class);
+			CollectionVo collectionVoMin = BeanCopyUtil.copyBean(collection, CollectionVo.class);
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	        // 格式化日期时间
 	        String formattedDateTime = collection.getCreatedAt().format(formatter);
 			assert collectionVoMin != null;
 			collectionVoMin.setDate(formattedDateTime);
 			Product product= productMapper.selectById(collection.getProdId());
-			ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+			ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
 			collectionVoMin.setProduct(productVo);
 			collectionVo.add(collectionVoMin);
 		}

@@ -136,7 +136,7 @@ public class User implements Serializable {
     /**
      * 是否激活，默认为 true
      */
-    private Boolean isActive;
+    private boolean isActive;
 
     public User() {
 

@@ -25,7 +25,7 @@ import com.jiang.mall.event.BannerChangedEvent;
 import com.jiang.mall.service.IBannerRedisService;
 import com.jiang.mall.service.IBannerService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +111,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         List<Banner> banners = bannerMapper.selectPage(bannerPage, null).getRecords();
 		List<BannerAdminVo> bannerAdminVos = new ArrayList<>();
 		for (Banner banner : banners) {
-			BannerAdminVo bannerAdminVo = BeanCopyUtils.copyBean(banner, BannerAdminVo.class);
+			BannerAdminVo bannerAdminVo = BeanCopyUtil.copyBean(banner, BannerAdminVo.class);
 			assert bannerAdminVo != null;
 			//获取创建者和更新者信息
 			bannerAdminVo.setCreator(userService.getUserById(banner.getCreator()));
@@ -146,7 +146,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	    // 查询当前时间下所有有效的Banner实体列表
 	    List<Banner> banners = bannerMapper.geTeffectiveBannerList(LocalDateTime.now());
 	    // 将Banner实体列表转换为BannerVo列表，并返回
-	    return BeanCopyUtils.copyBeanList(banners, BannerVo.class);
+	    return BeanCopyUtil.copyBeanList(banners, BannerVo.class);
 	}
 
 	/**

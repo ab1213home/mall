@@ -25,7 +25,7 @@ import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.vo.TemplateVo;
 import com.jiang.mall.service.ITemplateService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		}
 		List<TemplateVo> templateVos = new ArrayList<>();
 		for (Template template : templates) {
-			TemplateVo templateVo = BeanCopyUtils.copyBean(template, TemplateVo.class);
+			TemplateVo templateVo = BeanCopyUtil.copyBean(template, TemplateVo.class);
 			assert templateVo != null;
 			templateVo.setChannel(NoticeChannel.getNameByValue(template.getChannel()));
 			templateVo.setPurpose(NoticePurpose.getNameByValue(template.getPurpose()));

@@ -29,7 +29,7 @@ public enum GeneralConfigItems {
 	REGEX_PASSWORD("mall.password.regexp", "密码正则表达式", "^[a-zA-Z0-9]{6,16}$"),
 	REGEX_USERNAME("mall.username.regexp", "用户名正则表达式", "^[a-zA-Z0-9]{6,16}$"),
 	REDIS_KEY_PREFIX("redis.key.prefix", "Redis键前缀", "mall"),
-	MALL_NAME("mall.name", "名称", "JiangMall"),
+	MALL_NAME("mall.name", "名称", "Jiang Mall"),
 	MALL_RECORD("mall.record", "备案号", "京ICP备00000000号"),
 	MALL_DOMAIN("mall.domain", "域名", "http://localhost:8080"),
 	MALL_DEMO_MODE("mall.demo.mode", "是否为演示模式", "false");

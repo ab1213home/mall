@@ -25,7 +25,7 @@ import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.jiang.mall.util.DecimalUtils.add;
+import static com.jiang.mall.util.DecimalUtil.add;
 
 /**
  * <p>
@@ -229,7 +229,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		List<OrderVo> orderVoList = new ArrayList<>();
 		Long defaultAddressId = user.getDefaultAddressId();
 		for (Order order_item : orderList) {
-			OrderVo orderVo = BeanCopyUtils.copyBean(order_item, OrderVo.class);
+			OrderVo orderVo = BeanCopyUtil.copyBean(order_item, OrderVo.class);
 			Address address = addressMapper.selectById(order_item.getAddressId());
 			AddressVo addressVo = addressService.getAddress(address);
 			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
@@ -243,9 +243,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			List<OrderListVo> orderList_VoList = new ArrayList<>();
 			for (OrderList orderList_item : orderList_List) {
 				//TODO：待修复，商品快照+分类快照
-				OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
+				OrderListVo orderListVo = BeanCopyUtil.copyBean(orderList_item, OrderListVo.class);
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
-				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+				ProductSnapshotVo productVo = BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
 				assert orderListVo != null;
 				orderListVo.setProduct(productVo);
 				orderList_VoList.add(orderListVo);
@@ -294,7 +294,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    // 遍历订单列表，将每个订单的信息转换为VO对象
 	    for (Order order_item : orderList) {
 	        // 将订单对象转换为订单VO对象
-	        OrderAllVo orderVo = BeanCopyUtils.copyBean(order_item, OrderAllVo.class);
+	        OrderAllVo orderVo = BeanCopyUtil.copyBean(order_item, OrderAllVo.class);
 
 	        // 根据订单中的地址ID查询地址信息，并转换为地址VO对象
 	        Address address = addressMapper.selectById(order_item.getAddressId());
@@ -304,7 +304,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
 			// 根据订单中的用户ID查询用户信息，并转换为用户VO对象
 			User user = userMapper.selectById(order_item.getUserId());
-			UserVo userVo = BeanCopyUtils.copyBean(user, UserVo.class);
+			UserVo userVo = BeanCopyUtil.copyBean(user, UserVo.class);
 
 			// 将用户信息转换为VO对象
 			orderVo.setUser(userVo);
@@ -326,10 +326,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	        // 遍历订单详情列表，将每个订单详情的信息转换为VO对象
 	        for (OrderList orderList_item : orderList_List) {
 	            // 将订单详情对象转换为订单详情VO对象，并设置产品名称和图片信息
-	            OrderListVo orderListVo = BeanCopyUtils.copyBean(orderList_item, OrderListVo.class);
+	            OrderListVo orderListVo = BeanCopyUtil.copyBean(orderList_item, OrderListVo.class);
 				// 根据订单详情中的产品ID查询产品信息
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
-				ProductSnapshotVo productVo = BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+				ProductSnapshotVo productVo = BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
 		        assert orderListVo != null;
 		        orderListVo.setProduct(productVo);
 

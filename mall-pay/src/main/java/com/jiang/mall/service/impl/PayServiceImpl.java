@@ -220,8 +220,8 @@ public class PayServiceImpl implements IPayService {
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
 		//公众号ID
-        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
-        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setAppid(wechatpayConfig.getSetting().getAppId());
+        request.setMchid(wechatpayConfig.getSetting().getMerchantId());
         request.setDescription(content);
         request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
         request.setOutTradeNo(String.valueOf(orderId));
@@ -239,8 +239,8 @@ public class PayServiceImpl implements IPayService {
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
 		//公众号ID
-        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
-        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setAppid(wechatpayConfig.getSetting().getAppId());
+        request.setMchid(wechatpayConfig.getSetting().getMerchantId());
         request.setDescription(content);
         request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
         request.setOutTradeNo(String.valueOf(orderId));
@@ -262,8 +262,8 @@ public class PayServiceImpl implements IPayService {
 		payer.setOpenid(openId);
 		request.setPayer(payer);
 		//公众号ID
-        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
-        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setAppid(wechatpayConfig.getSetting().getAppId());
+        request.setMchid(wechatpayConfig.getSetting().getMerchantId());
         request.setDescription(content);
         request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
         request.setOutTradeNo(String.valueOf(orderId));
@@ -281,8 +281,8 @@ public class PayServiceImpl implements IPayService {
 		_amount.setCurrency("CNY");
         request.setAmount(_amount);
 		//公众号ID
-        request.setAppid(wechatpayConfig.readWechatpayConfig().getAppId());
-        request.setMchid(wechatpayConfig.readWechatpayConfig().getMerchantId());
+        request.setAppid(wechatpayConfig.getSetting().getAppId());
+        request.setMchid(wechatpayConfig.getSetting().getMerchantId());
         request.setDescription(content);
         request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
         request.setOutTradeNo(String.valueOf(orderId));

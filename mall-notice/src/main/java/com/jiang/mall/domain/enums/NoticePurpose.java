@@ -16,7 +16,7 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 /**
- * 邮箱验证码用途枚举类
+ * 通知用途枚举类
  */
 @Getter
 public enum NoticePurpose {

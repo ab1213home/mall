@@ -21,7 +21,7 @@ import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.service.IProductSnapshotService;
 import com.jiang.mall.service.IUserService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,7 +68,7 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 			if (productSnapshot == null) {
 				return null;
 			}
-			return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+			return BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
 //	    }else{
 //	        return null;
 //	    }
@@ -90,7 +90,7 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 	            if (productSnapshot == null) {
 	                return null;
 	            }
-		        return BeanCopyUtils.copyBean(productSnapshot, ProductSnapshotVo.class);
+		        return BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
 //	        }
 //	    }else{
 //	        return null;

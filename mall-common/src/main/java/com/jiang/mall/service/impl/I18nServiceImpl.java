@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.OutputStream;
 import java.util.Locale;
 
-import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
+import static com.jiang.mall.util.SecureUtil.isSha256Hash;
 
 @Service
 public class I18nServiceImpl implements II18nService {

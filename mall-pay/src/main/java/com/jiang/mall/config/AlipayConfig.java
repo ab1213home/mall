@@ -51,11 +51,9 @@ public class AlipayConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("alipay");
         loadProperties();
-        readAlipayConfig();
         if (getIsEnabled()&& health) {
             logger.debug("支付宝支付已启用");
             iniAlipayConfig();
-
         } else if (!getIsEnabled()){
             logger.debug("支付宝支付未启用");
         }else if (!health){
@@ -67,7 +65,7 @@ public class AlipayConfig {
         Factory.setOptions(getAlipayConfig());
     }
 
-    public @NotNull AlipayConfigVo readAlipayConfig() {
+    public @NotNull AlipayConfigVo getSetting() {
         AlipayConfigVo alipayConfigVo = new AlipayConfigVo();
         alipayConfigVo.setAppId(properties.getProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey()));
         alipayConfigVo.setMerchantPrivateKey(properties.getProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey()));
@@ -94,13 +92,13 @@ public class AlipayConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-//                for (AlipayConfigItems item : AlipayConfigItems.values()){
-//                    String keyToCheck = item.getKey();
-//                    if (!properties.containsKey(keyToCheck)) {
-//                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
-//                        saveProperties();
-//                    }
-//                }
+                for (AlipayConfigItems item : AlipayConfigItems.values()){
+                    String keyToCheck = item.getKey();
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        saveProperties();
+                    }
+                }
                 logger.debug("配置文件加载成功: {}", CONFIG_FILE_PATH);
             } catch (IOException e) {
                 logger.error("加载配置文件失败！路径: {}", CONFIG_FILE_PATH, e);
@@ -138,7 +136,7 @@ public class AlipayConfig {
         }
     }
 
-    public void updateAlipayConfig(@NotNull AlipayConfigVo config){
+    public void updateSetting(@NotNull AlipayConfigVo config){
         properties.setProperty(AlipayConfigItems.ALIPAY_APP_ID.getKey(), config.getAppId());
         properties.setProperty(AlipayConfigItems.ALIPAY_MERCHANT_PRIVATE_KEY.getKey(), config.getMerchantPrivateKey());
         properties.setProperty(AlipayConfigItems.ALIPAY_IS_CERTIFICATE.getKey(), String.valueOf(config.isCertificate()));

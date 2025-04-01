@@ -89,4 +89,6 @@ public interface IUserService extends IService<User> {
     boolean login(String sessionId, int code, String token, String clientIp, String fingerprint);
 
 	int countTryNumber(String username, String clientIp, String fingerprint);
+
+    Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId);
 }

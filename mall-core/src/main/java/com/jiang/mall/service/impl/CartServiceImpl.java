@@ -26,7 +26,7 @@ import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.*;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,7 +186,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         List<CartDto> cartList = cartRedisService.getCart(userId, pageNum, pageSize);
         List<CartVo> cartVos = new ArrayList<>();
         for (CartDto cartDto : cartList) {
-            CartVo cartVo = BeanCopyUtils.copyBean(cartDto, CartVo.class);
+            CartVo cartVo = BeanCopyUtil.copyBean(cartDto, CartVo.class);
 	        assert cartVo != null;
 	        cartVo.setProduct(productService.getProduct(cartDto.getProdId()));
             cartVos.add(cartVo);
@@ -203,7 +203,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     private @NotNull List<CartVo> cartToCartVo(@NotNull List<Cart> carts) {
         List<CartVo> cartVos = new ArrayList<>();
         for (Cart cart : carts) {
-            CartVo cartVo = BeanCopyUtils.copyBean(cart, CartVo.class);
+            CartVo cartVo = BeanCopyUtil.copyBean(cart, CartVo.class);
             assert cartVo != null;
             // 根据购物车项中的产品ID，查询产品信息
             ProductVo product = productService.getProduct(cart.getProdId());
@@ -426,7 +426,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("version", version);
         List<Cart> carts = cartMapper.selectList(queryWrapper);
-        List<CartDto> cartDtos = BeanCopyUtils.copyBeanList(carts, CartDto.class);
+        List<CartDto> cartDtos = BeanCopyUtil.copyBeanList(carts, CartDto.class);
         cartRedisService.initCart(userId, cartDtos, version);
     }
 

@@ -14,8 +14,8 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.GeneralConfigItems;
+import com.jiang.mall.util.DockerUtil;
 import com.jiang.mall.util.MachineCodeUtil;
-import com.jiang.mall.util.RunningUtil;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class GeneralConfig {
         CONFIG_FILE_PATH = getConfigFilePath("mall");
         loadProperties();
         MACHINE_CODE = MachineCodeUtil.getMachineCode();
-        RUNNING_DOCKER = RunningUtil.isRunningInDocker();
+        RUNNING_DOCKER = DockerUtil.isRunningInDocker();
     }
 
     /**

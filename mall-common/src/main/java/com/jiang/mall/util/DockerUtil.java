@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class RunningUtil {
+public class DockerUtil {
 
 	/**
 	 * 判断当前程序是否在Docker容器中运行

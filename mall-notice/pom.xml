@@ -43,9 +43,10 @@
     </properties>
     <dependencies>
 
+        <!--邮件发送-->
         <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-email</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
 
         <dependency>

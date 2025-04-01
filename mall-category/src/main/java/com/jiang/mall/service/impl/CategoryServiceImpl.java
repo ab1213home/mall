@@ -26,7 +26,7 @@ import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.event.CategoryChangedEvent;
 import com.jiang.mall.service.ICategoryRedisService;
 import com.jiang.mall.service.ICategoryService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         List<Category> categories = categoryMapper.selectPage(categoryPage, queryWrapper).getRecords();
         List<CategoryVo> categoryVos = new ArrayList<>();
         for (Category category : categories) {
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            CategoryVo categoryVo = BeanCopyUtil.copyBean(category, CategoryVo.class);
 	        assert categoryVo != null;
 			if (category.getParentId() == 0){
 				categoryVo.setParent("根分类");
@@ -173,7 +173,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	    List<Category> category = categoryMapper.selectList(queryWrapper);
 		List<CategoryVo> categoryVos = new ArrayList<>();
 		for (Category category_item : category) {
-			CategoryVo categoryVo = BeanCopyUtils.copyBean(category_item, CategoryVo.class);
+			CategoryVo categoryVo = BeanCopyUtil.copyBean(category_item, CategoryVo.class);
 			assert categoryVo != null;
 			categoryVo.setParent("根分类");
 			categoryVos.add(categoryVo);
@@ -187,13 +187,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		for (Long id : rootCache.getChildren()){
 			if (redisService.hasCategory(id)){
 				CategoryTreeCache childrenCache = redisService.getCategory(id);
-				CategoryVo categoryVo = BeanCopyUtils.copyBean(childrenCache, CategoryVo.class);
+				CategoryVo categoryVo = BeanCopyUtil.copyBean(childrenCache, CategoryVo.class);
 				assert categoryVo != null;
 				categoryVo.setParent("根分类");
 				categoryVos.add(categoryVo);
 			}else{
 				Category category = categoryMapper.selectById(id);
-				CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+				CategoryVo categoryVo = BeanCopyUtil.copyBean(category, CategoryVo.class);
 				assert categoryVo != null;
 				categoryVo.setParent("根分类");
 				categoryVos.add(categoryVo);
@@ -301,7 +301,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		List<Category> categories = categoryMapper.selectList(null);
         List<CategoryVo> categoryVos = new ArrayList<>();
         for (Category category : categories) {
-            CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+            CategoryVo categoryVo = BeanCopyUtil.copyBean(category, CategoryVo.class);
 	        assert categoryVo != null;
 			if (category.getParentId() == 0){
 				categoryVo.setParent("根分类");
@@ -337,7 +337,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	private @Nullable CategoryVo selectByIdFromMySQL(Long id) {
 		Category category = categoryMapper.selectById(id);
 		if (category != null){
-			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+			CategoryVo categoryVo = BeanCopyUtil.copyBean(category, CategoryVo.class);
 			assert categoryVo != null;
 			categoryVo.setParent(getCategoryName(category.getParentId()));
 			return categoryVo;
@@ -348,7 +348,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	private @Nullable CategoryVo selectByIdFromRedis(Long id) {
 		CategoryTreeCache category = redisService.getCategory(id);
 		if (category != null){
-			CategoryVo categoryVo = BeanCopyUtils.copyBean(category, CategoryVo.class);
+			CategoryVo categoryVo = BeanCopyUtil.copyBean(category, CategoryVo.class);
 			assert categoryVo != null;
 			categoryVo.setParent(getCategoryName(category.getParentId()));
 			return categoryVo;
@@ -362,7 +362,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		List<Category> children = categoryMapper.selectList(queryWrapper);
 		List<Long> childIds = new ArrayList<>();
 		for (Category child : children) {
-			CategoryTreeCache childCache = BeanCopyUtils.copyBean(child, CategoryTreeCache.class);
+			CategoryTreeCache childCache = BeanCopyUtil.copyBean(child, CategoryTreeCache.class);
 			assert childCache != null;
 //			childCache.setId(child.getId());
 //			childCache.setName(child.getName());

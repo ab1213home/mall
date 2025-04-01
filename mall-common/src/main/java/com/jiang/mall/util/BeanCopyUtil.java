@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BeanCopyUtils {
+public class BeanCopyUtil {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    private static final Logger logger = LoggerFactory.getLogger(BeanCopyUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(BeanCopyUtil.class);
 
-    private BeanCopyUtils() {
+    private BeanCopyUtil() {
     }
 
     /**

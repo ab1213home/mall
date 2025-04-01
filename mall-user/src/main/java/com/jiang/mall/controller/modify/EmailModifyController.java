@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
-import static com.jiang.mall.util.EncryptAndDecryptUtils.isSha256Hash;
+import static com.jiang.mall.util.SecureUtil.isSha256Hash;
 
 /**
  * 用户控制器

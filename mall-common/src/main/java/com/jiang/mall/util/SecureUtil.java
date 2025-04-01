@@ -32,9 +32,9 @@ import java.util.Base64;
 /**
  * 加密解密工具类，提供了加密和解密相关的方法。
  */
-public class EncryptAndDecryptUtils {
+public class SecureUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(EncryptAndDecryptUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecureUtil.class);
 
     /**
      * 使用SHA-256算法对密码进行哈希处理，并返回哈希值的十六进制表示。
@@ -43,7 +43,7 @@ public class EncryptAndDecryptUtils {
      * @param salt 密码的盐值，用于混淆密码
      * @return 哈希值的十六进制表示
      */
-    public static @NotNull String encryptToSHA256(String input, String salt) {
+    public static @NotNull String sha256Hex(String input, String salt) {
         try {
             // 获取SHA-256消息摘要对象
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -65,13 +65,14 @@ public class EncryptAndDecryptUtils {
             throw new RuntimeException("获取SHA256实例失败", e);
         }
     }
+
     /**
      * 对给定字符串进行MD5加密，返回16进制表示的加密结果
      *
      * @param input 需要加密的字符串
      * @return MD5加密后的16进制字符串
      */
-    public static @NotNull String encryptToMD5(@NotNull String input) {
+    public static @NotNull String md5Hex(@NotNull String input) {
         try {
             // 获取MessageDigest实例，指定使用MD5算法
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -99,7 +100,7 @@ public class EncryptAndDecryptUtils {
      * @param file 要计算哈希值的文件
      * @return 文件的MD5哈希值字符串
      */
-    public static @NotNull String calculateToMD5(File file){
+    public static @NotNull String md5Hex(File file){
 	    // 获取MD5算法的MessageDigest实例
 	    MessageDigest md;
 	    try {
@@ -220,4 +221,51 @@ public class EncryptAndDecryptUtils {
         // 检查字符串是否非空、长度为64且只包含十六进制字符，这是SHA-256哈希值的特征
         return password != null && password.length() == 64 && password.matches("[0-9a-fA-F]+");
     }
+
+    public static @NotNull String sha256Hex(String input) {
+        try {
+            // 获取SHA-256消息摘要对象
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            // 转换为字节数组
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            // 构建哈希值的十六进制字符串表示
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                // 将每个字节转换为十六进制字符串，并确保每个字节的十六进制表示都是两位
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            // 返回完整的SHA-256哈希值的十六进制字符串表示
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // 如果无法获取SHA-256实例，抛出运行时异常
+            logger.error("获取SHA256实例失败", e);
+            throw new RuntimeException("获取SHA256实例失败", e);
+        }
+    }
+
+    //根据字符串生成哈希值SHA-256
+
+
+    //根据实体生成唯一标识
+//    public static String generateUniqueIdentifier(Object entity) {
+//        try {
+//            if (entity == null) {
+//                throw new IllegalArgumentException("实体不能为空");
+//            }
+//
+//            // 获取实体的类名
+//            String className = entity.getClass().getSimpleName();
+//
+//            // 获取实体的属性值
+//            Field[] fields = entity.getClass().getDeclaredFields();
+//            StringBuilder identifierBuilder = new StringBuilder();
+//            for (Field field : fields) {
+//                field.setAccessible(true);
+//                Object value = field.get(entity);
+//                if (value !=null) {}
+//            }
+//        }
+//    }
 }

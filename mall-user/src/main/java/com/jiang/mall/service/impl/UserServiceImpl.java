@@ -35,7 +35,7 @@ import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,7 +148,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			if (user.getId()==null){
 				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
 			}else{
-				return ResponseResult.okResult(BeanCopyUtils.copyBean(user, UserVo.class));
+				return ResponseResult.okResult(BeanCopyUtil.copyBean(user, UserVo.class));
 			}
 		}
 	}
@@ -210,7 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	private void login(@NotNull User user, String token, String sessionId) {
-		UserCache userCache = BeanCopyUtils.copyBean(user, UserCache.class);
+		UserCache userCache = BeanCopyUtil.copyBean(user, UserCache.class);
 		assert userCache != null;
 		Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
 		userCache.setGroups(groupIds);
@@ -240,9 +240,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 
 		userCache.setPermissions(permissions);
-//		if (user.getBirthDate()!=null){
-//			userCache.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
-//		}
 		// 将用户信息存储到Redis中，并设置过期时间
 		redisService.setUser(sessionId, token, userCache);
 		logger.debug("用户{}登录成功", user.getUsername());
@@ -250,12 +247,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	public User getUserByUserNameOrEmail(String username, String password) {
 	    // 根据查询条件尝试获取用户信息
-	    User user_username = userMapper.selectByUsernameAndIsActive(username);
+	    User user_username = userMapper.selectByUsernameAndIsActive(username,true );
 
 	    // 根据邮箱格式匹配用户
 	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
-	        User user_email = userMapper.selectByEmailAndIsActive(username);
+	        User user_email = userMapper.selectByEmailAndIsActive(username, true);
 			//encryptToSHA256(password,AES_SALT)
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
@@ -359,13 +356,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	public Boolean validatePassword(Long userId, String password) {
-		return userMapper.validatePassword(userId,password)>0;
+		return userMapper.validatePassword(userId,password, true )>0;
 	}
 
 	@Override
 	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 		UserCache userVo = getUserFromRedis(sessionId);
-		User user = userMapper.selectUserByIdAndActive(userVo.getId());
+		User user = userMapper.selectUserByIdAndActive(userVo.getId(),true);
 		Map<String,Object> map = new HashMap<>();
 		map.put("new_email",verificationCode.getEmail());
 		map.put("old_email",user.getEmail());
@@ -390,7 +387,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		user.setUsername(verificationCode.getUsername());
 		user.setPassword(verificationCode.getPassword());
 		user.setEmail(verificationCode.getEmail());
-		user.setIsActive(true);
+		user.setActive(true);
 		user.setTotpEnabled(false);
 		Map<String,Object> map = new HashMap<>();
 		map.put("email",user.getEmail());
@@ -440,12 +437,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    User user = userMapper.selectById(verificationCode.getUserId());
 		Map<String,Object> map = new HashMap<>();
 		map.put("new_password",password);
+
 	    // 验证用户是否存在
 	    if (user != null) {
 	        // 如果验证成功，更新用户密码为新密码。
+		    map.put("old_password",user.getPassword());
 	        user.setPassword(password);
 	        // 激活用户账户
-	        user.setIsActive(true);
+	        user.setActive(true);
 	        // 通过ID更新用户信息。
 	        if (userMapper.updateById(user) > 0){
 	            // 更新验证码对象的密码信息
@@ -488,14 +487,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return null;
 		}
 		if(userMapper.lockById(userId,user.getId())>0) {
-//			userLogService.successLockAdminLog(userId,clientIp,fingerprint);
 			userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_ADMIN_LOCK, null);
-//			if (redisService.hasUser(String.valueOf(userId))){
-//				String userKey = redisService.getUserKey(String.valueOf(user.getId()));
-//				logger.debug("管理员锁定{}用户在一个地方登录，自动注销用户登录状态", user.getUsername());
-//				redisService.deleteUser(userKey);
-//				redisService.deleteUser(String.valueOf(userId));
-//			}
 			redisService.deleteUser(userId);
 			return true;
 		}else {
@@ -513,7 +505,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 		if(userMapper.unlockById(userId,user.getId())>0) {
 			userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_UNLOCK, null);
-//			userLogService.successUnlockAdminLog(userId, clientIp, fingerprint);
 			logger.debug("管理员解锁{}用户成功", userId);
 			return true;
 		}else {
@@ -546,11 +537,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        userCache.setAvatar(user.getAvatar());
 	        userCache.setBirthDate(user.getBirthDate());
 
-	        // 如果用户生日不为空，则计算并设置距离下一次生日的天数
-//	        if (user.getBirthDate()!=null){
-//	            userVo.setNextBirthday(getDaysUntilNextBirthday(user.getBirthDate()));
-//	        }
-
 	        // 更新Redis中的用户信息
 	        setUserToRedis(userCache);
 	        return true;
@@ -581,7 +567,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			userVo.setUsername("未知用户");
 			return userVo;
 		}else {
-			return BeanCopyUtils.copyBean(user, UserVo.class);
+			return BeanCopyUtil.copyBean(user, UserVo.class);
 		}
 	}
 
@@ -663,6 +649,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public int countTryNumber(String username, String clientIp, String fingerprint) {
 		return userLogService.countTryNumber(username, clientIp, fingerprint);
+	}
+
+	@Override
+	public Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId) {
+		if (!redisService.validateRememberMe(token)){
+			return null;
+		}
+		Long userId = redisService.getRememberMe(token);
+		User user = userMapper.selectById(userId);
+		Map<String, Object> map = new HashMap<>();
+		map.put("username", user.getUsername());
+		map.put("password", password);
+		map.put("token", token);
+		if (!user.isActive()||!validatePassword(userId, password)){
+			userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.FAIL_LOGIN , map);
+			logger.debug("token或密码错误");
+			return null;
+		}
+		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
+		if (user.isTotpEnabled()) {
+			//TODO:需要完善逻辑
+			redisService.setTwoLogin(user.getId(), sessionId);
+			return false;
+		} else {
+			// 登录成功，记录登录记录
+			userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_LOGIN , map);
+			login(user, token, sessionId);
+			return true;
+		}
 	}
 
 
@@ -753,7 +768,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         List<UserAdminVo> userVos = new ArrayList<>();
         // 为每个Vo对象计算下一次生日和设置是否为管理员状态
         for (User user : users) {
-			UserAdminVo userVo = BeanCopyUtils.copyBean(user, UserAdminVo.class);
+			UserAdminVo userVo = BeanCopyUtil.copyBean(user, UserAdminVo.class);
 	        assert userVo != null;
 	        userVo.setUpdater(getUserById(user.getUpdater()));
 	        userVos.add(userVo);
@@ -765,7 +780,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	//生成密钥和返回二维码URL
 	private @NotNull Map<String, String> generateSecretKeyAndQRCodeUrl(String username) {
 	    String secretKey = generateSecretKey(15);
-	    String qrCodeUrl = StrUtil.format("otpauth://totp/{}?secret={}&issuer={}", username, secretKey, "Jiang Mall("+generalConfig.getDomain()+")");
+	    String qrCodeUrl = StrUtil.format("otpauth://totp/{}?secret={}&issuer={}", username, secretKey, generalConfig.getName());
 	    Map<String, String> result = new HashMap<>();
 	    result.put("secretKey", secretKey);
 	    result.put("qrCodeUrl", qrCodeUrl);

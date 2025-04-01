@@ -27,7 +27,7 @@ import com.jiang.mall.event.ProductChangedEvent;
 import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
@@ -112,7 +112,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 将产品实体列表转换为产品VO列表
         for (Product product : products) {
             // 遍历产品VO列表，设置每个产品的类别名称
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
 			assert productVo != null;
             // 根据类别ID查询类别名称，并设置到产品VO中
             CategoryVo category = categoryService.getCategory(product.getCategoryId());
@@ -138,16 +138,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public ProductVo getProduct(Long id) {
 		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
 			ProductCache productCache = redisService.getProduct(id);
-			return BeanCopyUtils.copyBean(productCache, ProductVo.class);
+			return BeanCopyUtil.copyBean(productCache, ProductVo.class);
 		}
         // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);
         // 如果数据库中存在该产品
         if (product != null) {
             // 将查询到的Product对象转换为ProductVo对象
-            ProductVo productVo = BeanCopyUtils.copyBean(product, ProductVo.class);
+            ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
 			if (coreConfig.isProductCacheEnabled()){
-				ProductCache productCache = BeanCopyUtils.copyBean(product, ProductCache.class);
+				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
 				redisService.setProduct(productCache);
 	        }
 			// 根据类别ID查询类别名称，并设置到产品VO中
@@ -268,7 +268,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	private void syncProductToEs(Long productId) {
 	    Product product = baseMapper.selectById(productId);
 	    if (product != null) {
-	        EsProduct esProduct = BeanCopyUtils.copyBean(product, EsProduct.class);
+	        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
 		    assert esProduct != null;
 		    elasticsearchOperations.save(esProduct);
 	    }

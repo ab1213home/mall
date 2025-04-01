@@ -53,7 +53,6 @@ public class MyLocaleResolverConfig implements LocaleResolver {
 	 */
 	@Override
 	public @NotNull Locale resolveLocale(@NotNull HttpServletRequest request) {
-//		logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
 	    // 如果参数中提供了语言信息，将其解析为Locale对象
 		Locale locale = resolveFromParam(request);
 		// 来源
@@ -68,7 +67,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
 			locale= resolveFromSystem();
 			source = "系统默认";
 		}
-//		logger.debug("最终解析结果: {} (来源: {})", locale, source);
+		logger.debug("请求路径:{}{}，最终解析结果: {} (来源: {})",request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString(), locale, source);
 		return locale;
 	}
 
@@ -89,7 +88,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
         for (Language language : Language.values()){
             // 如果语言代码匹配成功，记录日志并返回对应的Locale
             if (language.getName().equals(split[0].toLowerCase())){
-//                logger.debug("发现系统语言: {}", localeString);
+                logger.debug("发现系统语言: {}", localeString);
                 return language.getLocale();
             }
         }
@@ -115,7 +114,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
         if (langParam != null && ! langParam.isEmpty()) {
             // 验证输入格式
             if (!langParam.matches("^[a-zA-Z]+(_[a-zA-Z]+)?$")) {
-//                logger.warn("无效的语言参数: {}", langParam);
+                logger.warn("无效的语言参数: {}", langParam);
                 return null;
             }
             // 分割语言参数，以处理如"en_US"的格式
@@ -125,7 +124,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
                 // 遍历Language枚举，寻找匹配的语言代码
                 for (Language language : Language.values()){
                     if (language.getName().equals(split[0].toLowerCase())){
-//                        logger.debug("发现语言参数: {}", langParam);
+                        logger.debug("发现语言参数: {}", langParam);
                         return language.getLocale();
                     }
                 }
@@ -158,7 +157,7 @@ public class MyLocaleResolverConfig implements LocaleResolver {
                     for (Language language : Language.values()) {
                         // 如果找到匹配的语言代码，则返回对应的语言环境
                         if (language.getName().equals(languageCode)) {
-//                            logger.debug("发现语言头: {}", header);
+                            logger.debug("发现语言头: {}", header);
                             return language.getLocale();
                         }
                     }

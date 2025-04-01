@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class DecimalUtils {
+public class DecimalUtil {
 
     // 默认舍入模式：四舍五入，保留2位小数
     private static final int DEFAULT_SCALE = 2;

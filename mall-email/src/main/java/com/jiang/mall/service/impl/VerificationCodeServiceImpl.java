@@ -22,7 +22,7 @@ import com.jiang.mall.domain.enums.EmailPurpose;
 import com.jiang.mall.domain.enums.EmailStatus;
 import com.jiang.mall.domain.vo.VerificationCodeVo;
 import com.jiang.mall.service.IVerificationCodeService;
-import com.jiang.mall.util.BeanCopyUtils;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,7 +109,7 @@ public class VerificationCodeServiceImpl extends ServiceImpl<VerificationCodeMap
 		List<VerificationCode> verificationCodes = verificationCodeMapper.selectPage(page, null).getRecords();
 		List<VerificationCodeVo> verificationCodeVos = new ArrayList<>();
 		for (VerificationCode verificationCode : verificationCodes) {
-			VerificationCodeVo verificationCodeVo = BeanCopyUtils.copyBean(verificationCode, VerificationCodeVo.class);
+			VerificationCodeVo verificationCodeVo = BeanCopyUtil.copyBean(verificationCode, VerificationCodeVo.class);
 			assert verificationCodeVo != null;
 			verificationCodeVo.setStatus(EmailStatus.getNameByValue(verificationCode.getStatus()));
 			verificationCodeVo.setPurpose(EmailPurpose.getNameByValue(verificationCode.getPurpose()));
