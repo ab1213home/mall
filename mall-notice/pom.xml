@@ -49,9 +49,10 @@
             <artifactId>jakarta.mail</artifactId>
         </dependency>
 
+        <!--阿里云短信服务-->
         <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-phone</artifactId>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20180501</artifactId>
         </dependency>
 
         <dependency>

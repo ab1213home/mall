@@ -11,21 +11,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.enums;
+package com.jiang.mall.domain.vo;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-public enum StorageType {
-	LOCAL("local"),
-	S3("s3"),
-	FTP("ftp"),
-	SFTP("sftp");
+@Data
+public class SmsSettingVo {
 
-	private final String key;
-
-	StorageType(String key) {
-		this.key = key;
-	}
-
+	private String accessKeyId;
+	private String accessKeySecret;
+	private String endpoint;
+	private String signName;
+	private String senderId;
+	private String upCode;
+	private boolean allowSendPhone;
 }

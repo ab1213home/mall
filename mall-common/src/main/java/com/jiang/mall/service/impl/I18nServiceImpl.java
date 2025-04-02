@@ -14,6 +14,9 @@
 package com.jiang.mall.service.impl;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.MyLocaleResolverConfig;
 import com.jiang.mall.service.II18nService;
@@ -212,7 +215,56 @@ public class I18nServiceImpl implements II18nService {
 
 	@Override
 	public Boolean isValidPhone(String phone) {
-		return (checkString(phone,255) && phone.matches(generalConfig.getRegexPhone()));
+//		return (checkString(phone,255) && phone.matches(generalConfig.getRegexPhone()));
+		// 检查字符串长度等基本条件
+	    if (!checkString(phone, 255)) {
+	        return false;
+	    }
+
+	    PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+	    // 从配置获取默认国家代码（例如："CN"或"US"）
+	    String defaultRegion = generalConfig.getPhoneDefaultCountry();
+
+	    try {
+	        // 解析电话号码
+	        Phonenumber.PhoneNumber parsedNumber = phoneUtil.parse(phone, defaultRegion);
+	        // 验证号码有效性
+	        return phoneUtil.isValidNumber(parsedNumber);
+	    } catch (NumberParseException e) {
+	        // 解析失败视为无效号码
+	        return false;
+	    }
+	}
+
+	@Override
+	public String convertToInternationalFormat(String phone) {
+		try {
+            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+            Phonenumber.PhoneNumber number = phoneUtil.parse(phone, generalConfig.getPhoneDefaultCountry());
+
+            // 验证有效性
+            if (!phoneUtil.isValidNumber(number)) {
+                return null;
+            }
+
+            // 格式化为 E164（例如 +8613509331090）并移除+号
+            String e164 = phoneUtil.format(number, PhoneNumberUtil.PhoneNumberFormat.E164);
+            return e164.replace("+", "");
+
+        } catch (NumberParseException e) {
+            return null; // 解析失败视为无效
+        }
+	}
+
+	@Override
+	public boolean isChineseNumber(String phone) {
+		try {
+            PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+            Phonenumber.PhoneNumber number = phoneUtil.parse(phone, generalConfig.getPhoneDefaultCountry());
+            return phoneUtil.getRegionCodeForNumber(number).equals("CN");
+        } catch (NumberParseException e) {
+            return false;
+        }
 	}
 
 	@Override

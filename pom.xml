@@ -156,18 +156,6 @@
                 <version>1.18.0</version>
             </dependency>
 
-            <dependency>
-              <groupId>org.bouncycastle</groupId>
-              <artifactId>bcprov-jdk15to18</artifactId>
-              <version>1.78</version>
-            </dependency>
-
-            <dependency>
-              <groupId>org.bouncycastle</groupId>
-              <artifactId>bcpkix-jdk15on</artifactId>
-              <version>1.60</version>
-            </dependency>
-
             <!--邮件-->
             <dependency>
                 <groupId>com.sun.mail</groupId>
@@ -295,6 +283,19 @@
                 <version>3.1.1</version>
             </dependency>
 
+            <dependency>
+              <groupId>com.aliyun</groupId>
+              <artifactId>dysmsapi20180501</artifactId>
+              <version>1.0.10</version>
+            </dependency>
+
+            <!-- 电话号码验证 -->
+            <dependency>
+                <groupId>com.googlecode.libphonenumber</groupId>
+                <artifactId>libphonenumber</artifactId>
+                <version>8.13.55</version>
+            </dependency>
+
             <!-- 支付宝支付 -->
             <dependency>
                 <groupId>com.alipay.sdk</groupId>
@@ -356,12 +357,21 @@
                 <version>${hutool.version}</version>
             </dependency>
 
+            <!-- FTP -->
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>3.6</version>
+            </dependency>
+
+            <!-- 命令行工具 -->
             <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
                 <version>1.75</version>
             </dependency>
 
+            <!-- BouncyCastle加密解密 -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
@@ -372,6 +382,25 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>1.79</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.bouncycastle</groupId>
+              <artifactId>bcprov-jdk15to18</artifactId>
+              <version>1.78</version>
+            </dependency>
+
+            <dependency>
+              <groupId>org.bouncycastle</groupId>
+              <artifactId>bcpkix-jdk15on</artifactId>
+              <version>1.60</version>
+            </dependency>
+
+            <!-- Kafka -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>3.8.0</version>
             </dependency>
 
             <dependency>
@@ -395,18 +424,6 @@
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-common</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-system</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-task</artifactId>
                 <version>${mall.version}</version>
             </dependency>
 
@@ -437,12 +454,6 @@
             <dependency>
                 <groupId>com.jiang</groupId>
                 <artifactId>mall-core</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-websocket</artifactId>
                 <version>${mall.version}</version>
             </dependency>
 
@@ -500,6 +511,12 @@
                 <version>${mall.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-kafka</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -524,6 +541,7 @@
 		<module>mall-pay</module>
         <module>mall-product</module>
         <module>mall-phone</module>
+        <module>mall-kafka</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->
@@ -619,6 +637,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <version>2.4.1</version>-->
+<!--                <configuration>-->
+<!--                    <descriptorRefs>-->
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                    </descriptorRefs>-->
+<!--&lt;!&ndash;                    <archive>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <manifest>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <addClasspath>true</addClasspath>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <mainClass>com.aliyun.sample.Sample</mainClass>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </manifest>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </archive>&ndash;&gt;-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>make-assembly</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

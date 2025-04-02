@@ -21,14 +21,21 @@ public enum NoticeChannel {
 	 * 邮件
 	 */
 	EMAIL(0, "邮件"),
+
 	/**
-	 * 短信
+	 * 短信(中国内地)
 	 */
-	SMS(1, "短信"),
+	SMS_MAINLAND(1, "短信(中国内地)"),
+
+	/**
+	 * 短信(港澳台及中国境外)
+	 */
+	SMS_OVERSEAS(2, "短信(港澳台及中国境外)"),
+
 	/**
 	 * 站内信
 	 */
-	WEB(2, "站内信");
+	WEB(3, "站内信");
 
 	private final int value;
 	private final String name;

@@ -204,6 +204,10 @@ public class GeneralConfig {
         return properties.getProperty(GeneralConfigItems.MALL_RECORD.getKey(), GeneralConfigItems.MALL_RECORD.getDefaultValue());
     }
 
+    public String getPhoneDefaultCountry() {
+        return properties.getProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), GeneralConfigItems.PHONE_COUNTRY_CODE.getDefaultValue());
+    }
+
     public void updateDateFormat(String format) {
         properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
     }
@@ -266,5 +270,9 @@ public class GeneralConfig {
 
     public void updateRecord(String record) {
         properties.setProperty(GeneralConfigItems.MALL_RECORD.getKey(), record);
+    }
+
+    public void updatePhoneDefaultCountry(String code) {
+        properties.setProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), code);
     }
 }

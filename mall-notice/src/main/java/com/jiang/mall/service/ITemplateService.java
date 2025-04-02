@@ -34,4 +34,8 @@ public interface ITemplateService {
 	boolean deleteTemplate(Long id);
 
 	String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
+
+	Long getTemplateId(String template);
+
+	String getTemplate(Long id);
 }

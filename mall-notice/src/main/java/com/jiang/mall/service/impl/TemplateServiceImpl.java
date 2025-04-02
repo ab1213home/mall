@@ -18,14 +18,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.dao.NoticeLogMapper;
 import com.jiang.mall.dao.TemplateMapper;
+import com.jiang.mall.dao.TemplateSnapshotMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Template;
+import com.jiang.mall.domain.entity.TemplateSnapshot;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.vo.TemplateVo;
 import com.jiang.mall.service.ITemplateService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,13 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 	@Autowired
 	public void setTemplateMapper(TemplateMapper templateMapper) {
 		this.templateMapper = templateMapper;
+	}
+
+	private TemplateSnapshotMapper templateSnapshotMapper;
+
+	@Autowired
+	public void setTemplateSnapshotMapper(TemplateSnapshotMapper templateSnapshotMapper) {
+		this.templateSnapshotMapper = templateSnapshotMapper;
 	}
 
 	private NoticeLogMapper noticeLogMapper;
@@ -131,6 +141,41 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		if (templateMapper.selectCount(queryWrapper) == 0){
 			return null;
 		}
-		return templateMapper.selectOne(queryWrapper).getContent();
+		Template template = templateMapper.selectOne(queryWrapper);
+		if (template.getChannel()== NoticeChannel.SMS_OVERSEAS.getValue()){
+			return template.getName();
+		}else{
+			return template.getContent();
+		}
+	}
+
+	@Override
+	public Long getTemplateId(String template) {
+		//模板哈希值
+		String templateHash = SecureUtil.sha256Hex(template);
+		Long templateId = templateSnapshotMapper.selectByHash(templateHash);
+		if (templateId == null){
+			TemplateSnapshot templateSnapshot = new TemplateSnapshot();
+			templateSnapshot.setContent(template);
+			templateSnapshot.setHash(templateHash);
+			if (templateSnapshotMapper.insert(templateSnapshot) > 0){
+				templateId = templateSnapshot.getId();
+			}
+		}
+		return templateId;
+	}
+
+	@Override
+	public String getTemplate(Long id) {
+		Template template = templateMapper.selectById(id);
+		if (template == null){
+			return null;
+		}else {
+			if (template.getChannel() == NoticeChannel.SMS_MAINLAND.getValue()){
+				return template.getName();
+			}else{
+				return template.getContent();
+			}
+		}
 	}
 }

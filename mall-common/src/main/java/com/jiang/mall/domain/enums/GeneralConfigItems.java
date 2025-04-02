@@ -26,6 +26,7 @@ public enum GeneralConfigItems {
 	AES_SALT("mall.aes.salt", "加密盐", "mall"),
 	REGEX_EMAIL("mall.email.regexp", "邮箱正则表达式", "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$"),
 	REGEX_PHONE("mall.phone.regexp", "手机号正则表达式", "^1[3-9]\\d{9}$"),
+	PHONE_COUNTRY_CODE("mall.phone.country-code", "默认手机号国家代码", "CN"),
 	REGEX_PASSWORD("mall.password.regexp", "密码正则表达式", "^[a-zA-Z0-9]{6,16}$"),
 	REGEX_USERNAME("mall.username.regexp", "用户名正则表达式", "^[a-zA-Z0-9]{6,16}$"),
 	REDIS_KEY_PREFIX("redis.key.prefix", "Redis键前缀", "mall"),

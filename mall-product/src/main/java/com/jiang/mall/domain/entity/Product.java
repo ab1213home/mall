@@ -88,7 +88,7 @@ public class Product implements Serializable {
     /**
      * 商品属性，通过JSON格式存储
      */
-    private String attributes;
+//    private String attributes;
 
     /**
      * 商品描述

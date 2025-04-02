@@ -11,21 +11,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.enums;
+package com.jiang.mall.dao;
 
-import lombok.Getter;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jiang.mall.domain.entity.TemplateSnapshot;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
-@Getter
-public enum StorageType {
-	LOCAL("local"),
-	S3("s3"),
-	FTP("ftp"),
-	SFTP("sftp");
+@Mapper
+public interface TemplateSnapshotMapper extends BaseMapper<TemplateSnapshot> {
 
-	private final String key;
-
-	StorageType(String key) {
-		this.key = key;
-	}
-
+	@Select("select id from tb_template_snapshots where hash = #{hash}")
+	Long selectByHash(String hash);
 }

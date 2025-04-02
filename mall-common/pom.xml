@@ -109,6 +109,12 @@
             <artifactId>hutool-all</artifactId>
         </dependency>
 
+        <!--手机号码格式校验-->
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+        </dependency>
+
         <!-- 高性能的JSON库 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>

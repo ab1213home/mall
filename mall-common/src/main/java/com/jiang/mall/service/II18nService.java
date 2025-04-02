@@ -81,6 +81,10 @@ public interface II18nService {
 
 	Boolean isValidPhone(String phone);
 
+	String convertToInternationalFormat(String phone);
+
+	boolean isChineseNumber(String phone);
+
 	Boolean isValidIPv4OrIPv6(String clientIp);
 
 	Boolean isValidUsername(String username);

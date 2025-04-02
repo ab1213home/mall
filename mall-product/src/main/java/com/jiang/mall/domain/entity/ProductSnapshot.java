@@ -61,6 +61,12 @@ public class ProductSnapshot implements Serializable {
     private String code;
 
     /**
+     * 商品属性
+     */
+    @TableField(exist=false)
+	private String properties;
+
+    /**
      * 商品标题
      */
     private String title;
@@ -87,6 +93,12 @@ public class ProductSnapshot implements Serializable {
     private String description;
 
     /**
+     * 商品哈希值
+     */
+    @TableField(exist=false)
+    private String hash;
+
+    /**
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)
@@ -104,6 +116,7 @@ public class ProductSnapshot implements Serializable {
      * 是否删除，默认为 false
      */
     @TableLogic
+    //TODO:预计删除
     private Boolean isDel;
 
 
