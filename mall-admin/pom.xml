@@ -15,7 +15,7 @@
     <licenses>
         <license>
             <name>Mulan PSL v2</name>
-            <url>http://license.coscl.org.cn/MulanPSL2</url>
+            <url>https://license.coscl.org.cn/MulanPSL2</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -54,59 +54,62 @@
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-email</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-user</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-system</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-task</artifactId>-->
-<!--		</dependency>-->
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-file</artifactId>
 		</dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-captcha</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-common</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-banner</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-seo</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-monitor</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-pay</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
 			<artifactId>mall-product</artifactId>
         </dependency>
 
-        <!--        <dependency>-->
-<!--            <groupId>com.jiang</groupId>-->
-<!--			<artifactId>mall-websocket</artifactId>-->
-<!--        </dependency>-->
     </dependencies>
 
     <build>
