@@ -14,7 +14,9 @@
 package com.jiang.mall.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,13 +31,12 @@ public class OpenApiConfig {
                         .version("2.0.1")
                         .description("Jiang Mall's Description of API.")
 		                .termsOfService("https://github.com/ab1213home/mall.git")
-		                .contact(new io.swagger.v3.oas.models.info.Contact()
+		                .contact(new Contact()
 				                .name("Jiang Rongjun")
 				                .email("jiangrongjun2004@163.com")
 				                .url("https://github.com/ab1213home"))
-		                .license(new io.swagger.v3.oas.models.info.License()
+		                .license(new License()
 				                .name("Mulan PSL v2")
-				                .url("https://license.coscl.org.cn/MulanPSL2"))
-                );
+				                .url("https://license.coscl.org.cn/MulanPSL2"))                );
     }
 }
