@@ -58,6 +58,12 @@
             <artifactId>mall-user</artifactId>
         </dependency>
 
+        <!-- FTP -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-banner</artifactId>

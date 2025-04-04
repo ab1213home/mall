@@ -363,6 +363,34 @@
                 <version>${zxing.version}</version>
             </dependency>
 
+            <!-- oauth2 -->
+            <dependency>
+                <groupId>org.apache.oltu.oauth2</groupId>
+                <artifactId>org.apache.oltu.oauth2.client</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+
+            <!-- pac4j -->
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-oauth</artifactId>
+                <version>4.0.0</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-javaee</artifactId>
+                <version>6.1.0</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.pac4j</groupId>
+                <artifactId>pac4j-springboot</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+
             <!-- Hutool工具库 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
@@ -374,7 +402,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.6</version>
+                <version>3.11.1</version>
             </dependency>
 
             <!-- 命令行工具 -->
