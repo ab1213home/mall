@@ -286,4 +286,33 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    return result;
 	}
 
+	@Override
+	public AddressVo getAddress(Long id, String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		Address address = addressMapper.selectById(id);
+		if (address == null){
+			return null;
+		}
+		if (!address.getUserId().equals(user.getId())){
+			return null;
+		}
+		AddressVo addressVo = getAddress(address);
+		addressVo.setDefault(Objects.equals(addressVo.getId(), user.getDefaultAddressId()));
+		return addressVo;
+	}
+
+	@Override
+	public AddressVo getAddress(Long id, Long userId) {
+//		UserCache user = userService.getUserFromRedis(sessionId);
+		Address address = addressMapper.selectById(id);
+		if (address == null){
+			return null;
+		}
+		if (!address.getUserId().equals(userId)){
+			return null;
+		}
+		//		addressVo.setDefault(Objects.equals(addressVo.getId(), user.getDefaultAddressId()));
+		return getAddress(address);
+	}
+
 }

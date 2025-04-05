@@ -34,8 +34,8 @@ public enum UserStatus {
 	private final Integer value;
 	private final String name;
 
-	UserStatus(int value, String name) {
-		this.value = value;
+	UserStatus(int key, String name) {
+		this.value = key;
 		this.name = name;
 	}
 
@@ -47,4 +47,10 @@ public enum UserStatus {
         }
         throw new IllegalArgumentException("No States enum constant with value: " + value);
     }
+//	public static OAuthProvider fromKey(Integer key) {
+//        return Arrays.stream(values())
+//                .filter(p -> Objects.equals(p.key, key))
+//                .findFirst()
+//                .orElseThrow(() -> new IllegalArgumentException("无效的第三方服务商"));
+//    }
 }

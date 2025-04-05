@@ -38,7 +38,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import static com.jiang.mall.util.DecimalUtil.add;
 
@@ -74,20 +73,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
-	}
-
-	private UserMapper userMapper;
-
-	@Autowired
-	public void setUserMapper(UserMapper userMapper) {
-		this.userMapper = userMapper;
-	}
-
-	private AddressMapper addressMapper;
-
-	@Autowired
-	public void setAddressMapper(AddressMapper addressMapper) {
-		this.addressMapper = addressMapper;
 	}
 
 	private ProductMapper productMapper;
@@ -155,8 +140,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			// 计算订单总金额
 	        order.setTotalAmount(add(order.getTotalAmount(),amount));
 	    }
-	    order.setPaymentMethod(paymentMethod);
-	    order.setStatus(status);
+	    order.setPaymentMethod((int)paymentMethod);
+	    order.setStatus((int)status);
 	    // 插入订单信息
 	    if (orderMapper.insert(order) > 0) {
 			//TODO：待修复，完善商品快照，减少重复快照产生
@@ -176,26 +161,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				}
 				String category_str =queryCategoryToString(product.getCategoryId());
 	            // 查询是否存在相同的产品快照
-	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
-	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
-	            queryWrapper_productSnapshot.eq("title", product.getTitle());
-	            queryWrapper_productSnapshot.eq("price", product.getPrice());
-	            queryWrapper_productSnapshot.eq("img", product.getImg());
-				queryWrapper_productSnapshot.eq("category",category_str);
-	            queryWrapper_productSnapshot.eq("description", product.getDescription());
-	            queryWrapper_productSnapshot.eq("is_del", true);
-	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
-	            if (productSnapshot==null){
-	                // 如果不存在，则创建新的产品快照
-	                productSnapshot = new ProductSnapshot(product);
-	                productSnapshot.setCategory(category_str);
-	                // 插入新的产品快照
-	                if (productSnapshotMapper.insert(productSnapshot)>0){
-	                    orderList.setProdId(productSnapshot.getId());
-	                }
-	            }else {
-					orderList.setProdId(productSnapshot.getId());
-	            }
+		        //TODO:使用哈希算法简化产品快照判断
+
+//	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
+//	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
+//	            queryWrapper_productSnapshot.eq("title", product.getTitle());
+//	            queryWrapper_productSnapshot.eq("price", product.getPrice());
+//	            queryWrapper_productSnapshot.eq("img", product.getImg());
+//				queryWrapper_productSnapshot.eq("category",category_str);
+//	            queryWrapper_productSnapshot.eq("description", product.getDescription());
+//	            queryWrapper_productSnapshot.eq("is_del", true);
+//	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
+//	            if (productSnapshot==null){
+//	                // 如果不存在，则创建新的产品快照
+//	                productSnapshot = new ProductSnapshot(product);
+//	                productSnapshot.setCategory(category_str);
+//	                // 插入新的产品快照
+//	                if (productSnapshotMapper.insert(productSnapshot)>0){
+//	                    orderList.setProdId(productSnapshot.getId());
+//	                }
+//	            }else {
+//					orderList.setProdId(productSnapshot.getId());
+//	            }
 
 	            // 插入订单详情信息
 	            if (orderListMapper.insert(orderList)>0){
@@ -227,16 +214,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		queryWrapper_order.eq("user_id", user.getId());
 		List<Order> orderList = orderMapper.selectPage(orderPage,queryWrapper_order).getRecords();
 		List<OrderVo> orderVoList = new ArrayList<>();
-		Long defaultAddressId = user.getDefaultAddressId();
 		for (Order order_item : orderList) {
 			OrderVo orderVo = BeanCopyUtil.copyBean(order_item, OrderVo.class);
-			Address address = addressMapper.selectById(order_item.getAddressId());
-			AddressVo addressVo = addressService.getAddress(address);
-			addressVo.setDefault(Objects.equals(addressVo.getId(), defaultAddressId));
+			AddressVo address = addressService.getAddress(order_item.getAddressId(), sessionId);
 			assert orderVo != null;
-			orderVo.setAddress(addressVo);
-			orderVo.setPaymentMethod(PaymentMethod.getNameByValue(order_item.getPaymentMethod()));
-			orderVo.setStatus(OrderStatus.getNameByValue(order_item.getStatus()));
+			orderVo.setAddress(address);
+			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
+			orderVo.setStatus(OrderStatus.fromKey(order_item.getStatus()).getName());
 			QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 			queryWrapper_orderList.eq("order_id", order_item.getId());
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
@@ -295,24 +279,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    for (Order order_item : orderList) {
 	        // 将订单对象转换为订单VO对象
 	        OrderAllVo orderVo = BeanCopyUtil.copyBean(order_item, OrderAllVo.class);
-
-	        // 根据订单中的地址ID查询地址信息，并转换为地址VO对象
-	        Address address = addressMapper.selectById(order_item.getAddressId());
-		    // 设置订单VO对象的地址信息
-		    assert orderVo != null;
-		    orderVo.setAddress(addressService.getAddress(address));
-
-			// 根据订单中的用户ID查询用户信息，并转换为用户VO对象
-			User user = userMapper.selectById(order_item.getUserId());
-			UserVo userVo = BeanCopyUtil.copyBean(user, UserVo.class);
-
+            assert orderVo != null;
+		    // 根据订单中的用户ID查询用户信息，并转换为用户VO对象
+			UserVo user = userService.getUserById(order_item.getUserId());
 			// 将用户信息转换为VO对象
-			orderVo.setUser(userVo);
-
+			orderVo.setUser(user);
+			// 根据订单中的地址ID查询地址信息，并转换为地址VO对象
+	        AddressVo address = addressService.getAddress(order_item.getAddressId(),user.getId());
+		    // 设置订单VO对象的地址信息
+		    orderVo.setAddress(address);
 	        // 设置订单VO对象的支付方式和状态，通过数组获取对应的描述
-			orderVo.setPaymentMethod(PaymentMethod.getNameByValue(order_item.getPaymentMethod()));
-			orderVo.setStatus(OrderStatus.getNameByValue(order_item.getStatus()));
-
+			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
+			orderVo.setStatus(OrderStatus.fromKey(order_item.getStatus()).getName());
 	        // 创建查询构造器，用于查询订单详情
 	        QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 	        queryWrapper_orderList.eq("order_id", order_item.getId());
@@ -332,7 +310,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				ProductSnapshotVo productVo = BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
 		        assert orderListVo != null;
 		        orderListVo.setProduct(productVo);
-
 	            // 将订单详情VO对象添加到列表中
 	            orderList_VoList.add(orderListVo);
 	        }

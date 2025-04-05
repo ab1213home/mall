@@ -14,8 +14,9 @@
 package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 订单状态枚举类
@@ -29,22 +30,28 @@ public enum OrderStatus {
 	WAIT_EVALUATE(3,"待评价"),
 	FINISHED(4,"已完成");
 
-	private final int value;
+	private final int key;
 	private final String name;
 
-	OrderStatus(int value,String name) {
-		this.value = value;
+	OrderStatus(int key, String name) {
+		this.key = key;
 		this.name = name;
 	}
 
-	@Contract(pure = true)
-	public static @Nullable String getNameByValue(int value) {
-		for (OrderStatus status : OrderStatus.values()) {
-			if (status.value == value) {
-				return status.name;
-			}
-		}
-		throw new IllegalArgumentException("No OrderStatus enum constant with value: " + value);
-	}
+//	@Contract(pure = true)
+//	public static @Nullable String getNameByValue(int value) {
+//		for (OrderStatus status : OrderStatus.values()) {
+//			if (status.key == value) {
+//				return status.name;
+//			}
+//		}
+//		throw new IllegalArgumentException("No OrderStatus enum constant with value: " + value);
+//	}
+	public static OrderStatus fromKey(Integer key) {
+        return Arrays.stream(values())
+                .filter(p -> Objects.equals(p.key, key))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("无效的订单状态"));
+    }
 
 }

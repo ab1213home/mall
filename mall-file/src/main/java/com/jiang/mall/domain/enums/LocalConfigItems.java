@@ -15,27 +15,21 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
+import java.io.File;
+
 @Getter
-public enum NoticeStatus {
+public enum LocalConfigItems {
+	LOCAL_STORAGE_PATH(".storage.path", "本地存储路径", System.getProperty("user.home") + File.separator + "upload" + File.separator),
+	LOCAL_STORAGE_MAX_SIZE(".storage.max-size", "本地存储最大值", "-1");
 
-	FAILED(0,"发送失败"),
-	SUCCESS(1,"发送成功"),
-	READ(2,"发送成功并已阅读"),
-	USED(3,"发送成功并已使用"),
-	EXPIRED(4,"发送成功并已失效");
+	private final String key;
+	private final String description;
+	private final String defaultValue;
 
-	private final int key;
-	private final String name;
-
-	NoticeStatus(int key, String name) {
+	LocalConfigItems(String key, String description, String defaultValue) {
 		this.key = key;
-		this.name = name;
+		this.description = description;
+		this.defaultValue = defaultValue;
 	}
 
-	//	public static OAuthProvider fromKey(Integer key) {
-//        return Arrays.stream(values())
-//                .filter(p -> Objects.equals(p.key, key))
-//                .findFirst()
-//                .orElseThrow(() -> new IllegalArgumentException("无效的第三方服务商"));
-//    }
 }

@@ -72,7 +72,6 @@ public class Product implements Serializable {
     /**
      * 商品属性
      */
-    @TableField(exist=false)
 	private String properties;
 
     /**
@@ -85,10 +84,6 @@ public class Product implements Serializable {
      */
     private Integer stocks;
 
-    /**
-     * 商品属性，通过JSON格式存储
-     */
-//    private String attributes;
 
     /**
      * 商品描述

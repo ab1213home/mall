@@ -81,4 +81,8 @@ public interface IAddressService extends IService<Address> {
 	 * @return 删除是否成功，成功返回true，否则返回false
 	 */
 	Boolean deleteAddress(Long id, String sessionId);
+
+	AddressVo getAddress(Long id, String sessionId);
+
+	AddressVo getAddress(Long id, Long userId);
 }

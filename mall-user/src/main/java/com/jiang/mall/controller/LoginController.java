@@ -132,7 +132,7 @@ public class LoginController {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         } else if (!flag){
             // 登录失败，返回相应错误信息
-            return ResponseResult.okResult("false","需要二次验证");
+            return ResponseResult.okResult("false","需要双因素认证(2FA)");
         }else {
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
@@ -196,7 +196,7 @@ public class LoginController {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         } else if (!flag){
             // 登录失败，返回相应错误信息
-            return ResponseResult.okResult("false","需要二次验证");
+            return ResponseResult.okResult("false","需要双因素认证(2FA)");
         }else {
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }

@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.UserCache;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,9 @@ public interface IUserRedisService {
 	 */
 	void updateUser(@NotNull UserCache user);
 
-    /**
+	@Nullable UserCache getUser(Long userId);
+
+	/**
      * 根据用户token获取用户信息
      * 此方法首先检查Redis中是否存在与给定token关联的用户ID，
      * 如果存在，则进一步检查该用户的详细信息是否也存在于Redis中
@@ -146,5 +149,4 @@ public interface IUserRedisService {
 	boolean validateRememberMe(@NotNull String token);
 
 	Long getRememberMe(@NotNull String token);
-
 }

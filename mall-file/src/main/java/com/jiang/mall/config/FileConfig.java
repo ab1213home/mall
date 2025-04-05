@@ -17,8 +17,8 @@ import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.domain.config.StorageConfig;
 import com.jiang.mall.domain.enums.FileConfigItems;
-import com.jiang.mall.domain.enums.FileLocalConfigItems;
-import com.jiang.mall.domain.enums.FileS3ConfigItems;
+import com.jiang.mall.domain.enums.LocalConfigItems;
+import com.jiang.mall.domain.enums.S3ConfigItems;
 import com.jiang.mall.domain.enums.StorageType;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -100,7 +100,7 @@ public class FileConfig {
                     // 根据存储类型检查具体的配置
                     if (type.equals(StorageType.LOCAL.getKey())) {
                         // 检查本地存储配置
-                        for (FileLocalConfigItems item : FileLocalConfigItems.values()) {
+                        for (LocalConfigItems item : LocalConfigItems.values()) {
                             String keyToCheck = name+item.getKey();
                             if (!properties.containsKey(keyToCheck)) {
                                 properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
@@ -109,7 +109,7 @@ public class FileConfig {
                         }
                     }else if (type.equals(StorageType.S3.getKey())) {
                         // 检查S3存储配置
-                        for (FileS3ConfigItems item : FileS3ConfigItems.values()) {
+                        for (S3ConfigItems item : S3ConfigItems.values()) {
                             String keyToCheck = name+item.getKey();
                             if (!properties.containsKey(keyToCheck)) {
                                 properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
@@ -171,8 +171,8 @@ public class FileConfig {
      */
     private void createLocalConfig(@NotNull LocalSetting localSetting) {
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
-        properties.setProperty(localSetting.getName()+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
-        properties.setProperty(localSetting.getName()+ FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(localSetting.isDefault()));
     }
 
@@ -181,11 +181,11 @@ public class FileConfig {
      */
     private void createS3Config(@NotNull S3Setting s3Setting) {
         properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
-        properties.setProperty(s3Setting.getName()+ FileS3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
-        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
-        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_SECRET_KEY.getKey(),s3Setting.getSecretKey());
-        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_BUCKET.getKey(),s3Setting.getBucket());
-        properties.setProperty(s3Setting.getName()+FileS3ConfigItems.S3_REGION.getKey(),s3Setting.getRegion());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_SECRET_KEY.getKey(),s3Setting.getSecretKey());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_BUCKET.getKey(),s3Setting.getBucket());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_REGION.getKey(),s3Setting.getRegion());
         properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(s3Setting.isDefault()));
     }
 
@@ -282,8 +282,8 @@ public class FileConfig {
                 // 构建本地存储配置
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
-                localSetting.setPath(properties.getProperty(name+FileLocalConfigItems.LOCAL_STORAGE_PATH.getKey()));
-                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+FileLocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey())));
+                localSetting.setPath(properties.getProperty(name+ LocalConfigItems.LOCAL_STORAGE_PATH.getKey()));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+ LocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey())));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);
@@ -297,11 +297,11 @@ public class FileConfig {
                 // 构建S3存储配置
                 S3Setting s3Setting = new S3Setting();
                 s3Setting.setName(name);
-                s3Setting.setEndpoint(properties.getProperty(name+FileS3ConfigItems.S3_ENDPOINT.getKey()));
-                s3Setting.setAccessKey(properties.getProperty(name+FileS3ConfigItems.S3_ACCESS_KEY.getKey()));
-                s3Setting.setSecretKey(properties.getProperty(name+FileS3ConfigItems.S3_SECRET_KEY.getKey()));
-                s3Setting.setBucket(properties.getProperty(name+FileS3ConfigItems.S3_BUCKET.getKey()));
-                s3Setting.setRegion(properties.getProperty(name+FileS3ConfigItems.S3_REGION.getKey()));
+                s3Setting.setEndpoint(properties.getProperty(name+ S3ConfigItems.S3_ENDPOINT.getKey()));
+                s3Setting.setAccessKey(properties.getProperty(name+ S3ConfigItems.S3_ACCESS_KEY.getKey()));
+                s3Setting.setSecretKey(properties.getProperty(name+ S3ConfigItems.S3_SECRET_KEY.getKey()));
+                s3Setting.setBucket(properties.getProperty(name+ S3ConfigItems.S3_BUCKET.getKey()));
+                s3Setting.setRegion(properties.getProperty(name+ S3ConfigItems.S3_REGION.getKey()));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);

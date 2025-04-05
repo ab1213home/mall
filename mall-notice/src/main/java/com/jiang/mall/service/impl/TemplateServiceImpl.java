@@ -78,8 +78,8 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		for (Template template : templates) {
 			TemplateVo templateVo = BeanCopyUtil.copyBean(template, TemplateVo.class);
 			assert templateVo != null;
-			templateVo.setChannel(NoticeChannel.getNameByValue(template.getChannel()));
-			templateVo.setPurpose(NoticePurpose.getNameByValue(template.getPurpose()));
+			templateVo.setChannel(NoticeChannel.fromKey(template.getChannel()).getName());
+			templateVo.setPurpose(NoticePurpose.fromKey(template.getPurpose()).getName());
 			templateVo.setCreator(userService.getUserById(template.getCreator()));
 			templateVo.setUpdater(userService.getUserById(template.getUpdater()));
 			templateVos.add(templateVo);
@@ -136,13 +136,13 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 	@Override
 	public String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
 		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("purpose", purpose.getValue());
-		queryWrapper.eq("channel", channel.getValue());
+		queryWrapper.eq("purpose", purpose.getKey());
+		queryWrapper.eq("channel", channel.getKey());
 		if (templateMapper.selectCount(queryWrapper) == 0){
 			return null;
 		}
 		Template template = templateMapper.selectOne(queryWrapper);
-		if (template.getChannel()== NoticeChannel.SMS_OVERSEAS.getValue()){
+		if (template.getChannel()== NoticeChannel.SMS_OVERSEAS.getKey()){
 			return template.getName();
 		}else{
 			return template.getContent();
@@ -171,7 +171,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		if (template == null){
 			return null;
 		}else {
-			if (template.getChannel() == NoticeChannel.SMS_MAINLAND.getValue()){
+			if (template.getChannel() == NoticeChannel.SMS_MAINLAND.getKey()){
 				return template.getName();
 			}else{
 				return template.getContent();

@@ -66,28 +66,28 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 
 	@Override
 	public void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull String template) {
-//		stringRedisTemplate.opsForHash().put(prefix+purpose.getValue(), String.valueOf(channel.getValue()), template);
-		stringRedisTemplate.opsForValue().set(prefix+purpose.getValue()+":"+channel.getValue(), template, 1 , TimeUnit.DAYS);
+//		stringRedisTemplate.opsForHash().put(prefix+purpose.getKey(), String.valueOf(channel.getKey()), template);
+		stringRedisTemplate.opsForValue().set(prefix+purpose.getKey()+":"+channel.getKey(), template, 1 , TimeUnit.DAYS);
 	}
 
 	@Override
 	public String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		Object template =stringRedisTemplate.opsForHash().get(prefix+purpose.getValue(), String.valueOf(channel.getValue()));
+//		Object template =stringRedisTemplate.opsForHash().get(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
 //		return template == null ? null:template.toString();
-		stringRedisTemplate.expire(prefix+purpose.getValue()+":"+channel.getValue(), 1 , TimeUnit.DAYS);
-		return stringRedisTemplate.opsForValue().get(prefix+purpose.getValue()+":"+channel.getValue());
+		stringRedisTemplate.expire(prefix+purpose.getKey()+":"+channel.getKey(), 1 , TimeUnit.DAYS);
+		return stringRedisTemplate.opsForValue().get(prefix+purpose.getKey()+":"+channel.getKey());
 	}
 
 	@Override
 	public boolean hasTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		return stringRedisTemplate.opsForHash().hasKey(prefix+purpose.getValue(), String.valueOf(channel.getValue()));
-		return stringRedisTemplate.hasKey(prefix+purpose.getValue()+":"+channel.getValue());
+//		return stringRedisTemplate.opsForHash().hasKey(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
+		return stringRedisTemplate.hasKey(prefix+purpose.getKey()+":"+channel.getKey());
 	}
 
 	@Override
 	public void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		stringRedisTemplate.opsForHash().delete(prefix+purpose.getValue(), String.valueOf(channel.getValue()));
-		stringRedisTemplate.delete(prefix+purpose.getValue()+":"+channel.getValue());
+//		stringRedisTemplate.opsForHash().delete(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
+		stringRedisTemplate.delete(prefix+purpose.getKey()+":"+channel.getKey());
 	}
 
 	@Override

@@ -365,30 +365,34 @@
 
             <!-- oauth2 -->
             <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-oauth2-http</artifactId>
+                <version>1.33.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.oltu.oauth2</groupId>
                 <artifactId>org.apache.oltu.oauth2.client</artifactId>
                 <version>1.0.2</version>
             </dependency>
 
-            <!-- pac4j -->
             <dependency>
-                <groupId>org.pac4j</groupId>
-                <artifactId>pac4j-oauth</artifactId>
-                <version>4.0.0</version>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <version>11.23.1</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
-                <groupId>org.pac4j</groupId>
-                <artifactId>pac4j-javaee</artifactId>
-                <version>6.1.0</version>
-                <scope>runtime</scope>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-auth-oauth2</artifactId>
+                <version>4.5.14</version>
             </dependency>
 
             <dependency>
-                <groupId>org.pac4j</groupId>
-                <artifactId>pac4j-springboot</artifactId>
-                <version>4.0.0</version>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-client</artifactId>
+                <version>6.4.4</version>
             </dependency>
 
             <!-- Hutool工具库 -->

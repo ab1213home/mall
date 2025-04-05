@@ -53,8 +53,8 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	    // 一天前的时间
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getValue(), yesterday, now);
-		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getValue(), NoticeStatus.FAILED.getValue(), yesterday, now);
+		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
+		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
 
 		return (int) (count - failCount);
 	}
@@ -66,8 +66,8 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	    // 一天前的时间
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getValue(), yesterday, now);
-		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getValue(), NoticeStatus.FAILED.getValue(), yesterday, now);
+		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
+		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
 
 		//检查请求数量是否小于等于最小请求数量
 	    if (count <= noticeConfig.getNoticeMinRequestNum()) {
@@ -86,7 +86,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setTemplateId(templateId);
 		noticeLog.setReceiver(receiver);
-		noticeLog.setStatus(status.getValue());
+		noticeLog.setStatus(status.getKey());
 		if (properties != null){
 			noticeLog.setProperties(JSON.toJSONString(properties));
 		}
@@ -97,7 +97,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	public boolean updateStatus(Long id, @NotNull NoticeStatus status) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setId(id);
-		noticeLog.setStatus(status.getValue());
+		noticeLog.setStatus(status.getKey());
 		return noticeLogMapper.updateById(noticeLog) > 0;
 	}
 
@@ -109,14 +109,14 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	    Date yesterday = new Date(now.getTime() -noticeConfig.getNoticeExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-	    List<Long> list = noticeLogMapper.selectIdListByTimeRangeAndStatus(NoticeStatus.SUCCESS.getValue(),yesterday);
+	    List<Long> list = noticeLogMapper.selectIdListByTimeRangeAndStatus(NoticeStatus.SUCCESS.getKey(),yesterday);
 
 		// 如果列表为空，则返回null
 		if (list.isEmpty()) {
 	        return;
 	    }
 		for (Long id : list) {
-			noticeLogMapper.updateStatusById(id,NoticeStatus.EXPIRED.getValue());
+			noticeLogMapper.updateStatusById(id,NoticeStatus.EXPIRED.getKey());
 		}
 
 	}

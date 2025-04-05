@@ -43,27 +43,9 @@
     </properties>
     <dependencies>
 
-        <!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
-<!--        <dependency>-->
-<!--            <groupId>com.google.auth</groupId>-->
-<!--            <artifactId>google-auth-library-oauth2-http</artifactId>-->
-<!--        </dependency>-->
-        <!-- pac4j -->
         <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-oauth</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>org.pac4j</groupId>-->
-<!--            <artifactId>pac4j-javaee</artifactId>-->
-<!--            <scope>runtime</scope>-->
-<!--        </dependency>-->
-
-        <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-springboot</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <dependency>

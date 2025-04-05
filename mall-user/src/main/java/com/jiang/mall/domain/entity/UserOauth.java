@@ -22,8 +22,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("tb_user_oauth2")
-public class UserOauth2 implements Serializable {
+@TableName("tb_user_oauths")
+public class UserOauth implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -36,9 +36,17 @@ public class UserOauth2 implements Serializable {
 
 	private Long userId;
 
-	private Integer thirdPartyType;
+	private Integer providerType;
 
-	private String thirdPartyUserId;
+	private String providerUserId;
+
+	//第三方用户信息
+	private String annotations;
+
+	/**
+     * 哈希值
+     */
+	private String hash;
 
 	@TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

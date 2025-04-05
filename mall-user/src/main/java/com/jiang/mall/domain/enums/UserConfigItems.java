@@ -21,7 +21,11 @@ public enum UserConfigItems {
 	USER_MAX_ADDRESS("user.max.address", "最大收货地址数量", "50"),
 	USER_DEFAULT_GROUP("user.default.group", "默认用户组", "1"),
 	USER_SESSION_TIMEOUT("user.cache.time", "用户会话保持时间(小时)", "24"),
-	ALLOW_USER_REGISTRATION("allow.user.registration", "是否允许注册", "true");
+	ALLOW_USER_REGISTRATION("allow.user.registration", "是否允许注册", "true"),
+	OAUTH_GITHUE_CLIENT_ID("oauth.github.client-id", "GitHub客户端ID", "example"),
+	OAUTH_GITHUE_CLIENT_SECRET("oauth.github.client-secret", "GitHub客户端密钥", "example"),
+	OAUTH_GITEE_CLIENT_ID("oauth.gitee.client-id", "Gitee客户端ID", "example"),
+	OAUTH_GITEE_CLIENT_SECRET("oauth.gitee.client-secret", "Gitee客户端密钥", "example");
 
 	private final String key;
 	private final String description;

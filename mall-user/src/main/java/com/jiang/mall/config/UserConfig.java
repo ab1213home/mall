@@ -141,6 +141,22 @@ public class UserConfig {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), UserConfigItems.ALLOW_USER_REGISTRATION.getDefaultValue()));
     }
 
+    public String getGithubClientId() {
+        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getDefaultValue());
+    }
+
+    public String getGithubClientSecret() {
+        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getDefaultValue());
+    }
+
+    public String getGiteeClientId() {
+        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_ID.getDefaultValue());
+    }
+
+    public String getGiteeClientSecret() {
+        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
+    }
+
     public void updateUserMaxTry(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
     }
@@ -159,6 +175,22 @@ public class UserConfig {
 
     public void updateSessionTimeout(long timeout) {
         properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
+    }
+
+    public void updateGithubClientId(String clientId) {
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
+    }
+
+    public void updateGithubClientSecret(String clientSecret) {
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), clientSecret);
+    }
+
+    public void updateGiteeClientId(String clientId) {
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), clientId);
+    }
+
+    public void updateGiteeClientSecret(String clientSecret) {
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
     }
 
     public @NotNull UserSettingVo getSetting() {

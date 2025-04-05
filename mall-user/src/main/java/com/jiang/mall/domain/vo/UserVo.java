@@ -70,11 +70,6 @@ public class UserVo {
     private Date birthDate;
 
     /**
-     * 距离下次生日的天数
-     */
-//    private Integer nextBirthday;
-
-    /**
      * 默认构造方法
      */
     public UserVo() {

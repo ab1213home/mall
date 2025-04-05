@@ -123,6 +123,11 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    }
 	}
 
+	@Override
+	public @Nullable UserCache getUser(Long userId) {
+		return getUser(String.valueOf(userId));
+	}
+
 	private @Nullable UserCache getUser(String userId){
 		if (stringRedisTemplate.hasKey(prefix+userId)){
 			// 如果用户详细信息存在，则解析并返回用户信息对象

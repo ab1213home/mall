@@ -15,21 +15,16 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
-import java.io.File;
-
 @Getter
-public enum FileLocalConfigItems {
-	LOCAL_STORAGE_PATH(".storage.path", "本地存储路径", System.getProperty("user.home") + File.separator + "upload" + File.separator),
-	LOCAL_STORAGE_MAX_SIZE(".storage.max-size", "本地存储最大值", "-1");
+public enum OAuthResult {
+	ERROR("错误"),
+    UNBOUND("未绑定系统账号"),
+    SECOND_VERIFY("账号需要双因素认证(2FA)"),
+    SUCCESS("登录成功");
 
-	private final String key;
-	private final String description;
-	private final String defaultValue;
+	private final String value;
 
-	FileLocalConfigItems(String key, String description, String defaultValue) {
-		this.key = key;
-		this.description = description;
-		this.defaultValue = defaultValue;
+	OAuthResult(String value) {
+		this.value = value;
 	}
-
 }

@@ -72,12 +72,12 @@ public class Order implements Serializable {
     /**
      * 订单状态
      */
-    private Byte status;
+    private Integer status;
 
     /**
      * 支付方式
      */
-    private Byte paymentMethod;
+    private  Integer paymentMethod;
 
     /**
      * 创建时间，自动填充

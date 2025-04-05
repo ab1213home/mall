@@ -15,12 +15,16 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * 通知用途枚举类
  */
 @Getter
 public enum NoticePurpose {
 
+	DEFAULT(-1, "未关联默认"),
 	LOGIN(1, "登录"),
 	MODIFY_PASSWORD(2, "修改密码"),
 	FIND_PASSWORD(3, "找回密码"),
@@ -46,23 +50,18 @@ public enum NoticePurpose {
 	USER_MESSAGE_REPLY(23, "用户留言回复提醒"),
 	OTHER(24, "其他");
 
-	private final int value;
+	private final int key;
 	private final String name;
 
-	NoticePurpose(int value, String name) {
-		this.value = value;
+	NoticePurpose(int key, String name) {
+		this.key = key;
 		this.name = name;
 	}
 
-    public static String getNameByValue(int value) {
-		if (value == -1){
-			return "未关联";
-		}
-        for (NoticePurpose noticePurpose : NoticePurpose.values()) {
-            if (noticePurpose.getValue() == value) {
-                return noticePurpose.getName();
-            }
-        }
-        throw new IllegalArgumentException("No Purpose enum constant with value: " + value);
+	public static NoticePurpose fromKey(Integer key) {
+        return Arrays.stream(values())
+                .filter(p -> Objects.equals(p.key, key))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("无效的通知用途"));
     }
 }

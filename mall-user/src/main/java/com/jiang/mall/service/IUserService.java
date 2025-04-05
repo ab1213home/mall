@@ -16,8 +16,10 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.GiteeUserDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
+import com.jiang.mall.domain.enums.OAuthResult;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import org.jetbrains.annotations.NotNull;
@@ -91,4 +93,6 @@ public interface IUserService extends IService<User> {
 	int countTryNumber(String username, String clientIp, String fingerprint);
 
     Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId);
+
+    OAuthResult oauthLogin(GiteeUserDto user, String token, String sessionId);
 }

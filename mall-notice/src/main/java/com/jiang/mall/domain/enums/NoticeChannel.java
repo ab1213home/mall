@@ -15,6 +15,9 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @Getter
 public enum NoticeChannel {
 	/**
@@ -37,20 +40,19 @@ public enum NoticeChannel {
 	 */
 	WEB(3, "站内信");
 
-	private final int value;
+	private final int key;
 	private final String name;
 
-	NoticeChannel(int value, String name) {
-		this.value = value;
+	NoticeChannel(int key, String name) {
+		this.key = key;
 		this.name = name;
 	}
 
-	public static String getNameByValue(int value) {
-        for (NoticeChannel noticeChannel : NoticeChannel.values()) {
-            if (noticeChannel.getValue() == value) {
-                return noticeChannel.getName();
-            }
-        }
-        throw new IllegalArgumentException("No Status enum constant with value: " + value);
+	public static NoticeChannel fromKey(Integer key) {
+        return Arrays.stream(values())
+                .filter(p -> Objects.equals(p.key, key))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("无效的通知渠道"));
     }
+
 }

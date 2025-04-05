@@ -104,7 +104,7 @@ public class PayNotifyController {
 //            }
     }
 
-	@PostMapping("/notify/wechatpay")
+	@PostMapping("/wechatpay")
 	@Permission(PermissionType.NONE)
     public void notifyWechatpay(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		if (!wechatpayConfig.getIsEnabled()){

@@ -15,6 +15,9 @@ package com.jiang.mall.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * 支付方式枚举类
  */
@@ -23,20 +26,27 @@ public enum PaymentMethod {
 	OFFLINE(0,"货到付款"),
 	ONLINE(1,"在线支付");
 
-	private final int value;
+	private final int key;
 	private final String name;
 
-	PaymentMethod(int value,String name) {
-		this.value = value;
+	PaymentMethod(int key, String name) {
+		this.key = key;
 		this.name = name;
 	}
 
-	public static String getNameByValue(int value) {
-        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
-            if (paymentMethod.getValue() == value) {
-                return paymentMethod.getName();
-            }
-        }
-        throw new IllegalArgumentException("No PaymentMethod enum constant with value: " + value);
+//	public static String getNameByValue(int value) {
+//        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
+//            if (paymentMethod.getValue() == value) {
+//                return paymentMethod.getName();
+//            }
+//        }
+//        throw new IllegalArgumentException("No PaymentMethod enum constant with value: " + value);
+//    }
+//
+	public static PaymentMethod fromKey(Integer key) {
+        return Arrays.stream(values())
+                .filter(p -> Objects.equals(p.key, key))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("无效的支付方式"));
     }
 }

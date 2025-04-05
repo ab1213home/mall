@@ -154,4 +154,19 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    return userLogMapper.insert(userLog) > 0;
 	}
 
+	@Override
+	public void oauthLoginLog(String username, UserStatus status) {
+		UserLog userLog = new UserLog();
+		// 设置日志中的用户名
+	    userLog.setUsername(username);
+	    // 设置日志中的客户端IP地址
+	    userLog.setIp("127.0.0.1");
+	    // 设置日志中的指纹信息
+	    userLog.setFingerprint("fingerprint");
+	    // 设置日志的状态，使用LogStatus的getValue方法获取状态值
+	    userLog.setState(status.getValue());
+	    // 将日志对象插入数据库，如果插入成功则返回true，否则返回false
+	    userLogMapper.insert(userLog);
+	}
+
 }
