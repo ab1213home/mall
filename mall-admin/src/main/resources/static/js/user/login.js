@@ -19,6 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (message != null) {
         show_error(message);
     }
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId!=null){
+        const step2 = document.querySelectorAll('.step2');
+        const step1 = document.querySelectorAll('.step1');
+        step1.forEach(element => {
+            element.style.display = 'none';
+        });
+        step2.forEach(element => {
+            element.style.display = 'block';
+        });
+    }
     const remember = localStorage.getItem('remember');
     if (remember == 'true') {
         $('#username').val(localStorage.getItem('username'));

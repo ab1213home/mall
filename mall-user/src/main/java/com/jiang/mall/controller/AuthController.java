@@ -81,10 +81,11 @@ public class AuthController {
         response.sendRedirect(url);
     }
 
+	//TODO:怎么判断是登录还是绑定
 	// 处理回调获取code
     @GetMapping("/callback/gitee/code")
     @Permission(PermissionType.NONE)
-    public void callback(@RequestParam String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void callback(@RequestParam String code,@RequestParam String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String token = UUID.fastUUID().toString();
 		OAuthResult flag = oAuthService.callback(code,token,request.getSession().getId(),OAuthProvider.GITEE);
 		if (flag==OAuthResult.ERROR) {
@@ -99,9 +100,13 @@ public class AuthController {
 			response.setContentType("text/html; charset=UTF-8");
 		}else if (flag==OAuthResult.SECOND_VERIFY) {
 			response.setContentType("text/html; charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?sessionId=" + request.getSession().getId());
 //			return ResponseResult.okResult("false","需要二次验证");
 		} else if (flag==OAuthResult.SUCCESS){
 			response.setContentType("text/html; charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			response.sendRedirect(request.getContextPath() + "/user/index.html");
 //			return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 		}
     }

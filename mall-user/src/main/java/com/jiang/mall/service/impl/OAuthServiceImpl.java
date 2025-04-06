@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import cn.hutool.core.lang.UUID;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.TokenResponse;
@@ -65,15 +66,20 @@ public class OAuthServiceImpl implements IOAuthService {
 	public String getAuthUrl(@NotNull String type) {
 		String url = "";
 		if (type.equals("github")){
+			String random = UUID.randomUUID().toString();
 			url = OAuthProvider.GITHUB.getAuthUrl()+
                 "?client_id=" + userConfig.getGithubClientId() +
                 "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth2/callback/github/code", StandardCharsets.UTF_8) +
                 "&response_type=code";
 		}else if (type.equals("gitee")){
+			// 生成带操作类型的state参数
+			String action = "login"; // 或 "bind"
+			String random = UUID.randomUUID().toString();
+			String state = String.format("action:%s:%s", action, random);
 			url = OAuthProvider.GITEE.getAuthUrl()+
                 "?client_id=" + userConfig.getGiteeClientId() +
                 "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth2/callback/gitee/code", StandardCharsets.UTF_8) +
-                "&response_type=code&scope=user_info";
+                "&response_type=code&scope=user_info&state="+state;
 		}
 		return url;
 	}
