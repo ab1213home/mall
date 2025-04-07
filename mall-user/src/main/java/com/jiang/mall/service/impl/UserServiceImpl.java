@@ -199,11 +199,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public Boolean login(String username, String password, String token, String clientIp, String fingerprint, String sessionId) {
 		User user = getUserByUserNameOrEmail(username, password);
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
+		Map<String, Object> map = new HashMap<>();
+		map.put("username", username);
+		map.put("password", password);
 		if (user == null) {
 			// 登录失败，记录登录记录
-			Map<String, Object> map = new HashMap<>();
-			map.put("username", username);
-			map.put("password", password);
+			map.put("reason", "账号未激活或用户名或密码错误");
 			userLogService.defaultLog(username, clientIp, fingerprint, UserStatus.FAIL_LOGIN , map);
 			logger.debug("用户名或密码错误");
 			return null;
@@ -213,7 +214,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			return false;
 		} else {
 			// 登录成功，记录登录记录
-			userLogService.defaultLog(username, clientIp, fingerprint, UserStatus.SUCCESS_LOGIN , null);
+			userLogService.defaultLog(username, clientIp, fingerprint, UserStatus.SUCCESS_LOGIN , map);
 			login(user, token, sessionId);
 			return true;
 		}
@@ -652,6 +653,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			}else {
 				Map<String,Object> map = new HashMap<>();
 				map.put("code",code);
+				map.put("reason", "账号双因素认证(2FA)错误");
 				userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint, UserStatus.FAIL_LOGIN, map);
 				return false;
 			}
@@ -679,8 +681,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		map.put("password", password);
 		map.put("token", token);
 		if (!user.isActive()||!validatePassword(userId, password)){
+			map.put("reason", "账号未激活或token或密码错误");
 			userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.FAIL_LOGIN , map);
-			logger.debug("token或密码错误");
+			logger.debug("账号未激活或token或密码错误");
 			return null;
 		}
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功

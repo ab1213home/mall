@@ -138,12 +138,39 @@
             </resource>
         </resources>
         <plugins>
+            <!-- 复制依赖包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>lib</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <excludeGroupIds>com.jiang</excludeGroupIds>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.15</version>
+                <version>3.4.4</version>
                 <configuration>
-                    <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
+                    <mainClass>com.jiang.mall.MallApplication</mainClass>
+			        <addResources>true</addResources>
+<!--                    <includes>-->
+<!--                        <include>-->
+<!--                            <groupId>com.jiang</groupId>-->
+<!--                            <artifactId>*</artifactId>-->
+<!--                        </include>-->
+<!--                    </includes>-->
                 </configuration>
                 <executions>
                     <execution>
@@ -152,7 +179,15 @@
                         </goals>
                     </execution>
                 </executions>
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>org.springframework.boot.experimental</groupId>-->
+<!--                        <artifactId>spring-boot-thin-layout</artifactId>-->
+<!--                        <version>1.0.31.RELEASE</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
             </plugin>
+            <!-- war-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -161,7 +196,23 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <warName>${project.artifactId}</warName>
                 </configuration>
-           </plugin>
+            </plugin>
+            <!-- jar-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.jiang.mall.MallApplication</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- git-plugin -->
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>

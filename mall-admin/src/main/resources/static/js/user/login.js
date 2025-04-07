@@ -13,14 +13,23 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const url = urlParams.get('url');
+const model = localStorage.getItem('model');
 
 document.addEventListener('DOMContentLoaded', function() {
     const message = urlParams.get('message');
-    if (message != null) {
-        show_error(message);
-    }
-    const sessionId = localStorage.getItem('sessionId');
-    if (sessionId!=null){
+    if (model==null||model=='login'||model=='binding'){
+        if (message != null) {
+            show_error(message);
+        }
+        const remember = localStorage.getItem('remember');
+        if (remember == 'true') {
+            $('#username').val(localStorage.getItem('username'));
+            $('#password').val(localStorage.getItem('password'));
+            $('#remember').prop('checked', true);
+        } else {
+            $('#remember').prop('checked', false);
+        }
+    }else if (model=='oauth'){
         const step2 = document.querySelectorAll('.step2');
         const step1 = document.querySelectorAll('.step1');
         step1.forEach(element => {
@@ -29,14 +38,18 @@ document.addEventListener('DOMContentLoaded', function() {
         step2.forEach(element => {
             element.style.display = 'block';
         });
-    }
-    const remember = localStorage.getItem('remember');
-    if (remember == 'true') {
-        $('#username').val(localStorage.getItem('username'));
-        $('#password').val(localStorage.getItem('password'));
-        $('#remember').prop('checked', true);
-    } else {
-        $('#remember').prop('checked', false);
+    }else{
+        if (message != null) {
+            show_error(message);
+        }
+        const remember = localStorage.getItem('remember');
+        if (remember == 'true') {
+            $('#username').val(localStorage.getItem('username'));
+            $('#password').val(localStorage.getItem('password'));
+            $('#remember').prop('checked', true);
+        } else {
+            $('#remember').prop('checked', false);
+        }
     }
 });
 

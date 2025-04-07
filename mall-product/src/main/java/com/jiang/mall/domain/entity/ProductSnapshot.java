@@ -63,7 +63,6 @@ public class ProductSnapshot implements Serializable {
     /**
      * 商品属性
      */
-    @TableField(exist=false)
 	private String properties;
 
     /**
@@ -95,7 +94,6 @@ public class ProductSnapshot implements Serializable {
     /**
      * 商品哈希值
      */
-    @TableField(exist=false)
     private String hash;
 
     /**
