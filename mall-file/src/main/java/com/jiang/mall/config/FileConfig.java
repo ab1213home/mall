@@ -13,14 +13,14 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.config.LocalSetting;
-import com.jiang.mall.domain.config.S3Setting;
-import com.jiang.mall.domain.config.StorageConfig;
-import com.jiang.mall.domain.enums.FileConfigItems;
-import com.jiang.mall.domain.enums.LocalConfigItems;
-import com.jiang.mall.domain.enums.S3ConfigItems;
-import com.jiang.mall.domain.enums.StorageType;
+import com.jcraft.jsch.ChannelSftp;
+import com.jiang.mall.domain.config.*;
+import com.jiang.mall.domain.enums.*;
+import io.minio.MinioClient;
 import jakarta.annotation.PostConstruct;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import org.apache.commons.net.ftp.FTPClient;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,7 +53,7 @@ public class FileConfig {
     private final Properties properties = new Properties();
 
     @PostConstruct
-    private void init() {
+    private void init() throws IOException {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("file");
         loadProperties();
@@ -193,10 +194,10 @@ public class FileConfig {
      * 更新是否允许上传文件的设置
      * 此方法通过修改属性文件中的"allow.upload.file"键值来控制文件上传的权限
      *
-     * @param allow 如果允许上传文件，则设置为true；否则设置为false
+     * @param enabled 如果允许上传文件，则设置为true；否则设置为false
      */
-    public void updateAllowUploadFile(boolean allow) {
-        properties.setProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), String.valueOf(allow));
+    public void updateFileUploadEnabled(boolean enabled) {
+        properties.setProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), String.valueOf(enabled));
         saveProperties();
         loadProperties();
     }
@@ -209,8 +210,8 @@ public class FileConfig {
      *
      * @return boolean 表示是否允许上传文件true表示允许，false表示不允许
      */
-    public boolean getAllowUploadFile() {
-        return Boolean.parseBoolean(properties.getProperty(FileConfigItems.ALLOW_UPLOAD_FILE.getKey(), FileConfigItems.ALLOW_UPLOAD_FILE.getDefaultValue()));
+    public boolean getFileUploadEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), FileConfigItems.FILE_UPLOAD_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -260,7 +261,7 @@ public class FileConfig {
      *
      * @return 不为空的存储配置列表
      */
-    public @NotNull List<StorageConfig> getStorageConfig() {
+    public @NotNull List<StorageConfig> getStorageConfig() throws IOException {
         // 分割属性以获取存储名称数组
         String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
         // 初始化存储配置列表
@@ -282,11 +283,11 @@ public class FileConfig {
                 // 构建本地存储配置
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
-                localSetting.setPath(properties.getProperty(name+ LocalConfigItems.LOCAL_ROOT_PATH.getKey()));
-                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+ LocalConfigItems.LOCAL_MAX_SIZE.getKey())));
+                localSetting.setPath(properties.getProperty(name + LocalConfigItems.LOCAL_ROOT_PATH.getKey()));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name + LocalConfigItems.LOCAL_MAX_SIZE.getKey())));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
-                    logger.error("存在多个默认储存配置{}",name);
+                    logger.error("存在多个默认储存配置(local){}",name);
                     localSetting.setDefault(false);
                 }else {
                     localSetting.setDefault(first == 1 && isDefault);
@@ -297,19 +298,68 @@ public class FileConfig {
                 // 构建S3存储配置
                 S3Setting s3Setting = new S3Setting();
                 s3Setting.setName(name);
-                s3Setting.setEndpoint(properties.getProperty(name+ S3ConfigItems.S3_ENDPOINT.getKey()));
-                s3Setting.setAccessKey(properties.getProperty(name+ S3ConfigItems.S3_ACCESS_KEY.getKey()));
-                s3Setting.setSecretKey(properties.getProperty(name+ S3ConfigItems.S3_SECRET_KEY.getKey()));
-                s3Setting.setBucket(properties.getProperty(name+ S3ConfigItems.S3_BUCKET.getKey()));
-                s3Setting.setRegion(properties.getProperty(name+ S3ConfigItems.S3_REGION.getKey()));
+                s3Setting.setEndpoint(properties.getProperty(name + S3ConfigItems.S3_ENDPOINT.getKey()));
+                s3Setting.setAccessKey(properties.getProperty(name + S3ConfigItems.S3_ACCESS_KEY.getKey()));
+                s3Setting.setSecretKey(properties.getProperty(name + S3ConfigItems.S3_SECRET_KEY.getKey()));
+                s3Setting.setBucket(properties.getProperty(name + S3ConfigItems.S3_BUCKET.getKey()));
+                s3Setting.setRegion(properties.getProperty(name + S3ConfigItems.S3_REGION.getKey()));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
-                    logger.error("存在多个默认储存配置{}",name);
+                    logger.error("存在多个默认储存配置(s3){}",name);
                     s3Setting.setDefault(false);
                 }else {
                     s3Setting.setDefault(first == 1 && isDefault);
                 }
+                MinioClient minioClient = MinioClient.builder()
+                        .endpoint(s3Setting.getEndpoint())
+                        .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
+                        .httpClient(new OkHttpClient.Builder()
+                            .connectTimeout(3, TimeUnit.SECONDS)
+                            .readTimeout(10, TimeUnit.SECONDS)
+                            .connectionPool(new ConnectionPool(
+                              50,  // 最大空闲连接
+                              5,   // 保持时间(min)
+                              TimeUnit.MINUTES))
+                          .build())
+                        .build();
+                s3Setting.setClient(minioClient);
                 storageConfig.setConfig(s3Setting);
+                storageConfig.setName(name);
+            }else if (type.equals(StorageType.FTP.getKey())){
+                FtpSetting ftpSetting = new FtpSetting();
+                ftpSetting.setHost(properties.getProperty(name + FtpConfigItems.FTP_HOST.getKey()));
+                ftpSetting.setPort(Integer.parseInt(properties.getProperty(name + FtpConfigItems.FTP_PORT.getKey())));
+                ftpSetting.setUsername(properties.getProperty(name + FtpConfigItems.FTP_USERNAME.getKey()));
+                ftpSetting.setPassword(properties.getProperty(name + FtpConfigItems.FTP_PASSWORD.getKey()));
+                ftpSetting.setRootPath(properties.getProperty(name + FtpConfigItems.FTP_ROOT_PATH.getKey()));
+                if (first == 0 && isDefault){
+                    logger.error("存在多个默认储存配置(ftp){}",name);
+                    ftpSetting.setDefault(false);
+                }else {
+                    ftpSetting.setDefault(first == 1 && isDefault);
+                }
+                FTPClient ftpClient = new FTPClient();
+                ftpClient.connect(ftpSetting.getHost(), ftpSetting.getPort());
+                ftpClient.login(ftpSetting.getUsername(), ftpSetting.getPassword());
+                ftpClient.enterLocalPassiveMode();
+//                ftpSetting.setClient(ftpClient);
+                storageConfig.setConfig(ftpSetting);
+                storageConfig.setName(name);
+            }else if (type.equals(StorageType.SFTP.getKey())){
+                SftpSetting sftpSetting = new SftpSetting();
+                sftpSetting.setHost(properties.getProperty(name + SftpConfigItems.SFTP_HOST.getKey()));
+                sftpSetting.setPort(Integer.parseInt(properties.getProperty(name + SftpConfigItems.SFTP_PORT.getKey())));
+                sftpSetting.setUsername(properties.getProperty(name + SftpConfigItems.SFTP_USERNAME.getKey()));
+                sftpSetting.setPassword(properties.getProperty(name + SftpConfigItems.SFTP_PASSWORD.getKey()));
+                sftpSetting.setRootPath(properties.getProperty(name + SftpConfigItems.SFTP_ROOT_PATH.getKey()));
+                if (first == 0 && isDefault){
+                    logger.error("存在多个默认储存配置(sftp){}",name);
+                    sftpSetting.setDefault(false);
+                }else {
+                    sftpSetting.setDefault(first == 1 && isDefault);
+                }
+                ChannelSftp sftpClient = null;
+                storageConfig.setConfig(sftpSetting);
                 storageConfig.setName(name);
             }else {
                 // 记录未知存储类型错误
@@ -336,7 +386,7 @@ public class FileConfig {
      *
      * @param _storageConfig 要更新的存储配置对象，不能为空
      */
-    public void updateStorageConfig(@NotNull StorageConfig _storageConfig) {
+    public void updateStorageConfig(@NotNull StorageConfig _storageConfig) throws IOException {
         // 获取系统中已配置的存储名称列表
         String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
 

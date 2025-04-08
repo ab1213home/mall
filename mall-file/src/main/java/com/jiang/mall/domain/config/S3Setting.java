@@ -13,6 +13,7 @@
 
 package com.jiang.mall.domain.config;
 
+import io.minio.MinioClient;
 import lombok.Data;
 
 @Data
@@ -42,6 +43,12 @@ public class S3Setting {
 	 * S3存储区域
 	 */
 	private String region;
+
+	/*
+	 * S3客户端
+	 */
+	private MinioClient client;
+
 	/*
 	 * 是否为默认存储
 	 */

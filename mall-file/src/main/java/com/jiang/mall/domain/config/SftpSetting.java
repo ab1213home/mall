@@ -13,21 +13,29 @@
 
 package com.jiang.mall.domain.config;
 
+import com.jcraft.jsch.ChannelSftp;
 import lombok.Data;
 
 @Data
-public class StorageConfig {
+public class SftpSetting {
+	private String host;
+	private int port;
+	private String username;
+	private String password;
+	private String rootPath;
+	private boolean isDefault;
 
-	private boolean health;
+	private ChannelSftp client;
 
-	private String name;
+	public SftpSetting() {
+	}
 
-	private Object config;
-
-	//s3、ftp客户端，避免频繁创建
-//	private Object client;
-
-	public StorageConfig() {
-
+	public SftpSetting(String host, int port, String username, String password, String rootPath, boolean isDefault) {
+		this.host = host;
+		this.port = port;
+		this.username = username;
+		this.password = password;
+		this.rootPath = rootPath;
+		this.isDefault = isDefault;
 	}
 }

@@ -14,20 +14,28 @@
 package com.jiang.mall.domain.config;
 
 import lombok.Data;
+import org.apache.commons.net.ftp.FTPClient;
 
 @Data
-public class StorageConfig {
+public class FtpSetting {
+	private String host;
+	private int port;
+	private String username;
+	private String password;
+	private String rootPath;
+	private boolean isDefault;
 
-	private boolean health;
+	private FTPClient client;
 
-	private String name;
+	public FtpSetting() {
+	}
 
-	private Object config;
-
-	//s3、ftp客户端，避免频繁创建
-//	private Object client;
-
-	public StorageConfig() {
-
+	public FtpSetting(String host, int port, String username, String password, String rootPath, boolean isDefault) {
+		this.host = host;
+		this.port = port;
+		this.username = username;
+		this.password = password;
+		this.rootPath = rootPath;
+		this.isDefault = isDefault;
 	}
 }

@@ -17,13 +17,13 @@ import lombok.Getter;
 
 @Getter
 public enum EmailConfigItems {
-	EMAIL_HOST("email.host", "邮件服务器地址", "smtp.example.com"),
-	EMAIL_PORT("email.port", "邮件服务器端口", "465"),
-	EMAIL_AUTH("email.auth", "邮件服务器是否需要验证", "true"),
-	EMAIL_TLS("email.tls", "邮件服务器是否需要开启TLS", "true"),
-	EMAIL_USERNAME("email.username", "邮件服务器用户名", "mall@example.com"),
-	EMAIL_PASSWORD("email.password", "邮件服务器密码", "pass"),
-	EMAIL_ENABLED("email.enabled", "是否允许发送邮件", "false");
+	NOTICE_EMAIL_HOST("notice.email.host", "邮件服务器地址", "smtp.example.com"),
+	NOTICE_EMAIL_PORT("notice.email.port", "邮件服务器端口", "465"),
+	NOTICE_EMAIL_AUTH("notice.email.auth", "邮件服务器是否需要验证", "true"),
+	NOTICE_EMAIL_TLS("notice.email.tls", "邮件服务器是否需要开启TLS", "true"),
+	NOTICE_EMAIL_USERNAME("notice.email.username", "邮件服务器用户名", "mall@example.com"),
+	NOTICE_EMAIL_PASSWORD("notice.email.password", "邮件服务器密码", "pass"),
+	NOTICE_EMAIL_ENABLED("notice.email.enabled", "是否允许发送邮件", "false");
 
 	private final String key;
 	private final String description;

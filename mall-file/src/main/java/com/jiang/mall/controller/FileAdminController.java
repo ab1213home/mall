@@ -32,6 +32,7 @@ import com.jiang.mall.service.IFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,7 +105,7 @@ public class FileAdminController {
         Map<String,Object> setting = new HashMap<>();
 
         // 将是否允许上传文件的配置添加到设置信息中
-        setting.put("AllowUploadFile", fileConfig.getAllowUploadFile());
+        setting.put("AllowUploadFile", fileConfig.getFileUploadEnabled());
 
         // 初始化图片后缀列表，用于存储标准图片后缀及其是否被允许上传的状态
         List<MapVo> imageSuffix_with_parameters = new ArrayList<>();
@@ -224,7 +225,7 @@ public class FileAdminController {
         fileConfig.updateImageSuffix(imageSuffixStr.toString());
 
         // 更新是否允许上传文件的配置
-        fileConfig.updateAllowUploadFile(mainSettingVo.getAllowUploadFile());
+        fileConfig.updateFileUploadEnabled(mainSettingVo.getAllowUploadFile());
 
         // 返回成功结果
         return ResponseResult.okResult();
@@ -239,7 +240,7 @@ public class FileAdminController {
      */
     @PostMapping("/saveDetailSetting")
     @Permission(value = PermissionType.SYSTEM, permission = "file")
-    public ResponseResult<Object> setDetailSetting(@RequestBody StorageConfigVo storageConfigVo){
+    public ResponseResult<Object> setDetailSetting(@RequestBody StorageConfigVo storageConfigVo) throws IOException {
         // 检查存储名称是否为空或无效
         if (storageConfigVo.getName()==null||storageConfigVo.getName().isEmpty()){
             return ResponseResult.failResult("非法的存储名称");

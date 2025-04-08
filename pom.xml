@@ -70,6 +70,13 @@
         <alipay.version>2.2.3</alipay.version>
         <jsoup.version>1.18.3</jsoup.version>
         <logback.version>1.5.18</logback.version>
+        <commons-net.version>3.11.1</commons-net.version>
+        <dysmsapi.version>1.0.10</dysmsapi.version>
+        <libphonenumber.version>8.13.55</libphonenumber.version>
+        <springfox.version>3.0.0</springfox.version>
+        <springdoc.version>2.8.6</springdoc.version>
+        <kafka.version>3.8.0</kafka.version>
+        <jsch.version>0.2.24</jsch.version>
 	</properties>
 	<dependencies>
 
@@ -198,13 +205,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
-<!--                <scope>runtime</scope>-->
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>${logback.version}</version>
-<!--                <scope>runtime</scope>-->
             </dependency>
 
             <!-- sitemap -->
@@ -286,14 +291,14 @@
             <dependency>
               <groupId>com.aliyun</groupId>
               <artifactId>dysmsapi20180501</artifactId>
-              <version>1.0.10</version>
+              <version>${dysmsapi.version}</version>
             </dependency>
 
             <!-- 电话号码验证 -->
             <dependency>
                 <groupId>com.googlecode.libphonenumber</groupId>
                 <artifactId>libphonenumber</artifactId>
-                <version>8.13.55</version>
+                <version>${libphonenumber.version}</version>
             </dependency>
 
             <!-- 支付宝支付 -->
@@ -341,13 +346,13 @@
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-boot-starter</artifactId>
-                <version>3.0.0</version>
+                <version>${springfox.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>2.8.6</version>
+                <version>${springdoc.version}</version>
             </dependency>
 
             <!-- ZXing -->
@@ -363,37 +368,37 @@
                 <version>${zxing.version}</version>
             </dependency>
 
-            <!-- oauth2 -->
-            <dependency>
-                <groupId>com.google.auth</groupId>
-                <artifactId>google-auth-library-oauth2-http</artifactId>
-                <version>1.33.1</version>
-            </dependency>
+<!--            &lt;!&ndash; oauth2 &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>com.google.auth</groupId>-->
+<!--                <artifactId>google-auth-library-oauth2-http</artifactId>-->
+<!--                <version>1.33.1</version>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>org.apache.oltu.oauth2</groupId>
-                <artifactId>org.apache.oltu.oauth2.client</artifactId>
-                <version>1.0.2</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.apache.oltu.oauth2</groupId>-->
+<!--                <artifactId>org.apache.oltu.oauth2.client</artifactId>-->
+<!--                <version>1.0.2</version>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>11.23.1</version>
-                <scope>runtime</scope>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.nimbusds</groupId>-->
+<!--                <artifactId>oauth2-oidc-sdk</artifactId>-->
+<!--                <version>11.23.1</version>-->
+<!--                <scope>runtime</scope>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>io.vertx</groupId>
-                <artifactId>vertx-auth-oauth2</artifactId>
-                <version>4.5.14</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>io.vertx</groupId>-->
+<!--                <artifactId>vertx-auth-oauth2</artifactId>-->
+<!--                <version>4.5.14</version>-->
+<!--            </dependency>-->
 
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-client</artifactId>
-                <version>6.4.4</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-oauth2-client</artifactId>-->
+<!--                <version>6.4.4</version>-->
+<!--            </dependency>-->
 
             <!-- Hutool工具库 -->
             <dependency>
@@ -406,7 +411,19 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.11.1</version>
+                <version>${commons-net.version}</version>
+            </dependency>
+
+            <!-- SFTP -->
+<!--            <dependency>-->
+<!--                <groupId>com.jcraft</groupId>-->
+<!--                <artifactId>jsch</artifactId>-->
+<!--                <version>0.1.55</version>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>com.github.mwiede</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
             </dependency>
 
             <!-- 命令行工具 -->
@@ -445,7 +462,7 @@
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
-                <version>3.8.0</version>
+                <version>${kafka.version}</version>
             </dependency>
 
             <dependency>

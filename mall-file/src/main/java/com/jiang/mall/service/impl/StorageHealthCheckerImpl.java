@@ -17,9 +17,9 @@ import com.jiang.mall.domain.config.LocalSetting;
 import com.jiang.mall.domain.config.S3Setting;
 import com.jiang.mall.service.IFileOperation;
 import com.jiang.mall.service.IStorageHealthChecker;
+import com.jiang.mall.util.SecureUtil;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
 
 @Service
 public class StorageHealthCheckerImpl implements IStorageHealthChecker {
@@ -54,7 +53,7 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	@Override
 	public Boolean checkStorageHealth(@NotNull LocalSetting localSetting) {
 	    //填充随机字符串
-	    String randomString = generateRandomString(100);
+	    String randomString = SecureUtil.generateRandomString(100);
 	    //获取时时间戳
 	    long timestamp = System.currentTimeMillis();
 	    // 根据时间戳生成文件路径，以避免文件名冲突
@@ -95,41 +94,35 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	@Override
 	public Boolean checkStorageHealth(@NotNull S3Setting s3Setting) {
 	    //填充随机字符串
-	    String randomString = generateRandomString(100);
+	    String randomString = SecureUtil.generateRandomString(100);
 	    //获取时时间戳
 	    long timestamp = System.currentTimeMillis();
 
-	    //构建Minio客户端
-	    MinioClient minioClient = MinioClient.builder()
-	                .endpoint(s3Setting.getEndpoint())
-	                .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-	                .build();
-
 	    try {
 	        // 确保存储桶存在
-	        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(s3Setting.getBucket()).build())) {
-	            minioClient.makeBucket(MakeBucketArgs.builder().bucket(s3Setting.getBucket()).build());
+	        if (!s3Setting.getClient().bucketExists(BucketExistsArgs.builder().bucket(s3Setting.getBucket()).build())) {
+	            s3Setting.getClient().makeBucket(MakeBucketArgs.builder().bucket(s3Setting.getBucket()).build());
 	            logger.debug("创建存储桶: {}", s3Setting.getBucket());
 	        }
 
 	        // 测试写入文件
-	        boolean writeSuccess = fileOperation.WriteStringToS3File(minioClient, randomString,s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	        boolean writeSuccess = fileOperation.WriteStringToS3File(s3Setting.getClient(), randomString,s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	        if (!writeSuccess) {
 	            logger.error("无法写入文件，{}(S3存储)不健康", s3Setting.getName());
 	            return false;
 	        }
 
 	        // 测试读取文件
-	        String readContent = fileOperation.ReadStringFormS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	        String readContent = fileOperation.ReadStringFormS3File(s3Setting.getClient(), s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	        if (readContent == null || !readContent.equals(randomString)) {
 	            logger.error("读取文件失败或内容不匹配，{}(S3存储)不健康", s3Setting.getName());
 	            // 删除文件
-	            fileOperation.DeleteS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	            fileOperation.DeleteS3File(s3Setting.getClient(), s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return false;
 	        } else {
 	            logger.debug("读取文件成功且内容匹配，{}(S3存储)健康", s3Setting.getName());
 	            // 删除文件
-	            fileOperation.DeleteS3File(minioClient, s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
+	            fileOperation.DeleteS3File(s3Setting.getClient(), s3Setting.getBucket(),"health_check_file_"+timestamp+".txt");
 	            return true;
 	        }
 	    } catch (MinioException e) {
@@ -140,28 +133,5 @@ public class StorageHealthCheckerImpl implements IStorageHealthChecker {
 	        return false;
 	    }
 	}
-
-    /**
-     * 生成指定长度的随机字符串
-     * 该方法用于创建一个固定长度的字符串，其中包含大写字母、小写字母和数字
-     * 主要用途是生成唯一标识符或随机密码
-     *
-     * @param length 指定生成字符串的长度
-     * @return 生成的随机字符串，不为null
-     */
-    private @NotNull String generateRandomString(int length) {
-        // 定义可选字符集，包括大写字母、小写字母和数字
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        // 创建Random对象用于生成随机数
-        Random random = new Random();
-        // 创建StringBuilder对象，用于高效构建字符串
-        StringBuilder sb = new StringBuilder(length);
-        // 循环指定次数，每次随机选择一个字符添加到StringBuilder中
-        for (int i = 0; i < length; i++) {
-            sb.append(characters.charAt(random.nextInt(characters.length())));
-        }
-        // 将构建好的字符串转换为String类型并返回
-        return sb.toString();
-    }
 
 }

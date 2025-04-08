@@ -44,7 +44,7 @@ public class StorageHealthCheckerTask {
 		this.fileConfig = fileConfig;
 	}
 
-	@Scheduled(fixedRate = 300000,initialDelay = 0) // 每 5 分钟检查一次
+	@Scheduled(fixedRate = 900000,initialDelay = 0) // 每 15 分钟检查一次
     public void checkAndRecover() {
 		boolean defaultHealth = checkStorageHealth(fileConfig.defaultStorageConfig);
 		if (!defaultHealth){

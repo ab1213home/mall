@@ -417,10 +417,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     private @NotNull List<String> getS3FaceTemplateList(@NotNull S3Setting s3Setting) {
-         MinioClient minioClient = MinioClient.builder()
-                    .endpoint(s3Setting.getEndpoint())
-                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-                    .build();
+         MinioClient minioClient = s3Setting.getClient();
          Iterable<Result<Item>> results = minioClient.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(s3Setting.getBucket())
@@ -514,10 +511,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     private @NotNull DirectoryVo getS3List(@NotNull S3Setting s3Setting, @NotNull String path) {
-        MinioClient minioClient = MinioClient.builder()
-                    .endpoint(s3Setting.getEndpoint())
-                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-                    .build();
+        MinioClient minioClient = s3Setting.getClient();
         // 处理根目录路径
         String adjustedPath = path.equals("/") ? "" : path;
         String prefix = buildPrefix(adjustedPath);
@@ -596,10 +590,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     private @NotNull Map<String, Object> getS3Stats(@NotNull S3Setting s3Setting) {
-        MinioClient minioClient = MinioClient.builder()
-                    .endpoint(s3Setting.getEndpoint())
-                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-                    .build();
+        MinioClient minioClient = s3Setting.getClient();
         // 列出所有对象（递归）
         Iterable<Result<Item>> results = minioClient.listObjects(
                 ListObjectsArgs.builder()
@@ -693,10 +684,7 @@ public class FileOperationImpl implements IFileOperation {
     private @Nullable InputStream S3FileRead(@NotNull S3Setting s3Setting, String name){
         try {
             // 初始化 MinioClient
-            MinioClient minioClient = MinioClient.builder()
-                    .endpoint(s3Setting.getEndpoint())
-                    .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-                    .build();
+            MinioClient minioClient = s3Setting.getClient();
 
             // 下载文件并获取输入流
             return minioClient.getObject(
@@ -709,10 +697,7 @@ public class FileOperationImpl implements IFileOperation {
     }
 
     private @NotNull Boolean S3FileWrite(@NotNull S3Setting s3Setting, @NotNull MultipartFile file, String name) {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(s3Setting.getEndpoint())
-                .credentials(s3Setting.getAccessKey(), s3Setting.getSecretKey())
-                .build();
+        MinioClient minioClient = s3Setting.getClient();
         try (InputStream inputStream = file.getInputStream()) {
                 minioClient.putObject(
                         PutObjectArgs.builder()

@@ -17,7 +17,7 @@ import lombok.Getter;
 
 @Getter
 public enum FileConfigItems {
-	ALLOW_UPLOAD_FILE("allow.upload.file", "是否允许上传文件", "true",true),
+	FILE_UPLOAD_ENABLED("file.upload.enabled", "是否允许上传文件", "true",true),
 	IMAGE_SUFFIX("image.suffix", "图片后缀", "xbm,tif,pjp,apng,svgz,jpg,jpeg,ico,tiff,gif,svg,jfif,webp,png,bmp,pjpeg,avif",true),
 	STORAGE_NAME("storage.name", "存储名称", "default",true),
 	STORAGE_DEFAULT(".storage.is-default", "是否为默认存储服务", "false",false),

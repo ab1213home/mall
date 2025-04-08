@@ -78,7 +78,7 @@ public class UploadInterceptor implements HandlerInterceptor {
             if (upload == null) {
                 return true;
             }
-            if (!fileConfig.getAllowUploadFile()){
+            if (!fileConfig.getFileUploadEnabled()){
                 return false;
             }else {
                 return true;

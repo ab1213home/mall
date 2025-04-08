@@ -28,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Random;
 
 /**
  * 加密解密工具类，提供了加密和解密相关的方法。
@@ -243,6 +244,29 @@ public class SecureUtil {
             logger.error("获取SHA256实例失败", e);
             throw new RuntimeException("获取SHA256实例失败", e);
         }
+    }
+
+    /**
+     * 生成指定长度的随机字符串
+     * 该方法用于创建一个固定长度的字符串，其中包含大写字母、小写字母和数字
+     * 主要用途是生成唯一标识符或随机密码
+     *
+     * @param length 指定生成字符串的长度
+     * @return 生成的随机字符串，不为null
+     */
+    public static @NotNull String generateRandomString(int length) {
+        // 定义可选字符集，包括大写字母、小写字母和数字
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        // 创建Random对象用于生成随机数
+        Random random = new Random();
+        // 创建StringBuilder对象，用于高效构建字符串
+        StringBuilder sb = new StringBuilder(length);
+        // 循环指定次数，每次随机选择一个字符添加到StringBuilder中
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        // 将构建好的字符串转换为String类型并返回
+        return sb.toString();
     }
 
     //根据字符串生成哈希值SHA-256
