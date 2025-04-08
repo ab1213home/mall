@@ -126,7 +126,7 @@ public class SmsConfig {
     }
 
     public boolean isSendPhoneEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(SmsConfigItems.ALLOW_SEND_SMS.getKey(), SmsConfigItems.ALLOW_SEND_SMS.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(SmsConfigItems.SMS_ENABLED.getKey(), SmsConfigItems.SMS_ENABLED.getDefaultValue()));
     }
 
     public String getAccessKeyId() {
@@ -166,7 +166,7 @@ public class SmsConfig {
     }
 
     public void updateSendPhoneEnabled(boolean enabled) {
-        properties.setProperty(SmsConfigItems.ALLOW_SEND_SMS.getKey(), String.valueOf(enabled));
+        properties.setProperty(SmsConfigItems.SMS_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateSignName(String signName) {
@@ -189,7 +189,7 @@ public class SmsConfig {
         smsSettingVo.setEndpoint(getEndpoint());
         smsSettingVo.setSignName(getSignName());
         smsSettingVo.setSenderId(getSenderId());
-        smsSettingVo.setAllowSendPhone(isSendPhoneEnabled());
+        smsSettingVo.setEnabled(isSendPhoneEnabled());
         smsSettingVo.setUpCode(getUpCode());
         return smsSettingVo;
     }
@@ -198,13 +198,13 @@ public class SmsConfig {
         updateAccessKeyId(smsSettingVo.getAccessKeyId());
         updateAccessKeySecret(smsSettingVo.getAccessKeySecret());
         updateEndpoint(smsSettingVo.getEndpoint());
-        updateSendPhoneEnabled(smsSettingVo.isAllowSendPhone());
+        updateSendPhoneEnabled(smsSettingVo.isEnabled());
         updateSignName(smsSettingVo.getSignName());
         updateSenderId(smsSettingVo.getSenderId());
         updateUpCode(smsSettingVo.getUpCode());
         saveProperties();
         loadProperties();
-        if (smsSettingVo.isAllowSendPhone()){
+        if (smsSettingVo.isEnabled()){
             iniPoneConfig();
         }
     }

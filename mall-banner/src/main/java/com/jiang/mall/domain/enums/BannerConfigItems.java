@@ -17,7 +17,7 @@ import lombok.Getter;
 
 @Getter
 public enum BannerConfigItems {
-	BANNER_CACHE("allow.banner.cache", "是否启用缓存", "false"),
+	BANNER_CACHE_ENABLED("banner.cache.enabled", "是否启用缓存", "false"),
 	BANNER_CACHE_TIME("banner.cache.time", "缓存时间(秒)","7200"),
 	BANNER_SYNC_TIME("banner.sync.time", "同步时间(秒)","600");
 

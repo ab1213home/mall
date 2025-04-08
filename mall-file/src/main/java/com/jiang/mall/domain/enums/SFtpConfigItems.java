@@ -16,20 +16,18 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum EmailConfigItems {
-	EMAIL_HOST("email.host", "邮件服务器地址", "smtp.example.com"),
-	EMAIL_PORT("email.port", "邮件服务器端口", "465"),
-	EMAIL_AUTH("email.auth", "邮件服务器是否需要验证", "true"),
-	EMAIL_TLS("email.tls", "邮件服务器是否需要开启TLS", "true"),
-	EMAIL_USERNAME("email.username", "邮件服务器用户名", "mall@example.com"),
-	EMAIL_PASSWORD("email.password", "邮件服务器密码", "pass"),
-	EMAIL_ENABLED("email.enabled", "是否允许发送邮件", "false");
+public enum SFtpConfigItems {
+	SFTP_HOST(".sftp.host", "sftp服务器地址", "sftp.example.com"),
+	SFTP_PORT(".sftp.port", "sftp服务器端口", "22"),
+	SFTP_USERNAME(".sftp.username", "sftp服务器用户名", "user"),
+	SFTP_PASSWORD(".sftp.password", "sftp服务器密码", "pass"),
+	SFTP_ROOT_PATH(".sftp.root-path", "sftp服务器根目录", "/remote");
 
 	private final String key;
 	private final String description;
 	private final String defaultValue;
 
-	EmailConfigItems(String key, String description, String defaultValue) {
+	SFtpConfigItems(String key, String description, String defaultValue) {
 		this.key = key;
 		this.description = description;
 		this.defaultValue = defaultValue;

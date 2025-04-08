@@ -171,8 +171,8 @@ public class FileConfig {
      */
     private void createLocalConfig(@NotNull LocalSetting localSetting) {
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
-        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_STORAGE_PATH.getKey(),localSetting.getPath());
-        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_ROOT_PATH.getKey(),localSetting.getPath());
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
         properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(localSetting.isDefault()));
     }
 
@@ -282,8 +282,8 @@ public class FileConfig {
                 // 构建本地存储配置
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
-                localSetting.setPath(properties.getProperty(name+ LocalConfigItems.LOCAL_STORAGE_PATH.getKey()));
-                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+ LocalConfigItems.LOCAL_STORAGE_MAX_SIZE.getKey())));
+                localSetting.setPath(properties.getProperty(name+ LocalConfigItems.LOCAL_ROOT_PATH.getKey()));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name+ LocalConfigItems.LOCAL_MAX_SIZE.getKey())));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置{}",name);

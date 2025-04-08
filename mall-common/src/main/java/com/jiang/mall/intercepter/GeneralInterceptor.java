@@ -165,7 +165,12 @@ public class GeneralInterceptor{
             url += "&message=" + messageParam;
         }
         // 将编码后的重定向URL和提示信息拼接，执行重定向
-        response.sendRedirect(url);
+        if (!response.isCommitted()) {
+            response.sendRedirect(url);
+        } else {
+            // 记录日志：无法重定向，响应已提交
+            logger.warn("无法重定向到 {}: 响应已提交。", url);
+        }
     }
 
     /**

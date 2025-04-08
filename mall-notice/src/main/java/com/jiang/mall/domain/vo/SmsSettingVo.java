@@ -24,5 +24,5 @@ public class SmsSettingVo {
 	private String signName;
 	private String senderId;
 	private String upCode;
-	private boolean allowSendPhone;
+	private boolean enabled;
 }

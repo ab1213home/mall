@@ -61,13 +61,6 @@ public class LoginController {
 		this.captchaService = captchaService;
 	}
 
-	private UserConfig userConfig;
-
-	@Autowired
-	public void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
-	}
-
 	private PermissionInterceptor permissionInterceptor;
 
 	@Autowired
@@ -174,33 +167,33 @@ public class LoginController {
 	    }
 	}
 
-	@PostMapping("/login/rememberMe")
-	@Permission(PermissionType.GUEST)
-	public ResponseResult<Object> loginRememberMe(@RequestParam("password") String password,
-                                                 @RequestParam("token") String token,
-                                                 @RequestHeader("X-Real-IP") String clientIp,
-                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-                                                 HttpSession session) {
-	    // 验证客户端IP是否有效
-	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
-	    // 验证客户端指纹是否有效
-	    if (!i18nService.checkString(fingerprint)){
-	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
-	    }
-	    // 调用用户服务进行登录验证
-	    Boolean flag = userService.login(password, token, clientIp, fingerprint,session.getId());
-	    //flag==null账号密码token错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
-        if (flag == null) {
-	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
-        } else if (!flag){
-            // 登录失败，返回相应错误信息
-            return ResponseResult.okResult("false","需要双因素认证(2FA)");
-        }else {
-	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
-        }
-	}
+//	@PostMapping("/login/rememberMe")
+//	@Permission(PermissionType.GUEST)
+//	public ResponseResult<Object> loginRememberMe(@RequestParam("password") String password,
+//                                                 @RequestParam("token") String token,
+//                                                 @RequestHeader("X-Real-IP") String clientIp,
+//                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+//                                                 HttpSession session) {
+//	    // 验证客户端IP是否有效
+//	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+//	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+//	    }
+//	    // 验证客户端指纹是否有效
+//	    if (!i18nService.checkString(fingerprint)){
+//	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+//	    }
+//	    // 调用用户服务进行登录验证
+//	    Boolean flag = userService.login(password, token, clientIp, fingerprint,session.getId());
+//	    //flag==null账号密码token错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
+//        if (flag == null) {
+//	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+//        } else if (!flag){
+//            // 登录失败，返回相应错误信息
+//            return ResponseResult.okResult("false","需要双因素认证(2FA)");
+//        }else {
+//	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+//        }
+//	}
 
 	/**
      * 处理用户登出请求

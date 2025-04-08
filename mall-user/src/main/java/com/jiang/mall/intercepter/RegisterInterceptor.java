@@ -64,7 +64,7 @@ public class RegisterInterceptor implements HandlerInterceptor {
             // 获取方法上的@RequireGuest注解
 //            RequireGuest requireGuest = method.getAnnotation(RequireGuest.class);
 		    Register register = AnnotationUtils.findAnnotation(method, Register.class);
-			if (register != null && !userConfig.isAllowRegistration()) {
+			if (register != null && !userConfig.isRegisterEnabled()) {
 				//重定向到首页
 	            generalInterceptor.redirectToIndex(request,response);
 	            return false;

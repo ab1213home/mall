@@ -27,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class UserMvcConfig implements WebMvcConfigurer {
 
     private UserInterceptor userInterceptor;
+
     @Autowired
     public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
         this.userInterceptor = userInterceptor;

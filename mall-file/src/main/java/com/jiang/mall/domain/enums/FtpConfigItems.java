@@ -17,11 +17,11 @@ import lombok.Getter;
 
 @Getter
 public enum FtpConfigItems {
-	S3_ENDPOINT(".storage.endpoint", "S3存储服务地址", "https://s3.amazonaws.com"),
-	S3_ACCESS_KEY(".storage.access-key", "S3存储服务访问密钥", "example"),
-	S3_SECRET_KEY(".storage.secret-key", "S3存储服务密钥", "example"),
-	S3_BUCKET(".storage.bucket", "S3存储服务桶名", "mall"),
-	S3_REGION(".storage.region", "S3存储服务区域", "us-east-1");
+	FTP_HOST(".ftp.host", "ftp服务器地址", "ftp.example.com"),
+	FTP_PORT(".ftp.port", "ftp服务器端口", "21"),
+	FTP_USERNAME(".ftp.username", "ftp服务器用户名", "user"),
+	FTP_PASSWORD(".ftp.password", "ftp服务器密码", "pass"),
+	FTP_ROOT_PATH(".ftp.root-path", "ftp服务器根目录", "/uploads");
 
 	private final String key;
 	private final String description;

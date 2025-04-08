@@ -18,7 +18,7 @@ import lombok.Getter;
 @Getter
 public enum ProductConfigItems {
 
-	PRODUCT_CACHE("allow.product.cache", "是否启用缓存", "false"),
+	PRODUCT_CACHE_ENABLED("product.cache.enabled", "是否启用缓存", "false"),
 	PRODUCT_SYNC_TIME("product.sync.time", "同步时间(秒)", "600"),
 	PRODUCT_CACHE_TIME("product.cache.time", "缓存时间(秒)", "7200");
 

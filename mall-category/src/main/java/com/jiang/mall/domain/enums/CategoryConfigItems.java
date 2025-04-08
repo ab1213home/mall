@@ -17,7 +17,7 @@ import lombok.Getter;
 
 @Getter
 public enum CategoryConfigItems {
-	CATEGORY_CACHE("allow.category.cache", "是否启用缓存", "false"),
+	CATEGORY_CACHE_ENABLED("category.cache.enabled", "是否启用缓存", "false"),
 	CATEGORY_CACHE_TIME("category.cache.time", "缓存时间(秒)","7200"),
 	CATEGORY_SYNC_TIME("category.sync.time", "缓存时间(秒)", "600");
 

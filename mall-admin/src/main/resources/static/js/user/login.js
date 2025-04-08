@@ -43,11 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.getElementById('remember').addEventListener('change', function() {
     if(this.checked) {
-        console.log('复选框被选中');
-        // 在这里添加您想要执行的代码
+        localStorage.setItem('remember', 'true');
     } else {
-        console.log('复选框未被选中');
-        // 在这里添加其他代码
+        localStorage.setItem('remember', 'false');
     }
 });
 
@@ -55,15 +53,23 @@ document.getElementById('remember').addEventListener('change', function() {
 function submitLoginForm() {
     // 获取表单数据
     const username = $('#username').val();
-    const password = $('#password').val();
+    let password = $('#password').val();
     const captcha = $('#captcha').val();
 
     const remember = localStorage.getItem('remember');
 
+    if (remember == 'true'){
+        if (password != localStorage.getItem('password')){
+            password = sha256(password);
+        }
+    }else{
+        password = sha256(password);
+    }
+
     // 构建请求体
     const data = {
         username: username,
-        password: remember == 'true'? password : sha256(password),
+        password: password,
         captcha: captcha
     };
 
@@ -105,19 +111,34 @@ function submitLoginForm() {
                     if (rememberCheckbox.checked){
                         localStorage.setItem('remember', 'true');
                         localStorage.setItem('username', username);
-                        localStorage.setItem('password', sha256(password));
+                        localStorage.setItem('password', password);
                     }else {
                         localStorage.setItem('remember', 'false');
+                        if (localStorage.getItem('username')!=null){
+                            localStorage.removeItem('username');
+                        }
+                        if (localStorage.getItem('password')!=null){
+                            localStorage.removeItem('password');
+                        }
                     }
                 }else {
                     localStorage.setItem('token', res.data);
                     if (rememberCheckbox.checked){
                         localStorage.setItem('remember', 'true');
                         localStorage.setItem('username', username);
-                        localStorage.setItem('password', sha256(password));
+                        localStorage.setItem('password', password);
                         localStorage.setItem('remember_token', res.data);
                     }else {
                         localStorage.setItem('remember', 'false');
+                        if (localStorage.getItem('remember_token')!=null){
+                            localStorage.removeItem('remember_token');
+                        }
+                        if (localStorage.getItem('username')!=null){
+                            localStorage.removeItem('username');
+                        }
+                        if (localStorage.getItem('password')!=null){
+                            localStorage.removeItem('password');
+                        }
                     }
                     if (url!=null){
                         window.location.href = url;
@@ -196,6 +217,10 @@ function submitTwoVerifyForm() {
                 localStorage.setItem('token', res.data);
                 if (rememberCheckbox.checked){
                     localStorage.setItem('remember_token', res.data);
+                }else {
+                    if (localStorage.getItem('remember_token')!=null){
+                        localStorage.removeItem('remember_token');
+                    }
                 }
                 if (url!=null){
                     window.location.href = url;

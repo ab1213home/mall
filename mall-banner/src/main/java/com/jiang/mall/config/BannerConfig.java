@@ -111,7 +111,7 @@ public class BannerConfig {
      * @return 如果轮播图缓存功能已启用，则返回true；否则返回false
      */
     public boolean isBannerCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(BannerConfigItems.BANNER_CACHE.getKey(), BannerConfigItems.BANNER_CACHE.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(), BannerConfigItems.BANNER_CACHE_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -138,7 +138,7 @@ public class BannerConfig {
      */
     public void updateBannerCache(boolean enabled) {
         // 设置是否允许缓存Banner的属性值
-        properties.setProperty(BannerConfigItems.BANNER_CACHE.getKey(),String.valueOf(enabled));
+        properties.setProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(),String.valueOf(enabled));
     }
 
     /**
@@ -159,14 +159,14 @@ public class BannerConfig {
 
     public @NotNull BannerSettingVo getSetting() {
         BannerSettingVo bannerSettingVo = new BannerSettingVo();
-        bannerSettingVo.setCacheEnabled(isBannerCacheEnabled());
+        bannerSettingVo.setEnabled(isBannerCacheEnabled());
         bannerSettingVo.setSyncTime(getBannerSyncTime());
         bannerSettingVo.setCacheTime(getBannerCacheTime());
         return bannerSettingVo;
     }
 
     public void updateSetting(@NotNull BannerSettingVo bannerSettingVo) {
-        updateBannerCache(bannerSettingVo.isCacheEnabled());
+        updateBannerCache(bannerSettingVo.isEnabled());
         updateBannerSyncTime(bannerSettingVo.getSyncTime());
         updateBannerCacheTime(bannerSettingVo.getCacheTime());
         loadProperties();

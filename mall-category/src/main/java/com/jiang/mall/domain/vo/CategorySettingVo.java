@@ -17,7 +17,7 @@ import lombok.Data;
 
 @Data
 public class CategorySettingVo {
-	private boolean cacheEnabled;
+	private boolean enabled;
 	private Long syncTime;
 	private Long cacheTime;
 }

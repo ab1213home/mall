@@ -19,8 +19,8 @@ import java.io.File;
 
 @Getter
 public enum LocalConfigItems {
-	LOCAL_STORAGE_PATH(".storage.path", "本地存储路径", System.getProperty("user.home") + File.separator + "upload" + File.separator),
-	LOCAL_STORAGE_MAX_SIZE(".storage.max-size", "本地存储最大值", "-1");
+	LOCAL_ROOT_PATH(".local.root-path", "本地存储路径", System.getProperty("user.home") + File.separator + "upload" + File.separator),
+	LOCAL_MAX_SIZE(".local.max-size", "本地存储最大值", "-1");
 
 	private final String key;
 	private final String description;

@@ -47,7 +47,7 @@ public class EmailServiceImpl implements IEmailService {
 	 */
 	@Override
 	public Boolean sendEmail(String receiver, String subject, String content) {
-		if (!emailConfig.isSendEmailEnabled()){
+		if (!emailConfig.isEmailEnabled()){
 			return null;
 		}
 	    try {

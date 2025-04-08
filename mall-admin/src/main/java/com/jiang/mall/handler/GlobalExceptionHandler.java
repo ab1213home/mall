@@ -73,6 +73,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public void handleException(@NotNull Exception e, @NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        if (response.isCommitted()) {
+            return;
+        }
         logger.error("服务器内部错误: {}，请求路径:{}{}", e.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
         //获取请求的User-Agent头
         String agent = request.getHeader("User-Agent");

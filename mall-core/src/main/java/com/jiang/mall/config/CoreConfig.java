@@ -104,7 +104,7 @@ public class CoreConfig {
     }
 
     public boolean isCartCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.CART_CACHE.getKey(), CoreConfigItems.CART_CACHE.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), CoreConfigItems.CART_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getCartCacheTime() {
@@ -116,7 +116,7 @@ public class CoreConfig {
     }
 
     public void updateCartCache(Boolean cache) {
-        properties.setProperty(CoreConfigItems.CART_CACHE.getKey(), String.valueOf(cache));
+        properties.setProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateCartCacheTime(Long time) {

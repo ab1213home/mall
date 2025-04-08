@@ -106,7 +106,7 @@ public class ProductConfig {
     }
 
     public boolean isProductCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(ProductConfigItems.PRODUCT_CACHE.getKey(), ProductConfigItems.PRODUCT_CACHE.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), ProductConfigItems.PRODUCT_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getProductCacheTime() {
@@ -118,7 +118,7 @@ public class ProductConfig {
     }
 
     public void updateProductCache(Boolean cache) {
-        properties.setProperty(ProductConfigItems.PRODUCT_CACHE.getKey(), String.valueOf(cache));
+        properties.setProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateProductCacheTime(Long time) {
@@ -131,14 +131,14 @@ public class ProductConfig {
 
     public ProductSettingVo getSetting() {
         ProductSettingVo settingVo = new ProductSettingVo();
-        settingVo.setCacheEnabled(isProductCacheEnabled());
+        settingVo.setEnabled(isProductCacheEnabled());
         settingVo.setCacheTime(getProductCacheTime());
         settingVo.setSyncTime(getProductSyncTime());
         return settingVo;
     }
 
     public void updateSetting(@NotNull ProductSettingVo settingVo) {
-        updateProductCache(settingVo.isCacheEnabled());
+        updateProductCache(settingVo.isEnabled());
         updateProductCacheTime(settingVo.getCacheTime());
         updateProductSyncTime(settingVo.getSyncTime());
         saveProperties();

@@ -19,7 +19,7 @@ import lombok.Getter;
 public enum AlipayConfigItems {
 
 	ALIPAY_APP_ID("alipay.app.id", "支付宝应用ID", "example"),
-	ALIPAY_MERCHANT_PRIVATE_KEY("alipay.merchant.private-key", "支付宝应用私钥", "example"),
+	ALIPAY_MERCHANT_PRIVATE_KEY("alipay.merchant.private-key", "支付宝应用私钥", "private"),
 	// 请求网关
 	ALIPAY_REQUEST_GATEWAY("alipay.request.gateway", "支付宝网关", "https://openapi.alipay.com/gateway.do"),
 	//证书模式还是非证书模式判断

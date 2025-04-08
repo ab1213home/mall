@@ -52,7 +52,7 @@ public class EmailConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("email");
         loadProperties();
-        if (isSendEmailEnabled()){
+        if (isEmailEnabled()){
             logger.info("邮件配置已启用");
 			iniEmailConfig();
 		}else {
@@ -214,8 +214,8 @@ public class EmailConfig {
      *
      * @return 如果允许发送邮件，则返回true；否则返回false
      */
-    public boolean isSendEmailEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.ALLOW_SEND_EMAIL.getKey(), EmailConfigItems.ALLOW_SEND_EMAIL.getDefaultValue()));
+    public boolean isEmailEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.EMAIL_ENABLED.getKey(), EmailConfigItems.EMAIL_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -232,7 +232,7 @@ public class EmailConfig {
         EmailSettingVo emailSettingVo = new EmailSettingVo();
 
         // 设置是否允许发送邮件
-        emailSettingVo.setAllowSendEmail(isSendEmailEnabled());
+        emailSettingVo.setEnabled(isEmailEnabled());
         // 设置邮件服务器主机名
         emailSettingVo.setHost(getEmailHost());
         // 设置邮件服务器端口号
@@ -325,9 +325,9 @@ public class EmailConfig {
      *
      * @param enabled 如果为true，则启用发送邮件功能；如果为false，则禁用发送邮件功能
      */
-    public void updateSendEmailEnabled(boolean enabled) {
+    public void updateEmailEnabled(boolean enabled) {
         // 设置属性"allow.send.email"的值为传入的enabled布尔值的字符串表示
-        properties.setProperty(EmailConfigItems.ALLOW_SEND_EMAIL.getKey(), String.valueOf(enabled));
+        properties.setProperty(EmailConfigItems.EMAIL_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateSetting(@NotNull EmailSettingVo emailSettingVo) {
@@ -335,12 +335,12 @@ public class EmailConfig {
         updateEmailPort(emailSettingVo.getPort());
         updateEmailUsername(emailSettingVo.getUsername());
         updateEmailPassword(emailSettingVo.getPassword());
-        updateSendEmailEnabled(emailSettingVo.isAllowSendEmail());
+        updateEmailEnabled(emailSettingVo.isEnabled());
         updateEmailAuth(emailSettingVo.isAuth());
         updateEmailTls(emailSettingVo.isTls());
         saveProperties();
         loadProperties();
-        if (emailSettingVo.isAllowSendEmail()){
+        if (emailSettingVo.isEnabled()){
             iniEmailConfig();
         }
     }

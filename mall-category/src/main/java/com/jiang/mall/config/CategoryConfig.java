@@ -105,7 +105,7 @@ public class CategoryConfig {
     }
 
     public boolean isCategoryCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), CategoryConfigItems.CATEGORY_CACHE.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), CategoryConfigItems.CATEGORY_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getCategoryCacheTime() {
@@ -117,7 +117,7 @@ public class CategoryConfig {
         return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), CategoryConfigItems.CATEGORY_SYNC_TIME.getDefaultValue()));
     }
     public void updateCategoryCache(Boolean cache) {
-        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE.getKey(), String.valueOf(cache));
+        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateCategoryCacheTime(Long time) {
@@ -131,14 +131,14 @@ public class CategoryConfig {
 
     public CategorySettingVo getSetting() {
         CategorySettingVo setting = new CategorySettingVo();
-        setting.setCacheEnabled(isCategoryCacheEnabled());
+        setting.setEnabled(isCategoryCacheEnabled());
         setting.setCacheTime(getCategoryCacheTime());
         setting.setSyncTime(getCategorySyncTime());
         return setting;
     }
 
     public void updateSetting(@NotNull CategorySettingVo categorySettingVo) {
-        updateCategoryCache(categorySettingVo.isCacheEnabled());
+        updateCategoryCache(categorySettingVo.isEnabled());
         updateCategoryCacheTime(categorySettingVo.getCacheTime());
         updateCategorySyncTime(categorySettingVo.getSyncTime());
         saveProperties();

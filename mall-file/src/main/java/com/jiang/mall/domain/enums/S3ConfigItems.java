@@ -17,11 +17,11 @@ import lombok.Getter;
 
 @Getter
 public enum S3ConfigItems {
-	S3_ENDPOINT(".storage.endpoint", "S3存储服务地址", "https://s3.amazonaws.com"),
-	S3_ACCESS_KEY(".storage.access-key", "S3存储服务访问密钥", "example"),
-	S3_SECRET_KEY(".storage.secret-key", "S3存储服务密钥", "example"),
-	S3_BUCKET(".storage.bucket", "S3存储服务桶名", "mall"),
-	S3_REGION(".storage.region", "S3存储服务区域", "us-east-1");
+	S3_ENDPOINT(".s3.endpoint", "S3存储服务地址", "s3.example.com"),
+	S3_ACCESS_KEY(".s3.access-key", "S3存储服务访问密钥", "access"),
+	S3_SECRET_KEY(".s3.secret-key", "S3存储服务密钥", "secret"),
+	S3_BUCKET(".s3.bucket", "S3存储服务桶名", "mall"),
+	S3_REGION(".s3.region", "S3存储服务区域", "us-east-1");
 
 	private final String key;
 	private final String description;

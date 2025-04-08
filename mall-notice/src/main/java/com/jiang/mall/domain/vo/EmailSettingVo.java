@@ -23,5 +23,5 @@ public class EmailSettingVo {
 	private boolean tls;
 	private String username;
 	private String password;
-	private boolean AllowSendEmail;
+	private boolean enabled;
 }

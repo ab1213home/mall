@@ -137,8 +137,8 @@ public class UserConfig {
         return Long.parseLong(properties.getProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), UserConfigItems.USER_SESSION_TIMEOUT.getDefaultValue()));
     }
 
-    public boolean isAllowRegistration() {
-        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), UserConfigItems.ALLOW_USER_REGISTRATION.getDefaultValue()));
+    public boolean isRegisterEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), UserConfigItems.USER_REGISTER_ENABLED.getDefaultValue()));
     }
 
     public String getGithubClientId() {
@@ -169,8 +169,16 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
     }
 
-    public void updateAllowRegistration(boolean allow) {
-        properties.setProperty(UserConfigItems.ALLOW_USER_REGISTRATION.getKey(), String.valueOf(allow));
+    public boolean isOAuthGithubEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), UserConfigItems.OAUTH_GITHUE_ENABLED.getDefaultValue()));
+    }
+
+    public boolean isOAuthGiteeEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), UserConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
+    }
+
+    public void updateRegisterEnabled(boolean enabled) {
+        properties.setProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateDefaultGroup(long group) {
@@ -201,12 +209,20 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
+    public void updateOAuthGithubEnabled(boolean enabled) {
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), String.valueOf(enabled));
+    }
+
+    public void updateOAuthGiteeEnabled(boolean enabled) {
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
+    }
+
     public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();
         settingVo.setMaxTryNumber(getUserMaxTry());
         settingVo.setMaxAddressNum(getUserMaxAddress());
         settingVo.setDefaultGroup(getDefaultGroup());
-        settingVo.setAllowRegistration(isAllowRegistration());
+        settingVo.setAllowRegistration(isRegisterEnabled());
         settingVo.setSessionTimeout(getSessionTimeout());
         return settingVo;
     }
@@ -215,7 +231,7 @@ public class UserConfig {
         updateUserMaxTry(settingVo.getMaxTryNumber());
         updateUserMaxAddress(settingVo.getMaxAddressNum());
         updateDefaultGroup(settingVo.getDefaultGroup());
-        updateAllowRegistration(settingVo.isAllowRegistration());
+        updateRegisterEnabled(settingVo.isAllowRegistration());
         updateSessionTimeout(settingVo.getSessionTimeout());
         saveProperties();
         loadProperties();

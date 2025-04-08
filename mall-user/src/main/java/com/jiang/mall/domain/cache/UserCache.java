@@ -76,11 +76,6 @@ public class UserCache {
     private Long defaultAddressId;
 
     /**
-     * 距离下次生日的天数
-     */
-//    private Integer nextBirthday;
-
-    /**
      * 权限set集合
      */
     private Set<String> permissions;

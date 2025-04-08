@@ -53,7 +53,7 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
         // 检查是否允许注册
-        if (!userConfig.isAllowRegistration()){
+        if (!userConfig.isRegisterEnabled()){
             //重定向到首页
             generalInterceptor.redirectToIndex(request,response);
             return false;
