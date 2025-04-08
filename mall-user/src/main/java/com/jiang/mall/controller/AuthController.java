@@ -14,27 +14,33 @@
 package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.OAuthResult;
 import com.jiang.mall.domain.enums.PermissionType;
+import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IOAuthService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user/oauth2")
@@ -45,6 +51,20 @@ public class AuthController {
 	@Autowired
 	public void setOAuthService(IOAuthService oAuthService) {
 		this.oAuthService = oAuthService;
+	}
+
+	private ICaptchaService captchaService;
+
+	@Autowired
+	public void setCaptchaService(ICaptchaService captchaService) {
+		this.captchaService = captchaService;
+	}
+
+	private IUserService userService;
+
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
 	}
 
 	private GeneralConfig generalConfig;
@@ -71,43 +91,167 @@ public class AuthController {
 	@GetMapping("/getList")
 	@Permission(PermissionType.NONE)
 	public ResponseResult<Object> getList(){
-		return ResponseResult.okResult();
+		Map<String,Object> map = oAuthService.getList();
+		return ResponseResult.okResult(map);
 	}
 
-	@GetMapping("/login/{type}")
+	@GetMapping("/login/gitee")
 	@Permission(PermissionType.NONE)
-	public void AuthLogin(HttpServletResponse response, @PathVariable("type") String type) throws IOException {
-        String url = oAuthService.getAuthUrl(type);
+	public void authLoginGitee(HttpServletResponse response) throws IOException {
+        String url = oAuthService.getAuthUrl(OAuthProvider.GITEE, OAuthAction.LOGIN);
         response.sendRedirect(url);
     }
 
-	//TODO:怎么判断是登录还是绑定
-	// 处理回调获取code
-    @GetMapping("/callback/gitee/code")
-    @Permission(PermissionType.NONE)
-    public void callback(@RequestParam String code,@RequestParam String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@GetMapping("/bind/gitee")
+	@Permission(PermissionType.USER)
+	public void authBindGitee(HttpServletResponse response,HttpSession session) throws IOException {
+		boolean flag = oAuthService.isBind(OAuthProvider.GITEE, session.getId());
+		if (flag){
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json;charset=UTF-8");
+			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Gitee账号已绑定"));
+			response.getWriter().write(json);
+		}else {
+			String url = oAuthService.getAuthUrl(OAuthProvider.GITEE, OAuthAction.BINDING);
+            response.sendRedirect(url);
+		}
+	}
+
+	@GetMapping("/loginToBind/gitee")
+	@Permission(PermissionType.GUEST)
+	public ResponseResult<Object> authLoginToBindGitee(@RequestParam("username") String username,
+	                                 @RequestParam("password") String password,
+	                                 @RequestParam("captcha") String captcha,
+	                                 @RequestHeader("X-Real-IP") String clientIp,
+	                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                 HttpSession session
+	){
+		if (!i18nService.checkString(username,255)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
+		}
+		if (!i18nService.isValidPassword(password)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.password"));
+		}
+		if (!i18nService.checkString(captcha)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
+		}
+		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+		}
+		if (!i18nService.checkString(fingerprint)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+		}
+		Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
+		if (flag==null){
+			// 检查验证码是否过期
+			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
+		}else if (!flag){
+			// 校验验证码是否正确
+			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
+		}
+		// 检查用户尝试登录失败次数
+        if (userService.countTryNumber(username, clientIp, fingerprint)){
+            return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
+        }
 		String token = UUID.fastUUID().toString();
-		OAuthResult flag = oAuthService.callback(code,token,request.getSession().getId(),OAuthProvider.GITEE);
-		if (flag==OAuthResult.ERROR) {
-			//重定向到登录界面
-			response.setHeader("Location", request.getContextPath() + "/user/login.html");
-			response.setContentType("text/html; charset=UTF-8");
-            response.setCharacterEncoding("UTF-8");
-			String messageParam = URLEncoder.encode("Gitee账号信息获取失败", StandardCharsets.UTF_8);
-	        // 将编码后的重定向URL和提示信息拼接，执行重定向
-	        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?message=" + messageParam);
-		} else if (flag==OAuthResult.UNBOUND){
-			response.setContentType("text/html; charset=UTF-8");
-		}else if (flag==OAuthResult.SECOND_VERIFY) {
+		flag = oAuthService.authLoginToBind(OAuthProvider.GITEE, username, password, clientIp, fingerprint, token, session.getId());
+		if (flag == null) {
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
+        } else if (!flag){
+            // 登录失败，返回相应错误信息
+            return ResponseResult.okResult("false","需要双因素认证(2FA)");
+        }else {
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+        }
+	}
+
+	@GetMapping("/unbind/gitee")
+	@Permission(PermissionType.USER)
+	public ResponseResult<Object> authUnbindGitee(HttpSession session){
+		boolean flag = oAuthService.authUnbind(OAuthProvider.GITEE, session.getId());
+		if (flag){
+			return ResponseResult.okResult("解绑成功");
+		}else {
+			return ResponseResult.failResult("解绑失败，绑定不存在");
+		}
+	}
+
+	@GetMapping("/login/github")
+	@Permission(PermissionType.NONE)
+	public void authLoginGithub(HttpServletResponse response) throws IOException {
+        String url = oAuthService.getAuthUrl(OAuthProvider.GITHUB, OAuthAction.LOGIN);
+        response.sendRedirect(url);
+    }
+
+	@GetMapping("/bind/github")
+	@Permission(PermissionType.USER)
+	public void authBindGithub(HttpServletResponse response, HttpSession session) throws IOException {
+		boolean flag = oAuthService.isBind(OAuthProvider.GITHUB, session.getId());
+		if (flag){
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json;charset=UTF-8");
+			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Github账号已绑定"));
+			response.getWriter().write(json);
+		}else {
+			String url = oAuthService.getAuthUrl(OAuthProvider.GITHUB, OAuthAction.BINDING);
+            response.sendRedirect(url);
+		}
+	}
+
+	// 处理回调获取code
+    @GetMapping("/callback/gitee")
+    @Permission(PermissionType.NONE)
+    public void callbackGitee(@RequestParam String code,@RequestParam String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// 解析state参数（格式：action:login:随机字符串）
+	    String[] stateParts = state.split(":");
+	    if (stateParts.length != 3 || !stateParts[0].equals("action")) {
+//	        throw new IllegalArgumentException("Invalid state format");
+			return;
+	    }
+	    String action = stateParts[1];
+	    String random = stateParts[2];
+		if (action.equals("login")){
+			String token = UUID.fastUUID().toString();
+			OAuthResult flag = oAuthService.callback(OAuthAction.LOGIN, code, random, token, request.getSession().getId(), OAuthProvider.GITEE);
+			if (flag==OAuthResult.ERROR) {
+				//重定向到登录界面
+	//			response.setHeader("Location", request.getContextPath() + "/user/login.html");
+				response.setContentType("text/html; charset=UTF-8");
+				String messageParam = URLEncoder.encode("Gitee账号信息获取失败", StandardCharsets.UTF_8);
+		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?message=" + messageParam);
+			} else if (flag==OAuthResult.UNBOUND){
+	//			response.setHeader("Location", request.getContextPath() + "/user/login.html");
+				response.setContentType("text/html; charset=UTF-8");
+				String messageParam = URLEncoder.encode("Gitee账号未绑定", StandardCharsets.UTF_8);
+		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=binding&message=" + messageParam);
+			}else if (flag==OAuthResult.SECOND_VERIFY) {
+				response.setContentType("text/html; charset=UTF-8");
+				response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=oauth");
+			} else if (flag==OAuthResult.SUCCESS){
+				response.setContentType("text/html; charset=UTF-8");
+				response.sendRedirect(request.getContextPath() + "/user/index.html");
+			}
+		}else if (action.equals("bind")){
+			OAuthResult flag = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), OAuthProvider.GITEE);
+			if (flag==OAuthResult.ERROR) {
+		        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		        response.setContentType("application/json;charset=UTF-8");
+		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Gitee账号信息获取失败"));
+		        response.getWriter().write(json);
+			}  else if (flag==OAuthResult.SUCCESS){
+				response.setStatus(HttpServletResponse.SC_OK);
+		        response.setContentType("application/json;charset=UTF-8");
+		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_OK, "Gitee账号绑定成功"));
+		        response.getWriter().write(json);
+			}
+		}else {
 			response.setContentType("text/html; charset=UTF-8");
 			response.setCharacterEncoding("UTF-8");
-			response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?sessionId=" + request.getSession().getId());
-//			return ResponseResult.okResult("false","需要二次验证");
-		} else if (flag==OAuthResult.SUCCESS){
-			response.setContentType("text/html; charset=UTF-8");
-			response.setCharacterEncoding("UTF-8");
-			response.sendRedirect(request.getContextPath() + "/user/index.html");
-//			return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+			String messageParam = URLEncoder.encode("未知参数", StandardCharsets.UTF_8);
+			response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?message=" + messageParam);
 		}
     }
+
+//	@GetMapping("/callback/github")
+
 }

@@ -18,7 +18,9 @@ import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.cache.UserBindingCache;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.GiteeUserDto;
 import com.jiang.mall.service.IUserRedisService;
+import com.jiang.mall.util.SecureUtil;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,11 +60,29 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	    this.userConfig = userConfig;
 	}
 
-	String prefix = "user:";
+	String info_prefix = "user:";
+	String binding_prefix = "user:binding:";
+	String token_prefix = "user:token:";
+	String sessionId_prefix = "user:sessionId:";
+	String twoLogin_prefix = "user:twoLogin:";
+	String twoRegister_prefix = "user:twoRegister:";
+	String rememberMe_prefix = "user:rememberMe:";
+	String authCsrf_prefix = "user:authCsrf";
+	String gitee_prefix = "user:gitee:";
+//	String prefix = "user:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+":user:";
+	    info_prefix = generalConfig.getRedisKeyPrefix()+":user:";
+		binding_prefix = generalConfig.getRedisKeyPrefix()+":user:binding:";
+		token_prefix = generalConfig.getRedisKeyPrefix()+":user:token:";
+		sessionId_prefix = generalConfig.getRedisKeyPrefix()+":user:sessionId:";
+		twoLogin_prefix = generalConfig.getRedisKeyPrefix()+":user:twoLogin:";
+		twoRegister_prefix = generalConfig.getRedisKeyPrefix()+":user:twoRegister:";
+		rememberMe_prefix = generalConfig.getRedisKeyPrefix()+":user:rememberMe:";
+		authCsrf_prefix = generalConfig.getRedisKeyPrefix()+":user:authCsrf";
+		gitee_prefix = generalConfig.getRedisKeyPrefix()+":user:gitee:";
+//		prefix = generalConfig.getRedisKeyPrefix()+":user:";
 	}
 
 
@@ -75,30 +95,34 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 */
 	@Override
 	public void setUser(String sessionId, String token, @NotNull UserCache user) {
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
 	    // 创建用户缓存对象，用于存储用户会话和令牌信息
 	    UserBindingCache userBindingCache = new UserBindingCache();
 	    userBindingCache.setSessionId(sessionId);
 	    userBindingCache.setToken(token);
 	    // 将用户信息转换为JSON字符串并存储到Redis中，同时设置过期时间
-		if (stringRedisTemplate.hasKey(prefix+"binding:"+user.getId())){
+		if (stringRedisTemplate.hasKey(binding_prefix+user.getId())){
 			logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
 			deleteUser(user.getId());
 		}
-	    stringRedisTemplate.opsForValue().set(prefix+"binding:"+user.getId(), JSON.toJSONString(userBindingCache), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(binding_prefix+user.getId(), JSON.toJSONString(userBindingCache), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 
 	    // 检查用户ID对应的键是否已存在，如果不存在则存储用户信息，如果存在则更新过期时间
-	    if(!stringRedisTemplate.hasKey(prefix+user.getId())){
+	    if(!stringRedisTemplate.hasKey(info_prefix+user.getId())){
 			logger.debug("用户缓存不存在，创建用户缓存");
-	        stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
+	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
 	    }else {
 			logger.debug("用户缓存已存在，更新用户缓存");
-			stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
 	    }
 
 	    // 存储用户令牌与用户ID的映射关系，并设置过期时间
-	    stringRedisTemplate.opsForValue().set(prefix+"token:"+token, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(token_prefix+token, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 	    // 存储会话ID与用户ID的映射关系，并设置过期时间
-	    stringRedisTemplate.opsForValue().set(prefix+"sessionId:"+sessionId, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(sessionId_prefix+sessionId, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 		logger.debug("用户{}信息缓存成功", user.getUsername());
 	}
 
@@ -111,11 +135,11 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public void updateUser(@NotNull UserCache user) {
 	    // 检查Redis中是否存在当前用户的缓存
-	    if(stringRedisTemplate.hasKey(prefix+user.getId())){
+	    if(stringRedisTemplate.hasKey(info_prefix+user.getId())){
 	        // 获取当前用户缓存的剩余过期时间
-	        long expire = stringRedisTemplate.getExpire(prefix+user.getId(), TimeUnit.SECONDS);
+	        long expire = stringRedisTemplate.getExpire(info_prefix+user.getId(), TimeUnit.SECONDS);
 	        // 更新Redis中的用户信息，并保持原有的过期时间
-	        stringRedisTemplate.opsForValue().set(prefix+user.getId(), JSON.toJSONString(user), expire, TimeUnit.SECONDS);
+	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), expire, TimeUnit.SECONDS);
 			logger.debug("用户{}信息更新成功", user.getUsername());
 	    }else {
 	        // 如果缓存不存在，则直接返回
@@ -129,9 +153,9 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	}
 
 	private @Nullable UserCache getUser(String userId){
-		if (stringRedisTemplate.hasKey(prefix+userId)){
+		if (stringRedisTemplate.hasKey(info_prefix+userId)){
 			// 如果用户详细信息存在，则解析并返回用户信息对象
-			return JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserCache.class);
+			return JSON.parseObject(stringRedisTemplate.opsForValue().get(info_prefix+userId), UserCache.class);
 		}else {
 			// 如果用户详细信息不存在，则返回null
 			logger.debug("用户{}信息获取失败，缓存不存在", userId);
@@ -150,10 +174,13 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 */
 	@Override
 	public UserCache getUserByToken(String token) {
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+		}
 	    // 检查Redis中是否存在与给定token关联的用户ID
-	    if (stringRedisTemplate.hasKey(prefix+"token:"+token)){
+	    if (stringRedisTemplate.hasKey(token_prefix+token)){
 	        // 获取与token关联的用户ID
-	        String id = stringRedisTemplate.opsForValue().get(prefix+"token:"+token);
+	        String id = stringRedisTemplate.opsForValue().get(token_prefix+token);
 	        // 检查Redis中是否存在与该用户ID关联的用户详细信息
 	        return getUser(id);
 	    }else {
@@ -174,10 +201,13 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 */
 	@Override
 	public UserCache getUserBySessionId(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
 	    // 检查是否存在与给定会话ID关联的用户ID
-	    if (stringRedisTemplate.hasKey(prefix+"sessionId:"+sessionId)){
+	    if (stringRedisTemplate.hasKey(sessionId_prefix+sessionId)){
 	        // 获取用户ID
-	        String id = stringRedisTemplate.opsForValue().get(prefix+"sessionId:"+sessionId);
+	        String id = stringRedisTemplate.opsForValue().get(sessionId_prefix+sessionId);
 	        // 检查Redis中是否存在与该用户ID关联的用户详细信息
 	        return getUser(id);
 	    }else {
@@ -197,24 +227,24 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public Map<String, String> getUserLoginStatus(Long userId) {
 	    // 检查是否存在指定用户的缓存信息
-	    if (stringRedisTemplate.hasKey(prefix+"binding:"+userId)){
+	    if (stringRedisTemplate.hasKey(binding_prefix+userId)){
 	        // 从Redis中获取用户缓存信息，并转换为UserCache对象
-	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+"binding:"+userId), UserBindingCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(binding_prefix+userId), UserBindingCache.class);
 	        // 初始化一个Map来存储用户登录状态信息
 	        Map<String,String> map = new HashMap<>();
 	        assert userBindingCache != null;
 
 	        // 如果用户缓存中的sessionId在Redis中存在，则获取其过期时间
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId:"+ userBindingCache.getSessionId())){
+	        if (stringRedisTemplate.hasKey(sessionId_prefix+ userBindingCache.getSessionId())){
 	            //获取过期时间
-	            long expire = stringRedisTemplate.getExpire(prefix+"sessionId:"+ userBindingCache.getSessionId(), TimeUnit.MINUTES);
+	            long expire = stringRedisTemplate.getExpire(sessionId_prefix+ userBindingCache.getSessionId(), TimeUnit.MINUTES);
 	            // 将sessionId的过期时间添加到返回的Map中
 	            map.put("sessionId_expire",String.valueOf(expire));
 	        }
 
 	        // 如果用户缓存中的token在Redis中存在，则获取其过期时间
-	        if (stringRedisTemplate.hasKey(prefix+"token:"+ userBindingCache.getToken())){
-	            long expire = stringRedisTemplate.getExpire(prefix+"token:"+ userBindingCache.getToken(), TimeUnit.MINUTES);
+	        if (stringRedisTemplate.hasKey(token_prefix+ userBindingCache.getToken())){
+	            long expire = stringRedisTemplate.getExpire(token_prefix+ userBindingCache.getToken(), TimeUnit.MINUTES);
 	            // 将token的过期时间添加到返回的Map中
 	            map.put("token_expire",String.valueOf(expire));
 	        }
@@ -237,16 +267,16 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public Boolean hasUser(Long userId) {
 	    // 检查用户ID对应的缓存是否存在
-	    if (stringRedisTemplate.hasKey(prefix+"binding:"+userId)){
+	    if (stringRedisTemplate.hasKey(binding_prefix+userId)){
 	        // 从缓存中获取用户信息并解析为UserCache对象
-	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+userId), UserBindingCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(binding_prefix+userId), UserBindingCache.class);
 	        assert userBindingCache != null;
 	        // 检查用户会话ID对应的缓存是否存在
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId:"+ userBindingCache.getSessionId())){
+	        if (stringRedisTemplate.hasKey(sessionId_prefix+ userBindingCache.getSessionId())){
 	            return true;
 	        }
 	        // 检查用户token对应的缓存是否存在
-	        return stringRedisTemplate.hasKey(prefix + "token:" + userBindingCache.getToken());
+	        return stringRedisTemplate.hasKey(token_prefix + userBindingCache.getToken());
 	    }else {
 	        // 如果用户ID对应的缓存不存在，则返回false
 		    logger.debug("用户{}关联信息获取失败，关联缓存不存在，判断用户是否登录", userId);
@@ -264,26 +294,26 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public void refreshUserLoginStatus(Long userId) {
 	    // 检查是否存在指定用户ID对应的缓存数据
-	    if (stringRedisTemplate.hasKey(prefix+"binding:"+userId)){
+	    if (stringRedisTemplate.hasKey(binding_prefix+userId)){
 	        // 从缓存中获取用户信息，并转换为UserCache对象
-	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+"binding:"+userId), UserBindingCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(binding_prefix+userId), UserBindingCache.class);
 	        // 确保用户缓存信息不为空
 	        assert userBindingCache != null;
 
 	        // 检查并刷新会话ID缓存的有效期
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId:"+ userBindingCache.getSessionId())){
-	            stringRedisTemplate.expire(prefix+"sessionId:"+ userBindingCache.getSessionId(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        if (stringRedisTemplate.hasKey(sessionId_prefix+ userBindingCache.getSessionId())){
+	            stringRedisTemplate.expire(sessionId_prefix+ userBindingCache.getSessionId(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 				logger.debug("用户{}会话ID刷新成功", userId);
 	        }
 
 	        // 检查并刷新令牌缓存的有效期
-	        if (stringRedisTemplate.hasKey(prefix+"token:"+ userBindingCache.getToken())){
-	            stringRedisTemplate.expire(prefix+"token:"+ userBindingCache.getToken(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        if (stringRedisTemplate.hasKey(token_prefix+ userBindingCache.getToken())){
+	            stringRedisTemplate.expire(token_prefix+ userBindingCache.getToken(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
 				logger.debug("用户{}令牌刷新成功", userId);
 	        }
 
 	        // 刷新用户ID缓存的有效期
-	        stringRedisTemplate.expire(prefix+"binding:"+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        stringRedisTemplate.expire(binding_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
 			logger.debug("用户{}关联信息刷新成功", userId);
 	    }
 	}
@@ -299,19 +329,19 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	@Override
 	public Boolean deleteUser(Long userId) {
 	    // 检查Redis中是否存在与用户ID关联的数据
-	    if (stringRedisTemplate.hasKey(prefix+"binding:"+userId)){
+	    if (stringRedisTemplate.hasKey(binding_prefix+userId)){
 	        // 从Redis中获取并解析用户缓存信息
-	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(prefix+"binding:"+userId), UserBindingCache.class);
+	        UserBindingCache userBindingCache = JSON.parseObject(stringRedisTemplate.opsForValue().get(binding_prefix+userId), UserBindingCache.class);
 	        // 删除用户ID关联的数据，返回删除结果
-	        boolean result = stringRedisTemplate.delete(prefix+"binding:"+userId);
+	        boolean result = stringRedisTemplate.delete(binding_prefix+userId);
 	        assert userBindingCache != null;
 	        // 如果用户缓存中的会话ID在Redis中有对应数据，删除该数据，并更新删除结果
-	        if (stringRedisTemplate.hasKey(prefix+"sessionId:"+ userBindingCache.getSessionId())){
-	            result = stringRedisTemplate.delete(prefix+"sessionId:"+ userBindingCache.getSessionId());
+	        if (stringRedisTemplate.hasKey(sessionId_prefix+ userBindingCache.getSessionId())){
+	            result = stringRedisTemplate.delete(sessionId_prefix+ userBindingCache.getSessionId());
 	        }
 	        // 如果用户缓存中的令牌在Redis中有对应数据，删除该数据，并更新删除结果
-	        if (stringRedisTemplate.hasKey(prefix+"token:"+ userBindingCache.getToken())){
-	            result = stringRedisTemplate.delete(prefix+"token:"+ userBindingCache.getToken());
+	        if (stringRedisTemplate.hasKey(token_prefix + userBindingCache.getToken())){
+	            result = stringRedisTemplate.delete(token_prefix + userBindingCache.getToken());
 	        }
 	        // 返回最终的删除结果
 	        return result;
@@ -333,10 +363,13 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 */
 	@Override
 	public Boolean deleteUserBySessionId(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
 	    // 检查Redis中是否存在与用户ID关联的数据
-	    if (stringRedisTemplate.hasKey(prefix+"sessionId:"+sessionId)){
+	    if (stringRedisTemplate.hasKey(sessionId_prefix+sessionId)){
 	        // 从Redis中获取并解析用户缓存信息
-		    String userId = stringRedisTemplate.opsForValue().get(prefix+"sessionId:"+sessionId);
+		    String userId = stringRedisTemplate.opsForValue().get(sessionId_prefix+sessionId);
 		    assert userId != null;
 		    return deleteUser(Long.parseLong(userId));
 	    }else {
@@ -348,9 +381,12 @@ public class UserRedisServiceImpl implements IUserRedisService {
 
 	@Override
 	public Boolean deleteUserByToken(String token) {
-		if (stringRedisTemplate.hasKey(prefix+"token:"+token)){
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+		}
+		if (stringRedisTemplate.hasKey(token_prefix+token)){
 	        // 从Redis中获取并解析用户缓存信息
-		    String userId = stringRedisTemplate.opsForValue().get(prefix+"token:"+token);
+		    String userId = stringRedisTemplate.opsForValue().get(token_prefix+token);
 		    assert userId != null;
 		    return deleteUser(Long.parseLong(userId));
 	    }else {
@@ -369,25 +405,29 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	 */
 	@Override
 	public void refreshSessionId(String token, String sessionId) {
-	    if (stringRedisTemplate.hasKey(prefix+"token:"+token)){
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+	    if (stringRedisTemplate.hasKey(token_prefix+token)){
 	        //从Redis中获取与token关联的用户ID
-	        String userId=stringRedisTemplate.opsForValue().get(prefix+"token:"+token);
+	        String userId=stringRedisTemplate.opsForValue().get(token_prefix+token);
 	        //获取token的剩余过期时间，单位为分钟
-	        long expire = stringRedisTemplate.getExpire(prefix+"token:"+token, TimeUnit.MINUTES);
+	        long expire = stringRedisTemplate.getExpire(token_prefix+token, TimeUnit.MINUTES);
 	        //断言用户ID不为空，确保后续操作的有效性
 	        assert userId != null;
 	        //将sessionId与用户ID绑定，并设置与token相同的过期时间
-	        stringRedisTemplate.opsForValue().set(prefix+"sessionId:"+sessionId, userId , expire, TimeUnit.MINUTES);
+	        stringRedisTemplate.opsForValue().set(sessionId_prefix+sessionId, userId , expire, TimeUnit.MINUTES);
 			UserBindingCache userBindingCache = new UserBindingCache();
 			userBindingCache.setSessionId(sessionId);
 			userBindingCache.setToken(token);
-			stringRedisTemplate.opsForValue().set(prefix+"binding:"+userId, JSON.toJSONString(userBindingCache), expire, TimeUnit.MINUTES);
+			stringRedisTemplate.opsForValue().set(binding_prefix+userId, JSON.toJSONString(userBindingCache), expire, TimeUnit.MINUTES);
 	    }
 	}
 
 	@Override
 	public List<Long> getOnlineUser() {
-		Set<String> userIds = stringRedisTemplate.keys(prefix+"binding:*");
+		Set<String> userIds = stringRedisTemplate.keys(binding_prefix+"*");
 		List<Long> onlineUser = new ArrayList<>();
 		for (String userId : userIds) {
 			onlineUser.add(Long.parseLong(userId.substring(userId.lastIndexOf(":")+1)));
@@ -397,55 +437,152 @@ public class UserRedisServiceImpl implements IUserRedisService {
 
 	@Override
 	public void setTwoLogin(Long userId, @NotNull String sessionId) {
-		stringRedisTemplate.opsForValue().set(prefix+"twoLogin:"+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.opsForValue().set(twoLogin_prefix+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
 	}
 
 	@Override
 	public boolean validateTwoLogin(@NotNull String sessionId) {
-		return stringRedisTemplate.hasKey(prefix+"twoLogin:"+sessionId);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		return stringRedisTemplate.hasKey(twoLogin_prefix+sessionId);
 	}
 
 	@Override
 	public Long getTwoLogin(@NotNull String sessionId) {
-		String userId = stringRedisTemplate.opsForValue().get(prefix+"twoLogin:"+sessionId);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		String userId = stringRedisTemplate.opsForValue().get(twoLogin_prefix+sessionId);
 		return userId == null ? null : Long.parseLong(userId);
 	}
 
 	@Override
 	public void setTwoRegister(Long userId, @NotNull String sessionId) {
-		stringRedisTemplate.opsForValue().set(prefix+"twoRegister:"+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.opsForValue().set(twoRegister_prefix+sessionId, String.valueOf(userId), 30 , TimeUnit.MINUTES);
 	}
 
 	@Override
 	public boolean validateTwoRegister(@NotNull String sessionId) {
-		return stringRedisTemplate.hasKey(prefix+"twoRegister:"+sessionId);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		return stringRedisTemplate.hasKey(twoRegister_prefix+sessionId);
 	}
 
 	@Override
 	public Long getTwoRegister(@NotNull String sessionId) {
-		String userId = stringRedisTemplate.opsForValue().get(prefix+"twoRegister:"+sessionId);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		String userId = stringRedisTemplate.opsForValue().get(twoRegister_prefix+sessionId);
+		if (userId != null){
+			stringRedisTemplate.delete(twoRegister_prefix+sessionId);
+		}
 		return userId == null ? null : Long.parseLong(userId);
 	}
 
 	@Override
 	public void deleteTwoRegister(@NotNull String sessionId) {
-		stringRedisTemplate.delete(prefix+"twoRegister:"+sessionId);
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.delete(twoRegister_prefix+sessionId);
 	}
 
 	@Override
 	public void setRememberMe(Long userId, @NotNull String token) {
-		stringRedisTemplate.opsForValue().set(prefix+"rememberMe:"+token, String.valueOf(userId), 7 , TimeUnit.DAYS);
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+		}
+		stringRedisTemplate.opsForValue().set(rememberMe_prefix+token, String.valueOf(userId), 7 , TimeUnit.DAYS);
 	}
 
 	@Override
 	public boolean validateRememberMe(@NotNull String token) {
-		return stringRedisTemplate.hasKey(prefix+"rememberMe:"+token);
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+		}
+		return stringRedisTemplate.hasKey(rememberMe_prefix+token);
 	}
 
 	@Override
 	public Long getRememberMe(@NotNull String token) {
-		String userId = stringRedisTemplate.opsForValue().get(prefix+"rememberMe:"+token);
+		if (userConfig.isUserRedisEncryption()){
+			token = SecureUtil.sha256Hex(token);
+		}
+		String userId = stringRedisTemplate.opsForValue().get(rememberMe_prefix+token);
 		return userId == null ? null : Long.parseLong(userId);
+	}
+
+	@Override
+	public void setAuthCsrf(@NotNull String state) {
+		if (userConfig.isUserRedisEncryption()){
+			state = SecureUtil.sha256Hex(state);
+		}
+		stringRedisTemplate.opsForSet().add(authCsrf_prefix, state);
+	}
+
+	@Override
+	public boolean validateAuthCsrf(@NotNull String state) {
+		if (userConfig.isUserRedisEncryption()){
+			state = SecureUtil.sha256Hex(state);
+		}
+		// 检查状态是否存在
+	    Boolean isMember = stringRedisTemplate.opsForSet().isMember(authCsrf_prefix, state);
+	    if (Boolean.TRUE.equals(isMember)) {
+	        // 如果存在，先进行删除操作，然后返回true
+	        stringRedisTemplate.opsForSet().remove(authCsrf_prefix, state);
+	        return true;
+	    }
+	    return false;
+	}
+
+	@Override
+	public void deleteAuthCsrf(@NotNull String state) {
+		if (userConfig.isUserRedisEncryption()){
+			state = SecureUtil.sha256Hex(state);
+		}
+		stringRedisTemplate.opsForSet().remove(authCsrf_prefix, state);
+	}
+
+	@Override
+	public void setGiteeUser(GiteeUserDto user, String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.opsForValue().set(gitee_prefix+sessionId, JSON.toJSONString(user), 30 , TimeUnit.MINUTES);
+	}
+
+	@Override
+	public boolean validateGiteeUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		return stringRedisTemplate.hasKey(gitee_prefix+sessionId);
+	}
+
+	@Override
+	public GiteeUserDto getGiteeUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		String json = stringRedisTemplate.opsForValue().get(gitee_prefix+sessionId);
+		return json == null ? null : JSON.parseObject(json, GiteeUserDto.class);
+	}
+
+	@Override
+	public void deleteGiteeUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.delete(gitee_prefix+sessionId);
 	}
 
 }

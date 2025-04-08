@@ -16,7 +16,6 @@ package com.jiang.mall.service.impl;
 import cn.hutool.core.codec.Base32;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.otp.TOTP;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,20 +24,16 @@ import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.dto.GiteeUserDto;
 import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
-import com.jiang.mall.domain.entity.UserOauth;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.OAuthResult;
 import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
-import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,11 +107,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.userGroupRelationMapper = userGroupRelationMapper;
 	}
 
-	private UserOauth2Mapper userOauth2Mapper;
+	private UserOauthMapper userOauthMapper;
 
 	@Autowired
-	public void setUserOauth2Mapper(UserOauth2Mapper userOauth2Mapper) {
-		this.userOauth2Mapper = userOauth2Mapper;
+	public void setUserOauth2Mapper(UserOauthMapper userOauthMapper) {
+		this.userOauthMapper = userOauthMapper;
 	}
 
 	private ShopStaffMapper shopStaffMapper;
@@ -665,8 +660,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public int countTryNumber(String username, String clientIp, String fingerprint) {
-		return userLogService.countTryNumber(username, clientIp, fingerprint);
+	public boolean countTryNumber(String username, String clientIp, String fingerprint) {
+		return userLogService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry();
 	}
 
 	@Override
@@ -700,29 +695,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public OAuthResult oauthLogin(@NotNull GiteeUserDto user, String token, String sessionId) {
-		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("provider_type", OAuthProvider.GITEE.getKey());
-		queryWrapper.eq("provider_user_id", user.getId());
-		UserOauth userOauth = userOauth2Mapper.selectOne(queryWrapper);
-		if (userOauth==null){
+	public OAuthResult oauthLogin(Long userId, String token, String sessionId) {
+		User user = userMapper.selectById(userId);
+		if (!user.isActive()){
 			return OAuthResult.UNBOUND;
 		}
-		String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
-		if (!userOauth.getHash().equals(hash)){
-			userOauth2Mapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
-		}
-		User user_db = userMapper.selectById(userOauth.getUserId());
-		if (!user_db.isActive()){
-			return OAuthResult.UNBOUND;
-		}
-		if (user_db.isTotpEnabled()){
-			redisService.setTwoLogin(user_db.getId(), sessionId);
+		if (user.isTotpEnabled()){
+			redisService.setTwoLogin(user.getId(), sessionId);
 			return OAuthResult.SECOND_VERIFY;
 		}else {
 			// 登录成功，记录登录记录
-			userLogService.oauthLoginLog(user_db.getUsername(), UserStatus.SUCCESS_LOGIN);
-			login(user_db, token, sessionId);
+			userLogService.oauthLoginLog(user.getUsername(), UserStatus.SUCCESS_LOGIN);
+			login(user, token, sessionId);
 			return OAuthResult.SUCCESS;
 		}
 	}

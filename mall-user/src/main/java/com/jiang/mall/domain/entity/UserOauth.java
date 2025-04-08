@@ -40,7 +40,6 @@ public class UserOauth implements Serializable {
 
 	private String providerUserId;
 
-	//第三方用户信息
 	private String annotations;
 
 	/**

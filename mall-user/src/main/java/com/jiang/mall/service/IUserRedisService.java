@@ -14,6 +14,7 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.GiteeUserDto;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -149,4 +150,21 @@ public interface IUserRedisService {
 	boolean validateRememberMe(@NotNull String token);
 
 	Long getRememberMe(@NotNull String token);
+
+	//Auth防CSRF
+
+	void setAuthCsrf(@NotNull String state);
+
+	boolean validateAuthCsrf(@NotNull String state);
+
+	void deleteAuthCsrf(@NotNull String state);
+
+	//Gitee用户信息以供绑定
+	void setGiteeUser(GiteeUserDto user, String sessionId);
+
+	boolean validateGiteeUser(String sessionId);
+
+	GiteeUserDto getGiteeUser(String sessionId);
+
+	void deleteGiteeUser(String sessionId);
 }

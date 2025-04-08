@@ -13,12 +13,24 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.OAuthResult;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public interface IOAuthService {
 
-	String getAuthUrl(String type);
+	String getAuthUrl(OAuthProvider provider, OAuthAction action);
 
-	OAuthResult callback(String code, String token, String sessionId, OAuthProvider oAuthProvider);
+	OAuthResult callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
+
+	Map<String, Object> getList();
+
+	boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId);
+
+	boolean authUnbind(@NotNull OAuthProvider oAuthProvider, String sessionId);
+
+	Boolean authLoginToBind(OAuthProvider oAuthProvider, String username, String password, String clientIp, String fingerprint, String token, String sessionId);
 }

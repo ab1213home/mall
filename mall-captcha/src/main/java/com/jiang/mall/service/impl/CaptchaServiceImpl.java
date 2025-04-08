@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class CaptchaServiceImpl implements ICaptchaService {
@@ -56,7 +55,7 @@ public class CaptchaServiceImpl implements ICaptchaService {
         // 以下代码行被注释掉，因此没有设置自定义字体
         captcha.setFont(captchaConfig.getCaptchaFont());
         // 将生成的验证码文本存储在session中，以便后续表单提交时验证
-        redisService.setKey(sessionId , captcha.text().toLowerCase(),captchaConfig.getCaptchaExpireTime(), TimeUnit.MINUTES);
+        redisService.setCaptcha(sessionId , captcha.text().toLowerCase());
 		// 返回生成的验证码对象
 		return captcha;
 	}
@@ -70,7 +69,7 @@ public class CaptchaServiceImpl implements ICaptchaService {
         // 以下代码行被注释掉，因此没有设置自定义字体
         captcha.setFont(captchaConfig.getCaptchaFont());
         // 将生成的验证码文本存储在session中，以便后续表单提交时验证
-        redisService.setKey(sessionId , captcha.text().toLowerCase(),captchaConfig.getCaptchaExpireTime(), TimeUnit.MINUTES);
+        redisService.setCaptcha(sessionId , captcha.text().toLowerCase());
 		// 返回生成的验证码对象
 		return captcha;
 	}
@@ -84,17 +83,17 @@ public class CaptchaServiceImpl implements ICaptchaService {
 	 */
 	@Override
 	public Boolean validateCaptcha(String sessionId, String captcha) {
-	    // 从Redis中获取对应sessionId的验证码
-	    Object captchaObj = redisService.getKey(sessionId);
-	    // 如果验证码对象为空，可能已经过期，返回null
-	    if (captchaObj == null) {
+	    // 检查Redis中是否存在该用户的验证码
+	    if (redisService.hasCaptcha(sessionId)){
+	        // 从Redis中获取验证码
+	        String captchaCode = redisService.getCaptcha(sessionId);
+	        // 验证完成后删除Redis中的验证码，避免重复验证
+	        redisService.deleteCaptcha(sessionId);
+	        // 比较用户输入的验证码和Redis中存储的验证码是否一致，忽略大小写
+	        return captchaCode.equalsIgnoreCase(captcha);
+	    }else{
+	        // 如果Redis中不存在验证码，返回null，表示验证码已过期
 	        return null;
 	    }
-	    // 将验证码对象转换为字符串
-	    String captchaCode = captchaObj.toString();
-	    // 验证码使用后即作废，所以从Redis中删除对应的sessionId
-	    redisService.deleteKey(sessionId);
-	    // 比较用户输入的验证码和Redis中存储的验证码，忽略大小写
-	    return captchaCode.equalsIgnoreCase(captcha);
 	}
 }

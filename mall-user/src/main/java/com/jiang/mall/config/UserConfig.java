@@ -157,6 +157,10 @@ public class UserConfig {
         return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
     }
 
+    public boolean isUserRedisEncryption() {
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
+    }
+
     public void updateUserMaxTry(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
     }
@@ -191,6 +195,10 @@ public class UserConfig {
 
     public void updateGiteeClientSecret(String clientSecret) {
         properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
+    }
+
+    public void updateUserRedisEncryption(boolean encryption) {
+        properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
     public @NotNull UserSettingVo getSetting() {

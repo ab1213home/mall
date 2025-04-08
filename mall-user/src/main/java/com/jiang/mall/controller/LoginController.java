@@ -118,7 +118,7 @@ public class LoginController {
 		}
 
         // 检查用户尝试登录失败次数
-        if (userService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry()){
+        if (userService.countTryNumber(username, clientIp, fingerprint)){
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 

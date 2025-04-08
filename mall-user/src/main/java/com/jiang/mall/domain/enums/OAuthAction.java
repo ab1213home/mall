@@ -11,16 +11,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.dao;
+package com.jiang.mall.domain.enums;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.UserOauth;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Update;
+import lombok.Getter;
 
-@Mapper
-public interface UserOauth2Mapper extends BaseMapper<UserOauth> {
+@Getter
+public enum OAuthAction {
+	LOGIN("login"),
+	BINDING("binding");
 
-	@Update("update tb_user_oauths set hash = #{hash}, annotations = #{annotations} where id = #{id}")
-	void updateAnnotations(Long id, String hash, String annotations);
+	private final String name;
+
+	OAuthAction(String name) {
+		this.name = name;
+	}
 }

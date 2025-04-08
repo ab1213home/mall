@@ -17,19 +17,7 @@ const model = localStorage.getItem('model');
 
 document.addEventListener('DOMContentLoaded', function() {
     const message = urlParams.get('message');
-    if (model==null||model=='login'||model=='binding'){
-        if (message != null) {
-            show_error(message);
-        }
-        const remember = localStorage.getItem('remember');
-        if (remember == 'true') {
-            $('#username').val(localStorage.getItem('username'));
-            $('#password').val(localStorage.getItem('password'));
-            $('#remember').prop('checked', true);
-        } else {
-            $('#remember').prop('checked', false);
-        }
-    }else if (model=='oauth'){
+    if (model!=null && model=='oauth'){
         const step2 = document.querySelectorAll('.step2');
         const step1 = document.querySelectorAll('.step1');
         step1.forEach(element => {
@@ -65,6 +53,20 @@ document.getElementById('remember').addEventListener('change', function() {
 
 // 登录表单提交处理函数
 function submitLoginForm() {
+    //     if (model==null||model=='login'||model=='binding'){
+    //     if (message != null) {
+    //         show_error(message);
+    //     }
+    //     const remember = localStorage.getItem('remember');
+    //     if (remember == 'true') {
+    //         $('#username').val(localStorage.getItem('username'));
+    //         $('#password').val(localStorage.getItem('password'));
+    //         $('#remember').prop('checked', true);
+    //     } else {
+    //         $('#remember').prop('checked', false);
+    //     }
+    // }else if (model=='oauth'){
+
   // 获取表单数据
   const username = $('#username').val();
   const password = $('#password').val();

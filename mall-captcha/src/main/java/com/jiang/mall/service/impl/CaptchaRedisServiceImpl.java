@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.CaptchaConfig;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.service.ICaptchaRedisService;
 import jakarta.annotation.PostConstruct;
@@ -40,48 +41,54 @@ public class CaptchaRedisServiceImpl implements ICaptchaRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	String prefix = "captcha-";
+	private CaptchaConfig captchaConfig;
+
+	@Autowired
+	public void setCaptchaConfig(CaptchaConfig captchaConfig) {
+		this.captchaConfig = captchaConfig;
+	}
+
+	String prefix = "captcha:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+"-captcha-";
+	    prefix = generalConfig.getRedisKeyPrefix()+":captcha:";
 	}
-
-    String key(String key){
-        return prefix+key;
-    }
 
     /**
      * 将给定的键值对存储在某个数据结构或存储系统中，并设置过期时间
      *
-     * @param key 键，用于唯一标识存储的值
-     * @param value 值，与键关联存储的数据
-     * @param timeout 过期时间，单位毫秒，表示值将在多久之后过期
-     * @param unit 时间单位，用于指定过期时间
+     * @param sessionId 键，用于唯一标识存储的值
+     * @param captcha 值，与键关联存储的数据
      */
     @Override
-    public void setKey(String key, String value, long timeout, TimeUnit unit) {
-        stringRedisTemplate.opsForValue().set(key(key), value, timeout, unit);
+    public void setCaptcha(String sessionId, String captcha) {
+        stringRedisTemplate.opsForValue().set(prefix+sessionId, captcha, captchaConfig.getCaptchaExpireTime(), TimeUnit.MINUTES);
     }
 
     /**
      * 根据键获取对应的字符串值
      *
-     * @param key 字符串的键，用于唯一标识一个字符串值
+     * @param sessionId 字符串的键，用于唯一标识一个字符串值
      * @return 与键关联的字符串值，如果键不存在，则返回null或默认值
      */
     @Override
-    public String getKey(String key) {
-        return stringRedisTemplate.opsForValue().get(key(key));
+    public String getCaptcha(String sessionId) {
+        return stringRedisTemplate.opsForValue().get(prefix+sessionId);
     }
 
-    /**
+	@Override
+	public boolean hasCaptcha(String sessionId) {
+		return stringRedisTemplate.hasKey(prefix+sessionId);
+	}
+
+	/**
      * 删除指定键对应的数据
      *
-     * @param key 要删除数据的键
+     * @param sessionId 要删除数据的键
      */
     @Override
-    public void deleteKey(String key) {
-	    stringRedisTemplate.delete(key(key));
+    public void deleteCaptcha(String sessionId) {
+	    stringRedisTemplate.delete(prefix+sessionId);
     }
 }

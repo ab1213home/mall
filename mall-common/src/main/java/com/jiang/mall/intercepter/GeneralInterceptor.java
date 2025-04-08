@@ -153,7 +153,7 @@ public class GeneralInterceptor{
         String url = redirectUrl != null ? redirectUrl : "/index.html";
         // 设置响应的内容类型和字符编码，确保浏览器能够正确解析重定向的URL
         response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
         if (requestUrl != null){
             // 对请求URI进行编码，确保URL中的特殊字符能够正确传递
             String urlParam = URLEncoder.encode(requestUrl, StandardCharsets.UTF_8);
