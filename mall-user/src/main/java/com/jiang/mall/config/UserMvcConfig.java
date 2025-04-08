@@ -26,13 +26,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class UserMvcConfig implements WebMvcConfigurer {
 
-    private AdminInterceptor adminInterceptor;
-
-    @Autowired
-    public void setAdminLoginInterceptor(AdminInterceptor adminInterceptor) {
-        this.adminInterceptor = adminInterceptor;
-    }
-
     private UserInterceptor userInterceptor;
     @Autowired
     public void setUserLoginInterceptor(UserInterceptor userInterceptor) {

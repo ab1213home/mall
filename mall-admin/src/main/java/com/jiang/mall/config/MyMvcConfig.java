@@ -37,11 +37,11 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		this.apiRequestCounterInterceptor = apiRequestCounterInterceptor;
 	}
 
-	private AdminInterceptor adminInterceptor;
+	private SwaggerInterceptor swaggerInterceptor;
 
     @Autowired
-    public void setAdminLoginInterceptor(AdminInterceptor adminInterceptor) {
-        this.adminInterceptor = adminInterceptor;
+    public void setAdminLoginInterceptor(SwaggerInterceptor swaggerInterceptor) {
+        this.swaggerInterceptor = swaggerInterceptor;
     }
 
     private UserInterceptor userInterceptor;
@@ -100,8 +100,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		// HTML拦截器
 		registry.addInterceptor(htmlInterceptor)
 				.addPathPatterns("/**");
-		// 权限拦截器
-		registry.addInterceptor(adminInterceptor).addPathPatterns("/swagger-ui/**");
+		// Swagger权限拦截器
+		registry.addInterceptor(swaggerInterceptor).addPathPatterns("/swagger-ui/**");
     }
 
     /**

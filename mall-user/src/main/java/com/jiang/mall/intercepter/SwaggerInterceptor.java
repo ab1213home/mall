@@ -28,9 +28,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-public class AdminInterceptor implements HandlerInterceptor {
+public class SwaggerInterceptor implements HandlerInterceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(SwaggerInterceptor.class);
 
     private IUserRedisService redisService;
 
@@ -128,11 +128,11 @@ public class AdminInterceptor implements HandlerInterceptor {
 		// 检查用户是否具有任何系统权限
 	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
 	        // 检查用户是否具有所需的特定权限
-	        if (user.getPermissions().contains("system")) {
+	        if (user.getPermissions().contains("system:swagger")) {
 	            return true;
 	        } else {
 	            // 当用户没有所需权限时，记录调试信息
-	            logger.debug("用户{}无权限访问{}", user.getUsername(), "system");
+	            logger.debug("用户{}无权限访问{}", user.getUsername(), "system:swagger");
 	            return false;
 	        }
 	    }else {
