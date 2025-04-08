@@ -67,19 +67,19 @@ function submitLoginForm() {
         captcha: captcha
     };
 
-    let url = '/user/login';
+    let url_ = '/user/login';
     // 自定义提交处理
     if (model=='binding'){
         const type = urlParams.get('binding-type');
         if (type=='gitee'){
-            url = '/user/oauth/loginToBind/gitee';
+            url_ = '/user/oauth/loginToBind/gitee';
         }else if (type=='github'){
-            url = '/user/oauth/loginToBind/github';
+            url_ = '/user/oauth/loginToBind/github';
         }
     }
     // 发送 AJAX 请求
     $.ajax({
-        url: url,
+        url: url_,
         type: 'POST',
         data: data,
         headers: {
@@ -166,20 +166,20 @@ function submitTwoVerifyForm() {
         code:code
     };
 
-    let url = '/user/login/twoVerify';
+    let url_ = '/user/login/twoVerify';
     // 自定义提交处理
     if (model=='binding'){
         const type = urlParams.get('binding-type');
         if (type=='gitee'){
-            url = '/user/oauth/loginToBind/gitee/twoVerify';
+            url_ = '/user/oauth/loginToBind/gitee/twoVerify';
         }else if (type=='github'){
-            url = '/user/oauth/loginToBind/github/twoVerify';
+            url_ = '/user/oauth/loginToBind/github/twoVerify';
         }
     }
 
     // 发送 AJAX 请求
     $.ajax({
-        url: url,
+        url: url_,
         type: 'POST',
         data: data,
         headers: {
