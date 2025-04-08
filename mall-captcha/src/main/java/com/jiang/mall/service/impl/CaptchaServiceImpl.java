@@ -74,6 +74,20 @@ public class CaptchaServiceImpl implements ICaptchaService {
 		return captcha;
 	}
 
+	@Override
+	public SpecCaptcha generateCaptcha(String sessionId, int width, int height, int font) throws IOException, FontFormatException {
+		// 创建一个自定义的验证码对象，参数分别为宽度、高度和字符数
+        SpecCaptcha captcha = new SpecCaptcha(width, height, captchaConfig.getCaptchaNum());
+        // 设置验证码字符类型为纯数字，增加用户辨识的易用性
+        captcha.setCharType(captchaConfig.getCaptchaType());
+        // 以下代码行被注释掉，因此没有设置自定义字体
+        captcha.setFont(font);
+        // 将生成的验证码文本存储在session中，以便后续表单提交时验证
+//        redisService.setCaptcha(sessionId , captcha.text().toLowerCase());
+		// 返回生成的验证码对象
+		return captcha;
+	}
+
 	/**
 	 * 验证用户输入的验证码是否正确
 	 *

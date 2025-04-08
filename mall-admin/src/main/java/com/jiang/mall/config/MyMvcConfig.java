@@ -101,7 +101,7 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(htmlInterceptor)
 				.addPathPatterns("/**");
 		// 权限拦截器
-//		registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
+		registry.addInterceptor(adminInterceptor).addPathPatterns("/swagger-ui/**");
     }
 
     /**

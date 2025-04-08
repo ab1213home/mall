@@ -33,4 +33,6 @@ public interface IOAuthService {
 	boolean authUnbind(@NotNull OAuthProvider oAuthProvider, String sessionId);
 
 	Boolean authLoginToBind(OAuthProvider oAuthProvider, String username, String password, String clientIp, String fingerprint, String token, String sessionId);
+
+	boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
 }

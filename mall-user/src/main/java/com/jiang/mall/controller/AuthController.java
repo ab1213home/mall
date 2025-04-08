@@ -32,10 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -43,7 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/user/oauth2")
+@RequestMapping("/user/oauth")
 public class AuthController {
 
 	private IOAuthService oAuthService;
@@ -117,7 +114,7 @@ public class AuthController {
 		}
 	}
 
-	@GetMapping("/loginToBind/gitee")
+	@PostMapping("/loginToBind/gitee")
 	@Permission(PermissionType.GUEST)
 	public ResponseResult<Object> authLoginToBindGitee(@RequestParam("username") String username,
 	                                 @RequestParam("password") String password,
@@ -163,6 +160,30 @@ public class AuthController {
         }else {
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
+	}
+
+	@PostMapping("/loginToBind/gitee/twoVerify")
+	@Permission(PermissionType.GUEST)
+	public ResponseResult<Object> authLoginToBindGiteeTwoVerify(@RequestParam("code") int code,
+	                                            @RequestHeader("X-Real-IP") String clientIp,
+	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                            HttpSession session
+	){
+		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+		}
+		if (!i18nService.checkString(fingerprint)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+		}
+
+		String token = UUID.fastUUID().toString();
+		boolean flag = oAuthService.authLoginToBind(OAuthProvider.GITEE, code, clientIp, fingerprint, token, session.getId());
+	    // 根据登录结果返回相应信息
+	    if (flag){
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+	    }else {
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));
+	    }
 	}
 
 	@GetMapping("/unbind/gitee")
@@ -223,7 +244,7 @@ public class AuthController {
 	//			response.setHeader("Location", request.getContextPath() + "/user/login.html");
 				response.setContentType("text/html; charset=UTF-8");
 				String messageParam = URLEncoder.encode("Gitee账号未绑定", StandardCharsets.UTF_8);
-		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=binding&message=" + messageParam);
+		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=binding&binding-type=gitee&message=" + messageParam);
 			}else if (flag==OAuthResult.SECOND_VERIFY) {
 				response.setContentType("text/html; charset=UTF-8");
 				response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=oauth");

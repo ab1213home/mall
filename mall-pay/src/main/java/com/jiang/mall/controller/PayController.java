@@ -20,6 +20,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IPayService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +60,7 @@ public class PayController {
 	}
 
 	//获取可用支付方式
-	@RequestMapping("/getPaymentList")
+	@GetMapping("/getPaymentList")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getPaymentList() {
 		Map<String, Object> map = new HashMap<>();

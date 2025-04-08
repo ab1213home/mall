@@ -53,92 +53,93 @@ document.getElementById('remember').addEventListener('change', function() {
 
 // 登录表单提交处理函数
 function submitLoginForm() {
-    //     if (model==null||model=='login'||model=='binding'){
-    //     if (message != null) {
-    //         show_error(message);
-    //     }
-    //     const remember = localStorage.getItem('remember');
-    //     if (remember == 'true') {
-    //         $('#username').val(localStorage.getItem('username'));
-    //         $('#password').val(localStorage.getItem('password'));
-    //         $('#remember').prop('checked', true);
-    //     } else {
-    //         $('#remember').prop('checked', false);
-    //     }
-    // }else if (model=='oauth'){
+    // 获取表单数据
+    const username = $('#username').val();
+    const password = $('#password').val();
+    const captcha = $('#captcha').val();
 
-  // 获取表单数据
-  const username = $('#username').val();
-  const password = $('#password').val();
-  const captcha = $('#captcha').val();
+    const remember = localStorage.getItem('remember');
 
-  // 构建请求体
-  const data = {
-    username: username,
-    password: sha256(password),
-    captcha: captcha
-  };
+    // 构建请求体
+    const data = {
+        username: username,
+        password: remember == 'true'? password : sha256(password),
+        captcha: captcha
+    };
 
-  // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/login',
-    type: 'POST',
-    data: data,
-    headers: {
-        'X-Real-FINGERPRINT':fingerprint,
-        'X-Real-IP':ip,
-    },
-    beforeSend: function() {
-       // 在发送请求之前，显示加载
-    },
-    success: function (res) {
-        // 处理成功响应
-        if (res.code === 200) {
-            const rememberCheckbox = document.getElementById('remember');
-            if (res.data == 'false'){
-                const step2 = document.querySelectorAll('.step2');
-                const step1 = document.querySelectorAll('.step1');
-                step1.forEach(element => {
-					element.style.display = 'none';
-				});
-                step2.forEach(element => {
-					element.style.display = 'block';
-				});
-                if (rememberCheckbox.checked){
-                    localStorage.setItem('remember', 'true');
-                    localStorage.setItem('username', username);
-                    localStorage.setItem('password', sha256(password));
+    let url = '/user/login';
+    // 自定义提交处理
+    if (model=='binding'){
+        const type = urlParams.get('binding-type');
+        if (type=='gitee'){
+            url = '/user/oauth/loginToBind/gitee';
+        }else if (type=='github'){
+            url = '/user/oauth/loginToBind/github';
+        }
+    }
+    // 发送 AJAX 请求
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
+        },
+        beforeSend: function() {
+        // 在发送请求之前，显示加载
+        },
+        success: function (res) {
+            // 处理成功响应
+            if (res.code === 200) {
+                const rememberCheckbox = document.getElementById('remember');
+                if (res.data == 'false'){
+                    const step2 = document.querySelectorAll('.step2');
+                    const step1 = document.querySelectorAll('.step1');
+                    step1.forEach(element => {
+					    element.style.display = 'none';
+				    });
+                    step2.forEach(element => {
+					    element.style.display = 'block';
+				    });
+                    if (rememberCheckbox.checked){
+                        localStorage.setItem('remember', 'true');
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', sha256(password));
+                    }else {
+                        localStorage.setItem('remember', 'false');
+                    }
                 }else {
-                    localStorage.setItem('remember', 'false');
+                    localStorage.setItem('token', res.data);
+                    if (rememberCheckbox.checked){
+                        localStorage.setItem('remember', 'true');
+                        localStorage.setItem('username', username);
+                        localStorage.setItem('password', sha256(password));
+                        localStorage.setItem('remember_token', res.data);
+                    }else {
+                        localStorage.setItem('remember', 'false');
+                    }
+                    if (url!=null){
+                        window.location.href = url;
+                    }else {
+                        if (model=='binding'){
+                            window.location.href = '/user/index.html';
+                        }else {
+                            window.location.href = '/index.html';
+                        }
+                    }
                 }
-            }else {
-                localStorage.setItem('token', res.data);
-                // sessionStorage.setItem('token', res.data);
-                if (rememberCheckbox.checked){
-                    localStorage.setItem('remember', 'true');
-                    localStorage.setItem('username', username);
-                    localStorage.setItem('password', sha256(password));
-                    localStorage.setItem('remember_token', res.data);
-                }else {
-                    localStorage.setItem('remember', 'false');
-                }
-                if (url!=null){
-                    window.location.href = url;
-                }else {
-                    window.location.href = '../index.html';
-                }
+            } else {
+                show_error('登录失败:'+res.message);
+                refreshCaptcha()
             }
-        } else {
-            show_error('登录失败:'+res.message);
+        },
+        fail: function(xhr, status, error) {
+            // 显示错误信息给用户
+            show_error('登录失败，请联系管理员！'+error);
             refreshCaptcha()
         }
-    },
-    fail: function(xhr, status, error) {
-      // 显示错误信息给用户
-      show_error('登录失败，请联系管理员！'+error);
-      refreshCaptcha()
-    }
-  });
+    });
 }
 // 刷新验证码的函数
 function refreshCaptcha() {
@@ -147,65 +148,80 @@ function refreshCaptcha() {
         captchaImg.src = '/common/captcha?' + new Date().getTime(); // 添加时间戳避免缓存
     }
 }
+
 // 绑定表单提交事件
 $(document).ready(function() {
-  $('#step1').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitLoginForm(); // 自定义提交处理
-  });
+    $('#step1').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitLoginForm();
+    });
 });
 
 function submitTwoVerifyForm() {
-  // 获取表单数据
-  const code = $('#code').val();
+    // 获取表单数据
+    const code = $('#code').val();
 
-  // 构建请求体
-  const data = {
-    code:code
-  };
+    // 构建请求体
+    const data = {
+        code:code
+    };
 
-  // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/login/twoVerify',
-    type: 'POST',
-    data: data,
-    headers: {
-        'X-Real-FINGERPRINT':fingerprint,
-        'X-Real-IP':ip,
-    },
-    beforeSend: function() {
-       // 在发送请求之前，显示加载
-    },
-    success: function (res) {
-        // 处理成功响应
-        if (res.code === 200) {
-            const rememberCheckbox = document.getElementById('remember');
-            localStorage.setItem('token', res.data);
-            // sessionStorage.setItem('token', res.data);
-            if (rememberCheckbox.checked){
-                localStorage.setItem('remember_token', res.data);
-            }
-            if (url!=null){
-                window.location.href = url;
-            }else {
-                window.location.href = '../index.html';
-            }
-        } else {
-            show_error('登录失败:'+res.message);
-            $('#code').val('');
+    let url = '/user/login/twoVerify';
+    // 自定义提交处理
+    if (model=='binding'){
+        const type = urlParams.get('binding-type');
+        if (type=='gitee'){
+            url = '/user/oauth/loginToBind/gitee/twoVerify';
+        }else if (type=='github'){
+            url = '/user/oauth/loginToBind/github/twoVerify';
         }
-    },
-    fail: function(xhr, status, error) {
-      // 显示错误信息给用户
-      show_error('登录失败，请联系管理员！'+error);
-      refreshCaptcha()
     }
-  });
+
+    // 发送 AJAX 请求
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
+        },
+        beforeSend: function() {
+        // 在发送请求之前，显示加载
+        },
+        success: function (res) {
+            // 处理成功响应
+            if (res.code === 200) {
+                const rememberCheckbox = document.getElementById('remember');
+                localStorage.setItem('token', res.data);
+                if (rememberCheckbox.checked){
+                    localStorage.setItem('remember_token', res.data);
+                }
+                if (url!=null){
+                    window.location.href = url;
+                }else {
+                    if (model=='binding'){
+                        window.location.href = '/user/index.html';
+                    }else {
+                        window.location.href = '/index.html';
+                    }
+                }
+            } else {
+                show_error('登录失败:'+res.message);
+                $('#code').val('');
+            }
+        },
+        fail: function(xhr, status, error) {
+        // 显示错误信息给用户
+        show_error('登录失败，请联系管理员！'+error);
+        refreshCaptcha()
+        }
+    });
 }
 
 $(document).ready(function() {
-  $('#step2').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitTwoVerifyForm(); // 自定义提交处理
-  });
+    $('#step2').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitTwoVerifyForm(); // 自定义提交处理
+    });
 });

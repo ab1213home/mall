@@ -20,23 +20,31 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+
 @Configuration
 public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+		Contact contact = new Contact()
+				.name("Jiang Rongjun")
+				.email("jiangrongjun2004@163.com")
+				.url("https://github.com/ab1213home")
+				.extensions(new HashMap<String, Object>());;
+		License license = new License()
+				.name("Mulan PSL v2")
+				.url("https://license.coscl.org.cn/MulanPSL2")
+				.extensions(new HashMap<String, Object>());;
+		Info info = new Info()
+				.title("Jiang Mall")
+				.version("2.0.1")
+				.description("Jiang Mall's Description of API.")
+				.termsOfService("https://github.com/ab1213home/mall.git")
+				.contact(contact)
+				.license(license);
         return new OpenAPI()
-                .info(new Info()
-                        .title("Jiang Mall")
-                        .version("2.0.1")
-                        .description("Jiang Mall's Description of API.")
-		                .termsOfService("https://github.com/ab1213home/mall.git")
-		                .contact(new Contact()
-				                .name("Jiang Rongjun")
-				                .email("jiangrongjun2004@163.com")
-				                .url("https://github.com/ab1213home"))
-		                .license(new License()
-				                .name("Mulan PSL v2")
-				                .url("https://license.coscl.org.cn/MulanPSL2"))                );
+		        .openapi("3.0.1")
+		        .info(info);
     }
 }

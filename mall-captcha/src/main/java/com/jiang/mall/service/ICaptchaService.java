@@ -30,6 +30,8 @@ public interface ICaptchaService {
 
 	SpecCaptcha generateCaptcha(String sessionId,int width, int height) throws IOException, FontFormatException;
 
+	SpecCaptcha generateCaptcha(String sessionId,int width, int height, int font) throws IOException, FontFormatException;
+
 	/**
      * 验证用户输入的验证码是否正确
      *

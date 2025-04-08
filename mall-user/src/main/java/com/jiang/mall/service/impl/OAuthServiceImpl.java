@@ -97,12 +97,12 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		if (provider == OAuthProvider.GITHUB){
 			url = provider.getAuthUrl()+
                 "?client_id=" + userConfig.getGithubClientId() +
-                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth2/callback/github", StandardCharsets.UTF_8) +
+                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8) +
 				"&response_type=code&state="+state;
 		}else if (provider == OAuthProvider.GITEE){
 			url = provider.getAuthUrl()+
                 "?client_id=" + userConfig.getGiteeClientId() +
-                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth2/callback/gitee", StandardCharsets.UTF_8) +
+                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8) +
                 "&response_type=code&scope=user_info&state="+state;
 		}
 		return url;
@@ -176,6 +176,32 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
 	}
 
+	@Override
+	public boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId) {
+		boolean flag = userService.login(sessionId,code,token,clientIp,fingerprint);
+		if (flag){
+			if (oAuthProvider==OAuthProvider.GITEE){
+				Boolean flag_ = authLoginToBindGitee(sessionId);
+				if (flag_==null){
+					return false;
+				}else {
+					return flag_;
+				}
+			}else if (oAuthProvider==OAuthProvider.GITHUB){
+				Boolean flag_ = authLoginToBindGithub(sessionId);
+				if (flag_==null){
+					return false;
+				}else {
+					return flag_;
+				}
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
+
 	private Boolean authLoginToBindGithub(String sessionId) {
 		return null;
 	}
@@ -223,7 +249,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
                         .with("client_id", userConfig.getGiteeClientId())
                         .with("client_secret", userConfig.getGiteeClientSecret())
                         .with("code", code)
-                        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth2/callback/gitee"))
+                        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/gitee"))
                 .retrieve()
                 .bodyToMono(TokenResponse.class)
                 .block();
