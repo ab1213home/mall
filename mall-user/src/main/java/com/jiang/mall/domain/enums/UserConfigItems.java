@@ -22,13 +22,7 @@ public enum UserConfigItems {
 	USER_DEFAULT_GROUP("user.default.group", "默认用户组", "1"),
 	USER_SESSION_TIMEOUT("user.cache.time", "用户会话保持时间(小时)", "24"),
 	USER_REGISTER_ENABLED("user.register.enabled", "是否允许注册", "true"),
-	USER_REDIS_ENCRYPTION("user.redis.encryption", "用户redis缓存是否加密(SHA-256)", "false"),
-	OAUTH_GITHUE_ENABLED("oauth.github.enabled", "是否启用GitHub认证", "false"),
-	OAUTH_GITHUE_CLIENT_ID("oauth.github.client-id", "GitHub客户端ID", "example"),
-	OAUTH_GITHUE_CLIENT_SECRET("oauth.github.client-secret", "GitHub客户端密钥", "example"),
-	OAUTH_GITEE_ENABLED("oauth.gitee.enabled", "是否启用Gitee认证", "false"),
-	OAUTH_GITEE_CLIENT_ID("oauth.gitee.client-id", "Gitee客户端ID", "example"),
-	OAUTH_GITEE_CLIENT_SECRET("oauth.gitee.client-secret", "Gitee客户端密钥", "example");
+	USER_REDIS_ENCRYPTION("user.redis.encryption", "用户redis缓存是否加密(SHA-256)", "false");
 
 	private final String key;
 	private final String description;

@@ -18,7 +18,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.GeneralConfig;
-import com.jiang.mall.config.UserConfig;
+import com.jiang.mall.config.OAuthConfig;
 import com.jiang.mall.dao.UserOauthMapper;
 import com.jiang.mall.domain.GitHubTokenResponse;
 import com.jiang.mall.domain.GiteeTokenResponse;
@@ -62,11 +62,11 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		this.generalConfig = generalConfig;
 	}
 
-	private UserConfig userConfig;
+	private OAuthConfig oAuthConfig;
 
 	@Autowired
-	public void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
+	public void setOAuthConfig(OAuthConfig userConfig) {
+		this.oAuthConfig = userConfig;
 	}
 
 	private IUserService userService;
@@ -98,12 +98,12 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		String state = String.format("action:%s:%s", action.getName(), random);
 		if (provider == OAuthProvider.GITHUB){
 			url = provider.getAuthUrl()+
-                "?client_id=" + userConfig.getGithubClientId() +
+                "?client_id=" + oAuthConfig.getGithubClientId() +
                 "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8) +
 				"&response_type=code&state="+state;
 		}else if (provider == OAuthProvider.GITEE){
 			url = provider.getAuthUrl()+
-                "?client_id=" + userConfig.getGiteeClientId() +
+                "?client_id=" + oAuthConfig.getGiteeClientId() +
                 "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8) +
                 "&response_type=code&scope=user_info&state="+state;
 		}
@@ -122,7 +122,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	@Override
 	public Map<String, Object> getList() {
 		Map<String, Object> map = new HashMap<>();
-		if (userConfig.getGiteeClientSecret()!=null&&userConfig.getGiteeClientId()!=null){
+		if (oAuthConfig.getGiteeClientSecret()!=null&& oAuthConfig.getGiteeClientId()!=null){
 			Map<String,String> map_gitee = new HashMap<>();
 			map_gitee.put("login","/login/gitee");
 			map_gitee.put("bind","/bind/gitee");
@@ -130,7 +130,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			map_gitee.put("ico","/images/gitee.png");
 			map.put("gitee", map_gitee);
 		}
-		if (userConfig.getGithubClientSecret()!=null&&userConfig.getGithubClientId()!=null){
+		if (oAuthConfig.getGithubClientSecret()!=null&& oAuthConfig.getGithubClientId()!=null){
 			Map<String,String> map_github = new HashMap<>();
 			map_github.put("login","/login/github");
 			map_github.put("bind","/bind/github");
@@ -264,8 +264,8 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		    .header("User-Agent", generalConfig.getName()) // GitHub要求User-Agent
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(BodyInserters.fromFormData(
-                "client_id", userConfig.getGithubClientId())
-                .with("client_secret", userConfig.getGithubClientSecret())
+                "client_id", oAuthConfig.getGithubClientId())
+                .with("client_secret", oAuthConfig.getGithubClientSecret())
 				.with("code", code)
 		        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/github"))
             .retrieve()
@@ -330,8 +330,8 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
             .header("User-Agent", generalConfig.getName())
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                .with("client_id", userConfig.getGiteeClientId())
-		        .with("client_secret", userConfig.getGiteeClientSecret())
+                .with("client_id", oAuthConfig.getGiteeClientId())
+		        .with("client_secret", oAuthConfig.getGiteeClientSecret())
                 .with("code", code)
                 .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/gitee"))
             .retrieve()

@@ -141,22 +141,6 @@ public class UserConfig {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), UserConfigItems.USER_REGISTER_ENABLED.getDefaultValue()));
     }
 
-    public String getGithubClientId() {
-        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getDefaultValue());
-    }
-
-    public String getGithubClientSecret() {
-        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getDefaultValue());
-    }
-
-    public String getGiteeClientId() {
-        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_ID.getDefaultValue());
-    }
-
-    public String getGiteeClientSecret() {
-        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
-    }
-
     public boolean isUserRedisEncryption() {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
     }
@@ -167,14 +151,6 @@ public class UserConfig {
 
     public void updateUserMaxAddress(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
-    }
-
-    public boolean isOAuthGithubEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), UserConfigItems.OAUTH_GITHUE_ENABLED.getDefaultValue()));
-    }
-
-    public boolean isOAuthGiteeEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), UserConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
     }
 
     public void updateRegisterEnabled(boolean enabled) {
@@ -189,33 +165,10 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
     }
 
-    public void updateGithubClientId(String clientId) {
-        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
-    }
-
-    public void updateGithubClientSecret(String clientSecret) {
-        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), clientSecret);
-    }
-
-    public void updateGiteeClientId(String clientId) {
-        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), clientId);
-    }
-
-    public void updateGiteeClientSecret(String clientSecret) {
-        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
-    }
-
     public void updateUserRedisEncryption(boolean encryption) {
         properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
-    public void updateOAuthGithubEnabled(boolean enabled) {
-        properties.setProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), String.valueOf(enabled));
-    }
-
-    public void updateOAuthGiteeEnabled(boolean enabled) {
-        properties.setProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
-    }
 
     public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();
