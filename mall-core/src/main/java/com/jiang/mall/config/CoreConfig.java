@@ -14,7 +14,6 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.CoreConfigItems;
-import com.jiang.mall.domain.enums.UserConfigItems;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +91,7 @@ public class CoreConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (UserConfigItems item : UserConfigItems.values()) {
+                for (CoreConfigItems item : CoreConfigItems.values()) {
                     core_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();

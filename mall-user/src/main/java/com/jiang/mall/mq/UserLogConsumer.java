@@ -39,7 +39,7 @@ public class UserLogConsumer {
 		this.userLogMapper = userLogMapper;
 	}
 
-	@KafkaListener(topics = "user-log")
+	@KafkaListener(topics = "user-log",groupId = "mall")
     public void consumeUserLogs(@NotNull List<ConsumerRecord<String, String>> records) {
         List<UserLog> logs = records.stream()
                 .map(r -> JSON.parseObject(r.value(), UserLog.class))

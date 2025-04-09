@@ -165,10 +165,13 @@ public class FileConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (FileConfigItems item : FileConfigItems.values()) {
-                    file_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                    if (item.isCheck()){
+                        file_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                    }
                 }
+                file_properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(),FileConfigItems.STORAGE_NAME.getDefaultValue() );
                 String defaultUploadPath = System.getProperty("user.home") + File.separator + "upload" + File.separator;
-                LocalSetting localSetting = new LocalSetting("default",defaultUploadPath,true,-1);
+                LocalSetting localSetting = new LocalSetting( FileConfigItems.STORAGE_NAME.getDefaultValue() ,defaultUploadPath,true,-1);
                 createLocalConfig(localSetting);
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);

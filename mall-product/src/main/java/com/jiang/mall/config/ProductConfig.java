@@ -14,7 +14,6 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.ProductConfigItems;
-import com.jiang.mall.domain.enums.UserConfigItems;
 import com.jiang.mall.domain.vo.ProductSettingVo;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -94,7 +93,7 @@ public class ProductConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (UserConfigItems item : UserConfigItems.values()) {
+                for (ProductConfigItems item : ProductConfigItems.values()) {
                     product_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
