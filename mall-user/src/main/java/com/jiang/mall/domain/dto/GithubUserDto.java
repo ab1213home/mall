@@ -17,4 +17,88 @@ import lombok.Data;
 
 @Data
 public class GithubUserDto {
+//{
+//  "login": "octocat",
+//  "id": 1,
+//  "node_id": "MDQ6VXNlcjE=",
+//  "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+//  "gravatar_id": "",
+//  "url": "https://api.github.com/users/octocat",
+//  "html_url": "https://github.com/octocat",
+//  "followers_url": "https://api.github.com/users/octocat/followers",
+//  "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+//  "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+//  "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+//  "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+//  "organizations_url": "https://api.github.com/users/octocat/orgs",
+//  "repos_url": "https://api.github.com/users/octocat/repos",
+//  "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+//  "received_events_url": "https://api.github.com/users/octocat/received_events",
+//  "type": "User",
+//  "site_admin": false,
+//  "name": "monalisa octocat",
+//  "company": "GitHub",
+//  "blog": "https://github.com/blog",
+//  "location": "San Francisco",
+//  "email": "octocat@github.com",
+//  "hireable": false,
+//  "bio": "There once was...",
+//  "twitter_username": "monatheoctocat",
+//  "public_repos": 2,
+//  "public_gists": 1,
+//  "followers": 20,
+//  "following": 0,
+//  "created_at": "2008-01-14T04:33:35Z",
+//  "updated_at": "2008-01-14T04:33:35Z",
+//  "private_gists": 81,
+//  "total_private_repos": 100,
+//  "owned_private_repos": 100,
+//  "disk_usage": 10000,
+//  "collaborators": 8,
+//  "two_factor_authentication": true,
+//  "plan": {
+//    "name": "Medium",
+//    "space": 400,
+//    "private_repos": 20,
+//    "collaborators": 0
+//  }
+//}
+	private String login;
+	private Long id;
+	private String node_id;
+	private String avatar_url;
+	private String gravatar_id;
+	private String url;
+	private String html_url;
+	private String followers_url;
+	private String following_url;
+	private String gists_url;
+	private String starred_url;
+	private String subscriptions_url;
+	private String organizations_url;
+	private String repos_url;
+	private String events_url;
+	private String received_events_url;
+	private String type;
+	private boolean site_admin;
+	private String name;
+	private String company;
+	private String blog;
+	private String location;
+	private String email;
+	private String hireable;
+	private String bio;
+	private String twitter_username;
+	private long public_repos;
+	private long public_gists;
+	private long followers;
+	private long following;
+	private String created_at;
+	private String updated_at;
+	private long private_gists;
+	private long total_private_repos;
+	private long owned_private_repos;
+	private long disk_usage;
+	private long collaborators;
+	private boolean two_factor_authentication;
 }

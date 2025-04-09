@@ -41,7 +41,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/user/oauth")
-public class AuthController {
+public class OAuthController {
 
 	private IOAuthService oAuthService;
 
@@ -273,6 +273,57 @@ public class AuthController {
 		}
     }
 
-//	@GetMapping("/callback/github")
+	@GetMapping("/callback/github")
+    @Permission(PermissionType.NONE)
+    public void callbackGithub(@RequestParam String code,@RequestParam String state, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// 解析state参数（格式：action:login:随机字符串）
+	    String[] stateParts = state.split(":");
+	    if (stateParts.length != 3 || !stateParts[0].equals("action")) {
+//	        throw new IllegalArgumentException("Invalid state format");
+			return;
+	    }
+	    String action = stateParts[1];
+	    String random = stateParts[2];
+		if (action.equals("login")){
+			String token = UUID.fastUUID().toString();
+			OAuthResult flag = oAuthService.callback(OAuthAction.LOGIN, code, random, token, request.getSession().getId(), OAuthProvider.GITHUB);
+			if (flag==OAuthResult.ERROR) {
+				//重定向到登录界面
+	//			response.setHeader("Location", request.getContextPath() + "/user/login.html");
+				response.setContentType("text/html; charset=UTF-8");
+				String messageParam = URLEncoder.encode("Github账号信息获取失败", StandardCharsets.UTF_8);
+		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?message=" + messageParam);
+			} else if (flag==OAuthResult.UNBOUND){
+	//			response.setHeader("Location", request.getContextPath() + "/user/login.html");
+				response.setContentType("text/html; charset=UTF-8");
+				String messageParam = URLEncoder.encode("Github账号未绑定", StandardCharsets.UTF_8);
+		        response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=binding&binding-type=github&message=" + messageParam);
+			}else if (flag==OAuthResult.SECOND_VERIFY) {
+				response.setContentType("text/html; charset=UTF-8");
+				response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?model=oauth");
+			} else if (flag==OAuthResult.SUCCESS){
+				response.setContentType("text/html; charset=UTF-8");
+				response.sendRedirect(request.getContextPath() + "/user/index.html");
+			}
+		}else if (action.equals("bind")){
+			OAuthResult flag = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), OAuthProvider.GITHUB);
+			if (flag==OAuthResult.ERROR) {
+		        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		        response.setContentType("application/json;charset=UTF-8");
+		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Github账号信息获取失败"));
+		        response.getWriter().write(json);
+			}  else if (flag==OAuthResult.SUCCESS){
+				response.setStatus(HttpServletResponse.SC_OK);
+		        response.setContentType("application/json;charset=UTF-8");
+		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_OK, "Github账号绑定成功"));
+		        response.getWriter().write(json);
+			}
+		}else {
+			response.setContentType("text/html; charset=UTF-8");
+			response.setCharacterEncoding("UTF-8");
+			String messageParam = URLEncoder.encode("未知参数", StandardCharsets.UTF_8);
+			response.sendRedirect(request.getContextPath() + "/user/login.html"+ "?message=" + messageParam);
+		}
+    }
 
 }

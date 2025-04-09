@@ -62,6 +62,7 @@ public class ProductTask {
 			}else if (timer>= productConfig.getProductSyncTime()){
 				timer = 0;
 				productService.checkProduct();
+				logger.info("商品数据缓存同步");
 			}
 		}else if (timer == -1){
 			logger.info("商品数据缓存已禁用。");

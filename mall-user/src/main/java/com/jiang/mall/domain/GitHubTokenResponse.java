@@ -16,9 +16,8 @@ package com.jiang.mall.domain;
 import lombok.Data;
 
 @Data
-public class TokenResponse {
-    private String access_token;
-    private String refresh_token;
-    private Long expires_in;
+public class GitHubTokenResponse {
+	private String access_token;
     private String scope;
+    private String token_type;
 }

@@ -20,9 +20,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserOauthMapper;
-import com.jiang.mall.domain.TokenResponse;
+import com.jiang.mall.domain.GitHubTokenResponse;
+import com.jiang.mall.domain.GiteeTokenResponse;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.GiteeUserDto;
+import com.jiang.mall.domain.dto.GithubUserDto;
 import com.jiang.mall.domain.entity.UserOauth;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
@@ -202,8 +204,25 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
 	}
 
-	private Boolean authLoginToBindGithub(String sessionId) {
-		return null;
+	private @Nullable Boolean authLoginToBindGithub(String sessionId) {
+		if (redisService.validateGithubUser(sessionId)){
+			GithubUserDto user = redisService.getGithubUser(sessionId);
+			UserCache userCache = userService.getUserFromRedis(sessionId);
+			UserOauth userOauth = new UserOauth();
+			userOauth.setUserId(userCache.getId());
+			userOauth.setProviderType(OAuthProvider.GITHUB.getKey());
+			userOauth.setProviderUserId(user.getId().toString());
+			userOauth.setAnnotations(JSON.toJSONString(user));
+			userOauth.setHash(SecureUtil.sha256Hex(JSON.toJSONString(user)));
+			if (userOauthMapper.insert(userOauth) > 0) {
+				redisService.deleteGithubUser(sessionId);
+				return true;
+			} else {
+				return null;
+			}
+		}else {
+			return null;
+		}
 	}
 
 	private @Nullable Boolean authLoginToBindGitee(String sessionId) {
@@ -217,6 +236,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			userOauth.setAnnotations(JSON.toJSONString(user));
 			userOauth.setHash(SecureUtil.sha256Hex(JSON.toJSONString(user)));
 			if (userOauthMapper.insert(userOauth) > 0) {
+				redisService.deleteGiteeUser(sessionId);
 				return true;
 			} else {
 				return null;
@@ -236,34 +256,98 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	private OAuthResult callbackGithub(String code, String token, String sessionId, OAuthAction action) {
-		return null;
+		// 获取Access Token
+        GitHubTokenResponse tokenResponse = WebClient.create()
+            .post()
+            .uri(OAuthProvider.GITHUB.getTokenPath())
+            .header("Accept", "application/json") // GitHub需要明确指定返回JSON
+		    .header("User-Agent", generalConfig.getName()) // GitHub要求User-Agent
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(BodyInserters.fromFormData(
+                "client_id", userConfig.getGithubClientId())
+                .with("client_secret", userConfig.getGithubClientSecret())
+				.with("code", code)
+		        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/github"))
+            .retrieve()
+            .bodyToMono(GitHubTokenResponse.class)
+            .block();
+		if (tokenResponse == null){
+			logger.error("获取Github的AccessToken失败");
+			return OAuthResult.ERROR;
+		}
+		GithubUserDto user = webClient
+		    .get()
+            .uri(OAuthProvider.GITHUB.getUserInfoUri())
+            .header("Authorization", "Bearer " + tokenResponse.getAccess_token())
+			.header("User-Agent", generalConfig.getName()) // GitHub要求User-Agent
+            .retrieve()
+            .bodyToMono(GithubUserDto.class)
+            .block();
+		if (user == null){
+			logger.error("获取Github的用户信息失败");
+			return OAuthResult.ERROR;
+		}
+		if (action == OAuthAction.LOGIN){
+			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("provider_type", OAuthProvider.GITHUB.getKey());
+			queryWrapper.eq("provider_user_id", user.getId());
+			UserOauth userOauth = userOauthMapper.selectOne(queryWrapper);
+			if (userOauth==null){
+				redisService.setGithubUser(user,sessionId);
+				return OAuthResult.UNBOUND;
+			}
+			String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
+			if (!userOauth.getHash().equals(hash)){
+				userOauthMapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
+			}
+			return userService.oauthLogin(userOauth.getUserId(), token, sessionId);
+		}else if (action == OAuthAction.BINDING){
+			UserCache userCache = userService.getUserFromRedis(sessionId);
+			UserOauth userOauth = new UserOauth();
+			userOauth.setUserId(userCache.getId());
+			userOauth.setProviderType(OAuthProvider.GITHUB.getKey());
+			userOauth.setProviderUserId(user.getId().toString());
+			userOauth.setAnnotations(JSON.toJSONString(user));
+			userOauth.setHash(SecureUtil.sha256Hex(JSON.toJSONString(user)));
+			if (userOauthMapper.insert(userOauth)>0){
+				// 登录成功，记录登录记录
+	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
+	//			login(userMapper.selectById(userOauth.getUserId()), token, sessionId);
+				return OAuthResult.SUCCESS;
+			}else {
+				return OAuthResult.ERROR;
+			}
+//			return userService.oauthBinding(user, sessionId);
+		}
+		return OAuthResult.ERROR;
 	}
 
 	private OAuthResult callbackGitee(String code, String token, String sessionId, OAuthAction action) {
 		 // 获取Access Token
-        TokenResponse tokenResponse = webClient.post()
-                .uri(OAuthProvider.GITEE.getTokenPath())
-                .header("User-Agent", generalConfig.getName())
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                        .with("client_id", userConfig.getGiteeClientId())
-                        .with("client_secret", userConfig.getGiteeClientSecret())
-                        .with("code", code)
-                        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/gitee"))
-                .retrieve()
-                .bodyToMono(TokenResponse.class)
-                .block();
+        GiteeTokenResponse tokenResponse = webClient
+		    .post()
+            .uri(OAuthProvider.GITEE.getTokenPath())
+            .header("User-Agent", generalConfig.getName())
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(BodyInserters.fromFormData("grant_type", "authorization_code")
+                .with("client_id", userConfig.getGiteeClientId())
+		        .with("client_secret", userConfig.getGiteeClientSecret())
+                .with("code", code)
+                .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/gitee"))
+            .retrieve()
+            .bodyToMono(GiteeTokenResponse.class)
+            .block();
 		if (tokenResponse == null){
 			logger.error("获取Gitee的AccessToken失败");
 			return OAuthResult.ERROR;
 		}
         // 获取用户信息
         GiteeUserDto user = webClient.get()
-                .uri(OAuthProvider.GITEE.getUserInfoUri() + "?access_token=" + tokenResponse.getAccess_token())
-                .header("User-Agent", generalConfig.getName())
-                .retrieve()
-                .bodyToMono(GiteeUserDto.class)
-                .block();
+            .uri(OAuthProvider.GITEE.getUserInfoUri() + "?access_token=" + tokenResponse.getAccess_token())
+            .header("User-Agent", generalConfig.getName())
+            .retrieve()
+            .bodyToMono(GiteeUserDto.class)
+            .block();
 		if (user == null){
 			logger.error("获取Gitee的用户信息失败");
 			return OAuthResult.ERROR;

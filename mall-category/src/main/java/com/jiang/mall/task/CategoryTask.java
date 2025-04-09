@@ -62,6 +62,7 @@ public class CategoryTask {
 			}else if (timer>=categoryConfig.getCategorySyncTime()){
 				timer = 0;
 				categoryService.checkCategory();
+				logger.info("分类数据缓存已刷新。");
 			}
 		}else if (timer == -1){
 			logger.info("分类数据缓存已禁用。");

@@ -66,6 +66,7 @@ public class BannerTask {
 			}else if (timer>=bannerConfig.getBannerSyncTime()){
 				timer = 0;
 				bannerService.checkBanner();
+				logger.info("轮播图数据已更新。");
 			}
 		}else if (timer == -1){
 			logger.info("轮播图数据缓存已禁用。");

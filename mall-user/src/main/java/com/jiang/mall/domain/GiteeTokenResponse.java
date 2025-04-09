@@ -11,10 +11,14 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.config;
+package com.jiang.mall.domain;
 
-import org.springframework.stereotype.Component;
+import lombok.Data;
 
-@Component
-public class OAuthConfig {
+@Data
+public class GiteeTokenResponse {
+    private String access_token;
+    private String refresh_token;
+    private Long expires_in;
+    private String scope;
 }

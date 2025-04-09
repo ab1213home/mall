@@ -19,6 +19,7 @@ import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.cache.UserBindingCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.GiteeUserDto;
+import com.jiang.mall.domain.dto.GithubUserDto;
 import com.jiang.mall.service.IUserRedisService;
 import com.jiang.mall.util.SecureUtil;
 import jakarta.annotation.PostConstruct;
@@ -69,6 +70,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	String rememberMe_prefix = "user:rememberMe:";
 	String authCsrf_prefix = "user:authCsrf";
 	String gitee_prefix = "user:gitee:";
+	String github_prefix = "user:github:";
 //	String prefix = "user:";
 
 	@PostConstruct
@@ -82,6 +84,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		rememberMe_prefix = generalConfig.getRedisKeyPrefix()+":user:rememberMe:";
 		authCsrf_prefix = generalConfig.getRedisKeyPrefix()+":user:authCsrf";
 		gitee_prefix = generalConfig.getRedisKeyPrefix()+":user:gitee:";
+		github_prefix = generalConfig.getRedisKeyPrefix()+":user:github:";
 //		prefix = generalConfig.getRedisKeyPrefix()+":user:";
 	}
 
@@ -583,6 +586,39 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			sessionId = SecureUtil.sha256Hex(sessionId);
 		}
 		stringRedisTemplate.delete(gitee_prefix+sessionId);
+	}
+
+	@Override
+	public void setGithubUser(GithubUserDto user, String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.opsForValue().set(github_prefix+sessionId, JSON.toJSONString(user), 30 , TimeUnit.MINUTES);
+	}
+
+	@Override
+	public boolean validateGithubUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		return stringRedisTemplate.hasKey(github_prefix+sessionId);
+	}
+
+	@Override
+	public GithubUserDto getGithubUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		String json = stringRedisTemplate.opsForValue().get(github_prefix+sessionId);
+		return json == null ? null : JSON.parseObject(json, GithubUserDto.class);
+	}
+
+	@Override
+	public void deleteGithubUser(String sessionId) {
+		if (userConfig.isUserRedisEncryption()){
+			sessionId = SecureUtil.sha256Hex(sessionId);
+		}
+		stringRedisTemplate.delete(github_prefix+sessionId);
 	}
 
 }

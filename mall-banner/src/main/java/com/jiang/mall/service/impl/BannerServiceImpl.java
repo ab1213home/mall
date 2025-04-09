@@ -284,7 +284,6 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
 	    // 更新Redis中的轮播图数据
 	    redisService.setBanner(bannerList);
-	    logger.info("轮播图数据已更新。");
 	}
 
 }

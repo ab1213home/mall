@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.GiteeUserDto;
+import com.jiang.mall.domain.dto.GithubUserDto;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -167,4 +168,12 @@ public interface IUserRedisService {
 	GiteeUserDto getGiteeUser(String sessionId);
 
 	void deleteGiteeUser(String sessionId);
+
+	void setGithubUser(GithubUserDto user, String sessionId);
+
+	boolean validateGithubUser(String sessionId);
+
+	GithubUserDto getGithubUser(String sessionId);
+
+	void deleteGithubUser(String sessionId);
 }
