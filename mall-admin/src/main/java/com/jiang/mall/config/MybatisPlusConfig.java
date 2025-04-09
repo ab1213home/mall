@@ -13,11 +13,15 @@
 
 package com.jiang.mall.config;
 
- import com.baomidou.mybatisplus.annotation.DbType;
- import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
- import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
- import org.springframework.context.annotation.Bean;
- import org.springframework.context.annotation.Configuration;
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MybatisPlusConfig {
@@ -38,4 +42,22 @@ public class MybatisPlusConfig {
         // 返回配置好的MybatisPlus拦截器对象
         return mybatisPlusInterceptor;
     }
+
+    /**
+     * 创建并配置一个SqlSessionTemplate实例
+     * 该方法通过Spring框架的@Bean注解标识，确保在需要时能够产生一个SqlSessionTemplate实例
+     * 主要用于执行数据库操作，通过SqlSessionFactory和ExecutorType来配置该实例
+     *
+     * @param sqlSessionFactory 一个SqlSessionFactory实例，负责生产SqlSession
+     *                          通过@Qualifier注解指定使用名称为"sqlSessionFactory"的Bean
+     * @return 返回一个配置了BATCH执行器类型的SqlSessionTemplate实例
+     *         BATCH执行器类型意味着SqlSession将缓存SQL语句，直到手动提交或flush，
+     *         这样可以减少数据库操作次数，提高性能
+     */
+    @Bean
+    public SqlSessionTemplate sqlSessionTemplate(
+            @Qualifier("sqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionTemplate(sqlSessionFactory, ExecutorType.BATCH);
+    }
+
 }

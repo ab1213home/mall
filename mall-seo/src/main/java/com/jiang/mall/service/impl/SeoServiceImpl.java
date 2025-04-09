@@ -50,7 +50,9 @@ public class SeoServiceImpl implements ISeoService {
 	@Override
 	public String createSiteMapXmlContent(@NotNull HttpServletRequest request) throws IOException, ParseException {
 		// 构造域名，包括方案（http或https）、服务器名称和端口
-        String domain = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+		int serverPort = request.getServerPort();
+        String portSuffix = (serverPort == 80 || serverPort == 443) ? "" : ":" + serverPort;
+        String domain = request.getScheme() + "://" + request.getServerName() + portSuffix;
         // 定义日期时间格式化器，用于格式化最后修改日期
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 

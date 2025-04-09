@@ -40,7 +40,7 @@ public class NoticeConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties notice_properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -56,11 +56,11 @@ public class NoticeConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                notice_properties.load(input);
                 for (NoticeConfigItems item : NoticeConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!notice_properties.containsKey(keyToCheck)) {
+                        notice_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
                 }
@@ -80,7 +80,7 @@ public class NoticeConfig {
      * 保存配置文件
      */
     public void saveProperties() {
-        generalConfig.saveProperties(CONFIG_FILE_PATH,properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, notice_properties);
     }
 
     /**
@@ -91,7 +91,7 @@ public class NoticeConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (NoticeConfigItems item : NoticeConfigItems.values()){
-                    properties.setProperty(item.getKey(), item.getDefaultValue());
+                    notice_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -102,35 +102,35 @@ public class NoticeConfig {
     }
 
     public Long getNoticeExpirationTime() {
-        return Long.parseLong(properties.getProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), NoticeConfigItems.NOTICE_CONFIG_ITEMS.getDefaultValue()));
+        return Long.parseLong(notice_properties.getProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), NoticeConfigItems.NOTICE_CONFIG_ITEMS.getDefaultValue()));
     }
 
     public Integer getNoticeMaxRequestNum() {
-        return Integer.parseInt(properties.getProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getDefaultValue()));
+        return Integer.parseInt(notice_properties.getProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getDefaultValue()));
     }
 
     public Integer getNoticeMinRequestNum() {
-        return Integer.parseInt(properties.getProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getDefaultValue()));
+        return Integer.parseInt(notice_properties.getProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getDefaultValue()));
     }
 
     public Double getNoticeMaxFail() {
-        return Double.parseDouble(properties.getProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), NoticeConfigItems.NOTICE_MAX_FAIL.getDefaultValue()));
+        return Double.parseDouble(notice_properties.getProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), NoticeConfigItems.NOTICE_MAX_FAIL.getDefaultValue()));
     }
 
     public void updateNoticeExpirationTime(Long noticeExpirationTime) {
-        properties.setProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), String.valueOf(noticeExpirationTime));
+        notice_properties.setProperty(NoticeConfigItems.NOTICE_CONFIG_ITEMS.getKey(), String.valueOf(noticeExpirationTime));
     }
 
     public void updateNoticeMaxRequestNum(Integer noticeMaxRequestNum) {
-        properties.setProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), String.valueOf(noticeMaxRequestNum));
+        notice_properties.setProperty(NoticeConfigItems.NOTICE_MAX_REQUEST_NUM.getKey(), String.valueOf(noticeMaxRequestNum));
     }
 
     public void updateNoticeMinRequestNum(Integer noticeMinRequestNum) {
-        properties.setProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), String.valueOf(noticeMinRequestNum));
+        notice_properties.setProperty(NoticeConfigItems.NOTICE_MIN_REQUEST_NUM.getKey(), String.valueOf(noticeMinRequestNum));
     }
 
     public void updateNoticeMaxFail(Double noticeMaxFail) {
-        properties.setProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), String.valueOf(noticeMaxFail));
+        notice_properties.setProperty(NoticeConfigItems.NOTICE_MAX_FAIL.getKey(), String.valueOf(noticeMaxFail));
     }
 
 

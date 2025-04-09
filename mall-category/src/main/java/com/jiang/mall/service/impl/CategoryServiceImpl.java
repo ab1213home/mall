@@ -314,6 +314,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
 	@Override
+	@Transactional
 	public void checkCategory() {
 		CategoryTreeCache rootCache = new CategoryTreeCache();
 		rootCache.setId(0L);

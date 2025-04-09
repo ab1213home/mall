@@ -45,7 +45,7 @@ public class EmailConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties email_properties = new Properties();
 
     @PostConstruct
     private void init() {
@@ -66,7 +66,7 @@ public class EmailConfig {
             String username = email.getProperty(EmailConfigItems.NOTICE_EMAIL_USERNAME.getKey(), EmailConfigItems.NOTICE_EMAIL_USERNAME.getDefaultValue());
             String password = email.getProperty(EmailConfigItems.NOTICE_EMAIL_PASSWORD.getKey(), EmailConfigItems.NOTICE_EMAIL_PASSWORD.getDefaultValue());
             // 创建会话对象，用于发送邮件
-            session = Session.getInstance(properties, new Authenticator() {
+            session = Session.getInstance(email_properties, new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(username, password);
                 }
@@ -85,11 +85,11 @@ public class EmailConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                email_properties.load(input);
                 for (EmailConfigItems item : EmailConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!email_properties.containsKey(keyToCheck)) {
+                        email_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
                 }
@@ -109,7 +109,7 @@ public class EmailConfig {
      * 保存配置文件
      */
     public void saveProperties() {
-        generalConfig.saveProperties(CONFIG_FILE_PATH,properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, email_properties);
     }
 
     /**
@@ -120,7 +120,7 @@ public class EmailConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (EmailConfigItems item : EmailConfigItems.values()){
-                    properties.setProperty(item.getKey(), item.getDefaultValue());
+                    email_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -139,7 +139,7 @@ public class EmailConfig {
      * @return String 邮件服务器主机名如果配置未定义，则返回默认值"smtp.example.com"
      */
     public String getEmailHost() {
-        return properties.getProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), EmailConfigItems.NOTICE_EMAIL_HOST.getDefaultValue());
+        return email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), EmailConfigItems.NOTICE_EMAIL_HOST.getDefaultValue());
     }
 
     /**
@@ -151,7 +151,7 @@ public class EmailConfig {
      * @return Boolean 表示电子邮件认证是否已启用
      */
     public @NotNull Boolean isEmailAuth() {
-        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), EmailConfigItems.NOTICE_EMAIL_AUTH.getDefaultValue()));
+        return Boolean.parseBoolean(email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), EmailConfigItems.NOTICE_EMAIL_AUTH.getDefaultValue()));
     }
 
     /**
@@ -163,7 +163,7 @@ public class EmailConfig {
      * @return Boolean 启用TLS协议进行邮件传输的配置状态，如果配置未设置或为空，则返回默认值
      */
     public @NotNull Boolean isEmailTls() {
-        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), EmailConfigItems.NOTICE_EMAIL_TLS.getDefaultValue()));
+        return Boolean.parseBoolean(email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), EmailConfigItems.NOTICE_EMAIL_TLS.getDefaultValue()));
     }
 
     /**
@@ -175,7 +175,7 @@ public class EmailConfig {
      * @return 邮件服务的端口号，如果属性文件中未定义，则默认返回465
      */
     public String getEmailPort() {
-        return properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue());
+        return email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue());
     }
 
     /**
@@ -188,7 +188,7 @@ public class EmailConfig {
      * @return String 从属性文件中读取到的邮件用户名，或默认用户名"example@example.com"
      */
     public String getEmailUsername() {
-        return properties.getProperty(EmailConfigItems.NOTICE_EMAIL_USERNAME.getKey(), EmailConfigItems.NOTICE_EMAIL_USERNAME.getDefaultValue());
+        return email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_USERNAME.getKey(), EmailConfigItems.NOTICE_EMAIL_USERNAME.getDefaultValue());
     }
 
 
@@ -202,7 +202,7 @@ public class EmailConfig {
      * @return 邮件密码，如果未找到则返回默认值 "example"
      */
     public String getEmailPassword() {
-        return properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PASSWORD.getKey(), EmailConfigItems.NOTICE_EMAIL_PASSWORD.getDefaultValue());
+        return email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PASSWORD.getKey(), EmailConfigItems.NOTICE_EMAIL_PASSWORD.getDefaultValue());
     }
 
 
@@ -215,7 +215,7 @@ public class EmailConfig {
      * @return 如果允许发送邮件，则返回true；否则返回false
      */
     public boolean isEmailEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(EmailConfigItems.NOTICE_EMAIL_ENABLED.getKey(), EmailConfigItems.NOTICE_EMAIL_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_ENABLED.getKey(), EmailConfigItems.NOTICE_EMAIL_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -258,7 +258,7 @@ public class EmailConfig {
      */
     public void updateEmailHost(String host) {
         // 设置新的邮件服务主机地址到属性文件中
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), host);
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), host);
     }
 
     /**
@@ -271,7 +271,7 @@ public class EmailConfig {
      */
     public void updateEmailPort(String port) {
         // 设置新的邮件端口号到配置属性中
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), port);
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), port);
     }
 
     /**
@@ -283,7 +283,7 @@ public class EmailConfig {
      */
     public void updateEmailAuth(Boolean auth) {
         // 设置邮件认证状态的属性，将其转换为字符串以存储
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), String.valueOf(auth));
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), String.valueOf(auth));
     }
 
     /**
@@ -295,7 +295,7 @@ public class EmailConfig {
      */
     public void updateEmailTls(Boolean tls) {
         // 更新邮件配置中的TLS设置
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), String.valueOf(tls));
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), String.valueOf(tls));
     }
 
     /**
@@ -307,7 +307,7 @@ public class EmailConfig {
      * @param username 新的邮件用户名
      */
     public void updateEmailUsername(String username) {
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_USERNAME.getKey(), username);
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_USERNAME.getKey(), username);
     }
 
     /**
@@ -317,7 +317,7 @@ public class EmailConfig {
      */
     public void updateEmailPassword(String password) {
         // 设置新的邮件密码到属性文件中
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_PASSWORD.getKey(), password);
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_PASSWORD.getKey(), password);
     }
 
     /**
@@ -327,7 +327,7 @@ public class EmailConfig {
      */
     public void updateEmailEnabled(boolean enabled) {
         // 设置属性"allow.send.email"的值为传入的enabled布尔值的字符串表示
-        properties.setProperty(EmailConfigItems.NOTICE_EMAIL_ENABLED.getKey(), String.valueOf(enabled));
+        email_properties.setProperty(EmailConfigItems.NOTICE_EMAIL_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateSetting(@NotNull EmailSettingVo emailSettingVo) {
@@ -349,15 +349,15 @@ public class EmailConfig {
          // 配置邮件会话属性
 	    Properties email = new Properties();
 		// 设置邮件服务器主机名
-	    email.put("mail.smtp.host", properties.getProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), EmailConfigItems.NOTICE_EMAIL_HOST.getDefaultValue()));
+	    email.put("mail.smtp.host", email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_HOST.getKey(), EmailConfigItems.NOTICE_EMAIL_HOST.getDefaultValue()));
 	    // 设置邮件服务器端口号
-		email.put("mail.smtp.port", properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue()));
+		email.put("mail.smtp.port", email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue()));
 	    // 启用身份验证
-		email.put("mail.smtp.auth", Boolean.parseBoolean(properties.getProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), EmailConfigItems.NOTICE_EMAIL_AUTH.getDefaultValue())));
+		email.put("mail.smtp.auth", Boolean.parseBoolean(email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_AUTH.getKey(), EmailConfigItems.NOTICE_EMAIL_AUTH.getDefaultValue())));
 	    // 启用 TLS
-		email.put("mail.smtp.starttls.enable", Boolean.parseBoolean(properties.getProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), EmailConfigItems.NOTICE_EMAIL_TLS.getDefaultValue())));
+		email.put("mail.smtp.starttls.enable", Boolean.parseBoolean(email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_TLS.getKey(), EmailConfigItems.NOTICE_EMAIL_TLS.getDefaultValue())));
 	    // 设置 SSL 端口
-		email.put("mail.smtp.socketFactory.port", properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue()));
+		email.put("mail.smtp.socketFactory.port", email_properties.getProperty(EmailConfigItems.NOTICE_EMAIL_PORT.getKey(), EmailConfigItems.NOTICE_EMAIL_PORT.getDefaultValue()));
 	    // 设置 SSL Socket Factory
 		email.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		// 禁用 SSL 回退

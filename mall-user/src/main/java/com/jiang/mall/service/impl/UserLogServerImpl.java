@@ -20,6 +20,7 @@ import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserLogMapper;
 import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.enums.UserStatus;
+import com.jiang.mall.mq.UserLogProducer;
 import com.jiang.mall.service.IUserLogService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -49,6 +50,13 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	@Autowired
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
+	}
+
+	private UserLogProducer producer;
+
+	@Autowired
+	public void setProducer(UserLogProducer producer) {
+		this.producer = producer;
 	}
 
 	/**
@@ -155,7 +163,26 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	}
 
 	@Override
-	public void oauthLoginLog(String username, UserStatus status) {
+	public void defaultLogToMq(String username, String clientIp, String fingerprint, @NotNull UserStatus status, Map<String, Object> properties) {
+		// 创建UserLog对象以记录用户操作日志
+	    UserLog userLog = new UserLog();
+	    // 设置日志中的用户名
+	    userLog.setUsername(username);
+	    // 设置日志中的客户端IP地址
+	    userLog.setIp(clientIp);
+	    // 设置日志中的指纹信息
+	    userLog.setFingerprint(fingerprint);
+	    // 设置日志的状态，使用LogStatus的getValue方法获取状态值
+	    userLog.setState(status.getValue());
+	    // 如果附加属性不为空，则将其转换为JSON字符串并设置到日志中
+	    if (properties!=null){
+	        userLog.setProperties(JSON.toJSONString(properties));
+	    }
+		producer.sendUserLog(userLog);
+	}
+
+	@Override
+	public void oauthLoginLog(String username, @NotNull UserStatus status) {
 		UserLog userLog = new UserLog();
 		// 设置日志中的用户名
 	    userLog.setUsername(username);

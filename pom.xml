@@ -52,7 +52,7 @@
         <hikaricp.version>5.0.1</hikaricp.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <logback.version>1.18.36</logback.version>
-        <annotations.version>26.0.0</annotations.version>
+        <annotations.version>26.0.2</annotations.version>
         <sitemap.version>1.1.1</sitemap.version>
         <modelmapper.version>2.4.4</modelmapper.version>
         <fastjson2.version>2.0.54</fastjson2.version>
@@ -113,6 +113,12 @@
                 <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-configuration-processor</artifactId>
+                <optional>true</optional>
             </dependency>
 
             <!--        <dependency>-->
@@ -459,10 +465,17 @@
             </dependency>
 
             <!-- Kafka -->
+<!--            <dependency>-->
+<!--                <groupId>org.apache.kafka</groupId>-->
+<!--                <artifactId>kafka-clients</artifactId>-->
+<!--                <version>${kafka.version}</version>-->
+<!--            </dependency>-->
+
             <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${kafka.version}</version>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+<!--                <version>${spring-boot.version}</version>-->
+                <version>3.2.8</version>
             </dependency>
 
             <dependency>

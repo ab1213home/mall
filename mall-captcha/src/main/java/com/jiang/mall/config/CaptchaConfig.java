@@ -42,7 +42,7 @@ public class CaptchaConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties captcha_properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -58,28 +58,28 @@ public class CaptchaConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                captcha_properties.load(input);
                 for (CaptchaConfigItems item : CaptchaConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!captcha_properties.containsKey(keyToCheck)) {
+                        captcha_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
 					//检查文本类型是否为整数1-6
 	                if (item == CaptchaConfigItems.CAPTCHA_TYPE) {
-						int value = Integer.parseInt(properties.getProperty(item.getKey()));
+						int value = Integer.parseInt(captcha_properties.getProperty(item.getKey()));
 						if (value < 1 || value > 6) {
 							logger.warn("字符类型设置错误，已重置为默认值: {}", item.getDefaultValue());
-							properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+							captcha_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
 							saveProperties();
 						}
 					}
 					//检查字体类型是否为整数0-9
 	                if (item == CaptchaConfigItems.CAPTCHA_FONT) {
-						int value = Integer.parseInt(properties.getProperty(item.getKey()));
+						int value = Integer.parseInt(captcha_properties.getProperty(item.getKey()));
 						if (value < 0 || value > 9) {
 							logger.warn("字体类型设置错误，已重置为默认值: {}", item.getDefaultValue());
-							properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+							captcha_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
 							saveProperties();
 						}
 					}
@@ -100,7 +100,7 @@ public class CaptchaConfig {
      * 保存配置文件
      */
     public void saveProperties() {
-        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, captcha_properties);
     }
 
     /**
@@ -111,7 +111,7 @@ public class CaptchaConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (CaptchaConfigItems item : CaptchaConfigItems.values()){
-                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                    captcha_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -130,7 +130,7 @@ public class CaptchaConfig {
      * @return 验证码字符数量
      */
     public int getCaptchaNum() {
-        return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), CaptchaConfigItems.CAPTCHA_NUM.getDefaultValue()));
+        return Integer.parseInt(captcha_properties.getProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), CaptchaConfigItems.CAPTCHA_NUM.getDefaultValue()));
     }
 
     /**
@@ -141,7 +141,7 @@ public class CaptchaConfig {
      * @return 字符过期时间，以秒为单位
      */
     public int getCaptchaExpireTime() {
-        return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getDefaultValue()));
+        return Integer.parseInt(captcha_properties.getProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getDefaultValue()));
     }
 
     /**
@@ -153,7 +153,7 @@ public class CaptchaConfig {
      * @return 验证码字符的字体类型作为整数返回
      */
     public int getCaptchaFont() {
-        return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), CaptchaConfigItems.CAPTCHA_FONT.getDefaultValue()));
+        return Integer.parseInt(captcha_properties.getProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), CaptchaConfigItems.CAPTCHA_FONT.getDefaultValue()));
     }
 
     /**
@@ -165,7 +165,7 @@ public class CaptchaConfig {
      * @return 字符类型的整数值，表示验证码字符的类型
      */
     public int getCaptchaType() {
-        return Integer.parseInt(properties.getProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), CaptchaConfigItems.CAPTCHA_TYPE.getDefaultValue()));
+        return Integer.parseInt(captcha_properties.getProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), CaptchaConfigItems.CAPTCHA_TYPE.getDefaultValue()));
     }
 
     /**
@@ -176,7 +176,7 @@ public class CaptchaConfig {
      */
     public void updateCaptchaNum(int num) {
         // 设置验证码字符数量的属性，将其转换为字符串以适应属性存储的要求
-        properties.setProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), String.valueOf(num));
+        captcha_properties.setProperty(CaptchaConfigItems.CAPTCHA_NUM.getKey(), String.valueOf(num));
     }
 
     /**
@@ -189,7 +189,7 @@ public class CaptchaConfig {
      */
     public void updateCaptchaExpireTime(int time) {
         // 设置字符过期时间到属性配置中
-        properties.setProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), String.valueOf(time));
+        captcha_properties.setProperty(CaptchaConfigItems.CAPTCHA_EXPIRE_TIME.getKey(), String.valueOf(time));
     }
 
     /**
@@ -204,7 +204,7 @@ public class CaptchaConfig {
 			return;
 		}
         // 设置字符字体的属性，使用传入的字体大小值转换为字符串形式
-        properties.setProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), String.valueOf(font));
+        captcha_properties.setProperty(CaptchaConfigItems.CAPTCHA_FONT.getKey(), String.valueOf(font));
     }
 
     /**
@@ -221,7 +221,7 @@ public class CaptchaConfig {
 			return;
 		}
         // 设置字符类型属性
-        properties.setProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), String.valueOf(type));
+        captcha_properties.setProperty(CaptchaConfigItems.CAPTCHA_TYPE.getKey(), String.valueOf(type));
     }
 
     public @NotNull CaptchaSettingVo getSetting() {

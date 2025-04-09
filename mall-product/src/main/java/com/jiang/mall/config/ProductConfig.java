@@ -43,7 +43,7 @@ public class ProductConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties product_properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -59,11 +59,11 @@ public class ProductConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                product_properties.load(input);
                 for (ProductConfigItems item : ProductConfigItems.values()) {
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, item.getDefaultValue());
+                    if (!product_properties.containsKey(keyToCheck)) {
+                        product_properties.setProperty(keyToCheck, item.getDefaultValue());
                         saveProperties();
                     }
                 }
@@ -84,7 +84,7 @@ public class ProductConfig {
      */
     public void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, product_properties);
     }
 
     /**
@@ -95,7 +95,7 @@ public class ProductConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (UserConfigItems item : UserConfigItems.values()) {
-                    properties.setProperty(item.getKey(), item.getDefaultValue());
+                    product_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -106,27 +106,27 @@ public class ProductConfig {
     }
 
     public boolean isProductCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), ProductConfigItems.PRODUCT_CACHE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(product_properties.getProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), ProductConfigItems.PRODUCT_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getProductCacheTime() {
-        return Long.parseLong(properties.getProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), ProductConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(product_properties.getProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), ProductConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
     }
 
     public Long getProductSyncTime() {
-        return Long.parseLong(properties.getProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), ProductConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
+        return Long.parseLong(product_properties.getProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), ProductConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
     }
 
     public void updateProductCache(Boolean cache) {
-        properties.setProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), String.valueOf(cache));
+        product_properties.setProperty(ProductConfigItems.PRODUCT_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateProductCacheTime(Long time) {
-        properties.setProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+        product_properties.setProperty(ProductConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
     public void updateProductSyncTime(Long time) {
-        properties.setProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
+        product_properties.setProperty(ProductConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
     public ProductSettingVo getSetting() {

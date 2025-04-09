@@ -16,7 +16,7 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum SFtpConfigItems {
+public enum SftpConfigItems {
 	SFTP_HOST(".sftp.host", "sftp服务器地址", "sftp.example.com"),
 	SFTP_PORT(".sftp.port", "sftp服务器端口", "22"),
 	SFTP_USERNAME(".sftp.username", "sftp服务器用户名", "user"),
@@ -27,7 +27,7 @@ public enum SFtpConfigItems {
 	private final String description;
 	private final String defaultValue;
 
-	SFtpConfigItems(String key, String description, String defaultValue) {
+	SftpConfigItems(String key, String description, String defaultValue) {
 		this.key = key;
 		this.description = description;
 		this.defaultValue = defaultValue;

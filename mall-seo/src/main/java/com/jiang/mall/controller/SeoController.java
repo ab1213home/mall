@@ -56,8 +56,11 @@ public class SeoController {
     @GetMapping("/robots.txt")
     @Permission(PermissionType.NONE)
     public void robots(HttpServletResponse response, HttpServletRequest request) throws IOException{
-        // 构建 sitemap.xml 的完整 URL，以便搜索引擎能够发现它
-        String sitemapUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/sitemap.xml";
+        // 构建 sitemap.xml 的完整 URL，以便搜索引擎能够发现它-
+        int serverPort = request.getServerPort();
+        String portSuffix = (serverPort == 80 || serverPort == 443) ? "" : ":" + serverPort;
+        String sitemapUrl = request.getScheme() + "://" + request.getServerName() + portSuffix + "/sitemap.xml";
+
         // 获取响应的输出流，用于向客户端发送文本数据
         Writer writer = response.getWriter();
         // 获取系统属性中的行分隔符，确保生成的文本符合操作系统规范

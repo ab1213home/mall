@@ -1,0 +1,40 @@
+{
+  "groups": [
+    {
+      "name": "mall.config",
+      "type": "com.jiang.mall.config.MallConfigProperties",
+      "sourceType": "com.jiang.mall.config.MallConfigProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "mall.config.location",
+      "type": "java.lang.String",
+      "description": "配置文件的位置路径。",
+      "sourceType": "com.jiang.mall.config.MallConfigProperties",
+      "defaultValue": "/etc/mall/config/"
+    },
+    {
+      "name": "mall.config.mode",
+      "type": "java.lang.String",
+      "description": "配置文件保存方式，支持单文件（single）或多文件（files）。默认值为 files。",
+      "sourceType": "com.jiang.mall.config.MallConfigProperties",
+      "defaultValue": "files"
+    }
+  ],
+  "hints": [
+    {
+      "name": "mall.config.mode",
+      "values": [
+        {
+          "value": "single",
+          "description": "单文件模式，所有配置保存在一个文件中。"
+        },
+        {
+          "value": "files",
+          "description": "多文件模式，每个模块的配置保存在独立的文件中。"
+        }
+      ]
+    }
+  ]
+}

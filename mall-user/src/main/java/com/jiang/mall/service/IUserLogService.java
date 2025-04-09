@@ -49,5 +49,7 @@ public interface IUserLogService extends IService<UserLog> {
 	@SuppressWarnings("UnusedReturnValue")
 	boolean defaultLog(String username, String clientIp, String fingerprint , @NotNull UserStatus status, Map<String, Object> properties);
 
+	void defaultLogToMq(String username, String clientIp, String fingerprint , @NotNull UserStatus status, Map<String, Object> properties);
+
 	void oauthLoginLog(String username, UserStatus userStatus);
 }

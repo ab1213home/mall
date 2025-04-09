@@ -50,7 +50,7 @@ public class GeneralConfig {
     }
 
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties general_properties = new Properties();
     private String MACHINE_CODE = "";
     private boolean RUNNING_DOCKER = false;
 
@@ -70,11 +70,11 @@ public class GeneralConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                general_properties.load(input);
                 for (GeneralConfigItems item : GeneralConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!general_properties.containsKey(keyToCheck)) {
+                        general_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
                 }
@@ -94,7 +94,7 @@ public class GeneralConfig {
      * 保存配置文件
      */
     public void saveProperties() {
-        saveProperties(CONFIG_FILE_PATH, properties);
+        saveProperties(CONFIG_FILE_PATH, general_properties);
     }
 
     public void saveProperties(String configFilePath, Properties properties) {
@@ -122,7 +122,7 @@ public class GeneralConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (GeneralConfigItems item : GeneralConfigItems.values()){
-                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                    general_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -133,47 +133,47 @@ public class GeneralConfig {
     }
 
     public String getDateFormat() {
-        return properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue());
     }
 
     public String getTimeZone() {
-        return properties.getProperty(GeneralConfigItems.TIME_ZONE.getKey(), GeneralConfigItems.TIME_ZONE.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.TIME_ZONE.getKey(), GeneralConfigItems.TIME_ZONE.getDefaultValue());
     }
 
     public boolean isAllowModify() {
-        return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), GeneralConfigItems.ALLOW_MODIFY.getDefaultValue()));
+        return Boolean.parseBoolean(general_properties.getProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), GeneralConfigItems.ALLOW_MODIFY.getDefaultValue()));
     }
 
     public String getPhone() {
-        return properties.getProperty(GeneralConfigItems.MALL_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.MALL_PHONE.getKey(), GeneralConfigItems.MALL_PHONE.getDefaultValue());
     }
 
     public String getEmail() {
-        return properties.getProperty(GeneralConfigItems.MALL_EMAIL.getKey(), GeneralConfigItems.MALL_EMAIL.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.MALL_EMAIL.getKey(), GeneralConfigItems.MALL_EMAIL.getDefaultValue());
     }
 
     public String getAesSalt() {
-        return properties.getProperty(GeneralConfigItems.AES_SALT.getKey(), GeneralConfigItems.AES_SALT.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.AES_SALT.getKey(), GeneralConfigItems.AES_SALT.getDefaultValue());
     }
 
     public String getRegexEmail() {
-        return properties.getProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), GeneralConfigItems.REGEX_EMAIL.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), GeneralConfigItems.REGEX_EMAIL.getDefaultValue());
     }
 
     public String getRegexPhone() {
-        return properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.REGEX_PHONE.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.REGEX_PHONE.getKey(), GeneralConfigItems.REGEX_PHONE.getDefaultValue());
     }
 
     public String getRegexPassword() {
-        return properties.getProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), GeneralConfigItems.REGEX_PASSWORD.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), GeneralConfigItems.REGEX_PASSWORD.getDefaultValue());
     }
 
     public String getRegexUsername() {
-        return properties.getProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), GeneralConfigItems.REGEX_USERNAME.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), GeneralConfigItems.REGEX_USERNAME.getDefaultValue());
     }
 
     public String getRedisKeyPrefix() {
-        return properties.getProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), GeneralConfigItems.REDIS_KEY_PREFIX.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), GeneralConfigItems.REDIS_KEY_PREFIX.getDefaultValue());
     }
 
     public String getMachineCode() {
@@ -185,94 +185,94 @@ public class GeneralConfig {
     }
 
     public @NotNull DateTimeFormatter getDateFormatPattern() {
-        return DateTimeFormatter.ofPattern(properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue()));
+        return DateTimeFormatter.ofPattern(general_properties.getProperty(GeneralConfigItems.DATE_FORMAT.getKey(), GeneralConfigItems.DATE_FORMAT.getDefaultValue()));
     }
 
     public String getDomain() {
-        return properties.getProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), GeneralConfigItems.MALL_DOMAIN.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), GeneralConfigItems.MALL_DOMAIN.getDefaultValue());
     }
 
     public Boolean isDemoMode() {
-        return Boolean.parseBoolean(properties.getProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), GeneralConfigItems.MALL_DEMO_MODE.getDefaultValue()));
+        return Boolean.parseBoolean(general_properties.getProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), GeneralConfigItems.MALL_DEMO_MODE.getDefaultValue()));
     }
 
     public String getName() {
-        return properties.getProperty(GeneralConfigItems.MALL_NAME.getKey(), GeneralConfigItems.MALL_NAME.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.MALL_NAME.getKey(), GeneralConfigItems.MALL_NAME.getDefaultValue());
     }
 
     public String getRecord() {
-        return properties.getProperty(GeneralConfigItems.MALL_RECORD.getKey(), GeneralConfigItems.MALL_RECORD.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.MALL_RECORD.getKey(), GeneralConfigItems.MALL_RECORD.getDefaultValue());
     }
 
     public String getPhoneDefaultCountry() {
-        return properties.getProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), GeneralConfigItems.PHONE_COUNTRY_CODE.getDefaultValue());
+        return general_properties.getProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), GeneralConfigItems.PHONE_COUNTRY_CODE.getDefaultValue());
     }
 
     public void updateDateFormat(String format) {
-        properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
+        general_properties.setProperty(GeneralConfigItems.DATE_FORMAT.getKey(), format);
     }
 
     public void updateTimeZone(String zone) {
-        properties.setProperty(GeneralConfigItems.TIME_ZONE.getKey(), zone);
+        general_properties.setProperty(GeneralConfigItems.TIME_ZONE.getKey(), zone);
     }
 
     public void updateAllowModify(boolean allow) {
-        properties.setProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), String.valueOf(allow));
+        general_properties.setProperty(GeneralConfigItems.ALLOW_MODIFY.getKey(), String.valueOf(allow));
     }
 
     public void updatePhone(String phone) {
-        properties.setProperty(GeneralConfigItems.MALL_PHONE.getKey(), phone);
+        general_properties.setProperty(GeneralConfigItems.MALL_PHONE.getKey(), phone);
     }
 
     public void updateEmail(String email) {
-        properties.setProperty(GeneralConfigItems.MALL_EMAIL.getKey(), email);
+        general_properties.setProperty(GeneralConfigItems.MALL_EMAIL.getKey(), email);
     }
 
     public void updateAesSalt(String salt) {
-        properties.setProperty(GeneralConfigItems.AES_SALT.getKey(), salt);
+        general_properties.setProperty(GeneralConfigItems.AES_SALT.getKey(), salt);
     }
 
     public void updateRegexEmail(String regex) {
-        properties.setProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), regex);
+        general_properties.setProperty(GeneralConfigItems.REGEX_EMAIL.getKey(), regex);
     }
 
     public void updateRegexPhone(String regex) {
-        properties.setProperty(GeneralConfigItems.REGEX_PHONE.getKey(), regex);
+        general_properties.setProperty(GeneralConfigItems.REGEX_PHONE.getKey(), regex);
     }
 
     public void updateRegexPassword(String regex) {
-        properties.setProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), regex);
+        general_properties.setProperty(GeneralConfigItems.REGEX_PASSWORD.getKey(), regex);
     }
 
     public void updateRegexUsername(String regex) {
-        properties.setProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), regex);
+        general_properties.setProperty(GeneralConfigItems.REGEX_USERNAME.getKey(), regex);
     }
 
     public void updateRedisKeyPrefix(String prefix) {
-        properties.setProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), prefix);
+        general_properties.setProperty(GeneralConfigItems.REDIS_KEY_PREFIX.getKey(), prefix);
     }
 
     public void  updateDateFormatPattern(String pattern) {
-        properties.setProperty(GeneralConfigItems.DATE_FORMAT_PATTERN.getKey(), pattern);
+        general_properties.setProperty(GeneralConfigItems.DATE_FORMAT_PATTERN.getKey(), pattern);
     }
 
     public void updateDomain(String domain) {
-        properties.setProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), domain);
+        general_properties.setProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), domain);
     }
 
     public void updateDemoMode(boolean demoMode) {
-        properties.setProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), String.valueOf(demoMode));
+        general_properties.setProperty(GeneralConfigItems.MALL_DEMO_MODE.getKey(), String.valueOf(demoMode));
     }
 
     public void updateName(String name) {
-        properties.setProperty(GeneralConfigItems.MALL_NAME.getKey(), name);
+        general_properties.setProperty(GeneralConfigItems.MALL_NAME.getKey(), name);
     }
 
     public void updateRecord(String record) {
-        properties.setProperty(GeneralConfigItems.MALL_RECORD.getKey(), record);
+        general_properties.setProperty(GeneralConfigItems.MALL_RECORD.getKey(), record);
     }
 
     public void updatePhoneDefaultCountry(String code) {
-        properties.setProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), code);
+        general_properties.setProperty(GeneralConfigItems.PHONE_COUNTRY_CODE.getKey(), code);
     }
 }

@@ -42,7 +42,7 @@ public class CategoryConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties properties = new Properties();
+    private final Properties category_properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -58,11 +58,11 @@ public class CategoryConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                properties.load(input);
+                category_properties.load(input);
                 for (CategoryConfigItems item : CategoryConfigItems.values()) {
                     String keyToCheck = item.getKey();
-                    if (!properties.containsKey(keyToCheck)) {
-                        properties.setProperty(keyToCheck, item.getDefaultValue());
+                    if (!category_properties.containsKey(keyToCheck)) {
+                        category_properties.setProperty(keyToCheck, item.getDefaultValue());
                         saveProperties();
                     }
                 }
@@ -83,7 +83,7 @@ public class CategoryConfig {
      */
     public void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, category_properties);
     }
 
     /**
@@ -94,7 +94,7 @@ public class CategoryConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (CategoryConfigItems item : CategoryConfigItems.values()) {
-                    properties.setProperty(item.getKey(), item.getDefaultValue());
+                    category_properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -105,27 +105,27 @@ public class CategoryConfig {
     }
 
     public boolean isCategoryCacheEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), CategoryConfigItems.CATEGORY_CACHE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(category_properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), CategoryConfigItems.CATEGORY_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getCategoryCacheTime() {
-        return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), CategoryConfigItems.CATEGORY_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(category_properties.getProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), CategoryConfigItems.CATEGORY_CACHE_TIME.getDefaultValue()));
     }
 
 
     public Long getCategorySyncTime() {
-        return Long.parseLong(properties.getProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), CategoryConfigItems.CATEGORY_SYNC_TIME.getDefaultValue()));
+        return Long.parseLong(category_properties.getProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), CategoryConfigItems.CATEGORY_SYNC_TIME.getDefaultValue()));
     }
     public void updateCategoryCache(Boolean cache) {
-        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), String.valueOf(cache));
+        category_properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateCategoryCacheTime(Long time) {
-        properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), String.valueOf(time));
+        category_properties.setProperty(CategoryConfigItems.CATEGORY_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
     public void updateCategorySyncTime(Long time) {
-        properties.setProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), String.valueOf(time));
+        category_properties.setProperty(CategoryConfigItems.CATEGORY_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 
