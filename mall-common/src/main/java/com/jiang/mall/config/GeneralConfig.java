@@ -107,7 +107,7 @@ public class GeneralConfig {
         }
 
         try (OutputStream output = new FileOutputStream(configFilePath)) {
-            properties.store(output, "Updated by Mall");
+            properties.store(output, "Updated By Jiang Mall");
             logger.debug("配置文件保存成功: {}, 内容: {}", configFilePath,properties);
         } catch (IOException e) {
             logger.error("保存配置文件失败！路径: {}, 内容: {}", configFilePath,properties, e);

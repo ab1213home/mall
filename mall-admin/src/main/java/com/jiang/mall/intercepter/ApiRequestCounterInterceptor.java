@@ -33,8 +33,8 @@ public class ApiRequestCounterInterceptor implements HandlerInterceptor {
         }
 
         // 更新计数
-        requestCounts.put(requestURI, requestCounts.getOrDefault(requestURI, 0) + 1);
-        count++;
+//        requestCounts.put(requestURI, requestCounts.getOrDefault(requestURI, 0) + 1);
+//        count++;
         return true;
     }
 

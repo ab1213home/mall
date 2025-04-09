@@ -98,8 +98,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(apiInterceptor)
                 .addPathPatterns("/api/**");
 		// HTML拦截器
-		registry.addInterceptor(htmlInterceptor)
-				.addPathPatterns("/**");
+//		registry.addInterceptor(htmlInterceptor)
+//				.addPathPatterns("/**");
 		// Swagger权限拦截器
 		registry.addInterceptor(swaggerInterceptor).addPathPatterns("/swagger-ui/**");
     }

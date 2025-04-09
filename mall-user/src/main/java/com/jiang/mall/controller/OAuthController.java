@@ -16,8 +16,6 @@ package com.jiang.mall.controller;
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.config.GeneralConfig;
-import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
@@ -31,7 +29,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -39,7 +36,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-@Controller
+//@Controller
+@RestController
 @RequestMapping("/user/oauth")
 public class OAuthController {
 
@@ -62,20 +60,6 @@ public class OAuthController {
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
-	}
-
-	private GeneralConfig generalConfig;
-
-	@Autowired
-	public void setGeneralConfig(GeneralConfig generalConfig) {
-		this.generalConfig = generalConfig;
-	}
-
-	private UserConfig userConfig;
-
-	@Autowired
-	public void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
 	}
 
 	private II18nService i18nService;

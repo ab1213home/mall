@@ -122,7 +122,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	@Override
 	public Map<String, Object> getList() {
 		Map<String, Object> map = new HashMap<>();
-		if (oAuthConfig.getGiteeClientSecret()!=null&& oAuthConfig.getGiteeClientId()!=null){
+		if (oAuthConfig.isOAuthGiteeEnabled()){
 			Map<String,String> map_gitee = new HashMap<>();
 			map_gitee.put("login","/login/gitee");
 			map_gitee.put("bind","/bind/gitee");
@@ -130,7 +130,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			map_gitee.put("ico","/images/gitee.png");
 			map.put("gitee", map_gitee);
 		}
-		if (oAuthConfig.getGithubClientSecret()!=null&& oAuthConfig.getGithubClientId()!=null){
+		if (oAuthConfig.isOAuthGithubEnabled()){
 			Map<String,String> map_github = new HashMap<>();
 			map_github.put("login","/login/github");
 			map_github.put("bind","/bind/github");
