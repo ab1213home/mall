@@ -50,7 +50,7 @@ public class UserConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties user_properties = new Properties();
+    private final Properties properties = new Properties();
 
     @PostConstruct
     private void init() {
@@ -66,19 +66,19 @@ public class UserConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                user_properties.load(input);
+                properties.load(input);
                 for (UserConfigItems item : UserConfigItems.values()) {
                     String keyToCheck = item.getKey();
-                    if (!user_properties.containsKey(keyToCheck)) {
-                        user_properties.setProperty(keyToCheck, item.getDefaultValue());
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, item.getDefaultValue());
                         saveProperties();
                     }
                     if (item.getKey().equals(UserConfigItems.USER_DEFAULT_GROUP.getKey())) {
                         // 获取默认用户组
-                        long defaultGroup = Long.parseLong(user_properties.getProperty(item.getKey(), item.getDefaultValue()));
+                        long defaultGroup = Long.parseLong(properties.getProperty(item.getKey(), item.getDefaultValue()));
                         if (groupMapper.selectById(defaultGroup) == null) {
                             logger.warn("默认用户组不存在，新用户不关联用户组");
-                            user_properties.setProperty(item.getKey(), "-1");
+                            properties.setProperty(item.getKey(), "-1");
                             saveProperties();
                         }
                     }
@@ -100,7 +100,7 @@ public class UserConfig {
      */
     private void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, user_properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
@@ -111,7 +111,7 @@ public class UserConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (UserConfigItems item : UserConfigItems.values()) {
-                    user_properties.setProperty(item.getKey(), item.getDefaultValue());
+                    properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -122,99 +122,99 @@ public class UserConfig {
     }
 
     public int getUserMaxTry() {
-        return Integer.parseInt(user_properties.getProperty(UserConfigItems.USER_MAX_TRY.getKey(), UserConfigItems.USER_MAX_TRY.getDefaultValue()));
+        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_TRY.getKey(), UserConfigItems.USER_MAX_TRY.getDefaultValue()));
     }
 
     public int getUserMaxAddress() {
-        return Integer.parseInt(user_properties.getProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), UserConfigItems.USER_MAX_ADDRESS.getDefaultValue()));
+        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), UserConfigItems.USER_MAX_ADDRESS.getDefaultValue()));
     }
 
     public long getDefaultGroup() {
-        return Long.parseLong(user_properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
     }
 
     public long getSessionTimeout() {
-        return Long.parseLong(user_properties.getProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), UserConfigItems.USER_SESSION_TIMEOUT.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), UserConfigItems.USER_SESSION_TIMEOUT.getDefaultValue()));
     }
 
     public boolean isRegisterEnabled() {
-        return Boolean.parseBoolean(user_properties.getProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), UserConfigItems.USER_REGISTER_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), UserConfigItems.USER_REGISTER_ENABLED.getDefaultValue()));
     }
 
     public String getGithubClientId() {
-        return user_properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getDefaultValue());
+        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getDefaultValue());
     }
 
     public String getGithubClientSecret() {
-        return user_properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getDefaultValue());
+        return properties.getProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getDefaultValue());
     }
 
     public String getGiteeClientId() {
-        return user_properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_ID.getDefaultValue());
+        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_ID.getDefaultValue());
     }
 
     public String getGiteeClientSecret() {
-        return user_properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
+        return properties.getProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
     }
 
     public boolean isUserRedisEncryption() {
-        return Boolean.parseBoolean(user_properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
     }
 
     public void updateUserMaxTry(int num) {
-        user_properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
+        properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
     }
 
     public void updateUserMaxAddress(int num) {
-        user_properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
+        properties.setProperty(UserConfigItems.USER_MAX_ADDRESS.getKey(), String.valueOf(num));
     }
 
     public boolean isOAuthGithubEnabled() {
-        return Boolean.parseBoolean(user_properties.getProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), UserConfigItems.OAUTH_GITHUE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), UserConfigItems.OAUTH_GITHUE_ENABLED.getDefaultValue()));
     }
 
     public boolean isOAuthGiteeEnabled() {
-        return Boolean.parseBoolean(user_properties.getProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), UserConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), UserConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
     }
 
     public void updateRegisterEnabled(boolean enabled) {
-        user_properties.setProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), String.valueOf(enabled));
+        properties.setProperty(UserConfigItems.USER_REGISTER_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateDefaultGroup(long group) {
-        user_properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
+        properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
     }
 
     public void updateSessionTimeout(long timeout) {
-        user_properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
+        properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
     }
 
     public void updateGithubClientId(String clientId) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
     }
 
     public void updateGithubClientSecret(String clientSecret) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), clientSecret);
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), clientSecret);
     }
 
     public void updateGiteeClientId(String clientId) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), clientId);
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), clientId);
     }
 
     public void updateGiteeClientSecret(String clientSecret) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
     }
 
     public void updateUserRedisEncryption(boolean encryption) {
-        user_properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
+        properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
     public void updateOAuthGithubEnabled(boolean enabled) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), String.valueOf(enabled));
+        properties.setProperty(UserConfigItems.OAUTH_GITHUE_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateOAuthGiteeEnabled(boolean enabled) {
-        user_properties.setProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
+        properties.setProperty(UserConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public @NotNull UserSettingVo getSetting() {

@@ -14,7 +14,6 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.BannerConfigItems;
-import com.jiang.mall.domain.enums.CaptchaConfigItems;
 import com.jiang.mall.domain.vo.BannerSettingVo;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +42,7 @@ public class BannerConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties banner_properties = new Properties();
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -59,11 +58,11 @@ public class BannerConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                banner_properties.load(input);
-                for (CaptchaConfigItems item : CaptchaConfigItems.values()){
+                properties.load(input);
+                for (BannerConfigItems item : BannerConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!banner_properties.containsKey(keyToCheck)) {
-                        banner_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
                 }
@@ -84,7 +83,7 @@ public class BannerConfig {
      */
     public void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, banner_properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
@@ -95,7 +94,7 @@ public class BannerConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (BannerConfigItems item : BannerConfigItems.values()){
-                    banner_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                    properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -111,7 +110,7 @@ public class BannerConfig {
      * @return 如果轮播图缓存功能已启用，则返回true；否则返回false
      */
     public boolean isBannerCacheEnabled() {
-        return Boolean.parseBoolean(banner_properties.getProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(), BannerConfigItems.BANNER_CACHE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(), BannerConfigItems.BANNER_CACHE_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -123,11 +122,11 @@ public class BannerConfig {
      * @return 轮播图同步时间，以毫秒为单位如果无法解析属性或属性不存在，则返回默认值60000毫秒
      */
     public Long getBannerSyncTime() {
-        return Long.parseLong(banner_properties.getProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), BannerConfigItems.BANNER_SYNC_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), BannerConfigItems.BANNER_SYNC_TIME.getDefaultValue()));
     }
 
     public Long getBannerCacheTime() {
-        return Long.parseLong(banner_properties.getProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), BannerConfigItems.BANNER_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), BannerConfigItems.BANNER_CACHE_TIME.getDefaultValue()));
     }
 
     /**
@@ -138,7 +137,7 @@ public class BannerConfig {
      */
     public void updateBannerCache(boolean enabled) {
         // 设置是否允许缓存Banner的属性值
-        banner_properties.setProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(),String.valueOf(enabled));
+        properties.setProperty(BannerConfigItems.BANNER_CACHE_ENABLED.getKey(),String.valueOf(enabled));
     }
 
     /**
@@ -150,11 +149,11 @@ public class BannerConfig {
      */
     public void updateBannerSyncTime(Long seconds) {
         // 将横幅同步时间以字符串形式设置到属性文件中
-        banner_properties.setProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), String.valueOf(seconds));
+        properties.setProperty(BannerConfigItems.BANNER_SYNC_TIME.getKey(), String.valueOf(seconds));
     }
 
     public void updateBannerCacheTime(Long seconds) {
-        banner_properties.setProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), String.valueOf(seconds));
+        properties.setProperty(BannerConfigItems.BANNER_CACHE_TIME.getKey(), String.valueOf(seconds));
     }
 
     public @NotNull BannerSettingVo getSetting() {

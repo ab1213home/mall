@@ -40,7 +40,7 @@ public class CoreConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties core_properties = new Properties();
+    private final Properties properties = new Properties();
 
     @PostConstruct
     public void init() {
@@ -56,11 +56,11 @@ public class CoreConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                core_properties.load(input);
+                properties.load(input);
                 for (CoreConfigItems item : CoreConfigItems.values()) {
                     String keyToCheck = item.getKey();
-                    if (!core_properties.containsKey(keyToCheck)) {
-                        core_properties.setProperty(keyToCheck, item.getDefaultValue());
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, item.getDefaultValue());
                         saveProperties();
                     }
                 }
@@ -81,7 +81,7 @@ public class CoreConfig {
      */
     public void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, core_properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
@@ -92,7 +92,7 @@ public class CoreConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (CoreConfigItems item : CoreConfigItems.values()) {
-                    core_properties.setProperty(item.getKey(), item.getDefaultValue());
+                    properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -103,27 +103,27 @@ public class CoreConfig {
     }
 
     public boolean isCartCacheEnabled() {
-        return Boolean.parseBoolean(core_properties.getProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), CoreConfigItems.CART_CACHE_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), CoreConfigItems.CART_CACHE_ENABLED.getDefaultValue()));
     }
 
     public Long getCartCacheTime() {
-        return Long.parseLong(core_properties.getProperty(CoreConfigItems.CART_CACHE_TIME.getKey(),CoreConfigItems.CART_CACHE_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(CoreConfigItems.CART_CACHE_TIME.getKey(),CoreConfigItems.CART_CACHE_TIME.getDefaultValue()));
     }
 
     public Long getCartSyncTime() {
-        return Long.parseLong(core_properties.getProperty(CoreConfigItems.CART_SYNC_TIME.getKey(),CoreConfigItems.CART_SYNC_TIME.getDefaultValue()));
+        return Long.parseLong(properties.getProperty(CoreConfigItems.CART_SYNC_TIME.getKey(),CoreConfigItems.CART_SYNC_TIME.getDefaultValue()));
     }
 
     public void updateCartCache(Boolean cache) {
-        core_properties.setProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), String.valueOf(cache));
+        properties.setProperty(CoreConfigItems.CART_CACHE_ENABLED.getKey(), String.valueOf(cache));
     }
 
     public void updateCartCacheTime(Long time) {
-        core_properties.setProperty(CoreConfigItems.CART_CACHE_TIME.getKey(), String.valueOf(time));
+        properties.setProperty(CoreConfigItems.CART_CACHE_TIME.getKey(), String.valueOf(time));
     }
 
     public void updateCartSyncTime(Long time) {
-        core_properties.setProperty(CoreConfigItems.CART_SYNC_TIME.getKey(), String.valueOf(time));
+        properties.setProperty(CoreConfigItems.CART_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
 }

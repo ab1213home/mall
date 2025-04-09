@@ -43,7 +43,7 @@ public class SmsConfig {
 
     // 指向外部配置文件
     private String CONFIG_FILE_PATH;
-    private final Properties sms_properties = new Properties();
+    private final Properties properties = new Properties();
 
     @PostConstruct
     private void init() throws Exception {
@@ -66,10 +66,10 @@ public class SmsConfig {
 
     private @NotNull Client getEmailConfig() throws Exception {
         com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
-                .setAccessKeyId(sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue()))
-                .setAccessKeySecret(sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue()));
+                .setAccessKeyId(properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue()))
+                .setAccessKeySecret(properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue()));
         // Endpoint 请参考 https://api.aliyun.com/product/Dysmsapi
-        config.endpoint = sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), SmsConfigItems.NOTICE_SMS_ENDPOINT.getDefaultValue());
+        config.endpoint = properties.getProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), SmsConfigItems.NOTICE_SMS_ENDPOINT.getDefaultValue());
         return new Client(config);
     }
 
@@ -80,11 +80,11 @@ public class SmsConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                sms_properties.load(input);
+                properties.load(input);
                 for (SmsConfigItems item : SmsConfigItems.values()){
                     String keyToCheck = item.getKey();
-                    if (!sms_properties.containsKey(keyToCheck)) {
-                        sms_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                    if (!properties.containsKey(keyToCheck)) {
+                        properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                         saveProperties();
                     }
                 }
@@ -104,7 +104,7 @@ public class SmsConfig {
      * 保存配置文件
      */
     public void saveProperties() {
-        generalConfig.saveProperties(CONFIG_FILE_PATH, sms_properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
@@ -115,7 +115,7 @@ public class SmsConfig {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
                 for (SmsConfigItems item : SmsConfigItems.values()){
-                    sms_properties.setProperty(item.getKey(), item.getDefaultValue());
+                    properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
                 logger.debug("已创建默认配置文件: {}", CONFIG_FILE_PATH);
@@ -126,59 +126,59 @@ public class SmsConfig {
     }
 
     public boolean isSendPhoneEnabled() {
-        return Boolean.parseBoolean(sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ENABLED.getKey(), SmsConfigItems.NOTICE_SMS_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(SmsConfigItems.NOTICE_SMS_ENABLED.getKey(), SmsConfigItems.NOTICE_SMS_ENABLED.getDefaultValue()));
     }
 
     public String getAccessKeyId() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getDefaultValue());
     }
 
     public String getAccessKeySecret() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getDefaultValue());
     }
 
     public String getEndpoint() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), SmsConfigItems.NOTICE_SMS_ENDPOINT.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), SmsConfigItems.NOTICE_SMS_ENDPOINT.getDefaultValue());
     }
 
     public String getSignName() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_SIGN_NAME.getKey(), SmsConfigItems.NOTICE_SMS_SIGN_NAME.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_SIGN_NAME.getKey(), SmsConfigItems.NOTICE_SMS_SIGN_NAME.getDefaultValue());
     }
 
     public String getSenderId() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_SENDER_ID.getKey(), SmsConfigItems.NOTICE_SMS_SENDER_ID.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_SENDER_ID.getKey(), SmsConfigItems.NOTICE_SMS_SENDER_ID.getDefaultValue());
     }
 
     public String getUpCode() {
-        return sms_properties.getProperty(SmsConfigItems.NOTICE_SMS_UP_CODE.getKey(), SmsConfigItems.NOTICE_SMS_UP_CODE.getDefaultValue());
+        return properties.getProperty(SmsConfigItems.NOTICE_SMS_UP_CODE.getKey(), SmsConfigItems.NOTICE_SMS_UP_CODE.getDefaultValue());
     }
 
     public void updateAccessKeyId(String accessKeyId) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), accessKeyId);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_ID.getKey(), accessKeyId);
     }
 
     public void updateAccessKeySecret(String accessKeySecret) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), accessKeySecret);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_ACCESS_KEY_SECRET.getKey(), accessKeySecret);
     }
 
     public void updateEndpoint(String endpoint) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), endpoint);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_ENDPOINT.getKey(), endpoint);
     }
 
     public void updateSendPhoneEnabled(boolean enabled) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_ENABLED.getKey(), String.valueOf(enabled));
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_ENABLED.getKey(), String.valueOf(enabled));
     }
 
     public void updateSignName(String signName) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_SIGN_NAME.getKey(), signName);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_SIGN_NAME.getKey(), signName);
     }
 
     public void updateSenderId(String senderId) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_SENDER_ID.getKey(), senderId);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_SENDER_ID.getKey(), senderId);
     }
 
     public void updateUpCode(String upCode) {
-        sms_properties.setProperty(SmsConfigItems.NOTICE_SMS_UP_CODE.getKey(), upCode);
+        properties.setProperty(SmsConfigItems.NOTICE_SMS_UP_CODE.getKey(), upCode);
     }
 
 

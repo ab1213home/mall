@@ -50,7 +50,7 @@ public class FileConfig {
 
     // 指向外部配置文件
     private  String CONFIG_FILE_PATH;
-    private final Properties file_properties = new Properties();
+    private final Properties properties = new Properties();
 
     @PostConstruct
     private void init() throws IOException {
@@ -73,22 +73,22 @@ public class FileConfig {
         File configFile = new File(CONFIG_FILE_PATH);
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
-                file_properties.load(input);
+                properties.load(input);
                 for (FileConfigItems item : FileConfigItems.values()) {
                     if (item.isCheck()){
                         String keyToCheck = item.getKey();
-                        if (!file_properties.containsKey(keyToCheck)) {
-                            file_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                        if (!properties.containsKey(keyToCheck)) {
+                            properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                             saveProperties();
                         }
                     }
                 }
-                if (!file_properties.containsKey(FileConfigItems.STORAGE_NAME.getKey())){
+                if (!properties.containsKey(FileConfigItems.STORAGE_NAME.getKey())){
                     createDefaultConfig();
                     return;
                 }
                 // 分割属性以获取存储名称数组
-                List<String> storageName = Arrays.stream(file_properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(","))
+                List<String> storageName = Arrays.stream(properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(","))
                         .filter(s -> !s.isEmpty())
                         .toList();
                 // 初始化第一个默认存储配置标志
@@ -101,21 +101,21 @@ public class FileConfig {
                 }
                 for (String name : storageName) {
                     // 获取当前存储的类型
-                    String type = file_properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
+                    String type = properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
                     // 解析当前存储是否为默认存储
-                    boolean isDefault = Boolean.parseBoolean(file_properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
+                    boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
                     // 检查是否存在多个默认存储配置
                     if (first == 0 && isDefault){
                         logger.warn("存在多个默认储存配置{}",name);
-                        file_properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
                     }
                     // 根据存储类型检查具体的配置
                     if (type.equals(StorageType.LOCAL.getKey())) {
                         // 检查本地存储配置
                         for (LocalConfigItems item : LocalConfigItems.values()) {
                             String keyToCheck = name+item.getKey();
-                            if (!file_properties.containsKey(keyToCheck)) {
-                                file_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                            if (!properties.containsKey(keyToCheck)) {
+                                properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                                 saveProperties();
                             }
                         }
@@ -123,8 +123,8 @@ public class FileConfig {
                         // 检查S3存储配置
                         for (S3ConfigItems item : S3ConfigItems.values()) {
                             String keyToCheck = name+item.getKey();
-                            if (!file_properties.containsKey(keyToCheck)) {
-                                file_properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
+                            if (!properties.containsKey(keyToCheck)) {
+                                properties.setProperty(keyToCheck, String.valueOf(item.getDefaultValue()));
                                 saveProperties();
                             }
                         }
@@ -154,7 +154,7 @@ public class FileConfig {
      */
     private void saveProperties() {
         // 确保目录存在
-        generalConfig.saveProperties(CONFIG_FILE_PATH, file_properties);
+        generalConfig.saveProperties(CONFIG_FILE_PATH, properties);
     }
 
     /**
@@ -166,10 +166,10 @@ public class FileConfig {
             if (configFile.createNewFile()) {
                 for (FileConfigItems item : FileConfigItems.values()) {
                     if (item.isCheck()){
-                        file_properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
+                        properties.setProperty(item.getKey(), String.valueOf(item.getDefaultValue()));
                     }
                 }
-                file_properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(),FileConfigItems.STORAGE_NAME.getDefaultValue() );
+                properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(),FileConfigItems.STORAGE_NAME.getDefaultValue() );
                 String defaultUploadPath = System.getProperty("user.home") + File.separator + "upload" + File.separator;
                 LocalSetting localSetting = new LocalSetting( FileConfigItems.STORAGE_NAME.getDefaultValue() ,defaultUploadPath,true,-1);
                 createLocalConfig(localSetting);
@@ -185,23 +185,23 @@ public class FileConfig {
      * 创建本地储存配置
      */
     private void createLocalConfig(@NotNull LocalSetting localSetting) {
-        file_properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
-        file_properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_ROOT_PATH.getKey(),localSetting.getPath());
-        file_properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
-        file_properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(localSetting.isDefault()));
+        properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_TYPE.getKey(), StorageType.LOCAL.getKey());
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_ROOT_PATH.getKey(),localSetting.getPath());
+        properties.setProperty(localSetting.getName()+ LocalConfigItems.LOCAL_MAX_SIZE.getKey(), String.valueOf(localSetting.getMaxSize()));
+        properties.setProperty(localSetting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(localSetting.isDefault()));
     }
 
     /**
      * 创建对象储存配置
      */
     private void createS3Config(@NotNull S3Setting s3Setting) {
-        file_properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
-        file_properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
-        file_properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
-        file_properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_SECRET_KEY.getKey(),s3Setting.getSecretKey());
-        file_properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_BUCKET.getKey(),s3Setting.getBucket());
-        file_properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_REGION.getKey(),s3Setting.getRegion());
-        file_properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(s3Setting.isDefault()));
+        properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_TYPE.getKey(),StorageType.S3.getKey());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ENDPOINT.getKey(),s3Setting.getEndpoint());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_ACCESS_KEY.getKey(),s3Setting.getAccessKey());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_SECRET_KEY.getKey(),s3Setting.getSecretKey());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_BUCKET.getKey(),s3Setting.getBucket());
+        properties.setProperty(s3Setting.getName()+ S3ConfigItems.S3_REGION.getKey(),s3Setting.getRegion());
+        properties.setProperty(s3Setting.getName()+FileConfigItems.STORAGE_DEFAULT.getKey(), String.valueOf(s3Setting.isDefault()));
     }
 
     /**
@@ -211,7 +211,7 @@ public class FileConfig {
      * @param enabled 如果允许上传文件，则设置为true；否则设置为false
      */
     public void updateFileUploadEnabled(boolean enabled) {
-        file_properties.setProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), String.valueOf(enabled));
+        properties.setProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), String.valueOf(enabled));
         saveProperties();
         loadProperties();
     }
@@ -225,7 +225,7 @@ public class FileConfig {
      * @return boolean 表示是否允许上传文件true表示允许，false表示不允许
      */
     public boolean getFileUploadEnabled() {
-        return Boolean.parseBoolean(file_properties.getProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), FileConfigItems.FILE_UPLOAD_ENABLED.getDefaultValue()));
+        return Boolean.parseBoolean(properties.getProperty(FileConfigItems.FILE_UPLOAD_ENABLED.getKey(), FileConfigItems.FILE_UPLOAD_ENABLED.getDefaultValue()));
     }
 
     /**
@@ -238,7 +238,7 @@ public class FileConfig {
      */
     public Set<String> getImageSuffix() {
         // 从配置属性中获取图片后缀字符串，如果没有设置，则使用默认值
-        String imageSuffixStr = file_properties.getProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), FileConfigItems.IMAGE_SUFFIX.getDefaultValue());
+        String imageSuffixStr = properties.getProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), FileConfigItems.IMAGE_SUFFIX.getDefaultValue());
         // 将后缀字符串按逗号分割，去除前后空格，然后收集到一个集合中
         return Stream.of(imageSuffixStr.split(",")).map(String::trim).collect(Collectors.toSet());
     }
@@ -263,7 +263,7 @@ public class FileConfig {
             }
         }
         // 将有效的图片后缀字符串保存到配置文件中
-        file_properties.setProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), sb.toString());
+        properties.setProperty(FileConfigItems.IMAGE_SUFFIX.getKey(), sb.toString());
         // 保存并重新加载配置文件，以确保更改生效
         saveProperties();
         loadProperties();
@@ -277,7 +277,7 @@ public class FileConfig {
      */
     public @NotNull List<StorageConfig> getStorageConfig() throws IOException {
         // 分割属性以获取存储名称数组
-        String[] storageName = file_properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
+        String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
         // 初始化存储配置列表
         List<StorageConfig> storageConfigList = new ArrayList<>();
         // 初始化第一个默认存储配置标志
@@ -286,19 +286,19 @@ public class FileConfig {
         // 遍历每个存储名称以构建其配置
         for (String name : storageName) {
             // 获取当前存储的类型
-            String type = file_properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
+            String type = properties.getProperty(name+FileConfigItems.STORAGE_TYPE.getKey());
             // 根据类型创建存储配置对象
             StorageConfig storageConfig = new StorageConfig();
             // 解析当前存储是否为默认存储
-            boolean isDefault = Boolean.parseBoolean(file_properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
+            boolean isDefault = Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()));
 
             // 根据存储类型构建具体的配置
             if (type.equals(StorageType.LOCAL.getKey())) {
                 // 构建本地存储配置
                 LocalSetting localSetting = new LocalSetting();
                 localSetting.setName(name);
-                localSetting.setPath(file_properties.getProperty(name + LocalConfigItems.LOCAL_ROOT_PATH.getKey()));
-                localSetting.setMaxSize(Long.parseLong(file_properties.getProperty(name + LocalConfigItems.LOCAL_MAX_SIZE.getKey())));
+                localSetting.setPath(properties.getProperty(name + LocalConfigItems.LOCAL_ROOT_PATH.getKey()));
+                localSetting.setMaxSize(Long.parseLong(properties.getProperty(name + LocalConfigItems.LOCAL_MAX_SIZE.getKey())));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置(local){}",name);
@@ -312,11 +312,11 @@ public class FileConfig {
                 // 构建S3存储配置
                 S3Setting s3Setting = new S3Setting();
                 s3Setting.setName(name);
-                s3Setting.setEndpoint(file_properties.getProperty(name + S3ConfigItems.S3_ENDPOINT.getKey()));
-                s3Setting.setAccessKey(file_properties.getProperty(name + S3ConfigItems.S3_ACCESS_KEY.getKey()));
-                s3Setting.setSecretKey(file_properties.getProperty(name + S3ConfigItems.S3_SECRET_KEY.getKey()));
-                s3Setting.setBucket(file_properties.getProperty(name + S3ConfigItems.S3_BUCKET.getKey()));
-                s3Setting.setRegion(file_properties.getProperty(name + S3ConfigItems.S3_REGION.getKey()));
+                s3Setting.setEndpoint(properties.getProperty(name + S3ConfigItems.S3_ENDPOINT.getKey()));
+                s3Setting.setAccessKey(properties.getProperty(name + S3ConfigItems.S3_ACCESS_KEY.getKey()));
+                s3Setting.setSecretKey(properties.getProperty(name + S3ConfigItems.S3_SECRET_KEY.getKey()));
+                s3Setting.setBucket(properties.getProperty(name + S3ConfigItems.S3_BUCKET.getKey()));
+                s3Setting.setRegion(properties.getProperty(name + S3ConfigItems.S3_REGION.getKey()));
                 // 检查是否存在多个默认存储配置
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置(s3){}",name);
@@ -341,11 +341,11 @@ public class FileConfig {
                 storageConfig.setName(name);
             }else if (type.equals(StorageType.FTP.getKey())){
                 FtpSetting ftpSetting = new FtpSetting();
-                ftpSetting.setHost(file_properties.getProperty(name + FtpConfigItems.FTP_HOST.getKey()));
-                ftpSetting.setPort(Integer.parseInt(file_properties.getProperty(name + FtpConfigItems.FTP_PORT.getKey())));
-                ftpSetting.setUsername(file_properties.getProperty(name + FtpConfigItems.FTP_USERNAME.getKey()));
-                ftpSetting.setPassword(file_properties.getProperty(name + FtpConfigItems.FTP_PASSWORD.getKey()));
-                ftpSetting.setRootPath(file_properties.getProperty(name + FtpConfigItems.FTP_ROOT_PATH.getKey()));
+                ftpSetting.setHost(properties.getProperty(name + FtpConfigItems.FTP_HOST.getKey()));
+                ftpSetting.setPort(Integer.parseInt(properties.getProperty(name + FtpConfigItems.FTP_PORT.getKey())));
+                ftpSetting.setUsername(properties.getProperty(name + FtpConfigItems.FTP_USERNAME.getKey()));
+                ftpSetting.setPassword(properties.getProperty(name + FtpConfigItems.FTP_PASSWORD.getKey()));
+                ftpSetting.setRootPath(properties.getProperty(name + FtpConfigItems.FTP_ROOT_PATH.getKey()));
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置(ftp){}",name);
                     ftpSetting.setDefault(false);
@@ -361,11 +361,11 @@ public class FileConfig {
                 storageConfig.setName(name);
             }else if (type.equals(StorageType.SFTP.getKey())){
                 SftpSetting sftpSetting = new SftpSetting();
-                sftpSetting.setHost(file_properties.getProperty(name + SftpConfigItems.SFTP_HOST.getKey()));
-                sftpSetting.setPort(Integer.parseInt(file_properties.getProperty(name + SftpConfigItems.SFTP_PORT.getKey())));
-                sftpSetting.setUsername(file_properties.getProperty(name + SftpConfigItems.SFTP_USERNAME.getKey()));
-                sftpSetting.setPassword(file_properties.getProperty(name + SftpConfigItems.SFTP_PASSWORD.getKey()));
-                sftpSetting.setRootPath(file_properties.getProperty(name + SftpConfigItems.SFTP_ROOT_PATH.getKey()));
+                sftpSetting.setHost(properties.getProperty(name + SftpConfigItems.SFTP_HOST.getKey()));
+                sftpSetting.setPort(Integer.parseInt(properties.getProperty(name + SftpConfigItems.SFTP_PORT.getKey())));
+                sftpSetting.setUsername(properties.getProperty(name + SftpConfigItems.SFTP_USERNAME.getKey()));
+                sftpSetting.setPassword(properties.getProperty(name + SftpConfigItems.SFTP_PASSWORD.getKey()));
+                sftpSetting.setRootPath(properties.getProperty(name + SftpConfigItems.SFTP_ROOT_PATH.getKey()));
                 if (first == 0 && isDefault){
                     logger.error("存在多个默认储存配置(sftp){}",name);
                     sftpSetting.setDefault(false);
@@ -402,7 +402,7 @@ public class FileConfig {
      */
     public void updateStorageConfig(@NotNull StorageConfig _storageConfig) throws IOException {
         // 获取系统中已配置的存储名称列表
-        String[] storageName = file_properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
+        String[] storageName = properties.getProperty(FileConfigItems.STORAGE_NAME.getKey()).split(",");
 
         // 处理本地存储配置
         if (_storageConfig.getConfig() instanceof LocalSetting localSetting){
@@ -413,9 +413,9 @@ public class FileConfig {
                     if (name.equals(localSetting.getName())){
                         continue;
                     }
-                    if (Boolean.parseBoolean(file_properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
+                    if (Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
                         logger.error("存在多个默认储存配置{}，新配置取代旧默认配置文件",name);
-                        file_properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
                     }
                 }
             }
@@ -423,7 +423,7 @@ public class FileConfig {
             createLocalConfig(localSetting);
             //检查名字是否存在，不存在追加
             if (!Arrays.asList(storageName).contains(localSetting.getName())){
-                file_properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), file_properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+localSetting.getName());
+                properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+localSetting.getName());
             }
             // 保存并加载配置
             saveProperties();
@@ -436,16 +436,16 @@ public class FileConfig {
                     if (name.equals(s3Setting.getName())){
                         continue;
                     }
-                    if (Boolean.parseBoolean(file_properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
+                    if (Boolean.parseBoolean(properties.getProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey()))){
                         logger.error("存在多个默认储存配置{}，新配置取代旧默认配置文件",name);
-                        file_properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
+                        properties.setProperty(name+FileConfigItems.STORAGE_DEFAULT.getKey(),"false");
                     }
                 }
                 // 创建或更新S3存储配置
                 createS3Config(s3Setting);
                 //检查名字是否存在，不存在追加
                 if (!Arrays.asList(storageName).contains(s3Setting.getName())){
-                    file_properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), file_properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+s3Setting.getName());
+                    properties.setProperty(FileConfigItems.STORAGE_NAME.getKey(), properties.getProperty(FileConfigItems.STORAGE_NAME.getKey())+","+s3Setting.getName());
                 }
                 // 保存并加载配置
                 saveProperties();
