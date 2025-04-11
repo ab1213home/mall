@@ -80,6 +80,12 @@
             <artifactId>mall-banner</artifactId>
         </dependency>
 
+        <!-- 压缩 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.jiang</groupId>
             <artifactId>mall-core</artifactId>

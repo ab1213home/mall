@@ -55,9 +55,10 @@
             <artifactId>dysmsapi20180501</artifactId>
         </dependency>
 
+        <!--模板引擎-->
         <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-sse</artifactId>
+            <groupId>com.ibeetl</groupId>
+            <artifactId>beetl</artifactId>
         </dependency>
 
         <dependency>

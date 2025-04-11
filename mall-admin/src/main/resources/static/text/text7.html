@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright (c) 2024 Jiang RongJun
+  ~ Jiang Mall is licensed under Mulan PSL v2.
+  ~ You can use this software according to the terms and conditions of the Mulan
+  ~ PSL v2.
+  ~ You may obtain a copy of Mulan PSL v2 at:
+  ~          http://license.coscl.org.cn/MulanPSL2
+  ~ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+  ~ KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+  ~ See the Mulan PSL v2 for more details.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="con"></div>
+<script>
+    let chat = document.getElementById("con");
+    if (window.EventSource) {
+        //创建sse
+         eventSource = new EventSource(`/web/create?uid=${uid}`);
+        eventSource.onopen = function (event) {
+            console.log('SSE链接成功');
+        }
+        eventSource.onmessage = function (event) {
+            if(event.data){
+                chat.innerHTML += event.data + '<br/>';
+                //console.log('后端返回的数据:', data.value);
+            }
+        }
+        eventSource.onerror = (error) => {
+            console.log('SSE链接失败');
+        };
+    } else {
+        alert("你的浏览器不支持SSE");
+    }
+</script>
+</body>
+</html>

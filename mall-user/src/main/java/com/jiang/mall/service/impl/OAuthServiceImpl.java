@@ -97,15 +97,23 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		redisService.setAuthCsrf(random);
 		String state = String.format("action:%s:%s", action.getName(), random);
 		if (provider == OAuthProvider.GITHUB){
-			url = provider.getAuthUrl()+
-                "?client_id=" + oAuthConfig.getGithubClientId() +
-                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8) +
-				"&response_type=code&state="+state;
+			url = String.format("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
+					oAuthConfig.getGithubClientId(),
+					URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8),
+					state);
+//			url = provider.getAuthUrl()+
+//                "?client_id=" + oAuthConfig.getGithubClientId() +
+//                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8) +
+//				"&response_type=code&state="+state;
 		}else if (provider == OAuthProvider.GITEE){
-			url = provider.getAuthUrl()+
-                "?client_id=" + oAuthConfig.getGiteeClientId() +
-                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8) +
-                "&response_type=code&scope=user_info&state="+state;
+			url = String.format("https://gitee.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=user_info&state=%s",
+					oAuthConfig.getGiteeClientId(),
+					URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8),
+					state);
+//			url = provider.getAuthUrl()+
+//                "?client_id=" + oAuthConfig.getGiteeClientId() +
+//                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8) +
+//                "&response_type=code&scope=user_info&state="+state;
 		}
 		return url;
 	}

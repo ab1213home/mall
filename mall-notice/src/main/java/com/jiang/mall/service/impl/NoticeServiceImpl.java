@@ -148,7 +148,17 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	private static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
-        // 遍历 properties 映射，替换模板字符串中的相应内容
+		//初始化代码
+//		StringTemplateResourceLoader resourceLoader = new StringTemplateResourceLoader();
+//		Configuration cfg = Configuration.defaultConfiguration();
+//		GroupTemplate gt = new GroupTemplate(resourceLoader, cfg);
+//		//获取模板
+//		Template t = gt.getTemplate("hello,${name}");
+//		t.binding("name", "beetl");
+//		//渲染结果
+//		String str = t.render();
+//		System.out.println(str);
+		// 遍历 properties 映射，替换模板字符串中的相应内容
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();

@@ -22,12 +22,12 @@ import java.util.Objects;
 public enum OAuthProvider {
 	GITHUB( 0,
             "gitHub",
-            "https://github.com/login/oauth/authorize",
+            "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
             "https://github.com/login/oauth/access_token",
             "https://api.github.com/user"),
     GITEE(  1,
             "gitee",
-            "https://gitee.com/oauth/authorize",
+            "https://gitee.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=user_info&state=%s",
             "https://gitee.com/oauth/token",
             "https://gitee.com/api/v5/user");
 

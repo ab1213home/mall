@@ -75,6 +75,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <!--拼音-->
+        <dependency>
+            <groupId>io.github.biezhi</groupId>
+            <artifactId>TinyPinyin</artifactId>
+        </dependency>
+
         <!-- redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -19,6 +19,7 @@ import lombok.Getter;
 public enum EmailConfigItems {
 	NOTICE_EMAIL_HOST("notice.email.host", "邮件服务器地址", "smtp.example.com"),
 	NOTICE_EMAIL_PORT("notice.email.port", "邮件服务器端口", "465"),
+	NOTICE_EMAIL_FROM("notice.email.from", "邮件发送人", "mall@example.com"),
 	NOTICE_EMAIL_AUTH("notice.email.auth", "邮件服务器是否需要验证", "true"),
 	NOTICE_EMAIL_TLS("notice.email.tls", "邮件服务器是否需要开启TLS", "true"),
 	NOTICE_EMAIL_USERNAME("notice.email.username", "邮件服务器用户名", "mall@example.com"),
