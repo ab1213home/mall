@@ -14,6 +14,7 @@
 package com.jiang.mall.annotation;
 
 import com.jiang.mall.domain.enums.PermissionType;
+import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,7 +37,11 @@ public @interface Permission {
      *
      * @return 权限类型
      */
+    @AliasFor("type")
     PermissionType value() default PermissionType.NONE;
+
+    @AliasFor("value")
+    PermissionType type() default PermissionType.NONE;
 
     /**
      * 权限值

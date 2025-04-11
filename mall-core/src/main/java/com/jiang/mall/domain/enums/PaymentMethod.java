@@ -47,6 +47,6 @@ public enum PaymentMethod {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("无效的支付方式"));
+                .orElse(null);
     }
 }

@@ -51,6 +51,6 @@ public enum UserStatus {
 //        return Arrays.stream(values())
 //                .filter(p -> Objects.equals(p.key, key))
 //                .findFirst()
-//                .orElseThrow(() -> new IllegalArgumentException("无效的第三方服务商"));
+//                .orElse(null);
 //    }
 }

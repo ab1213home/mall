@@ -14,7 +14,9 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.OAuthConfigItems;
+import com.jiang.mall.domain.enums.OAuthProvider;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,5 +153,29 @@ public class OAuthConfig {
 
     public void updateOAuthGiteeEnabled(boolean enabled) {
         properties.setProperty(OAuthConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
+    }
+
+	public String getClientId(@NotNull String name) {
+		return switch (name) {
+			case "github" -> getGithubClientId();
+			case "gitee" -> getGiteeClientId();
+			default -> null;
+		};
+	}
+
+    public String getClientSecret(@NotNull String name) {
+		return switch (name) {
+			case "github" -> getGithubClientSecret();
+			case "gitee" -> getGiteeClientSecret();
+			default -> null;
+		};
+    }
+
+    public OAuthProvider getProvider(@NotNull String provider) {
+        return switch (provider) {
+			case "github" -> isOAuthGithubEnabled() ? OAuthProvider.GITHUB : null;
+			case "gitee" -> isOAuthGiteeEnabled() ? OAuthProvider.GITEE : null;
+			default -> null;
+		};
     }
 }

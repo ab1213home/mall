@@ -62,6 +62,6 @@ public enum NoticePurpose {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("无效的通知用途"));
+                .orElse(OTHER);
     }
 }

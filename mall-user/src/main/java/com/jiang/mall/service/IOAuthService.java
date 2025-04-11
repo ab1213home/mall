@@ -22,7 +22,7 @@ import java.util.Map;
 
 public interface IOAuthService {
 
-	String getAuthUrl(OAuthProvider provider, OAuthAction action);
+	String getAuthUrl(@NotNull OAuthProvider provider,@NotNull OAuthAction action);
 
 	OAuthResult callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
 

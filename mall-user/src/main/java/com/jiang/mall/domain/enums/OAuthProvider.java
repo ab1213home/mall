@@ -24,31 +24,58 @@ public enum OAuthProvider {
             "gitHub",
             "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
             "https://github.com/login/oauth/access_token",
-            "https://api.github.com/user"),
+            "https://api.github.com/user",
+			"/oauth/login/github",
+			"/oauth/bind/github",
+			"/oauth/unbind/github",
+			"/images/github.png",
+			"/oauth/callback/github"),
     GITEE(  1,
             "gitee",
             "https://gitee.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=user_info&state=%s",
             "https://gitee.com/oauth/token",
-            "https://gitee.com/api/v5/user");
+            "https://gitee.com/api/v5/user?access_token=%s",
+		    "/oauth/login/gitee",
+		    "/oauth/bind/gitee",
+		    "/oauth/unbind/gitee",
+		    "/images/gitee.png",
+		    "/oauth/callback/gitee");
 
     private final Integer key;
     private final String name;
-    private final String authUrl;
-    private final String tokenPath;
-    private final String userInfoUri;
+    private final String auth;
+    private final String token;
+    private final String user;
+    private final String login;
+	private final String bind;
+	private final String unbind;
+	private final String ico;
+	private final String callback;
 
-    OAuthProvider(Integer key, String name, String authUrl, String tokenPath, String userInfoUri) {
+    OAuthProvider(Integer key, String name, String auth, String token, String user, String login, String bind, String unbind, String ico, String callback) {
         this.key = key;
         this.name = name;
-        this.authUrl = authUrl;
-        this.tokenPath = tokenPath;
-        this.userInfoUri = userInfoUri;
+        this.auth = auth;
+        this.token = token;
+        this.user = user;
+		this.login = login;
+		this.bind = bind;
+		this.unbind = unbind;
+		this.ico = ico;
+		this.callback = callback;
     }
 
     public static OAuthProvider fromKey(Integer key) {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("无效的第三方服务商"));
+                .orElse(null);
+    }
+
+	public static OAuthProvider fromName(String name) {
+        return Arrays.stream(values())
+                .filter(p -> Objects.equals(p.name, name))
+                .findFirst()
+                .orElse(null);
     }
 }

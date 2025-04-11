@@ -91,31 +91,14 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
-	public String getAuthUrl(OAuthProvider provider, @NotNull OAuthAction action) {
-		String url = "";
+	public String getAuthUrl(@NotNull OAuthProvider provider, @NotNull OAuthAction action) {
 		String random = UUID.randomUUID().toString();
 		redisService.setAuthCsrf(random);
 		String state = String.format("action:%s:%s", action.getName(), random);
-		if (provider == OAuthProvider.GITHUB){
-			url = String.format("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
-					oAuthConfig.getGithubClientId(),
-					URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8),
+		return String.format(provider.getAuth(),
+					oAuthConfig.getClientId(provider.getName()),
+					URLEncoder.encode(generalConfig.getDomain() + provider.getCallback(), StandardCharsets.UTF_8),
 					state);
-//			url = provider.getAuthUrl()+
-//                "?client_id=" + oAuthConfig.getGithubClientId() +
-//                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/github", StandardCharsets.UTF_8) +
-//				"&response_type=code&state="+state;
-		}else if (provider == OAuthProvider.GITEE){
-			url = String.format("https://gitee.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=user_info&state=%s",
-					oAuthConfig.getGiteeClientId(),
-					URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8),
-					state);
-//			url = provider.getAuthUrl()+
-//                "?client_id=" + oAuthConfig.getGiteeClientId() +
-//                "&redirect_uri=" + URLEncoder.encode(generalConfig.getDomain() + "/user/oauth/callback/gitee", StandardCharsets.UTF_8) +
-//                "&response_type=code&scope=user_info&state="+state;
-		}
-		return url;
 	}
 
 
@@ -132,19 +115,19 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		Map<String, Object> map = new HashMap<>();
 		if (oAuthConfig.isOAuthGiteeEnabled()){
 			Map<String,String> map_gitee = new HashMap<>();
-			map_gitee.put("login","/login/gitee");
-			map_gitee.put("bind","/bind/gitee");
-			map_gitee.put("unbind","/unbind/gitee");
-			map_gitee.put("ico","/images/gitee.png");
-			map.put("gitee", map_gitee);
+			map_gitee.put("login",OAuthProvider.GITEE.getLogin());
+			map_gitee.put("bind",OAuthProvider.GITEE.getBind());
+			map_gitee.put("unbind",OAuthProvider.GITEE.getUnbind());
+			map_gitee.put("ico",OAuthProvider.GITEE.getIco());
+			map.put(OAuthProvider.GITEE.getName(), map_gitee);
 		}
 		if (oAuthConfig.isOAuthGithubEnabled()){
 			Map<String,String> map_github = new HashMap<>();
-			map_github.put("login","/login/github");
-			map_github.put("bind","/bind/github");
-			map_github.put("unbind","/unbind/github");
-			map_github.put("ico","/images/github.png");
-			map.put("github", map_github);
+			map_github.put("login",OAuthProvider.GITHUB.getLogin());
+			map_github.put("bind",OAuthProvider.GITHUB.getBind());
+			map_github.put("unbind",OAuthProvider.GITHUB.getUnbind());
+			map_github.put("ico",OAuthProvider.GITHUB.getIco());
+			map.put(OAuthProvider.GITHUB.getName(), map_github);
 		}
 		return map;
 	}
@@ -267,7 +250,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		// 获取Access Token
         GitHubTokenResponse tokenResponse = WebClient.create()
             .post()
-            .uri(OAuthProvider.GITHUB.getTokenPath())
+            .uri(OAuthProvider.GITHUB.getToken())
             .header("Accept", "application/json") // GitHub需要明确指定返回JSON
 		    .header("User-Agent", generalConfig.getName()) // GitHub要求User-Agent
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -275,7 +258,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
                 "client_id", oAuthConfig.getGithubClientId())
                 .with("client_secret", oAuthConfig.getGithubClientSecret())
 				.with("code", code)
-		        .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/github"))
+		        .with("redirect_uri", generalConfig.getDomain() + OAuthProvider.GITHUB.getCallback()))
             .retrieve()
             .bodyToMono(GitHubTokenResponse.class)
             .block();
@@ -285,7 +268,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
 		GithubUserDto user = webClient
 		    .get()
-            .uri(OAuthProvider.GITHUB.getUserInfoUri())
+            .uri(OAuthProvider.GITHUB.getUser())
             .header("Authorization", "Bearer " + tokenResponse.getAccess_token())
 			.header("User-Agent", generalConfig.getName()) // GitHub要求User-Agent
             .retrieve()
@@ -320,12 +303,10 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			if (userOauthMapper.insert(userOauth)>0){
 				// 登录成功，记录登录记录
 	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
-	//			login(userMapper.selectById(userOauth.getUserId()), token, sessionId);
 				return OAuthResult.SUCCESS;
 			}else {
 				return OAuthResult.ERROR;
 			}
-//			return userService.oauthBinding(user, sessionId);
 		}
 		return OAuthResult.ERROR;
 	}
@@ -334,14 +315,14 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		 // 获取Access Token
         GiteeTokenResponse tokenResponse = webClient
 		    .post()
-            .uri(OAuthProvider.GITEE.getTokenPath())
+            .uri(OAuthProvider.GITEE.getToken())
             .header("User-Agent", generalConfig.getName())
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(BodyInserters.fromFormData("grant_type", "authorization_code")
                 .with("client_id", oAuthConfig.getGiteeClientId())
 		        .with("client_secret", oAuthConfig.getGiteeClientSecret())
                 .with("code", code)
-                .with("redirect_uri", generalConfig.getDomain() + "/user/oauth/callback/gitee"))
+                .with("redirect_uri", generalConfig.getDomain() + OAuthProvider.GITHUB.getCallback()))
             .retrieve()
             .bodyToMono(GiteeTokenResponse.class)
             .block();
@@ -351,7 +332,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
         // 获取用户信息
         GiteeUserDto user = webClient.get()
-            .uri(OAuthProvider.GITEE.getUserInfoUri() + "?access_token=" + tokenResponse.getAccess_token())
+            .uri(String.format(OAuthProvider.GITEE.getUser(),tokenResponse.getAccess_token()))
             .header("User-Agent", generalConfig.getName())
             .retrieve()
             .bodyToMono(GiteeUserDto.class)
@@ -381,16 +362,14 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			userOauth.setProviderType(OAuthProvider.GITEE.getKey());
 			userOauth.setProviderUserId(user.getId().toString());
 			userOauth.setAnnotations(JSON.toJSONString(user));
-			userOauth.setHash( SecureUtil.sha256Hex(JSON.toJSONString(user)));
+			userOauth.setHash(SecureUtil.sha256Hex(JSON.toJSONString(user)));
 			if (userOauthMapper.insert(userOauth)>0){
 				// 登录成功，记录登录记录
 	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
-	//			login(userMapper.selectById(userOauth.getUserId()), token, sessionId);
 				return OAuthResult.SUCCESS;
 			}else {
 				return OAuthResult.ERROR;
 			}
-//			return userService.oauthBinding(user, sessionId);
 		}
 		return OAuthResult.ERROR;
 	}

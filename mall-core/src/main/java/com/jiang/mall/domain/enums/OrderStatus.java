@@ -51,7 +51,7 @@ public enum OrderStatus {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("无效的订单状态"));
+                .orElse(null);
     }
 
 }

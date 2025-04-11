@@ -52,7 +52,7 @@ public enum NoticeChannel {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("无效的通知渠道"));
+                .orElse(null);
     }
 
 }
