@@ -1,7 +1,7 @@
 # Jiang Mall Common Module
 
 ## 介绍
-公共模块
+行政区域模块
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -15,81 +15,10 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 #### 后端
 
-1. **JSON解析**  
-   使用 [fastjson2](https://github.com/alibaba/fastjson2 "v2.x")  
-   - 功能：高性能的 JSON 序列化与反序列化库，支持复杂的对象转换和高效的数据处理。
+1. 中国地址行政区划数据库数据来源：https://github.com/kakuilan/china_area_mysql
+（经过裁剪）
 
-2. **Web开发**  
-   使用 [Spring Boot Starter Web](https://spring.io/projects/spring-boot)  
-   - 功能：提供 Spring MVC 和嵌入式 Tomcat 支持，用于快速构建 RESTful API 和 Web 应用。
-
-3. **开发效率工具**  
-   使用 [Lombok](https://projectlombok.org/)  
-   - 功能：通过注解自动生成 Java 类中的 Getter/Setter、构造函数等代码，减少样板代码编写。
-
-4. **应用监控**  
-   使用 [Spring Boot Actuator](https://spring.io/projects/spring-boot)  
-   - 功能：提供应用运行时的健康检查、指标监控和管理接口。
-
-5. **对象映射**  
-   使用 [ModelMapper](http://modelmapper.org/)  
-   - 功能：简化对象之间的映射操作，支持复杂对象结构的自动映射。
-
-6. **数据验证**  
-   使用 [JSR 303 (Hibernate Validator)](https://beanvalidation.org/)  
-   - 功能：基于注解的校验框架，用于验证输入数据的合法性。
-
-7. **拼音处理**  
-   使用 [TinyPinyin](https://github.com/biezhi/TinyPinyin)  
-   - 功能：轻量级的汉字转拼音工具，适用于中文场景下的拼音处理需求。
-
-8. **Redis支持**  
-   使用 [Spring Data Redis](https://spring.io/projects/spring-data-redis)  
-   - 功能：提供 Redis 的集成支持，包括连接池管理和常用操作封装。
-
-9. **二维码生成与解析**  
-   使用 [ZXing](https://github.com/zxing/zxing)  
-   - 功能：支持二维码的生成与解析，适用于条码相关的业务场景。
-
-10. **工具类库**  
-    使用 [Hutool](https://hutool.cn/)  
-    - 功能：提供丰富的工具类方法，涵盖字符串处理、日期时间、加密解密等常见操作。
-
-11. **手机号格式校验**  
-    使用 [libphonenumber](https://github.com/google/libphonenumber)  
-    - 功能：支持全球范围内的电话号码格式校验和解析。
-
-12. **HTML解析**  
-    使用 [Jsoup](https://jsoup.org/)  
-    - 功能：强大的 HTML 解析库，支持 DOM 操作、数据提取和清理。
-
-13. **MySQL数据库驱动**  
-    使用 [MySQL Connector/J](https://dev.mysql.com/downloads/connector/j/)  
-    - 功能：提供 MySQL 数据库的 JDBC 驱动支持，用于数据库连接和操作。
-
-14. **数据库连接池**  
-    使用 [HikariCP](https://github.com/brettwooldridge/HikariCP)  
-    - 功能：高性能的数据库连接池，提升数据库访问效率。
-
-15. **MyBatis增强**  
-    使用 [MyBatis-Plus](https://baomidou.com/)  
-    - 功能：在 MyBatis 基础上提供增强功能，如 CRUD 自动生成、分页插件等。
-
-16. **消息队列支持**  
-    使用 [Spring Kafka](https://spring.io/projects/spring-kafka)  
-    - 功能：集成 Apache Kafka，支持消息的发布与订阅。
-
-17. **Servlet支持**  
-    使用 [javax.servlet-api](https://javaee.github.io/servlet-spec/)  
-    - 功能：提供 Java Servlet 规范的支持，用于构建服务器端程序。
-
-18. **日志框架**  
-    使用 [Logback](http://logback.qos.ch/)  
-    - 功能：灵活且高效的日志记录框架，支持多种日志输出格式和策略。
-
-19. **加密算法支持**  
-    使用 [Bouncy Castle](https://www.bouncycastle.org/)  
-    - 功能：提供丰富的加密算法实现，支持多种安全协议和标准。
+2. 使用[mall-common](../mall-common/README.md)模块实现公共模块
 
 ## 测试环境
 

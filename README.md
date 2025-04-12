@@ -1,7 +1,7 @@
 # Jiang Mall
 
 ## 介绍
-一款基于Spring Boot 3开发的商城系统
+一款基于 Spring Boot 3 开发的商城系统
 
 ## 重要提示
 
@@ -21,6 +21,14 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 Navicat Premium Lite 版本17.1.5(简体中文)
 
+## 系统功能模块图
+
+![系统功能模块图](doc/picture/系统功能模块图.png)
+
+## 系统架构图
+
+![系统架构图](doc/picture/系统架构图.png)
+
 ## 技术栈
 
 - **前端**：JavaScript
@@ -31,6 +39,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 - **版本控制**：Git
 
 #### 第三方API
+
 1. 使用[ipify](https://www.ipify.org/)实现公网ip获取
     ```javascript
     <script type="application/javascript">
@@ -44,22 +53,26 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 #### 后端
 
-1. 使用[easy-captcha](https://github.com/ele-admin/EasyCaptcha "v1.6.2")实现验证码部分
+详见各模块的README.md
 
-2. 中国地址行政区划数据库数据来源：https://github.com/kakuilan/china_area_mysql
-（经过裁剪）
+#### 数据库设计
 
-3. 使用[mybatis-plus](https://github.com/baomidou/mybatis-plus "v3.5.8")实现数据库操作
+1. MySQL数据库设计
 
-4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成seo地图
+2. Redis数据库设计
 
-5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "v8.3.0")实现数据库连接
-
-6. 使用[jakarta-mail](https://github.com/jakartaee/mail-api "v2.0.1")实现邮件发送
-
-7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
-
-8. 使用[fastjson](https://github.com/stleary/JSON-java "v2.0.54")实现JSON解析
+| 数据库名 | 用途        | 备注 |
+|------|-----------|----|
+| db0  | product   |    |
+| db1  | user      |    |
+| db2  | oauth     |    |
+| db3  | cart      |    |
+| db4  | order     |    |
+| db5  | notice    |    |
+| db6  | home      |    |
+| db7  | temporary |    |
+| db8  | seckill   |    |
+| db9  | search    |    |
 
 #### 前端
 
@@ -86,6 +99,14 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 11. overlayscrollbars 2.10.0
 
 12. wangeditor 5.1.23
+
+
+#### 数据源
+
+1. 中国地址行政区划数据来源：https://github.com/kakuilan/china_area_mysql
+（经过裁剪）
+
+2. 商品分类数据来源：https://www.taobao.com/
 
 ## 安装教程
 

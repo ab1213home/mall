@@ -530,6 +530,7 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			state = SecureUtil.sha256Hex(state);
 		}
 		stringRedisTemplate.opsForSet().add(authCsrf_prefix, state);
+//		stringRedisTemplate.opsForValue().set(authCsrf_prefix+state, state, 30 , TimeUnit.MINUTES);
 	}
 
 	@Override
