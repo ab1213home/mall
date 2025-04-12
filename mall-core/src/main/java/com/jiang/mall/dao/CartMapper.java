@@ -42,8 +42,8 @@ public interface CartMapper extends BaseMapper<Cart> {
 	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
 	Long selectUserIdById(Long id);
 
-	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId})")
-	void insert(Long prodId, Long num, Long userId);
+//	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId})")
+//	void insert(Long prodId, Long num, Long userId);
 
 	@Select("SELECT MAX(version) AS version FROM tb_carts WHERE user_id = #{userId}")
 	Long getVersionByUserId(Long userId);

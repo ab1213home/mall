@@ -40,34 +40,34 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#remember').prop('checked', false);
         }
         const socialLogin = document.getElementById('socialLogin');
-        const socialLoginTitle = document.getElementById('socialLoginTitle');
+        const socialLoginDiv = document.getElementById('socialLoginDiv');
         $.ajax({
             url: '/oauth/getList',
             type: 'GET',
             dataType: 'json',
             async:false,
-            success: function(res) {
-                // {"code":200,"message":"默认成功消息提示",
-                // "data":{"github":{"bind":"/bind/github","ico":"/images/github.png","unbind":"/unbind/github","login":"/login/github"},
-                // "gitee":{"bind":"/bind/gitee","ico":"/images/gitee.png","unbind":"/unbind/gitee","login":"/login/gitee"}},
-                // "timestamp":1744450611411,"success":true}
+            success: function (res) {
                 if (res.code == 200) {
                     oauthArr = res.data;
                     if (oauthArr.length == 0) {
                         socialLogin.style.display = 'none';
-                        socialLoginTitle.style.display = 'none';
-                    }else{
+                        socialLoginDiv.style.display = 'none';
+                    } else {
                         socialLogin.style.display = 'block';
-                        socialLoginTitle.style.display = 'block';
-                        res.data.forEach(function(item) {
+                        socialLoginDiv.style.display = 'block';
+                        res.data.forEach(function (item) {
                             if (item.login != null) {
                                 const div = document.createElement('div');
                                 div.classList.add('d-inline-flex', 'justify-content-center', 'gap-3');
-                                const login = item.login + "?clientIp=" + ip + "&fingerprint=" + fingerprint + (url != null ? "&url=" + url : "");
-                                div.innerHTML = '<a href="' + login + '">' +
-                                    '<img src="' + item.ico + '" alt="' + item.name + '" class="img-fluid" style="width: 30px; height: 30px;">' +
-                                    '</a>';
+                                // href="' + login + '"
+                                div.innerHTML =
+                                    `<a id="` + item.name + `"> 
+                                    <img src="` + item.ico + `" alt="` + item.name + `" class="img-fluid" style="width: 30px; height: 30px;">
+                                    </a>`;
                                 socialLogin.appendChild(div);
+                                $('#' + item.name ).click(function() {
+                                   jumpTo(item.login)
+                                });
                             }
                         });
                     }
@@ -87,6 +87,28 @@ document.getElementById('remember').addEventListener('change', function() {
         localStorage.setItem('remember', 'false');
     }
 });
+
+/**
+ * 跳转到OAuth登录页面
+ *
+ * 该函数根据传入的OAuth参数和全局变量中的IP、指纹以及URL信息，
+ * 构造一个登录URL，并使页面跳转到该URL
+ *
+ * @param {string} oauth - OAuth基础URL，用于构造完整的登录地址
+ */
+function jumpTo(oauth){
+    // 构造初始登录URL，包含客户端IP和指纹信息
+    let login = oauth + "?clientIp=" + ip + "&fingerprint=" + fingerprint;
+
+    // 如果有重定向URL，则将其添加到登录URL中
+    if (url != null) {
+        login = login + "&url=" + url;
+    }
+
+    // 使页面跳转到构造好的登录URL
+    window.location.href = login;
+}
+
 
 // 登录表单提交处理函数
 function submitLoginForm() {
