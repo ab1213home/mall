@@ -33,17 +33,17 @@ public class RedisConfig {
 	 * <p>
 	 * - 缓存策略：数据更新时主动刷新缓存
 	 */
-	@Value("${redis.database.home:5}")
+	@Value("${redis.database.home:6}")
 	private int home;
 
-////#### **(7) 验证码和临时数据**
-////- **缓存内容**：短信验证码、邮箱验证码、临时令牌等。
-////- **缓存理由**：这类数据时效性短，适合用 Redis 存储。
-////- **缓存策略**：
-////  - 设置较短的过期时间（如 5 分钟）。
-////  - 验证成功后清除缓存。
-//	@Value("${redis.database.temporary:1}")
-//	private int temporary;
+//#### **(7) 验证码和临时数据**
+//- **缓存内容**：短信验证码、邮箱验证码、临时令牌等。
+//- **缓存理由**：这类数据时效性短，适合用 Redis 存储。
+//- **缓存策略**：
+//  - 设置较短的过期时间（如 5 分钟）。
+//  - 验证成功后清除缓存。
+	@Value("${redis.database.temporary:7}")
+	private int temporary;
 
 	private GeneralRedisConfig generalRedisConfig;
 
@@ -58,10 +58,10 @@ public class RedisConfig {
         return generalRedisConfig.redisConnectionFactory(home);
     }
 
-//    @Bean
-//    public LettuceConnectionFactory temporaryConnectionFactory() {
-//        return generalRedisConfig.redisConnectionFactory(temporary);
-//    }
+    @Bean
+    public LettuceConnectionFactory temporaryConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(temporary);
+    }
 
 	@Bean(name = "HomeRedisTemplate")
 	public StringRedisTemplate HomeRedisTemplate() {
@@ -69,12 +69,13 @@ public class RedisConfig {
         template.setConnectionFactory(homeConnectionFactory());
         return template;
     }
-//	@Bean(name = "TemporaryRedisTemplate")
-//	public StringRedisTemplate TemporaryRedisTemplate() {
-//        StringRedisTemplate template = new StringRedisTemplate();
-//        template.setConnectionFactory(temporaryConnectionFactory());
-//        return template;
-//    }
+
+	@Bean(name = "TemporaryRedisTemplate")
+	public StringRedisTemplate TemporaryRedisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(temporaryConnectionFactory());
+        return template;
+    }
 
 //	@Bean(name = "EmailRedisTemplate")
 //    public RedisTemplate<String, EmailCode> EmailRedisTemplate() {

@@ -29,7 +29,7 @@ public class CoreRedisConfig {
 //- **缓存策略**：
 //  - 设置较长的过期时间（如 7 天）。
 //  - 用户结算后清除购物车缓存。
-	@Value("${redis.database.cart:2}")
+	@Value("${redis.database.cart:3}")
 	private int cart;
 //#### **(4) 订单数据**
 //- **缓存内容**：订单详情、订单状态等。
@@ -37,7 +37,7 @@ public class CoreRedisConfig {
 //- **缓存策略**：
 //  - 设置较短的过期时间（如 10 分钟）。
 //  - 订单状态更新时同步更新缓存。
-	@Value("${redis.database.order:3}")
+	@Value("${redis.database.order:4}")
 	private int order;
 //#### **(5) 秒杀活动数据**
 //- **缓存内容**：秒杀商品库存、用户抢购记录等。
@@ -45,7 +45,7 @@ public class CoreRedisConfig {
 //- **缓存策略**：
 //  - 使用 Redis 的原子操作（如 `DECR`）扣减库存。
 //  - 使用 Redis 的分布式锁防止超卖。
-	@Value("${redis.database.seckill:4}")
+	@Value("${redis.database.seckill:8}")
 	private int seckill;
 
 //#### **(8) 搜索热词和排行榜**
@@ -54,7 +54,7 @@ public class CoreRedisConfig {
 //- **缓存策略**：
 //  - 使用 Redis 的 `ZSET` 数据结构存储排行榜。
 //  - 定期更新缓存。
-	@Value("${redis.database.search:6}")
+	@Value("${redis.database.search:9}")
 	private int search;
 
 	private GeneralRedisConfig generalRedisConfig;

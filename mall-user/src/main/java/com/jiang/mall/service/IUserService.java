@@ -15,10 +15,12 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.enums.OAuthResult;
+import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import org.jetbrains.annotations.NotNull;
@@ -93,6 +95,7 @@ public interface IUserService extends IService<User> {
 
     Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId);
 
-    OAuthResult oauthLogin(Long userId, String token, String sessionId);
+    OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
 
+    boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider);
 }

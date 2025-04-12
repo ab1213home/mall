@@ -39,7 +39,7 @@ public class NoticeRedisConfig {
 	 * <p>
 	 * - 缓存策略：验证成功后清除缓存。
 	 */
-	@Value("${redis.database.notice:1}")
+	@Value("${redis.database.notice:5}")
 	private int notice;
 
 	@Bean

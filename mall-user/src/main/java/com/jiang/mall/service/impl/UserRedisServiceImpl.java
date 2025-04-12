@@ -18,8 +18,6 @@ import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.cache.UserBindingCache;
 import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.dto.GiteeUserDto;
-import com.jiang.mall.domain.dto.GithubUserDto;
 import com.jiang.mall.service.IUserRedisService;
 import com.jiang.mall.util.SecureUtil;
 import jakarta.annotation.PostConstruct;
@@ -68,9 +66,6 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	String twoLogin_prefix = "user:twoLogin:";
 	String twoRegister_prefix = "user:twoRegister:";
 	String rememberMe_prefix = "user:rememberMe:";
-	String authCsrf_prefix = "user:authCsrf";
-	String gitee_prefix = "user:gitee:";
-	String github_prefix = "user:github:";
 //	String prefix = "user:";
 
 	@PostConstruct
@@ -82,9 +77,6 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		twoLogin_prefix = generalConfig.getRedisKeyPrefix()+":user:twoLogin:";
 		twoRegister_prefix = generalConfig.getRedisKeyPrefix()+":user:twoRegister:";
 		rememberMe_prefix = generalConfig.getRedisKeyPrefix()+":user:rememberMe:";
-		authCsrf_prefix = generalConfig.getRedisKeyPrefix()+":user:authCsrf";
-		gitee_prefix = generalConfig.getRedisKeyPrefix()+":user:gitee:";
-		github_prefix = generalConfig.getRedisKeyPrefix()+":user:github:";
 //		prefix = generalConfig.getRedisKeyPrefix()+":user:";
 	}
 
@@ -522,104 +514,6 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		}
 		String userId = stringRedisTemplate.opsForValue().get(rememberMe_prefix+token);
 		return userId == null ? null : Long.parseLong(userId);
-	}
-
-	@Override
-	public void setAuthCsrf(@NotNull String state) {
-		if (userConfig.isUserRedisEncryption()){
-			state = SecureUtil.sha256Hex(state);
-		}
-		stringRedisTemplate.opsForSet().add(authCsrf_prefix, state);
-//		stringRedisTemplate.opsForValue().set(authCsrf_prefix+state, state, 30 , TimeUnit.MINUTES);
-	}
-
-	@Override
-	public boolean validateAuthCsrf(@NotNull String state) {
-		if (userConfig.isUserRedisEncryption()){
-			state = SecureUtil.sha256Hex(state);
-		}
-		// 检查状态是否存在
-	    Boolean isMember = stringRedisTemplate.opsForSet().isMember(authCsrf_prefix, state);
-	    if (Boolean.TRUE.equals(isMember)) {
-	        // 如果存在，先进行删除操作，然后返回true
-	        stringRedisTemplate.opsForSet().remove(authCsrf_prefix, state);
-	        return true;
-	    }
-	    return false;
-	}
-
-	@Override
-	public void deleteAuthCsrf(@NotNull String state) {
-		if (userConfig.isUserRedisEncryption()){
-			state = SecureUtil.sha256Hex(state);
-		}
-		stringRedisTemplate.opsForSet().remove(authCsrf_prefix, state);
-	}
-
-	@Override
-	public void setGiteeUser(GiteeUserDto user, String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		stringRedisTemplate.opsForValue().set(gitee_prefix+sessionId, JSON.toJSONString(user), 30 , TimeUnit.MINUTES);
-	}
-
-	@Override
-	public boolean validateGiteeUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		return stringRedisTemplate.hasKey(gitee_prefix+sessionId);
-	}
-
-	@Override
-	public GiteeUserDto getGiteeUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		String json = stringRedisTemplate.opsForValue().get(gitee_prefix+sessionId);
-		return json == null ? null : JSON.parseObject(json, GiteeUserDto.class);
-	}
-
-	@Override
-	public void deleteGiteeUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		stringRedisTemplate.delete(gitee_prefix+sessionId);
-	}
-
-	@Override
-	public void setGithubUser(GithubUserDto user, String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		stringRedisTemplate.opsForValue().set(github_prefix+sessionId, JSON.toJSONString(user), 30 , TimeUnit.MINUTES);
-	}
-
-	@Override
-	public boolean validateGithubUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		return stringRedisTemplate.hasKey(github_prefix+sessionId);
-	}
-
-	@Override
-	public GithubUserDto getGithubUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		String json = stringRedisTemplate.opsForValue().get(github_prefix+sessionId);
-		return json == null ? null : JSON.parseObject(json, GithubUserDto.class);
-	}
-
-	@Override
-	public void deleteGithubUser(String sessionId) {
-		if (userConfig.isUserRedisEncryption()){
-			sessionId = SecureUtil.sha256Hex(sessionId);
-		}
-		stringRedisTemplate.delete(github_prefix+sessionId);
 	}
 
 }

@@ -21,15 +21,16 @@ import com.jiang.mall.config.OAuthConfig;
 import com.jiang.mall.dao.UserOauthMapper;
 import com.jiang.mall.domain.GitHubTokenResponse;
 import com.jiang.mall.domain.GiteeTokenResponse;
+import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.GiteeUserDto;
 import com.jiang.mall.domain.dto.GithubUserDto;
+import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.entity.UserOauth;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
-import com.jiang.mall.domain.enums.OAuthResult;
+import com.jiang.mall.service.IOAuthRedisService;
 import com.jiang.mall.service.IOAuthService;
-import com.jiang.mall.service.IUserRedisService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
@@ -76,10 +77,10 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		this.userService = userService;
 	}
 
-	private IUserRedisService redisService;
+	private IOAuthRedisService redisService;
 
 	@Autowired
-	public void setRedisService(IUserRedisService redisService) {
+	public void setRedisService(IOAuthRedisService redisService) {
 		this.redisService = redisService;
 	}
 
@@ -91,7 +92,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
-	public String getAuthUrl(@NotNull OAuthProvider provider, @NotNull OAuthAction action) {
+	public String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action) {
 		String random = UUID.randomUUID().toString();
 		redisService.setAuthCsrf(random);
 		String state = String.format("action:%s:%s", action.getName(), random);
@@ -103,11 +104,17 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 
 	@Override
-	public OAuthResult callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider) {
-		if (redisService.validateAuthCsrf(random)){
-			return callback(action, code,token, sessionId,oAuthProvider);
+	public OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider) {
+		OAuthCache cache = redisService.getAuthCsrf(random);
+//		if (redisService.validateAuthCsrf(random)){
+//			return callback(action, code,token, sessionId,oAuthProvider);
+//		}
+//		return OAuthResult.ERROR;
+		if (cache==null){
+			return OAuthResultDto.error();
+		}else{
+			return callback(action, oAuthProvider, code, cache ,token, sessionId);
 		}
-		return OAuthResult.ERROR;
 	}
 
 	@Override
@@ -134,7 +141,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 	@Override
 	public boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId) {
-		UserCache userCache = redisService.getUserBySessionId(sessionId);
+		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("provider_type", oAuthProvider.getKey());
 		queryWrapper.eq("user_id", userCache.getId());
@@ -143,7 +150,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 	@Override
 	public boolean authUnbind(@NotNull OAuthProvider oAuthProvider, String sessionId) {
-		UserCache userCache = redisService.getUserBySessionId(sessionId);
+		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("provider_type", oAuthProvider.getKey());
 		queryWrapper.eq("user_id", userCache.getId());
@@ -195,6 +202,39 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
 	}
 
+	@Override
+	public String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String clientIp, String fingerprint, String sessionId) {
+		OAuthCache oAuthCache = new OAuthCache();
+		oAuthCache.setUrl(url);
+		oAuthCache.setClientIp(clientIp);
+		oAuthCache.setFingerprint(fingerprint);
+		String random = UUID.randomUUID().toString();
+		redisService.setAuthCsrf(random, oAuthCache);
+		String state = String.format("action:%s:%s", action.getName(), random);
+		return String.format(provider.getAuth(),
+					oAuthConfig.getClientId(provider.getName()),
+					URLEncoder.encode(generalConfig.getDomain() + provider.getCallback(), StandardCharsets.UTF_8),
+					state);
+	}
+
+	@Override
+	public boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId) {
+		boolean flag = userService.oauthLogin(sessionId,code,token,clientIp,fingerprint,oAuthProvider);
+		if (flag){
+			if (oAuthProvider==OAuthProvider.GITEE){
+				Boolean flag_ = authLoginToBindGitee(sessionId);
+				return flag_;
+			}else if (oAuthProvider==OAuthProvider.GITHUB){
+				Boolean flag_ = authLoginToBindGithub(sessionId);
+				return flag_;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
+
 	private @Nullable Boolean authLoginToBindGithub(String sessionId) {
 		if (redisService.validateGithubUser(sessionId)){
 			GithubUserDto user = redisService.getGithubUser(sessionId);
@@ -236,17 +276,16 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			return null;
 		}
 	}
-
-	private OAuthResult callback(OAuthAction action, String code, String token, String sessionId, OAuthProvider oAuthProvider) {
+	private OAuthResultDto callback(OAuthAction action, OAuthProvider oAuthProvider, String code, OAuthCache cache, String token, String sessionId) {
 		if (oAuthProvider==OAuthProvider.GITEE){
-			return callbackGitee(code,token,sessionId,action);
+			return callbackGitee(code,token,sessionId,action,cache);
 		}else if (oAuthProvider==OAuthProvider.GITHUB){
-			return callbackGithub(code,token,sessionId,action);
+			return callbackGithub(code,token,sessionId,action,cache);
 		}
-		return OAuthResult.ERROR;
+		return OAuthResultDto.error(cache.getUrl());
 	}
 
-	private OAuthResult callbackGithub(String code, String token, String sessionId, OAuthAction action) {
+	private OAuthResultDto callbackGithub(String code, String token, String sessionId, OAuthAction action, OAuthCache cache) {
 		// 获取Access Token
         GitHubTokenResponse tokenResponse = WebClient.create()
             .post()
@@ -264,7 +303,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
             .block();
 		if (tokenResponse == null){
 			logger.error("获取Github的AccessToken失败");
-			return OAuthResult.ERROR;
+			return OAuthResultDto.error(cache.getUrl());
 		}
 		GithubUserDto user = webClient
 		    .get()
@@ -276,7 +315,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
             .block();
 		if (user == null){
 			logger.error("获取Github的用户信息失败");
-			return OAuthResult.ERROR;
+			return OAuthResultDto.error(cache.getUrl());
 		}
 		if (action == OAuthAction.LOGIN){
 			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
@@ -285,13 +324,13 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			UserOauth userOauth = userOauthMapper.selectOne(queryWrapper);
 			if (userOauth==null){
 				redisService.setGithubUser(user,sessionId);
-				return OAuthResult.UNBOUND;
+				return OAuthResultDto.unbound(cache.getUrl());
 			}
 			String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
 			if (!userOauth.getHash().equals(hash)){
 				userOauthMapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
-			return userService.oauthLogin(userOauth.getUserId(), token, sessionId);
+			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache,OAuthProvider.GITHUB);
 		}else if (action == OAuthAction.BINDING){
 			UserCache userCache = userService.getUserFromRedis(sessionId);
 			UserOauth userOauth = new UserOauth();
@@ -303,15 +342,15 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			if (userOauthMapper.insert(userOauth)>0){
 				// 登录成功，记录登录记录
 	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
-				return OAuthResult.SUCCESS;
+				return OAuthResultDto.success(cache.getUrl());
 			}else {
-				return OAuthResult.ERROR;
+				return OAuthResultDto.error(cache.getUrl());
 			}
 		}
-		return OAuthResult.ERROR;
+		return OAuthResultDto.error(cache.getUrl());
 	}
 
-	private OAuthResult callbackGitee(String code, String token, String sessionId, OAuthAction action) {
+	private OAuthResultDto callbackGitee(String code, String token, String sessionId, OAuthAction action, OAuthCache cache) {
 		 // 获取Access Token
         GiteeTokenResponse tokenResponse = webClient
 		    .post()
@@ -328,7 +367,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
             .block();
 		if (tokenResponse == null){
 			logger.error("获取Gitee的AccessToken失败");
-			return OAuthResult.ERROR;
+			return OAuthResultDto.error(cache.getUrl());
 		}
         // 获取用户信息
         GiteeUserDto user = webClient.get()
@@ -339,7 +378,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
             .block();
 		if (user == null){
 			logger.error("获取Gitee的用户信息失败");
-			return OAuthResult.ERROR;
+			return OAuthResultDto.error(cache.getUrl());
 		}
 		if (action == OAuthAction.LOGIN){
 			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
@@ -348,13 +387,13 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			UserOauth userOauth = userOauthMapper.selectOne(queryWrapper);
 			if (userOauth==null){
 				redisService.setGiteeUser(user,sessionId);
-				return OAuthResult.UNBOUND;
+				return OAuthResultDto.unbound(cache.getUrl());
 			}
 			String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
 			if (!userOauth.getHash().equals(hash)){
 				userOauthMapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
-			return userService.oauthLogin(userOauth.getUserId(), token, sessionId);
+			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache, OAuthProvider.GITEE);
 		}else if (action == OAuthAction.BINDING){
 			UserCache userCache = userService.getUserFromRedis(sessionId);
 			UserOauth userOauth = new UserOauth();
@@ -366,11 +405,11 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			if (userOauthMapper.insert(userOauth)>0){
 				// 登录成功，记录登录记录
 	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
-				return OAuthResult.SUCCESS;
+				return OAuthResultDto.success(cache.getUrl());
 			}else {
-				return OAuthResult.ERROR;
+				return OAuthResultDto.error(cache.getUrl());
 			}
 		}
-		return OAuthResult.ERROR;
+		return OAuthResultDto.error(cache.getUrl());
 	}
 }

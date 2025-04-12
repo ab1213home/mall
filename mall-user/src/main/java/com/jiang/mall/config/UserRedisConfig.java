@@ -49,11 +49,22 @@ public class UserRedisConfig {
         return generalRedisConfig.redisConnectionFactory(user);
     }
 
+	@Bean
+	public LettuceConnectionFactory oauthConnectionFactory() {
+		return generalRedisConfig.redisConnectionFactory(oauth);
+	}
+
 	@Bean(name = "UserRedisTemplate")
     public StringRedisTemplate UserRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(userConnectionFactory());
         return template;
     }
+	@Bean(name = "OAuthRedisTemplate")
+	public StringRedisTemplate OAuthRedisTemplate() {
+		StringRedisTemplate template = new StringRedisTemplate();
+		template.setConnectionFactory(oauthConnectionFactory());
+		return template;
+	}
 
 }

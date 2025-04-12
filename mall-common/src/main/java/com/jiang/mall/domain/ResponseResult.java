@@ -16,6 +16,7 @@ package com.jiang.mall.domain;
 import com.jiang.mall.service.II18nService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -69,6 +70,7 @@ public class ResponseResult<T> implements Serializable {
      *
      * @return 返回包含默认成功消息的响应结果对象
      */
+    @Contract(value = " -> new", pure = true)
     public static @NotNull<T> ResponseResult<T> okResult() {
         // 创建一个新的响应结果对象
         ResponseResult<T> responseResult = new ResponseResult<>();
@@ -87,6 +89,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 自定义的消息字符串，用于更详细的描述成功情况
      * @return ResponseResult 返回一个初始化为默认成功状态码和自定义消息的响应结果对象
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull<T> ResponseResult<T> okResult(String message) {
         // 创建一个新的响应结果对象
         ResponseResult<T> responseResult = new ResponseResult<>();
@@ -106,6 +109,7 @@ public class ResponseResult<T> implements Serializable {
      * @param data 成功响应中要封装的数据对象，可以是任何类型的对象
      * @return 返回一个填充了默认成功状态和给定数据的ResponseResult对象
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull ResponseResult<Object> okResult(Object data) {
         ResponseResult<Object> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_OK);
@@ -121,6 +125,7 @@ public class ResponseResult<T> implements Serializable {
      *
      * @return 返回一个表示失败结果的ResponseResult对象
      */
+    @Contract(value = " -> new", pure = true)
     public static @NotNull <T> ResponseResult<T> failResult(){
         ResponseResult<T> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_BAD_GATEWAY);
@@ -134,6 +139,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 失败的详细信息信息
      * @return 包含失败信息的响应对象
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull <T> ResponseResult<T> failResult(String message) {
         // 创建一个新的响应对象
         ResponseResult<T> responseResult = new ResponseResult<>();
@@ -152,6 +158,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于描述错误的详细信息
      * @return 返回包含指定错误码和错误消息的响应结果对象
      */
+    @Contract(value = " _, _ -> new", pure = true)
     public static @NotNull <T> ResponseResult<T> failResult(int code, String message) {
         // 创建一个新的响应结果对象
         ResponseResult<T> responseResult = new ResponseResult<>();
@@ -174,6 +181,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明未授权的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的未授权状态码和给定的错误消息
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull <T> ResponseResult<T> notLoggedResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_UNAUTHORIZED);
@@ -188,6 +196,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明未找到资源的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的未找到资源状态码和给定的错误消息
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull<T> ResponseResult<T> notFoundResourceResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_NOT_FOUND);
@@ -202,6 +211,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 错误消息，用于详细说明服务器错误的原因
      * @return 返回一个 ResponseResult 对象，其中包含了默认的服务器错误状态码和给定的错误消息
      */
+    @Contract(value = " _ -> new", pure = true)
     public static @NotNull<T> ResponseResult<T> serverErrorResult(String message) {
         ResponseResult<T> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -218,6 +228,7 @@ public class ResponseResult<T> implements Serializable {
      * @param message 响应结果的消息，用于提供额外的信息
      * @return 返回一个填充了默认成功状态、数据对象和消息的ResponseResult对象
      */
+    @Contract(value = " _, _ -> new", pure = true)
     public static @NotNull ResponseResult<Object> okResult(Object data, String message) {
         ResponseResult<Object> responseResult = new ResponseResult<>();
         responseResult.setCode(HttpServletResponse.SC_OK);

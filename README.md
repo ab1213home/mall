@@ -61,18 +61,18 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 2. Redis数据库设计
 
-| 数据库名 | 用途        | 备注 |
-|------|-----------|----|
-| db0  | product   |    |
-| db1  | user      |    |
-| db2  | oauth     |    |
-| db3  | cart      |    |
-| db4  | order     |    |
-| db5  | notice    |    |
-| db6  | home      |    |
-| db7  | temporary |    |
-| db8  | seckill   |    |
-| db9  | search    |    |
+|           配置项            | 默认数据库 |         Been名          |     声明模块     |        缓存内容         | 是否强制启用 | 备注 |
+|:------------------------:|:-----:|:----------------------:|:------------:|:-------------------:|:------:|:--:|
+|  redis.database.product  |  db0  |  ProductRedisTemplate  | mall-product |     商品详情、库存、价格等     |   否    |    |
+|   redis.database.user    |  db1  |   UserRedisTemplate    |  mall-user   |    用户登录状态、权限信息等     |        |    |
+|   redis.database.oauth   |  db2  |   OauthRedisTemplate   |  mall-user   |     Oauth2认证信息      |        |    |
+|   redis.database.cart    |  db3  |   CartRedisTemplate    |  mall-core   | 用户的购物车商品列表、数量、选中状态等 |        |    |
+|   redis.database.order   |  db4  |   OrderRedisTemplate   |  mall-core   |     订单详情、订单状态等      |        |    |
+|  redis.database.notice   |  db5  |  NoticeRedisTemplate   | mall-notice  |  短信验证码、邮箱验证码、临时令牌等  |        |    |
+|   redis.database.home    |  db6  |   HomeRedisTemplate    |  mall-admin  |   首页推荐商品、商品分类列表等    |        |    |
+| redis.database.temporary |  db7  | TemporaryRedisTemplate |  mall-admin  |        临时数据         |        |    |
+|  redis.database.seckill  |  db8  |  SeckillRedisTemplate  |  mall-core   |   秒杀商品库存、用户抢购记录等    |        |    |
+|  redis.database.search   |  db9  |  SearchRedisTemplate   |  mall-core   |   热门搜索词、商品销量排行榜等    |        |    |
 
 #### 前端
 

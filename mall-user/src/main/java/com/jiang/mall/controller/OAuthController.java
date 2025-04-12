@@ -18,6 +18,7 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.OAuthConfig;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.OAuthResult;
@@ -96,19 +97,25 @@ public class OAuthController {
 						  ) throws IOException {
 		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-//			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json;charset=UTF-8");
+			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, i18nService.getMessage("user.error.ip")));
+			response.getWriter().write(json);
 			return;
 		}
 		if (!i18nService.checkString(fingerprint)){
-//			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json;charset=UTF-8");
+			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, i18nService.getMessage("user.error.fingerprint")));
+			response.getWriter().write(json);
 			return;
 		}
 		if (oAuthProvider == null){
-			redirect(request, response,"不支持的OAuth2供应商",null,null);
+			redirect(request, response,"不支持的OAuth2供应商",null,null,null);
 		}else {
 			response.setContentType("text/html; charset=UTF-8");
 			response.setCharacterEncoding("UTF-8");
-            response.sendRedirect(oAuthService.getAuthUrl(oAuthProvider, OAuthAction.LOGIN));
+            response.sendRedirect(oAuthService.authLogin(oAuthProvider, OAuthAction.LOGIN, url,clientIp,fingerprint,request.getSession().getId()));
 		}
     }
 
@@ -129,7 +136,7 @@ public class OAuthController {
 				String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, oAuthProvider.getName()+"账号已绑定"));
 				response.getWriter().write(json);
 			}else {
-				String url = oAuthService.getAuthUrl(oAuthProvider, OAuthAction.BINDING);
+				String url = oAuthService.authLogin(oAuthProvider, OAuthAction.BINDING);
 	            response.sendRedirect(url);
 			}
 		}
@@ -216,6 +223,34 @@ public class OAuthController {
 	    }
 	}
 
+	@PostMapping("/login/{provider}/twoVerify")
+	@Permission(PermissionType.GUEST)
+	public ResponseResult<Object> authLoginTwoVerify(@RequestParam("code") int code,
+												@PathVariable("provider") String provider,
+	                                            @RequestHeader("X-Real-IP") String clientIp,
+	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                            HttpSession session
+												){
+		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+		}
+		if (!i18nService.checkString(fingerprint)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
+		}
+		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		if (oAuthProvider == null){
+			return ResponseResult.failResult("不支持的OAuth2供应商");
+		}
+		String token = UUID.fastUUID().toString();
+		boolean flag = oAuthService.authLogin(oAuthProvider, code, clientIp, fingerprint, token, session.getId());
+	    // 根据登录结果返回相应信息
+	    if (flag){
+	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
+	    }else {
+	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));
+	    }
+	}
+
 	@GetMapping("/unbind/{provider}")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> authUnbind(@PathVariable("provider") String provider,HttpSession session){
@@ -241,41 +276,41 @@ public class OAuthController {
                         ) throws IOException {
 		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
 		if (oAuthProvider == null){
-			redirect(request, response,"不支持的OAuth2供应商",null,null);
+			redirect(request, response,"不支持的OAuth2供应商",null,null,null);
 			return;
 		}
 		// 解析state参数（格式：action:login:随机字符串）
 	    String[] stateParts = state.split(":");
 	    if (stateParts.length != 3 || !stateParts[0].equals("action")) {
-			redirect(request, response,"state参数解析错误",null,null);
+			redirect(request, response,"state参数解析错误",null,null,null);
 			return;
 	    }
 	    String action = stateParts[1];
 	    String random = stateParts[2];
 		if (action.equals("login")){
 			String token = UUID.fastUUID().toString();
-			OAuthResult flag = oAuthService.callback(OAuthAction.LOGIN, code, random, token, request.getSession().getId(), OAuthProvider.GITEE);
-			if (flag==OAuthResult.ERROR) {
+			OAuthResultDto result = oAuthService.callback(OAuthAction.LOGIN, code, random, token, request.getSession().getId(), oAuthProvider);
+			if (result.getResult()==OAuthResult.ERROR) {
 				//重定向到登录界面
-				redirect(request, response,oAuthProvider.getName()+"账号信息获取失败",null,null);
-			} else if (flag==OAuthResult.UNBOUND){
-				redirect(request, response,oAuthProvider.getName()+"账号未绑定","binding",oAuthProvider.getName());
-			}else if (flag==OAuthResult.SECOND_VERIFY) {
-				redirect(request, response,"账号需要双因素认证(2FA)","oauth",null);
-			} else if (flag==OAuthResult.SUCCESS){
+				redirect(request, response,oAuthProvider.getName()+"账号信息获取失败",result.getUrl(),null,null);
+			} else if (result.getResult()==OAuthResult.UNBOUND){
+				redirect(request, response,oAuthProvider.getName()+"账号未绑定",result.getUrl(),"binding",oAuthProvider.getName());
+			}else if (result.getResult()==OAuthResult.SECOND_VERIFY) {
+				redirect(request, response,"账号需要双因素认证(2FA)",result.getUrl(),"oauth",null);
+			} else if (result.getResult()==OAuthResult.SUCCESS){
 				response.setContentType("text/html; charset=UTF-8");
-				response.sendRedirect(request.getContextPath() + "/user/index.html");
+				response.sendRedirect(request.getContextPath() + ( result.getUrl() == null ? "/index.html" : result.getUrl() ) );
 			}
 		}else if (action.equals("bind")){
-			OAuthResult flag = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), OAuthProvider.GITEE);
-			if (flag==OAuthResult.ERROR) {
+			OAuthResultDto result = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), oAuthProvider);
+			if (result.getResult() ==OAuthResult.ERROR) {
 //		        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 //		        response.setContentType("application/json;charset=UTF-8");
 //		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Gitee账号信息获取失败"));
 //		        response.getWriter().write(json);
 				response.setContentType("text/html; charset=UTF-8");
 				response.sendRedirect(request.getContextPath() + "/user/index.html");
-			}  else if (flag==OAuthResult.SUCCESS){
+			}  else if (result.getResult() ==OAuthResult.SUCCESS){
 //				response.setStatus(HttpServletResponse.SC_OK);
 //		        response.setContentType("application/json;charset=UTF-8");
 //		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_OK, "Gitee账号绑定成功"));
@@ -284,11 +319,11 @@ public class OAuthController {
 				response.sendRedirect(request.getContextPath() + "/user/index.html");
 			}
 		}else {
-			redirect(request, response, "未知参数", null, null);
+			redirect(request, response, "未知参数", null, null,null);
 		}
     }
 
-	private void redirect(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String message, String model, String bindingType) throws IOException {
+	private void redirect(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String message, String url ,String model, String bindingType) throws IOException {
 		// 设置内容类型，包含charset信息
 		response.setContentType("text/html; charset=UTF-8");
 		// 定义基础URL
@@ -302,6 +337,9 @@ public class OAuthController {
 		    if ("binding".equals(model) && bindingType != null) {
 		        urlBuilder.append("&binding-type=").append(bindingType);
 		    }
+		}
+		if (url != null) {
+		    urlBuilder.append("&url=").append(url);
 		}
 		// 执行重定向
 		response.sendRedirect(urlBuilder.toString());

@@ -13,18 +13,18 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
-import com.jiang.mall.domain.enums.OAuthResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 public interface IOAuthService {
 
-	String getAuthUrl(@NotNull OAuthProvider provider,@NotNull OAuthAction action);
+	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action);
 
-	OAuthResult callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
+	OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
 
 	Map<String, Object> getList();
 
@@ -35,4 +35,8 @@ public interface IOAuthService {
 	Boolean authLoginToBind(OAuthProvider oAuthProvider, String username, String password, String clientIp, String fingerprint, String token, String sessionId);
 
 	boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
+
+	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String clientIp, String fingerprint, String sessionId);
+
+	boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
 }

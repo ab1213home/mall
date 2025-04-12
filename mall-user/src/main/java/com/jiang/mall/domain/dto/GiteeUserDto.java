@@ -17,36 +17,6 @@ import lombok.Data;
 
 @Data
 public class GiteeUserDto {
-//	"avatar_url": string
-//"bio": string
-//"blog": string
-//"created_at": string
-//"email": string
-//"events_url": string
-//"followers": integer 关注用户的人数
-//"followers_url": string
-//"following": integer 用户关注的人数
-//"following_url": string
-//"gists_url": string
-//"html_url": string
-//"id": integer
-//"login": string
-//"member_role": string
-//"name": string
-//"organizations_url": string
-//"public_gists": integer
-//"public_repos": integer
-//"received_events_url": string
-//"remark": string 企业备注名
-//"repos_url": string
-//"stared": integer 用户收藏仓库数
-//"starred_url": string
-//"subscriptions_url": string
-//"type": string
-//"updated_at": string
-//"url": string
-//"watched": integer 用户关注仓库数
-//"weibo": string
 	private Long id;
     private String login;
     private String name;

@@ -23,12 +23,14 @@ import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.entity.VerificationCode;
-import com.jiang.mall.domain.enums.OAuthResult;
+import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
@@ -656,7 +658,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			logger.error("登录失败，sessionId不存在");
 			return false;
 		}
-
 	}
 
 	@Override
@@ -695,19 +696,46 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
-	public OAuthResult oauthLogin(Long userId, String token, String sessionId) {
+	public OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider) {
 		User user = userMapper.selectById(userId);
 		if (!user.isActive()){
-			return OAuthResult.UNBOUND;
+			return OAuthResultDto.unbound(cache.getUrl());
 		}
 		if (user.isTotpEnabled()){
 			redisService.setTwoLogin(user.getId(), sessionId);
-			return OAuthResult.SECOND_VERIFY;
+			return OAuthResultDto.secondVerify(cache.getUrl());
 		}else {
 			// 登录成功，记录登录记录
-			userLogService.oauthLoginLog(user.getUsername(), UserStatus.SUCCESS_LOGIN);
+			Map<String,Object> map = new HashMap<>();
+			map.put("provider", provider.getName());
+			userLogService.defaultLog(user.getUsername(), cache.getClientIp(), cache.getFingerprint(), UserStatus.SUCCESS_LOGIN, map);
 			login(user, token, sessionId);
-			return OAuthResult.SUCCESS;
+			return OAuthResultDto.success(cache.getUrl());
+		}
+	}
+
+	@Override
+	public boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider) {
+		if (redisService.validateTwoLogin(sessionId)){
+			Map<String,Object> map = new HashMap<>();
+			map.put("provider", provider.getName());
+			Long userId = redisService.getTwoLogin(sessionId);
+			String secretKey = userMapper.selectTotpSecretById(userId);
+			if (verifyTOTP(secretKey, code)){
+				User user = userMapper.selectById(userId);
+				// 登录成功，记录登录记录
+				userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_LOGIN, map);
+				login(user, token, sessionId);
+				return true;
+			}else {
+				map.put("code",code);
+				map.put("reason", "账号双因素认证(2FA)错误");
+				userLogService.defaultLog(userMapper.selectById(userId).getUsername(), clientIp, fingerprint, UserStatus.FAIL_LOGIN, map);
+				return false;
+			}
+		}else {
+			logger.error("登录失败，sessionId不存在");
+			return false;
 		}
 	}
 
