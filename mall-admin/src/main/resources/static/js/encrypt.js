@@ -26,7 +26,6 @@ function getSalt() {
         url: '/common/getSalt',
         // 使用的HTTP方法为GET
         type: 'GET',
-        data: {},
         dataType:"json",
         // 设置为同步请求，以确保在继续执行之前得到响应
         async: false,

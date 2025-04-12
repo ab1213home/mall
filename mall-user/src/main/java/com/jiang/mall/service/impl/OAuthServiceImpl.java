@@ -45,9 +45,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  implements IOAuthService  {
@@ -118,23 +116,25 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
-	public Map<String, Object> getList() {
-		Map<String, Object> map = new HashMap<>();
+	public List<Map<String, String>> getList() {
+		List<Map<String,String>> map = new ArrayList<>();
 		if (oAuthConfig.isOAuthGiteeEnabled()){
 			Map<String,String> map_gitee = new HashMap<>();
+			map_gitee.put("name",OAuthProvider.GITEE.getName());
 			map_gitee.put("login",OAuthProvider.GITEE.getLogin());
 			map_gitee.put("bind",OAuthProvider.GITEE.getBind());
 			map_gitee.put("unbind",OAuthProvider.GITEE.getUnbind());
 			map_gitee.put("ico",OAuthProvider.GITEE.getIco());
-			map.put(OAuthProvider.GITEE.getName(), map_gitee);
+			map.add(map_gitee);
 		}
 		if (oAuthConfig.isOAuthGithubEnabled()){
 			Map<String,String> map_github = new HashMap<>();
+			map_github.put("name",OAuthProvider.GITHUB.getName());
 			map_github.put("login",OAuthProvider.GITHUB.getLogin());
 			map_github.put("bind",OAuthProvider.GITHUB.getBind());
 			map_github.put("unbind",OAuthProvider.GITHUB.getUnbind());
 			map_github.put("ico",OAuthProvider.GITHUB.getIco());
-			map.put(OAuthProvider.GITHUB.getName(), map_github);
+			map.add(map_github);
 		}
 		return map;
 	}

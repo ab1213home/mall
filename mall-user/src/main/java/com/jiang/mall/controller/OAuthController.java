@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 //@Controller
@@ -74,7 +75,8 @@ public class OAuthController {
 	@GetMapping("/getList")
 	@Permission(PermissionType.NONE)
 	public ResponseResult<Object> getList(){
-		Map<String,Object> map = oAuthService.getList();
+//		Map<String,Object> map = oAuthService.getList();
+		List<Map<String,String>> map = oAuthService.getList();
 		return ResponseResult.okResult(map);
 	}
 
@@ -84,8 +86,8 @@ public class OAuthController {
 						  HttpServletRequest request,
 	                      @PathVariable("provider") String provider,
 	                      @RequestParam(value = "url", required = false) String url,
-	                      @RequestParam("X-Real-IP") String clientIp,
-	                      @RequestParam("X-Real-FINGERPRINT") String fingerprint
+	                      @RequestParam("clientIp") String clientIp,
+	                      @RequestParam("fingerprint") String fingerprint
 						  ) throws IOException {
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){

@@ -14,6 +14,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 const url = urlParams.get('url');
 const model = localStorage.getItem('model');
+let oauthArr = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     const message = urlParams.get('message');
@@ -38,6 +39,44 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             $('#remember').prop('checked', false);
         }
+        const socialLogin = document.getElementById('socialLogin');
+        const socialLoginTitle = document.getElementById('socialLoginTitle');
+        $.ajax({
+            url: '/oauth/getList',
+            type: 'GET',
+            dataType: 'json',
+            async:false,
+            success: function(res) {
+                // {"code":200,"message":"默认成功消息提示",
+                // "data":{"github":{"bind":"/bind/github","ico":"/images/github.png","unbind":"/unbind/github","login":"/login/github"},
+                // "gitee":{"bind":"/bind/gitee","ico":"/images/gitee.png","unbind":"/unbind/gitee","login":"/login/gitee"}},
+                // "timestamp":1744450611411,"success":true}
+                if (res.code == 200) {
+                    oauthArr = res.data;
+                    if (oauthArr.length == 0) {
+                        socialLogin.style.display = 'none';
+                        socialLoginTitle.style.display = 'none';
+                    }else{
+                        socialLogin.style.display = 'block';
+                        socialLoginTitle.style.display = 'block';
+                        res.data.forEach(function(item) {
+                            if (item.login != null) {
+                                const div = document.createElement('div');
+                                div.classList.add('d-inline-flex', 'justify-content-center', 'gap-3');
+                                const login = item.login + "?clientIp=" + ip + "&fingerprint=" + fingerprint + (url != null ? "&url=" + url : "");
+                                div.innerHTML = '<a href="' + login + '">' +
+                                    '<img src="' + item.ico + '" alt="' + item.name + '" class="img-fluid" style="width: 30px; height: 30px;">' +
+                                    '</a>';
+                                socialLogin.appendChild(div);
+                            }
+                        });
+                    }
+                }
+            },
+            fail: function(xhr, status, error) {
+                show_error('获取第三方登录信息失败，请联系管理员！'+error);
+            }
+        });
     }
 });
 
@@ -72,16 +111,11 @@ function submitLoginForm() {
         password: password,
         captcha: captcha
     };
-
     let url_ = '/user/login';
     // 自定义提交处理
     if (model=='binding'){
         const type = urlParams.get('binding-type');
-        if (type=='gitee'){
-            url_ = '/user/oauth/loginToBind/gitee';
-        }else if (type=='github'){
-            url_ = '/user/oauth/loginToBind/github';
-        }
+        url_ = '/oauth/loginToBind/'+type;
     }
     // 发送 AJAX 请求
     $.ajax({
@@ -192,9 +226,9 @@ function submitTwoVerifyForm() {
     if (model=='binding'){
         const type = urlParams.get('binding-type');
         if (type=='gitee'){
-            url_ = '/user/oauth/loginToBind/gitee/twoVerify';
+            url_ = '/oauth/loginToBind/gitee/twoVerify';
         }else if (type=='github'){
-            url_ = '/user/oauth/loginToBind/github/twoVerify';
+            url_ = '/oauth/loginToBind/github/twoVerify';
         }
     }
 

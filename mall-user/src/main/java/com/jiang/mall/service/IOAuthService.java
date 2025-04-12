@@ -18,6 +18,7 @@ import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IOAuthService {
@@ -26,7 +27,7 @@ public interface IOAuthService {
 
 	OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
 
-	Map<String, Object> getList();
+	List<Map<String, String>> getList();
 
 	boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId);
 
