@@ -16,7 +16,6 @@ package com.jiang.mall.controller;
 import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.config.OAuthConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
@@ -70,13 +69,6 @@ public class OAuthController {
 	@Autowired
 	public void setI18nService(II18nService i18nService) {
 		this.i18nService = i18nService;
-	}
-
-	private OAuthConfig oAuthConfig;
-
-	@Autowired
-	public void setOAuthConfig(OAuthConfig userConfig) {
-		this.oAuthConfig = userConfig;
 	}
 
 	@GetMapping("/getList")
