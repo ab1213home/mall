@@ -95,7 +95,7 @@ public class OAuthController {
 	                      @RequestParam("X-Real-IP") String clientIp,
 	                      @RequestParam("X-Real-FINGERPRINT") String fingerprint
 						  ) throws IOException {
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType("application/json;charset=UTF-8");
@@ -122,7 +122,7 @@ public class OAuthController {
 	@GetMapping("/bind/{provider}")
 	@Permission(PermissionType.USER)
 	public void authBind(HttpServletResponse response, HttpServletRequest request, @PathVariable("provider") String provider) throws IOException {
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType("application/json;charset=UTF-8");
@@ -175,7 +175,7 @@ public class OAuthController {
 			// 校验验证码是否正确
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
 		}
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
@@ -209,7 +209,7 @@ public class OAuthController {
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
@@ -237,7 +237,7 @@ public class OAuthController {
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
@@ -254,7 +254,7 @@ public class OAuthController {
 	@GetMapping("/unbind/{provider}")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> authUnbind(@PathVariable("provider") String provider,HttpSession session){
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
@@ -274,7 +274,7 @@ public class OAuthController {
                          HttpServletResponse response,
                          @PathVariable("provider") String provider
                         ) throws IOException {
-		OAuthProvider oAuthProvider = oAuthConfig.getProvider(provider);
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			redirect(request, response,"不支持的OAuth2供应商",null,null,null);
 			return;

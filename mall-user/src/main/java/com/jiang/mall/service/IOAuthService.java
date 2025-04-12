@@ -39,4 +39,6 @@ public interface IOAuthService {
 	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String clientIp, String fingerprint, String sessionId);
 
 	boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
+
+	OAuthProvider getProvider(String provider);
 }

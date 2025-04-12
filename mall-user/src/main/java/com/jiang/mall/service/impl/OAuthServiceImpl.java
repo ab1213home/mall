@@ -219,20 +219,16 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 	@Override
 	public boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId) {
-		boolean flag = userService.oauthLogin(sessionId,code,token,clientIp,fingerprint,oAuthProvider);
-		if (flag){
-			if (oAuthProvider==OAuthProvider.GITEE){
-				Boolean flag_ = authLoginToBindGitee(sessionId);
-				return flag_;
-			}else if (oAuthProvider==OAuthProvider.GITHUB){
-				Boolean flag_ = authLoginToBindGithub(sessionId);
-				return flag_;
-			}else {
-				return false;
-			}
-		}else {
-			return false;
-		}
+		return userService.oauthLogin(sessionId,code,token,clientIp,fingerprint,oAuthProvider);
+	}
+
+	@Override
+	public OAuthProvider getProvider(@NotNull String provider) {
+		return switch (provider) {
+			case "github" -> oAuthConfig.isOAuthGithubEnabled() ? OAuthProvider.GITHUB : null;
+			case "gitee" -> oAuthConfig.isOAuthGiteeEnabled() ? OAuthProvider.GITEE : null;
+			default -> null;
+		};
 	}
 
 	private @Nullable Boolean authLoginToBindGithub(String sessionId) {

@@ -14,7 +14,6 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.OAuthConfigItems;
-import com.jiang.mall.domain.enums.OAuthProvider;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -163,19 +162,4 @@ public class OAuthConfig {
 		};
 	}
 
-    public String getClientSecret(@NotNull String name) {
-		return switch (name) {
-			case "github" -> getGithubClientSecret();
-			case "gitee" -> getGiteeClientSecret();
-			default -> null;
-		};
-    }
-
-    public OAuthProvider getProvider(@NotNull String provider) {
-        return switch (provider) {
-			case "github" -> isOAuthGithubEnabled() ? OAuthProvider.GITHUB : null;
-			case "gitee" -> isOAuthGiteeEnabled() ? OAuthProvider.GITEE : null;
-			default -> null;
-		};
-    }
 }
