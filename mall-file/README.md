@@ -31,20 +31,41 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 #### 后端
 
-1. 使用[easy-captcha](https://github.com/ele-admin/EasyCaptcha "v1.6.2")实现验证码部分
+1. **MinIO 对象存储支持**  
+   使用 [MinIO Java SDK](https://github.com/minio/minio-java)  
+   - 功能：提供对象存储服务，支持文件的上传、下载、删除和管理，适用于分布式存储需求。
 
-2. 中国地址行政区划数据库数据来源：https://github.com/kakuilan/china_area_mysql
-（经过裁剪）
+2. **公共模块支持**  
+   使用 [mall-common](../mall-common/README.md)  
+   - 功能：集成项目的公共模块，提供通用工具类、配置和基础功能支持，确保代码复用性和一致性。
 
-3. 使用[mybatis-plus](https://github.com/baomidou/mybatis-plus "v3.5.8")实现数据库操作
+3. **用户模块支持**  
+   使用 [mall-user](../mall-user/README.md)  
+   - 功能：集成项目的用户模块，提供用户相关的数据模型、服务和接口支持，适用于文件模块中涉及用户信息的场景。
 
-4. 使用[sitemapgen4j](https://github.com/dfabulich/sitemapgen4j "v1.1.1")生成sitemap
+4. **FTP 文件传输支持**  
+   使用 [Apache Commons Net](https://commons.apache.org/proper/commons-net/)  
+   - 功能：提供 FTP 协议的文件传输支持，支持文件的上传、下载和管理。
 
-5. 使用[mysql-connector-j](https://github.com/mysql/mysql-connector-j "v8.3.0")实现数据库连接
+5. **SFTP 文件传输支持**  
+   使用 [JSch](https://github.com/mwiede/jsch)  
+   - 功能：提供 SFTP 协议的文件传输支持，支持安全的文件上传、下载和管理。
 
-6. 使用[jakarta-mail](https://github.com/jakartaee/mail-api "v2.0.1")实现邮件发送
+6. **横幅模块支持**  
+   使用 [mall-banner](../mall-banner/README.md)  
+   - 功能：集成项目的横幅模块，提供横幅相关的数据模型、服务和接口支持，适用于文件模块中涉及横幅信息的场景。
 
-7. 使用[annotations](https://github.com/JetBrains/java-annotations "v26.0.0")实现注解
+7. **压缩工具支持**  
+   使用 [Apache Commons Compress](https://commons.apache.org/proper/commons-compress/)  
+   - 功能：提供多种压缩格式的支持，包括 ZIP、GZIP 等，适用于文件的压缩和解压缩操作。
+
+8. **核心模块支持**  
+   使用 [mall-core](../mall-core/README.md)  
+   - 功能：集成项目的核心模块，提供核心功能和基础服务支持，确保系统稳定性和可扩展性。
+
+9. **商品模块支持**  
+   使用 [mall-product](../mall-product/README.md)  
+   - 功能：集成项目的商品模块，提供商品相关的数据模型、服务和接口支持，适用于文件模块中涉及商品信息的场景。
 
 #### 前端
 

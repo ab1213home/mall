@@ -1,7 +1,7 @@
-# Jiang Mall Captcha Module
+# Jiang Mall Pay Module
 
 ## 介绍
-验证码模块
+支付模块
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -15,13 +15,17 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 #### 后端
 
-1. **验证码生成与验证**  
-   使用 [easy-captcha](https://github.com/whvcse/EasyCaptcha)  
-   - 功能：提供简单易用的验证码生成和验证功能，支持数字、字母、算术题等多种类型验证码。
-
-2. **公共模块支持**  
+1. **公共模块支持**  
    使用 [mall-common](../mall-common/README.md)  
    - 功能：集成项目的公共模块，提供通用工具类、配置和基础功能支持，确保代码复用性和一致性。
+
+2. **支付宝支付支持**  
+   使用 [alipay-easysdk](https://github.com/alipay/easysdk)  
+   - 功能：提供支付宝支付相关的 SDK 支持，包括但不限于支付、退款、查询等功能，方便集成支付宝支付服务。
+
+3. **微信支付支持**  
+   使用 [wechatpay-java](https://github.com/wechatpay-apiv3/wechatpay-java)  
+   - 功能：提供微信支付相关的 SDK 支持，涵盖支付、退款、对账等操作，简化微信支付功能的开发与集成。
 
 ## 测试环境
 

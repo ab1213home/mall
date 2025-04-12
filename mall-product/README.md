@@ -1,7 +1,7 @@
-# Jiang Mall Monitor Module
+# Jiang Mall Product Module
 
 ## 介绍
-系统监控模块
+商品模块
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -9,6 +9,7 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 ## 技术栈
 
 - **后端**：Spring Boot 3.3.4 (Oracle OpenJDK 17.0.11)
+- **数据库**：MySQL 8.0.36 (MySQL Community Server) 
 - **缓存**：Redis 6.2.16
 - **构建工具**：Maven 3.8.4
 - **版本控制**：Git
@@ -18,14 +19,6 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 1. **公共模块支持**  
    使用 [mall-common](../mall-common/README.md)  
    - 功能：集成项目的公共模块，提供通用工具类、配置和基础功能支持，确保代码复用性和一致性。
-
-2. **数据库操作支持**  
-   使用 [Spring JDBC](https://spring.io/projects/spring-jdbc)  
-   - 功能：提供基于 JDBC 的数据库访问支持，简化 SQL 执行和结果集处理，适用于轻量级数据访问场景。
-
-3. **系统监控与硬件信息采集**  
-   使用 [OSHI](https://github.com/oshi/oshi)  
-   - 功能：跨平台的系统信息采集库，用于获取操作系统、硬件状态（如 CPU、内存、磁盘等）和运行时性能数据。
 
 ## 测试环境
 

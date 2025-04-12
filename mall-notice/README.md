@@ -1,7 +1,7 @@
-# Jiang Mall Captcha Module
+# Jiang Mall Notice Module
 
 ## 介绍
-验证码模块
+消息通知模块
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)
@@ -15,11 +15,23 @@ IntelliJ IDEA 2024.2.3 (Ultimate Edition)
 
 #### 后端
 
-1. **验证码生成与验证**  
-   使用 [easy-captcha](https://github.com/whvcse/EasyCaptcha)  
-   - 功能：提供简单易用的验证码生成和验证功能，支持数字、字母、算术题等多种类型验证码。
+1. **邮件发送支持**  
+   使用 [Jakarta Mail](https://javaee.github.io/javamail/)  
+   - 功能：提供邮件发送功能，支持 SMTP 协议，可以发送文本邮件、HTML 邮件和带附件的邮件。
 
-2. **公共模块支持**  
+2. **阿里云短信服务支持**  
+   使用 [dysmsapi20180501](https://help.aliyun.com/document_detail/101414.html)  
+   - 功能：集成阿里云短信服务，提供短信发送、查询和模板管理等功能，适用于短信通知和验证码发送。
+
+3. **模板引擎支持**  
+   使用 [Beetl](https://beetl.b3log.org/)  
+   - 功能：提供高性能的模板引擎，支持模板渲染、变量替换和逻辑控制等功能，适用于动态内容生成。
+
+4. **用户模块支持**  
+   使用 [mall-user](../mall-user/README.md)  
+   - 功能：集成项目的用户模块，提供用户相关的数据模型、服务和接口支持，适用于通知模块中涉及用户信息的场景。
+
+5. **公共模块支持**  
    使用 [mall-common](../mall-common/README.md)  
    - 功能：集成项目的公共模块，提供通用工具类、配置和基础功能支持，确保代码复用性和一致性。
 
