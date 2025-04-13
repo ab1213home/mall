@@ -127,7 +127,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		UserCache user = userService.getUserFromRedis(sessionId);
 		Page<Order> orderPage = new Page<>(pageNum, pageSize);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
-		queryWrapper_order.eq("user_id", user.getId());
+		queryWrapper_order.select("id") // 指定只需要查询id字段
+		                  .eq("user_id", user.getId()); // 设置查询条件
+		// 将结果转换为Long类型的列表
+		List<Long> orderIdList = orderMapper.selectPage(orderPage, queryWrapper_order).getRecords().stream()
+		                                  .map(Order::getId)
+		                                  .toList();
 		List<Order> orderList = orderMapper.selectPage(orderPage,queryWrapper_order).getRecords();
 		List<OrderVo> orderVoList = new ArrayList<>();
 		for (Order order_item : orderList) {
