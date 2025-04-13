@@ -31,8 +31,6 @@ import java.util.List;
  */
 public interface IOrderService extends IService<Order> {
 
-	Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, List<CheckoutVo> listCheckoutVo);
-
 	List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize);
 
 	Long getOrderNum(String sessionId);
@@ -44,4 +42,6 @@ public interface IOrderService extends IService<Order> {
 	String getAmount();
 
 	Long newOrder(String sessionId, Long addressId, List<CheckoutVo> listCheckoutVo);
+
+	OrderVo getOrder(Long id, String sessionId);
 }

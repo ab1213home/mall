@@ -126,4 +126,28 @@ public class CoreConfig {
         properties.setProperty(CoreConfigItems.CART_SYNC_TIME.getKey(), String.valueOf(time));
     }
 
+    public boolean isOrderCacheEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.ORDER_CACHE_ENABLED.getKey(), CoreConfigItems.ORDER_CACHE_ENABLED.getDefaultValue()));
+    }
+
+    public Long getOrderCacheTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.ORDER_CACHE_TIME.getKey(),CoreConfigItems.ORDER_CACHE_TIME.getDefaultValue()));
+    }
+
+    public Long getOrderSyncTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.ORDER_SYNC_TIME.getKey(),CoreConfigItems.ORDER_SYNC_TIME.getDefaultValue()));
+    }
+
+    public void updateOrderCache(Boolean cache) {
+        properties.setProperty(CoreConfigItems.ORDER_CACHE_ENABLED.getKey(), String.valueOf(cache));
+    }
+
+    public void updateOrderCacheTime(Long time) {
+        properties.setProperty(CoreConfigItems.ORDER_CACHE_TIME.getKey(), String.valueOf(time));
+    }
+
+    public void updateOrderSyncTime(Long time) {
+        properties.setProperty(CoreConfigItems.ORDER_SYNC_TIME.getKey(), String.valueOf(time));
+    }
+
 }

@@ -15,8 +15,6 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderVo;
@@ -163,54 +161,6 @@ public class OrderUserController {
 		return ResponseResult.okResult(order);
 	}
 
-
-	/**
-	 * 处理订单插入请求
-	 *
-	 * @param addressId 地址ID，用于确定送货地址
-	 * @param paymentMethod 支付方式，用于订单支付
-	 * @param status 订单状态，用于标记订单的情况
-	 * @param list_checkoutVo 购物车项列表，包含待购买的商品信息
-	 * @param session HTTP会话，用于管理用户状态和数据
-	 * @return ResponseResult 包含操作结果和订单ID的响应对象
-	 */
-	@PostMapping("/insert")
-	@Permission(PermissionType.USER)
-	public ResponseResult<Object> insertOrder(@RequestParam("addressId") Long addressId,
-									        @RequestParam("paymentMethod") byte paymentMethod,
-									        @RequestParam("status") byte status,
-									        @RequestBody List<CheckoutVo> list_checkoutVo,
-									        HttpSession session) {
-	    // 检查会话中是否设置表示用户已登录的标志
-		if (addressId == null|| paymentMethod<0||status<0||list_checkoutVo == null||addressId<=0){
-			return ResponseResult.failResult("参数错误");
-		}
-		if (!StringUtils.hasText(addressId.toString())){
-			return ResponseResult.failResult("请输入地址ID");
-		}
-	    // 根据地址ID获取地址信息，以验证地址是否属于当前用户
-	    Address address = addressService.getById(addressId);
-		UserCache user = userService.getUserFromRedis(session.getId());
-	    if (!address.getUserId().equals(user.getId())) {
-	        return ResponseResult.failResult("您没有权限提交此订单");
-	    }
-		if (list_checkoutVo.isEmpty()){
-			return ResponseResult.failResult("请先选择商品");
-		}
-	    // 调用服务层方法插入新订单
-	    Long orderId = orderService.insertOrder(session.getId(), addressId, paymentMethod, status, list_checkoutVo);
-	    // 处理购物车ID列表，以便在订单提交后清除购物车
-//	    List<Long> list_cartId = cartService.getCheckoutCartIdListFormRedis(session.getId());
-	    // 根据订单删除购物车中的商品
-	    cartService.deleteCartByOrder(session.getId(), list_checkoutVo);
-		//删除redis中的缓存
-		cartService.deleteCheckoutListInRedis(session.getId());
-	    if (orderId == null) {
-	        return ResponseResult.failResult("提交失败");
-	    }
-	    // 返回订单ID作为成功响应
-	    return ResponseResult.okResult(orderId);
-	}
 
 	/**
 	 * 获取订单列表

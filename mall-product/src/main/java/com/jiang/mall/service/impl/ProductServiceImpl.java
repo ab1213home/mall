@@ -13,21 +13,30 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.dao.ProductMapper;
+import com.jiang.mall.dao.ProductSnapshotMapper;
 import com.jiang.mall.domain.cache.ProductCache;
+import com.jiang.mall.domain.cache.ProductSnapshotCache;
 import com.jiang.mall.domain.entity.EsProduct;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.CategoryVo;
+import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.event.ProductChangedEvent;
 import com.jiang.mall.service.ICategoryService;
 import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.SecureUtil;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
@@ -35,7 +44,9 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -47,6 +58,8 @@ import java.util.List;
  */
 @Service
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements IProductService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private ProductMapper productMapper;
 
@@ -62,11 +75,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.redisService = redisService;
 	}
 
-	private ProductConfig coreConfig;
+	private ProductConfig productConfig;
 
 	@Autowired
-	public void setCoreConfig(ProductConfig coreConfig) {
-		this.coreConfig = coreConfig;
+	public void setProductConfig(ProductConfig productConfig) {
+		this.productConfig = productConfig;
 	}
 
 	private ICategoryService categoryService;
@@ -74,6 +87,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	@Autowired
 	public void setCategoryService(ICategoryService categoryService) {
 		this.categoryService = categoryService;
+	}
+
+	private ProductSnapshotMapper productSnapshotMapper;
+
+	@Autowired
+	public void setProductSnapshotMapper(ProductSnapshotMapper productSnapshotMapper) {
+		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
     private ElasticsearchOperations elasticsearchOperations;
@@ -136,7 +156,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     public ProductVo getProduct(Long id) {
-		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
+		if (productConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
 			ProductCache productCache = redisService.getProduct(id);
 			ProductVo product = BeanCopyUtil.copyBean(productCache, ProductVo.class);
 			assert product != null;
@@ -150,7 +170,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (product != null) {
             // 将查询到的Product对象转换为ProductVo对象
             ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
-			if (coreConfig.isProductCacheEnabled()){
+			if (productConfig.isProductCacheEnabled()){
 				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
 				assert productCache != null;
 				redisService.setProduct(productCache);
@@ -279,7 +299,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    }
 	}
 
-	private void deleteProductFromEs(Long productId) {
+	private void deleteProductFromEs(@NotNull Long productId) {
 	    elasticsearchOperations.delete(productId.toString(), EsProduct.class);
 	}
 
@@ -290,6 +310,75 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 //	    if (product != null) {
 //	        redisTemplate.opsForValue().set(cacheKey, product, 30, TimeUnit.MINUTES);
 //	    }
+	}
+
+	@Override
+	public ProductSnapshotVo getSnapshot(Long id) {
+		//TODO:使用拦截器判断是否合法
+		if (productConfig.isProductCacheEnabled() && redisService.hasSnapshotCache(id)){
+			ProductSnapshotCache productCache = redisService.getSnapshotCache(id);
+			ProductSnapshotVo product = BeanCopyUtil.copyBean(productCache, ProductSnapshotVo.class);
+			assert product != null;
+			CategoryVo category = JSON.parseObject(productCache.getCategory(), CategoryVo.class);
+			product.setCategory(category);
+			return product;
+		}
+        // 通过ID从数据库中查询产品信息
+        ProductSnapshot product = productSnapshotMapper.selectById(id);
+        // 如果数据库中存在该产品
+        if (product != null) {
+            ProductSnapshotVo productVo = BeanCopyUtil.copyBean(product, ProductSnapshotVo.class);
+			if (productConfig.isProductCacheEnabled()){
+				ProductSnapshotCache productCache = BeanCopyUtil.copyBean(product, ProductSnapshotCache.class);
+				assert productCache != null;
+				redisService.setSnapshotCache(productCache);
+	        }
+            CategoryVo category = JSON.parseObject(product.getCategory(), CategoryVo.class);
+	        assert productVo != null;
+			productVo.setCategory(category);
+			return productVo;
+        }else{
+            return null;
+        }
+	}
+
+	@Override
+	public Long getSnapshotId(ProductVo product) {
+		String hash = getHash(product);
+		Long id = productSnapshotMapper.selectIdByHash(hash);
+		if (id != null){
+			return id;
+		}else{
+			ProductSnapshot productSnapshot = new ProductSnapshot();
+			productSnapshot.setHash(hash);
+			productSnapshot.setProdId(product.getId());
+			productSnapshot.setCode(product.getCode());
+			productSnapshot.setTitle(product.getTitle());
+			productSnapshot.setCategory(JSON.toJSONString(product.getCategory()));
+			productSnapshot.setImg(product.getImg());
+			productSnapshot.setPrice(product.getPrice());
+			productSnapshot.setDescription(product.getDescription());
+			productSnapshot.setProperties(product.getProperties());
+			if (productSnapshotMapper.insert(productSnapshot)> 0){
+				return productSnapshot.getId();
+			}else{
+				logger.warn("插入产品快照失败");
+				return -1L;
+			}
+		}
+	}
+
+	private @NotNull String getHash(@NotNull ProductVo product) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", product.getId());
+		map.put("code", product.getCode());
+		map.put("title", product.getTitle());
+		map.put("price", product.getPrice());
+		map.put("img", product.getImg());
+		map.put("description", product.getDescription());
+		map.put("category", JSON.toJSONString(product.getCategory()));
+		map.put("properties", product.getProperties());
+		return SecureUtil.sha256Hex(JSON.toJSONString(map));
 	}
 
 }

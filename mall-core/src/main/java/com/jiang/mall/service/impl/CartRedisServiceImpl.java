@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.ScanOptions;
@@ -56,8 +55,8 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	@Autowired
-    private ResourceLoader resourceLoader;
+//	@Autowired
+//    private ResourceLoader resourceLoader;
 
 	private CoreConfig coreConfig;
 

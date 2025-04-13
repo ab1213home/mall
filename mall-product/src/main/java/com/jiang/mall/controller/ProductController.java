@@ -19,7 +19,6 @@ import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
-import com.jiang.mall.service.IProductSnapshotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,13 +46,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    private IProductSnapshotService productSnapshotService;
-
-    @Autowired
-    public void productSnapshotService(IProductSnapshotService productSnapshotService) {
-        this.productSnapshotService = productSnapshotService;
-    }
-
     @GetMapping("/snapshot/getInfo")
     @Permission(PermissionType.USER)
     public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id) {
@@ -64,7 +56,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshot(id);
+        ProductSnapshotVo snapshot = productService.getSnapshot(id);
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");

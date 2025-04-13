@@ -16,18 +16,21 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.CategoryMapper;
+import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.OrderListMapper;
 import com.jiang.mall.dao.OrderMapper;
 import com.jiang.mall.dao.ProductSnapshotMapper;
+import com.jiang.mall.domain.cache.OrderCache;
 import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.entity.*;
+import com.jiang.mall.domain.entity.Address;
+import com.jiang.mall.domain.entity.Order;
+import com.jiang.mall.domain.entity.OrderList;
+import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.enums.OrderStatus;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
 import com.jiang.mall.util.SeataSnowflakeUtil;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +87,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	private IAddressService addressService;
+
 	@Autowired
 	public void setAddressService(IAddressService addressService) {
 		this.addressService = addressService;
@@ -96,20 +100,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
-	private IProductSnapshotService productSnapshotService;
-
-	@Autowired
-	public void setProductSnapshotService(IProductSnapshotService productSnapshotService) {
-		this.productSnapshotService = productSnapshotService;
-	}
-
-	private CategoryMapper categoryMapper;
-
-	@Autowired
-	public void setCategoryMapper(CategoryMapper categoryMapper) {
-		this.categoryMapper = categoryMapper;
-	}
-
 	private SeataSnowflakeUtil idGenerator;
 
 	@Autowired
@@ -117,104 +107,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         this.idGenerator = idGenerator;
     }
 
-	/**
-	 * 插入订单信息
-	 *
-	 * @param sessionId
-	 * @param addressId      地址ID
-	 * @param paymentMethod  支付方式
-	 * @param status         订单状态
-	 * @param listCheckoutVo 结算信息列表，用于创建订单详情
-	 * @return 插入成功返回订单ID，否则返回null
-	 */
-	@Override
-	public Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
-//		UserCache user = userService.getUserFromRedis(sessionId);
-//	    // 创建订单对象并设置基本信息
-//	    Order order = new Order();
-//	    order.setUserId(user.getId());
-//	    order.setAddressId(addressId);
-////	    order.setDate(new Date());
-//	    order.setTotalAmount(new BigDecimal("0.0"));
-//	    // 计算订单总金额
-//	    for (CheckoutVo checkoutVo : listCheckoutVo) {
-//			if (checkoutVo.getProduct() == null) {
-//				logger.error("结算信息中产品信息为空，无法创建订单");
-//				return null;
-//			}
-//			if (checkoutVo.getNum() <= 0) {
-//				logger.error("结算信息中商品数量小于等于0，无法创建订单");
-//				return null;
-//			}
-//			// 计算单个订单项的金额
-//		    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
-//			// 计算订单总金额
-//	        order.setTotalAmount(add(order.getTotalAmount(),amount));
-//	    }
-////	    order.setPaymentMethod((int)paymentMethod);
-//	    order.setStatus((int)status);
-//	    // 插入订单信息
-//	    if (orderMapper.insert(order) > 0) {
-//			//TODO：待修复，完善商品快照，减少重复快照产生
-//	        for (CheckoutVo checkoutVo : listCheckoutVo) {
-//	            // 创建订单详情对象并设置基本信息
-//	            OrderList orderList = new OrderList();
-//	            // 获取产品和类别信息
-//		        Product product = productMapper.selectById(checkoutVo.getProduct().getId());
-//				if (product == null) {
-//					logger.error("产品信息不存在，无法创建订单");
-//					return null;
-//				}
-//				Category category = categoryMapper.selectById(product.getCategoryId());
-//				if (category == null) {
-//					logger.error("类别信息不存在，无法创建订单");
-//					return null;
-//				}
-//				String category_str =queryCategoryToString(product.getCategoryId());
-//	            // 查询是否存在相同的产品快照
-//		        //TODO:使用哈希算法简化产品快照判断
-//
-////	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
-////	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
-////	            queryWrapper_productSnapshot.eq("title", product.getTitle());
-////	            queryWrapper_productSnapshot.eq("price", product.getPrice());
-////	            queryWrapper_productSnapshot.eq("img", product.getImg());
-////				queryWrapper_productSnapshot.eq("category",category_str);
-////	            queryWrapper_productSnapshot.eq("description", product.getDescription());
-////	            queryWrapper_productSnapshot.eq("is_del", true);
-////	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
-////	            if (productSnapshot==null){
-////	                // 如果不存在，则创建新的产品快照
-////	                productSnapshot = new ProductSnapshot(product);
-////	                productSnapshot.setCategory(category_str);
-////	                // 插入新的产品快照
-////	                if (productSnapshotMapper.insert(productSnapshot)>0){
-////	                    orderList.setProdId(productSnapshot.getId());
-////	                }
-////	            }else {
-////					orderList.setProdId(productSnapshot.getId());
-////	            }
-//
-//	            // 插入订单详情信息
-//	            if (orderListMapper.insert(orderList)>0){
-//	                logger.info("订单列表插入成功");
-//	            }else{
-//	                logger.error("订单列表插入失败，无法创建订单");
-//	                //TODO：待完善
-//	                return null;
-//	            }
-//	        }
-//	        return order.getId();
-//	    }
-	    return null;
+	private CoreConfig coreConfig;
+
+	@Autowired
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
 	}
 
-	private @NotNull String queryCategoryToString(Long categoryId) {
-		Category category = categoryMapper.selectById(categoryId);
-		if (category == null){
-			return "";
-		}
-		return category.getName()+"-"+queryCategoryToString(category.getParentId());
+	private IOrderRedisService redisService;
+
+	@Autowired
+	public void setRedisService(IOrderRedisService redisService) {
+		this.redisService = redisService;
 	}
 
 	@Override
@@ -343,7 +247,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 */
 	@Override
 	public Long getOrderNum() {
-	    // 通过调用Mapper接口的selectCount方法，无条件查询所有订单信息
 	    return orderMapper.selectCount(null);
 	}
 
@@ -353,9 +256,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LocalDate now = LocalDate.now();
         LocalDate firstDayOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate lastDayOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
-
 		String amount = orderMapper.getAmount(firstDayOfMonth, lastDayOfMonth);
-
         return amount != null ? amount: "0.00";
 	}
 
@@ -394,7 +295,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 				return -1L;
 			}
 
-			Long productSnapshotId = productSnapshotService.getProductSnapshotId(product);
+			Long productSnapshotId = productService.getSnapshotId(product);
 			if (productSnapshotId==-1L){
 				logger.error("产品快照信息不存在，无法创建订单");
 			}
@@ -422,6 +323,60 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			logger.warn("订单插入失败，无法创建订单");
 			return -1L;
 		}
+	}
+
+	@Override
+	public OrderVo getOrder(Long id, String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
+			OrderCache orderCache = redisService.getOrder(id);
+			if (!orderCache.getUserId().equals(user.getId())){
+				return null;
+			}
+			OrderVo order = BeanCopyUtil.copyBean(orderCache, OrderVo.class);
+			assert order != null;
+			List<OrderListVo> orderList_VoList = new ArrayList<>();
+			for (OrderCache.OrderListCache orderList : orderCache.getOrderList()) {
+				OrderListVo orderListVo = new OrderListVo();
+				orderListVo.setId(orderList.getId());
+				orderListVo.setNum(orderList.getNum());
+				orderListVo.setProduct(productService.getSnapshot(orderList.getProdId()));
+				orderList_VoList.add(orderListVo);
+			}
+			order.setOrderList(orderList_VoList);
+			return order;
+		}
+		Order order = orderMapper.selectById(id);
+		if (order != null && order.getUserId().equals(user.getId())){
+			OrderVo orderVo = BeanCopyUtil.copyBean(order, OrderVo.class);
+			QueryWrapper<OrderList> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("order_id",id);
+			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper);
+			List<OrderListVo> orderList_VoList = new ArrayList<>();
+			List<OrderCache.OrderListCache> orderList_CacheList = new ArrayList<>();
+			for (OrderList orderList : orderList_List) {
+				OrderListVo orderListVo = new OrderListVo();
+				orderListVo.setId(orderList.getId());
+				orderListVo.setNum(orderList.getNum());
+				orderListVo.setProduct(productService.getSnapshot(orderList.getProdId()));
+				orderList_VoList.add(orderListVo);
+				if (coreConfig.isOrderCacheEnabled()){
+					OrderCache.OrderListCache orderListCache = BeanCopyUtil.copyBean(orderList, OrderCache.OrderListCache.class);
+					assert orderListCache != null;
+					orderList_CacheList.add(orderListCache);
+				}
+			}
+			assert orderVo != null;
+			orderVo.setOrderList(orderList_VoList);
+			if (coreConfig.isOrderCacheEnabled()){
+				OrderCache orderCache = BeanCopyUtil.copyBean(order, OrderCache.class);
+				assert orderCache != null;
+				orderCache.setOrderList(orderList_CacheList);
+				redisService.setOrder(orderCache);
+			}
+			return orderVo;
+		}
+		return null;
 	}
 
 }

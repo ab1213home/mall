@@ -14,6 +14,7 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.ProductCache;
+import com.jiang.mall.domain.cache.ProductSnapshotCache;
 import org.jetbrains.annotations.NotNull;
 
 public interface IProductRedisService {
@@ -25,4 +26,12 @@ public interface IProductRedisService {
     boolean hasProduct(Long id);
 
     void deleteProduct(Long id);
+
+    void setSnapshotCache(@NotNull ProductSnapshotCache product);
+
+    ProductSnapshotCache getSnapshotCache(Long id);
+
+    boolean hasSnapshotCache(Long id);
+
+    void deleteProductSnapshotCache(Long id);
 }

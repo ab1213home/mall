@@ -29,21 +29,11 @@ public class OrderListVo {
      * 订单项ID
      */
     private Long id;
-    //TODO:减少耦合
-    /**
-     * 订单ID
-     */
-    private Long orderId;
 
     /**
      * 商品信息
      */
     private ProductSnapshotVo product;
-
-    /**
-     * 商品ID
-     */
-    private Long prodId;
 
     /**
      * 商品数量

@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Product;
+import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 
 import java.util.List;
@@ -48,4 +49,9 @@ public interface IProductService extends IService<Product> {
 	List<Product> queryAll();
 
 	void checkProduct();
+
+	ProductSnapshotVo getSnapshot(Long id);
+
+	Long getSnapshotId(ProductVo product);
+
 }

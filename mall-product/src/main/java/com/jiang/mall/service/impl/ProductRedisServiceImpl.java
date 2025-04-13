@@ -17,6 +17,7 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.domain.cache.ProductCache;
+import com.jiang.mall.domain.cache.ProductSnapshotCache;
 import com.jiang.mall.service.IProductRedisService;
 import jakarta.annotation.PostConstruct;
 import org.jetbrains.annotations.NotNull;
@@ -52,10 +53,12 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	}
 
 	String prefix = "product:";
+	String snapshot_prefix = "product:snapshot:";
 
 	@PostConstruct
 	public void init() {
 	    prefix = generalConfig.getRedisKeyPrefix()+":product:";
+		snapshot_prefix = generalConfig.getRedisKeyPrefix()+":product:snapshot:";
 	}
 
 	@Override
@@ -77,5 +80,26 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	@Override
 	public void deleteProduct(Long id) {
 		stringRedisTemplate.delete(prefix+id);
+	}
+
+	@Override
+	public void setSnapshotCache(@NotNull ProductSnapshotCache product) {
+		stringRedisTemplate.opsForValue().set(snapshot_prefix +product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+	}
+
+	@Override
+	public ProductSnapshotCache getSnapshotCache(Long id) {
+		String json = stringRedisTemplate.opsForValue().get(snapshot_prefix +id);
+		return json == null ? null : JSON.parseObject(json, ProductSnapshotCache.class);
+	}
+
+	@Override
+	public boolean hasSnapshotCache(Long id) {
+		return stringRedisTemplate.hasKey(snapshot_prefix +id);
+	}
+
+	@Override
+	public void deleteProductSnapshotCache(Long id) {
+		stringRedisTemplate.delete(snapshot_prefix +id);
 	}
 }

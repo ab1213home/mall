@@ -13,16 +13,16 @@
 
 package com.jiang.mall.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.entity.ProductSnapshot;
-import com.jiang.mall.domain.vo.ProductSnapshotVo;
-import com.jiang.mall.domain.vo.ProductVo;
+import com.jiang.mall.domain.cache.OrderCache;
 
-public interface IProductSnapshotService extends IService<ProductSnapshot> {
+public interface IOrderRedisService {
 
-	ProductSnapshotVo getSnapshot(Long id);
+	void setOrder(OrderCache order);
 
-//	ProductSnapshotVo getSnapshot(Long id, String sessionId);
+	OrderCache getOrder(Long orderId);
 
-	Long getProductSnapshotId(ProductVo product);
+	boolean hasOrder(Long orderId);
+
+	void deleteOrder(Long orderId);
+
 }

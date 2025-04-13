@@ -20,7 +20,11 @@ public enum CoreConfigItems {
 
 	CART_CACHE_ENABLED("cart.cache.enabled", "是否启用缓存", "true"),
 	CART_SYNC_TIME("cart.sync.time", "同步时间(秒)", "900"),
-	CART_CACHE_TIME("cart.cache.time", "缓存时间(秒)", "604800");
+	CART_CACHE_TIME("cart.cache.time", "缓存时间(秒)", "604800"),
+	//订单
+	ORDER_CACHE_ENABLED("order.cache.enabled", "是否启用缓存", "true"),
+	ORDER_SYNC_TIME("order.sync.time", "同步时间(秒)", "9000"),
+	ORDER_CACHE_TIME("order.cache.time", "缓存时间(秒)", "604800");
 
 	private final String key;
 	private final String description;
