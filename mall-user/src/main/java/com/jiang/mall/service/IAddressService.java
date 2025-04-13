@@ -85,4 +85,6 @@ public interface IAddressService extends IService<Address> {
 	AddressVo getAddress(Long id, String sessionId);
 
 	AddressVo getAddress(Long id, Long userId);
+
+	AddressVo getAddress(Long id);
 }

@@ -303,7 +303,6 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
 	@Override
 	public AddressVo getAddress(Long id, Long userId) {
-//		UserCache user = userService.getUserFromRedis(sessionId);
 		Address address = addressMapper.selectById(id);
 		if (address == null){
 			return null;
@@ -311,7 +310,15 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 		if (!address.getUserId().equals(userId)){
 			return null;
 		}
-		//		addressVo.setDefault(Objects.equals(addressVo.getId(), user.getDefaultAddressId()));
+		return getAddress(address);
+	}
+
+	@Override
+	public AddressVo getAddress(Long id) {
+		Address address = addressMapper.selectById(id);
+		if (address == null){
+			return null;
+		}
 		return getAddress(address);
 	}
 

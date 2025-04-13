@@ -31,6 +31,7 @@ import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
 import com.jiang.mall.util.SeataSnowflakeUtil;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,7 +142,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper_orderList);
 			List<OrderListVo> orderList_VoList = new ArrayList<>();
 			for (OrderList orderList_item : orderList_List) {
-				//TODO：待修复，商品快照+分类快照
 				OrderListVo orderListVo = BeanCopyUtil.copyBean(orderList_item, OrderListVo.class);
 				ProductSnapshot productSnapshot = productSnapshotMapper.selectById(orderList_item.getProdId());
 				ProductSnapshotVo productVo = BeanCopyUtil.copyBean(productSnapshot, ProductSnapshotVo.class);
@@ -335,6 +335,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			}
 			OrderVo order = BeanCopyUtil.copyBean(orderCache, OrderVo.class);
 			assert order != null;
+			AddressVo address = addressService.getAddress(orderCache.getAddressId(), sessionId);
+			order.setAddress(address);
 			List<OrderListVo> orderList_VoList = new ArrayList<>();
 			for (OrderCache.OrderListCache orderList : orderCache.getOrderList()) {
 				OrderListVo orderListVo = new OrderListVo();
@@ -349,26 +351,85 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		Order order = orderMapper.selectById(id);
 		if (order != null && order.getUserId().equals(user.getId())){
 			OrderVo orderVo = BeanCopyUtil.copyBean(order, OrderVo.class);
+			AddressVo address = addressService.getAddress(order.getAddressId(), sessionId);
+			assert orderVo != null;
+			orderVo.setAddress(address);
 			QueryWrapper<OrderList> queryWrapper = new QueryWrapper<>();
 			queryWrapper.eq("order_id",id);
 			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper);
 			List<OrderListVo> orderList_VoList = new ArrayList<>();
 			List<OrderCache.OrderListCache> orderList_CacheList = new ArrayList<>();
+			//只缓存一个月之间的订单
+			boolean isCache = coreConfig.isOrderCacheEnabled() && (new Date().getTime() - order.getOrderDate().getTime()) < 30L * 24 * 60 * 60 * 1000;
 			for (OrderList orderList : orderList_List) {
 				OrderListVo orderListVo = new OrderListVo();
 				orderListVo.setId(orderList.getId());
 				orderListVo.setNum(orderList.getNum());
 				orderListVo.setProduct(productService.getSnapshot(orderList.getProdId()));
 				orderList_VoList.add(orderListVo);
-				if (coreConfig.isOrderCacheEnabled()){
+				if (isCache){
 					OrderCache.OrderListCache orderListCache = BeanCopyUtil.copyBean(orderList, OrderCache.OrderListCache.class);
 					assert orderListCache != null;
 					orderList_CacheList.add(orderListCache);
 				}
 			}
-			assert orderVo != null;
 			orderVo.setOrderList(orderList_VoList);
-			if (coreConfig.isOrderCacheEnabled()){
+			if (isCache){
+				OrderCache orderCache = BeanCopyUtil.copyBean(order, OrderCache.class);
+				assert orderCache != null;
+				orderCache.setOrderList(orderList_CacheList);
+				redisService.setOrder(orderCache);
+			}
+			return orderVo;
+		}
+		return null;
+	}
+
+	private @Nullable OrderVo getOrder(Long id) {
+		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
+			OrderCache orderCache = redisService.getOrder(id);
+			OrderVo order = BeanCopyUtil.copyBean(orderCache, OrderVo.class);
+			assert order != null;
+			AddressVo address = addressService.getAddress(orderCache.getAddressId());
+			order.setAddress(address);
+			List<OrderListVo> orderList_VoList = new ArrayList<>();
+			for (OrderCache.OrderListCache orderList : orderCache.getOrderList()) {
+				OrderListVo orderListVo = new OrderListVo();
+				orderListVo.setId(orderList.getId());
+				orderListVo.setNum(orderList.getNum());
+				orderListVo.setProduct(productService.getSnapshot(orderList.getProdId()));
+				orderList_VoList.add(orderListVo);
+			}
+			order.setOrderList(orderList_VoList);
+			return order;
+		}
+		Order order = orderMapper.selectById(id);
+		if (order != null){
+			OrderVo orderVo = BeanCopyUtil.copyBean(order, OrderVo.class);
+			AddressVo address = addressService.getAddress(order.getAddressId());
+			assert orderVo != null;
+			orderVo.setAddress(address);
+			QueryWrapper<OrderList> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("order_id",id);
+			List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper);
+			List<OrderListVo> orderList_VoList = new ArrayList<>();
+			List<OrderCache.OrderListCache> orderList_CacheList = new ArrayList<>();
+			//只缓存一个月之间的订单
+			boolean isCache = coreConfig.isOrderCacheEnabled() && (new Date().getTime() - order.getOrderDate().getTime()) < 30L * 24 * 60 * 60 * 1000;
+			for (OrderList orderList : orderList_List) {
+				OrderListVo orderListVo = new OrderListVo();
+				orderListVo.setId(orderList.getId());
+				orderListVo.setNum(orderList.getNum());
+				orderListVo.setProduct(productService.getSnapshot(orderList.getProdId()));
+				orderList_VoList.add(orderListVo);
+				if (isCache){
+					OrderCache.OrderListCache orderListCache = BeanCopyUtil.copyBean(orderList, OrderCache.OrderListCache.class);
+					assert orderListCache != null;
+					orderList_CacheList.add(orderListCache);
+				}
+			}
+			orderVo.setOrderList(orderList_VoList);
+			if (isCache){
 				OrderCache orderCache = BeanCopyUtil.copyBean(order, OrderCache.class);
 				assert orderCache != null;
 				orderCache.setOrderList(orderList_CacheList);
