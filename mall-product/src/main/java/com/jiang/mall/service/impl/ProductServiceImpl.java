@@ -138,7 +138,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public ProductVo getProduct(Long id) {
 		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
 			ProductCache productCache = redisService.getProduct(id);
-			return BeanCopyUtil.copyBean(productCache, ProductVo.class);
+			ProductVo product = BeanCopyUtil.copyBean(productCache, ProductVo.class);
+			assert product != null;
+			CategoryVo category = categoryService.getCategory(productCache.getCategoryId());
+			product.setCategory(category);
+			return product;
 		}
         // 通过ID从数据库中查询产品信息
         Product product = productMapper.selectById(id);

@@ -33,7 +33,7 @@ import java.io.Serializable;
  * @since 2024年9月8日
  */
 @Data
-@TableName("tb_orderLists")
+@TableName("tb_order_lists")
 public class OrderList implements Serializable {
 
     /**

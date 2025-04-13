@@ -11,16 +11,22 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.dao;
+package com.jiang.mall.domain.dto;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.ProductSnapshot;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import lombok.Data;
 
-@Mapper
-public interface ProductSnapshotMapper extends BaseMapper<ProductSnapshot> {
-
-	@Select("select id from tb_product_snapshots where hash = #{hash}")
-	Long selectIdByHash(String hash);
+@Data
+public class ProductPropertyDto {
+	/**
+	 * 属性名(英文)
+	 */
+	private String key;
+	/**
+	 * 属性名(中文)
+	 */
+	private String name;
+	/**
+	 * 属性值
+	 */
+	private String value;
 }

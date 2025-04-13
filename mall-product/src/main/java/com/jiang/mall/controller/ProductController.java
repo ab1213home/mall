@@ -20,7 +20,6 @@ import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IProductSnapshotService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,10 +54,9 @@ public class ProductController {
         this.productSnapshotService = productSnapshotService;
     }
 
-    @GetMapping("/getSnapshot")
+    @GetMapping("/snapshot/getInfo")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id,
-                                          HttpSession session) {
+    public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -66,7 +64,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productSnapshotService.getSnapshot(id,session.getId());
+        ProductSnapshotVo snapshot = productSnapshotService.getSnapshot(id);
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
@@ -105,20 +103,20 @@ public class ProductController {
     /**
      * 通过GET请求方式获取产品信息
      *
-     * @param productId 从请求参数中获取的产品ID
+     * @param id 从请求参数中获取的产品ID
      * @return 返回产品信息或者错误信息
      */
     @GetMapping("/getInfo")
     @Permission(PermissionType.NONE)
-    public ResponseResult<Object> getInfo(@RequestParam("id") Long productId) {
-        if (productId == null|| productId < 0) {
+    public ResponseResult<Object> getProduct(@RequestParam("id") Long id) {
+        if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
         }
-        if (!StringUtils.hasText(productId.toString())){
+        if (!StringUtils.hasText(id.toString())){
             return ResponseResult.failResult("请输入商品ID");
         }
         // 根据产品ID获取产品信息
-        ProductVo product = productService.getProduct(productId);
+        ProductVo product = productService.getProduct(id);
 
         // 如果产品信息为空，则返回未找到资源的错误信息
         if (product == null) {

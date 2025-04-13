@@ -17,7 +17,7 @@ import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.OrderAllVo;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,34 +42,6 @@ public class OrderAdminController {
 	@Autowired
 	public void setOrderService(IOrderService orderService) {
 	    this.orderService = orderService;
-	}
-
-	private IProductService productService;
-
-	@Autowired
-	public void setProductService(IProductService productService) {
-	    this.productService = productService;
-	}
-
-    private ICartService cartService;
-
-	@Autowired
-	public void setCartService(ICartService cartService) {
-	    this.cartService = cartService;
-	}
-
-	private IAddressService addressService;
-
-	@Autowired
-	public void setAddressService(IAddressService addressService) {
-	    this.addressService = addressService;
-	}
-
-	private IUserService userService;
-
-	@Autowired
-	public void setUserService(IUserService userService) {
-	    this.userService = userService;
 	}
 
 	@GetMapping("/getList")

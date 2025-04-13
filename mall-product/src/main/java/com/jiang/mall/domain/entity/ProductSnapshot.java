@@ -16,7 +16,6 @@ package com.jiang.mall.domain.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -119,20 +118,6 @@ public class ProductSnapshot implements Serializable {
 
 
     public ProductSnapshot() {
-    }
-
-    /**
-     * 构造函数，用于创建商品快照对象
-     *
-     * @param product 商品对象
-     */
-    public ProductSnapshot(@NotNull Product product) {
-        this.prodId=product.getId();
-        this.code=product.getCode();
-        this.title=product.getTitle();
-        this.img=product.getImg();
-        this.price=product.getPrice();
-        this.description=product.getDescription();
     }
 
     @Override

@@ -41,7 +41,7 @@ public class ProductSnapshotVo {
     /**
      * 商品分类
      */
-    private String category;
+    private CategoryVo category;
 
     /**
      * 商品图片地址
@@ -57,4 +57,9 @@ public class ProductSnapshotVo {
      * 商品描述
      */
     private String description;
+
+    /**
+     * 商品属性
+     */
+	private String properties;
 }

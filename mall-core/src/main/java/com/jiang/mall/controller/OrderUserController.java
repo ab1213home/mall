@@ -155,13 +155,12 @@ public class OrderUserController {
 	    }
 	}
 
-	//获取订单信息info
 	@PostMapping("/getInfo")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getInfo(@RequestParam("orderId") Long orderId,
+	public ResponseResult<Object> getOrder(@RequestParam("id") Long id,
 											  HttpSession session) {
-
-		return ResponseResult.okResult();
+		OrderVo order = orderService.getOrder(id, session.getId());
+		return ResponseResult.okResult(order);
 	}
 
 

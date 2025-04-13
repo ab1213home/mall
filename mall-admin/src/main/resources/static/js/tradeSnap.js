@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     $.ajax({
 		type:"GET",
-		url:"/product/getSnapshot",
+		url:"/product/snapshot/getInfo",
 		data:data,
 		async:false,	//设置同步请求
 		dataType:"json",
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('productTitle').textContent = product.title;
                 document.getElementById('productImg').src = product.img;
                 document.getElementById('productCode').textContent = product.code;
-                document.getElementById('productCategory').textContent = product.category;
+                document.getElementById('productCategory').innerHTML = '<a data-bs-toggle="tooltip" data-bs-title="'+product.category.parent+'">' + product.category.name + '</a>';
                 document.getElementById('productPrice').textContent = product.price;
                 document.getElementById('productDescription').textContent = product.description;
 				document.getElementById('view-product-details').href = "./product.html?id=" + product.prodId;
@@ -50,5 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
 				window.location.href = "./index.html";
 			}
 		}
+	});
+	document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
+		new bootstrap.Tooltip(tooltip);
 	});
 })

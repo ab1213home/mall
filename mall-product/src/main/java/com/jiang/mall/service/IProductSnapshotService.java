@@ -16,10 +16,13 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
+import com.jiang.mall.domain.vo.ProductVo;
 
 public interface IProductSnapshotService extends IService<ProductSnapshot> {
 
 	ProductSnapshotVo getSnapshot(Long id);
 
-	ProductSnapshotVo getSnapshot(Long id, String sessionId);
+//	ProductSnapshotVo getSnapshot(Long id, String sessionId);
+
+	Long getProductSnapshotId(ProductVo product);
 }

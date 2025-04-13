@@ -2,6 +2,8 @@ package com.jiang.mall.util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -10,6 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 
 public class MachineCodeUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(MachineCodeUtil.class);
 
     public static @Nullable String getMachineCode() {
         try {
@@ -26,7 +30,7 @@ public class MachineCodeUtil {
             }
             return hashString(sb.toString());
         } catch (SocketException e) {
-            e.printStackTrace();
+            logger.error("无法获取机器代码", e);
             return null;
         }
     }
@@ -43,7 +47,7 @@ public class MachineCodeUtil {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.warn("无法获取SHA-256实例", e);
             return null;
         }
     }

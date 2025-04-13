@@ -49,7 +49,7 @@ public class Order implements Serializable {
     /**
      * 主键ID，自增
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.NONE)
     private Long id;
 
     /**
@@ -94,20 +94,6 @@ public class Order implements Serializable {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private LocalDateTime paymentDate;
 
-//    /**
-//     * 创建时间，自动填充
-//     */
-//    @TableField(fill = FieldFill.INSERT)
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-//    private LocalDateTime createdAt;
-//
-//    /**
-//     * 更新时间，自动填充
-//     */
-//    @TableField(fill = FieldFill.INSERT_UPDATE)
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-//    private LocalDateTime updatedAt;
-//
     /**
      * 逻辑删除标记，默认为 false
      */
