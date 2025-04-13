@@ -19,10 +19,12 @@ public interface IOrderRedisService {
 
 	void setOrder(OrderCache order);
 
-	OrderCache getOrder(Long orderId);
+	OrderCache getOrder(Long id);
 
-	boolean hasOrder(Long orderId);
+	boolean hasOrder(Long id);
 
-	void deleteOrder(Long orderId);
+	void refreshOrder(Long id);
+
+	void deleteOrder(Long id);
 
 }

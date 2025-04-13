@@ -25,6 +25,8 @@ public interface IProductRedisService {
 
     boolean hasProduct(Long id);
 
+    void refreshProduct(Long id);
+
     void deleteProduct(Long id);
 
     void setSnapshotCache(@NotNull ProductSnapshotCache product);
@@ -32,6 +34,8 @@ public interface IProductRedisService {
     ProductSnapshotCache getSnapshotCache(Long id);
 
     boolean hasSnapshotCache(Long id);
+
+    void refreshSnapshot(Long id);
 
     void deleteProductSnapshotCache(Long id);
 }

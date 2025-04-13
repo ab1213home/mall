@@ -92,9 +92,6 @@ public class CartController {
         if (productId == null|| num == null||productId <= 0){
             return ResponseResult.failResult("参数错误");
         }
-//        if (num <= 0){
-//            return ResponseResult.failResult("数量必须大于0");
-//        }
         if (!StringUtils.hasText(productId.toString())){
             return ResponseResult.failResult("请输入商品Id");
         }
@@ -109,42 +106,6 @@ public class CartController {
             return ResponseResult.serverErrorResult("添加失败");
         }
     }
-
-    /**
-     * 更新购物车数量
-     *
-     * @param id 购物车项的ID
-     * @param num 购物车项的数量
-     * @param session HTTP会话，用于检查用户登录状态
-     * @return 更新操作的结果，包括是否成功、失败或用户未登录的情况
-     */
-//    @PostMapping("/update")
-//    @Permission(PermissionType.USER)
-//    public ResponseResult<Object> updateCart(@RequestParam("id") Long id,
-//                                            @RequestParam("num") Long num,
-//                                            HttpSession session) {
-//        if (id == null|| num == null||id <= 0){
-//            return ResponseResult.failResult("参数错误");
-//        }
-//        if (!StringUtils.hasText(id.toString())){
-//            return ResponseResult.failResult("请输入购物车项Id");
-//        }
-//        if (!StringUtils.hasText(num.toString())){
-//            return ResponseResult.failResult("请输入购物车数量");
-//        }
-//
-//        // 尝试更新购物车项的数量
-//        Boolean update = cartService.updateCart(id, num, session.getId());
-//
-//        if (update==null) {
-//            return ResponseResult.failResult("无权限修改购物车");
-//        }else if (update){
-//            return ResponseResult.okResult("更新成功");
-//        }else {
-//            return ResponseResult.serverErrorResult("更新失败");
-//        }
-//    }
-
 
     /**
      * 处理删除购物车项的请求

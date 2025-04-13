@@ -78,6 +78,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	}
 
 	@Override
+	public void refreshProduct(Long id) {
+		stringRedisTemplate.expire(prefix+id, productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+	}
+
+	@Override
 	public void deleteProduct(Long id) {
 		stringRedisTemplate.delete(prefix+id);
 	}
@@ -96,6 +101,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	@Override
 	public boolean hasSnapshotCache(Long id) {
 		return stringRedisTemplate.hasKey(snapshot_prefix +id);
+	}
+
+	@Override
+	public void refreshSnapshot(Long id) {
+		stringRedisTemplate.expire(snapshot_prefix +id, productConfig.getProductCacheTime(), TimeUnit.MINUTES);
 	}
 
 	@Override

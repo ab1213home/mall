@@ -25,18 +25,9 @@ function queryOrders(pn, pz) {
         },
         dataType: "json",
         success: function (response) {
+			$('#orderTable tbody').empty();
             if (response.code == 200) {
 				// 清空 tbody 中原有的内容
-				$('#orderTable tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#orderTable tbody').append(row);
-				}
 				orderArr = [];
 				for(let record of response.data){
 					orderArr[record.id] = record;
@@ -104,7 +95,17 @@ function queryOrders(pn, pz) {
 				if (num_order == 0){
 					 $("#nextPage").prop("disabled", true);
 				}
-            }
+            }else if (response.code == 404){
+				const row =
+					`
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+				$('#orderTable tbody').append(row);
+				$("#prePage").prop("disabled", false);
+				$("#nextPage").prop("disabled", false);
+			}
         }
     });
 }

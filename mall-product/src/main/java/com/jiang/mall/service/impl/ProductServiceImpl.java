@@ -162,6 +162,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			assert product != null;
 			CategoryVo category = categoryService.getCategory(productCache.getCategoryId());
 			product.setCategory(category);
+			redisService.refreshProduct(id);
 			return product;
 		}
         // 通过ID从数据库中查询产品信息
@@ -321,6 +322,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			assert product != null;
 			CategoryVo category = JSON.parseObject(productCache.getCategory(), CategoryVo.class);
 			product.setCategory(category);
+			redisService.refreshSnapshot(id);
 			return product;
 		}
         // 通过ID从数据库中查询产品信息

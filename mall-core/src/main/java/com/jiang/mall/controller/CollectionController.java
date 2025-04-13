@@ -84,36 +84,6 @@ public class CollectionController {
 		}
 	}
 
-//	@GetMapping("/deleteById")
-//	public ResponseResult<Object> deleteByIdCollection(@RequestParam("id") Integer id,
-//                                           HttpSession session) {
-//		if (id == null|| id <= 0) {
-//            return ResponseResult.failResult("非法请求");
-//        }
-//		if (!StringUtils.hasText(id.toString())){
-//			return ResponseResult.failResult("收藏ID为空");
-//		}
-//		Collection collection =collectionService.getById(id);
-//        if (collection == null) {
-//			return ResponseResult.notFoundResourceResult("该收藏不存在");
-//		}
-//		// 检查会话中是否设置表示用户已登录的标志
-//	    ResponseResult<Object> result = userService.checkUserLogin(session.getId());
-//	    if (!result.isSuccess()) {
-//	        // 如果未登录，则直接返回
-//	        return result;
-//	    }
-//	    UserVo user = (UserVo) result.getData();
-//		if (!Objects.equals(collection.getUserId(), user.getId())){
-//			return ResponseResult.failResult("您没有权限删除该收藏");
-//		}
-//		if (collectionService.deleteById(collection.getId())) {
-//			return ResponseResult.okResult("删除成功");
-//		} else {
-//			return ResponseResult.serverErrorResult("删除失败");
-//		}
-//	}
-
 	@GetMapping("/getList")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getCollectionList(@RequestParam(defaultValue = "1") Integer pageNum,

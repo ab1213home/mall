@@ -69,18 +69,23 @@ public class OrderRedisServiceImpl implements IOrderRedisService {
 	}
 
 	@Override
-	public OrderCache getOrder(Long orderId) {
-		String json = stringRedisTemplate.opsForValue().get(prefix + orderId);
+	public OrderCache getOrder(Long id) {
+		String json = stringRedisTemplate.opsForValue().get(prefix + id);
 		return json == null ? null : JSON.parseObject(json, OrderCache.class);
 	}
 
 	@Override
-	public boolean hasOrder(Long orderId) {
-		return stringRedisTemplate.hasKey(prefix + orderId);
+	public boolean hasOrder(Long id) {
+		return stringRedisTemplate.hasKey(prefix + id);
 	}
 
 	@Override
-	public void deleteOrder(Long orderId) {
-		stringRedisTemplate.delete(prefix + orderId);
+	public void refreshOrder(Long id) {
+		stringRedisTemplate.expire(prefix + id, coreConfig.getOrderCacheTime(), TimeUnit.MINUTES);
+	}
+
+	@Override
+	public void deleteOrder(Long id) {
+		stringRedisTemplate.delete(prefix + id);
 	}
 }

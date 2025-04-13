@@ -45,7 +45,7 @@ public class OrderAdminController {
 	}
 
 	@GetMapping("/getList")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
+	@Permission(type = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize
 												) {
@@ -57,20 +57,20 @@ public class OrderAdminController {
 	    }
 	    if (orderList.isEmpty()) {
 	        // 如果订单列表为空
-	        return ResponseResult.okResult(orderList,"暂无订单");
+	        return ResponseResult.notLoggedResult("暂无订单");
 	    }
 	    // 获取订单列表成功
 	    return ResponseResult.okResult(orderList);
 	}
 
 	@GetMapping("/getNum")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
+	@Permission(type = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAllOrderNum() {
 		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 
 	@GetMapping("/getAmount")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
+	@Permission(type = PermissionType.ADMIN, permission = "order:list")
 	public ResponseResult<Object> getAmount() {
 		double amount = Double.parseDouble(orderService.getAmount());
 		return ResponseResult.okResult(amount);

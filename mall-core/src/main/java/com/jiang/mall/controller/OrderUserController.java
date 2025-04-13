@@ -18,7 +18,9 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderVo;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.ICartService;
+import com.jiang.mall.service.IOrderService;
+import com.jiang.mall.service.IProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -57,20 +59,6 @@ public class OrderUserController {
 	@Autowired
 	public void setCartService(ICartService cartService) {
 	    this.cartService = cartService;
-	}
-
-	private IAddressService addressService;
-
-	@Autowired
-	public void setAddressService(IAddressService addressService) {
-	    this.addressService = addressService;
-	}
-
-	private IUserService userService;
-
-	@Autowired
-	public void setUserService(IUserService userService) {
-	    this.userService = userService;
 	}
 
 	/**
