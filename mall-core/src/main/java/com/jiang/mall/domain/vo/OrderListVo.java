@@ -29,7 +29,7 @@ public class OrderListVo {
      * 订单项ID
      */
     private Long id;
-
+    //TODO:减少耦合
     /**
      * 订单ID
      */
