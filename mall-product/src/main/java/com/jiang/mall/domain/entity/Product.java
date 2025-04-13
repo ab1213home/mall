@@ -84,7 +84,6 @@ public class Product implements Serializable {
      */
     private Integer stocks;
 
-
     /**
      * 商品描述
      */

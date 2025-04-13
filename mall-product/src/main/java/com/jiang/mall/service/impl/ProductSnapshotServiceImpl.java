@@ -35,20 +35,6 @@ public class ProductSnapshotServiceImpl extends ServiceImpl<ProductSnapshotMappe
 		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
-//	private OrderMapper orderMapper;
-//
-//	@Autowired
-//	public void setOrderMapper(OrderMapper orderMapper) {
-//		this.orderMapper = orderMapper;
-//	}
-//
-//	private OrderListMapper orderListMapper;
-//
-//	@Autowired
-//	public void setOrderListMapper(OrderListMapper orderListMapper) {
-//		this.orderListMapper = orderListMapper;
-//	}
-
 	private IUserService userService;
 
 	@Autowired

@@ -1,0 +1,191 @@
+<!--
+  ~ Copyright (c) 2024 Jiang RongJun
+  ~ Jiang Mall is licensed under Mulan PSL v2.
+  ~ You can use this software according to the terms and conditions of the Mulan
+  ~ PSL v2.
+  ~ You may obtain a copy of Mulan PSL v2 at:
+  ~          http://license.coscl.org.cn/MulanPSL2
+  ~ THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+  ~ KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+  ~ See the Mulan PSL v2 for more details.
+  -->
+
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/public/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/cart.css">
+		<link rel="stylesheet" href="/css/font-awesome.min.css"></link>
+		<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+		<script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+		<link rel="shortcut icon" href="/images/favicon.png"/>
+		<title>订单支付页</title>
+		<style>
+			/* 默认样式 */
+			.address-row {
+				background-color: transparent;
+				transition: background-color 0.3s ease;
+			}
+			.price-tag::before {
+				content: "￥"; /* 添加货币符号 */
+        	}
+			.custom-button {
+				text-align: center;
+			}
+			.custom-button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 10px 10px;
+			}
+		</style>
+	</head>
+	<body class="index">
+		<div class="top">
+			<div class="inner-top w">
+				<ul class="fr">
+					<!-- li变为行内块元素 -->
+					<li id="username"><a href="./user/login.html">你好！nano</a></li>
+					<li class="spacer"></li>
+					<li><a href="javascript:">网络无障碍</a></li>
+				</ul>
+				<div class="cls"></div>
+			</div>
+		</div>
+
+		<!-- 头部搜索部分 -->
+		<div class="header">
+			<div class="w headerBody">
+				<div class="hb1">
+					<a href="index.html">
+						<img src="images/logo.png" alt="学校图标">
+					</a>
+				</div>
+				<!-- 父相子绝 -->
+				<div class="hb2">
+					<div class="searchBody">
+						<label>
+							<input type="text" class="search_m" placeholder="搜你所想...">
+						</label>
+						<button><i class="bi bi-search search-icon"></i></button>
+						<div class="search_t">
+							<ul>
+								<li><a href="#">端午节</a></li>
+								<li><a href="#">手机</a></li>
+								<li><a href="#">鞋子</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="hb3"></div>
+			</div>
+		</div>
+
+		<!-- 主体部分 -->
+		<div class="w main-content">
+			<div class="cartd1">
+				确认订单信息
+			</div>
+			<table class="table table-hover" id="cartTable">
+				<thead>
+					<tr class="table-warning">
+						<th scope="col" class="text-center">序号</th>
+						<th scope="col" class="text-center">商品</th>
+						<th scope="col" class="text-center">单价</th>
+						<th scope="col" class="text-center">数量</th>
+						<th scope="col" class="text-center">小计</th>
+						<th scope="col" class="text-center">操作</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+			<div class="cartd6 mt-2">
+				<button id="prePage" disabled>上一页</button>
+				<button id="nextPage">下一页</button>
+			</div>
+			<div class="mt-2">
+				<div class="fr">
+					<ul class="cartul3">
+						<li>已选择<span id="totalNum">0</span>件商品</li>
+						<li>总价: ￥<span id="totalPrice">0</span></li>
+					</ul>
+				</div>
+				<div class="cls"></div>
+			</div>
+
+			<!-- 提交订单 -->
+			<div class="row d-flex justify-content-end mt-4">
+				<div class="col-12 text-end">
+					<button id="submitOrder" class="btn btn-primary btn-block btn-flat">提交订单</button>
+				</div>
+			</div>
+		</div>
+		<!-- 底部 -->
+		<div class="footer">
+			<div class="container py-4">
+				<div class="row align-items-center">
+					<div class="col-md-4 d-flex align-items-center">
+						<a href="tel:400-888-8888" class="social-button d-flex align-items-center" id="call-us">
+							<i class="bi bi-telephone-fill me-2"></i>
+							<span class="social-label" id="call-us-label">客服热线:400-888-8888</span>
+						</a>
+					</div>
+					<div class="col-md-4 d-flex justify-content-center">
+						<a href="/index.html" class="me-3">首页</a>
+						<a href="/protocol.html" class="me-3">用户协议</a>
+						<a href="/about.html" class="me-3">关于商城</a>
+						<a href="/github.html" class="me-3">GitHub</a>
+					</div>
+					<div class="col-md-4 d-flex justify-content-end">
+						<a href="mailto:jiangrongjun2004@163.com" class="social-button d-flex align-items-center" id="email-us">
+							<i class="bi bi-envelope-at-fill me-2"></i>
+							<span class="social-label" id="email-us-label">电子邮件</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/modal.js"></script>
+		<script src="js/index_login.js"></script>
+		<script src="js/user/user_address.js"></script>
+		<script src="js/index_footer.js"></script>
+		<script src="js/pay.js"></script>
+	</body>
+
+    <!-- 提示模态框 -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+				<div class="modal-header">
+				  <h5 class="modal-title" id="staticBackdropLabel">提示框标题</h5>
+				  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body">
+				  这里是提示框的内容。
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+				  <button type="button" class="btn btn-primary" id="confirm-btn">确认</button>
+				</div>
+            </div>
+        </div>
+    </div>
+    <!-- 加载中模态框 -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadingModalLabel">加载中...</h5>
+                </div>
+                <div class="modal-body text-center" style="min-height:150px;">
+                    <div id="spinnerContainer" class="spinner-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/public/spin-2.3.2-dist/spin.min.js"></script>
+</html>

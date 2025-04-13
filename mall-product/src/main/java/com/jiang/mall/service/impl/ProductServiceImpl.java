@@ -148,6 +148,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
 			if (coreConfig.isProductCacheEnabled()){
 				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
+				assert productCache != null;
 				redisService.setProduct(productCache);
 	        }
 			// 根据类别ID查询类别名称，并设置到产品VO中

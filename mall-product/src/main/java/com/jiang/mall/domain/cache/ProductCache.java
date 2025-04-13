@@ -60,7 +60,6 @@ public class ProductCache {
     /**
      * 库存数量
      */
-    //TODO:是否需要缓存库存数量，用户下单是否要更新？
     private Integer stocks;
 
     /**

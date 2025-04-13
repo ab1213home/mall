@@ -35,7 +35,7 @@ $(document).ready(function(){
 function getTemporaryNum(){
 	$.ajax({
 		type:"GET",
-		url:"/order/getTemporaryNum",
+		url:"/order/temporary/getNum",
 		data:{},
 		dataType:"json",
 		success:function(res){
@@ -47,6 +47,7 @@ function getTemporaryNum(){
 		}
 	})
 }
+
 function queryAddress(pn, pz) {
     $.ajax({
         type: "GET",
@@ -118,6 +119,7 @@ function queryAddress(pn, pz) {
         }
     });
 }
+
 function selectAddress(id){
 	for(let key in addressArr){
 		if(addressArr.hasOwnProperty(key)){
@@ -131,6 +133,7 @@ function selectAddress(id){
 		}
 	}
 }
+
 function bindPreNextPage_address(){
 	$("#prePage_address").on("click", function(){
 		if(currentPageNum_address <= 1){
@@ -153,7 +156,7 @@ function queryCart(pn, pz){
 	};
 	$.ajax({
 		type:"GET",
-		url:"/order/getTemporaryList",
+		url:"/order/temporary/getList",
 		data:data,
 		dataType:"json",
 		success:function(res){
@@ -306,15 +309,16 @@ function checkOut(){
 		status: status
 	};
 	console.log(data);
+	// url: '/order/insert?addressId='+addressId+'&paymentMethod='+paymentMethod+'&status='+status,
 	$.ajax({
-        url: '/order/insert?addressId='+addressId+'&paymentMethod='+paymentMethod+'&status='+status,
+        url: '/order/new?addressId='+addressId,
         type: 'POST',
         data: JSON.stringify(Object.values(cartArr)),
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             if (response.code == '200') {
-				show_success('订单提交成功，订单ID:'+response.data);
-				window.location.href = "./orders.html";
+				// show_success('订单提交成功，订单ID:'+response.data);
+				window.location.href = "/pay.html?id="+response.data;
             } else {
                 show_error('订单提交失败：'+ response.message);
             }

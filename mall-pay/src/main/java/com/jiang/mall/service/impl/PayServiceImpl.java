@@ -50,7 +50,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -208,6 +210,24 @@ public class PayServiceImpl implements IPayService {
 			logger.error("支付宝验签失败", e);
 			return PayCallbackDto.errorResult("支付宝验签失败" + e);
 		}
+	}
+
+	@Override
+	public List<Map<String, String>> getPaymentList() {
+		List<Map<String, String>> map = new ArrayList<>();
+		if (wechatpayConfig.getIsEnabled()){
+			Map<String,String> map_wechatpay = new HashMap<>();
+			map_wechatpay.put("name","wechatpay");
+			map_wechatpay.put("ico","/images/wechatpay.png");
+			map.add(map_wechatpay);
+		}
+		if (alipayConfig.getIsEnabled()){
+			Map<String,String> map_alipay = new HashMap<>();
+			map_alipay.put("name","alipay");
+			map_alipay.put("ico","/images/alipay.png");
+			map.add(map_alipay);
+		}
+		return map;
 	}
 
 

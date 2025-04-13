@@ -58,6 +58,11 @@ public class ProductVo {
     private BigDecimal price;
 
     /**
+     * 商品属性
+     */
+	private String properties;
+
+    /**
      * 库存数量
      */
     private Integer stocks;

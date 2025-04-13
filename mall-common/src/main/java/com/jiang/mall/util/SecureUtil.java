@@ -223,7 +223,7 @@ public class SecureUtil {
         return password != null && password.length() == 64 && password.matches("[0-9a-fA-F]+");
     }
 
-    public static @NotNull String sha256Hex(String input) {
+    public static @NotNull String sha256Hex(@NotNull String input) {
         try {
             // 获取SHA-256消息摘要对象
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

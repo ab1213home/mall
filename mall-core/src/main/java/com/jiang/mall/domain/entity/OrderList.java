@@ -13,13 +13,14 @@
 
 package com.jiang.mall.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * 订单列表实体类，对应数据库表 tb_orderLists
@@ -63,35 +64,11 @@ public class OrderList implements Serializable {
     private Long num;
 
     /**
-     * 创建时间，自动填充
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createdAt;
-
-    /**
-     * 更新时间，自动填充
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime updatedAt;
-
-    /**
      * 逻辑删除标记，默认为 false
      */
     @TableLogic
     private Boolean isDel;
 
-    /**
-     * 构造函数，用于创建订单列表实体
-     *
-     * @param id 订单ID
-     * @param num 购买数量
-     */
-    public OrderList(Long id, Long num) {
-        this.orderId = id;
-        this.num = num;
-    }
 
     public OrderList() {
     }

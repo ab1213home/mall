@@ -13,8 +13,10 @@
 
 package com.jiang.mall.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -53,15 +55,32 @@ public class OrderAllVo {
      */
     private Double totalAmount;
 
-    /**
+        /**
      * 订单状态
      */
     private String status;
 
     /**
+     * 下单时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date orderDate;
+
+    /**
      * 支付方式
      */
-    private String paymentMethod;
+    private String paymentProvider;
+
+    /*
+	支付金额
+	 */
+	private Double paymentAmount;
+
+	/*
+	支付日期
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private LocalDateTime paymentDate;
 
     /**
      * 订单商品列表

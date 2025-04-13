@@ -14,8 +14,6 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.config.AlipayConfig;
-import com.jiang.mall.config.WechatpayConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IPayService;
@@ -24,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,19 +36,19 @@ import java.util.Map;
 @RequestMapping("/pay")
 public class PayController {
 
-    private WechatpayConfig wechatpayConfig;
-
-	@Autowired
-	public void setPayConfig(WechatpayConfig wechatpayConfig) {
-		this.wechatpayConfig = wechatpayConfig;
-	}
-
-	private AlipayConfig alipayConfig;
-
-	@Autowired
-	public void setAlipayConfig(AlipayConfig alipayConfig) {
-		this.alipayConfig = alipayConfig;
-	}
+//    private WechatpayConfig wechatpayConfig;
+//
+//	@Autowired
+//	public void setPayConfig(WechatpayConfig wechatpayConfig) {
+//		this.wechatpayConfig = wechatpayConfig;
+//	}
+//
+//	private AlipayConfig alipayConfig;
+//
+//	@Autowired
+//	public void setAlipayConfig(AlipayConfig alipayConfig) {
+//		this.alipayConfig = alipayConfig;
+//	}
 
 	private IPayService payService;
 
@@ -63,10 +61,8 @@ public class PayController {
 	@GetMapping("/getPaymentList")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> getPaymentList() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("wechatpay", wechatpayConfig.getIsEnabled());
-		map.put("alipay", alipayConfig.getIsEnabled());
-		return ResponseResult.okResult(map);
+		List<Map<String, String>> list = payService.getPaymentList();
+		return ResponseResult.okResult(list);
 	}
 
 }

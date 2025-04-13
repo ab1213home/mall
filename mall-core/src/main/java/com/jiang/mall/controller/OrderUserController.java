@@ -18,9 +18,7 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
-import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -40,7 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/order")
-public class OrderController {
+public class OrderUserController {
 
     private IOrderService orderService;
 
@@ -117,47 +115,55 @@ public class OrderController {
 	}
 
 	/**
-	 * 获取临时订单列表
+	 * 处理订单插入请求
 	 *
-	 * @param pageNum 当前页码，默认为1
-	 * @param pageSize 每页大小，默认为5
-	 * @param session HTTP会话，用于检查用户登录状态和获取购物车ID列表
-	 * @return 返回获取临时订单列表的响应结果
-	 *
-	 * 本方法用于获取用户临时存储在会话中的购物车商品列表它首先检查用户是否已登录，
-	 * 如果未登录，则返回相应的错误信息如果已登录，则从会话中获取用户选择的购物车商品ID列表，
-	 * 并校验其有效性如果购物车ID列表为空或未登录，则返回失败结果否则，调用服务层方法根据用户ID和
-	 * 购物车ID列表获取相应的购物车商品列表，并返回成功结果包含该列表
+	 * @param addressId 地址ID，用于确定送货地址
+	 * @param list_checkoutVo 购物车项列表，包含待购买的商品信息
+	 * @param session HTTP会话，用于管理用户状态和数据
+	 * @return ResponseResult 包含操作结果和订单ID的响应对象
 	 */
-	@GetMapping("/getTemporaryList")
+	@PostMapping("/new")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getTemporaryOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                                    @RequestParam(defaultValue = "5") Integer pageSize,
-	                                                    HttpSession session) {
-	    List<CartVo> list_checkout = cartService.getCheckoutList(session.getId(), pageNum, pageSize);
-	    if (list_checkout.isEmpty()) {
-	        return ResponseResult.failResult("请先选择商品");
+	public ResponseResult<Object> newOrder(@RequestParam("addressId") Long addressId,
+	                                       @RequestBody List<CheckoutVo> list_checkoutVo,
+									       HttpSession session) {
+		// 检查会话中是否设置表示用户已登录的标志
+		if (addressId == null|| list_checkoutVo == null||addressId<=0){
+			return ResponseResult.failResult("参数错误");
+		}
+		if (!StringUtils.hasText(addressId.toString())){
+			return ResponseResult.failResult("请输入地址ID");
+		}
+
+		if (list_checkoutVo.isEmpty()){
+			return ResponseResult.failResult("请先选择商品");
+		}
+	    // 调用服务层方法插入新订单
+	    Long orderId = orderService.newOrder(session.getId(), addressId, list_checkoutVo);
+
+	    if (orderId == null) {
+			// 根据地址ID获取地址信息，以验证地址是否属于当前用户
+	        return ResponseResult.failResult("您没有权限提交此订单");
+	    } else if (orderId == -1) {
+			return ResponseResult.failResult("提交失败");
+	    } else {
+			// 根据订单删除购物车中的商品
+		    cartService.deleteCartByOrder(session.getId(), list_checkoutVo);
+			//删除redis中的缓存
+		    cartService.deleteCheckoutListInRedis(session.getId());
+			return ResponseResult.okResult(orderId);
 	    }
-	    return ResponseResult.okResult(list_checkout);
 	}
 
-	/**
-	 * 获取临时购物车数量
-	 * 该方法用于获取当前会话中临时购物车内的商品数量
-	 * 需要确保用户已登录，并且会话中存在有效的商品列表
-	 *
-	 * @param session HTTP会话对象，用于获取会话中存储的商品列表
-	 * @return 返回一个响应结果，包含临时购物车中的商品数量或相关错误信息
-	 */
-	@GetMapping("/getTemporaryNum")
+	//获取订单信息info
+	@PostMapping("/getInfo")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getTemporaryCartNum(HttpSession session) {
-	    List<Long> list_cartId = cartService.getCheckoutListFormRedis(session.getId());
-	    if (list_cartId.isEmpty()){
-	        return ResponseResult.failResult("请先选择商品");
-	    }
-	    return ResponseResult.okResult(list_cartId.size());
+	public ResponseResult<Object> getInfo(@RequestParam("orderId") Long orderId,
+											  HttpSession session) {
+
+		return ResponseResult.okResult();
 	}
+
 
 	/**
 	 * 处理订单插入请求
@@ -172,10 +178,10 @@ public class OrderController {
 	@PostMapping("/insert")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> insertOrder(@RequestParam("addressId") Long addressId,
-									  @RequestParam("paymentMethod") byte paymentMethod,
-									  @RequestParam("status") byte status,
-									  @RequestBody List<CheckoutVo> list_checkoutVo,
-									  HttpSession session) {
+									        @RequestParam("paymentMethod") byte paymentMethod,
+									        @RequestParam("status") byte status,
+									        @RequestBody List<CheckoutVo> list_checkoutVo,
+									        HttpSession session) {
 	    // 检查会话中是否设置表示用户已登录的标志
 		if (addressId == null|| paymentMethod<0||status<0||list_checkoutVo == null||addressId<=0){
 			return ResponseResult.failResult("参数错误");
@@ -240,35 +246,4 @@ public class OrderController {
 		return ResponseResult.okResult(orderService.getOrderNum(session.getId()));
 	}
 
-	@GetMapping("/admin/getList")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
-	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                      @RequestParam(defaultValue = "5") Integer pageSize,
-	                                      HttpSession session) {
-	    // 调用服务方法，根据用户ID获取订单列表
-	    List<OrderAllVo> orderList = orderService.getOrderList(pageNum, pageSize);
-	    if (orderList == null) {
-	        // 如果获取订单列表失败
-	        return ResponseResult.failResult("获取失败");
-	    }
-	    if (orderList.isEmpty()) {
-	        // 如果订单列表为空
-	        return ResponseResult.okResult(orderList,"暂无订单");
-	    }
-	    // 获取订单列表成功
-	    return ResponseResult.okResult(orderList);
-	}
-
-	@GetMapping("/admin/getNum")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
-	public ResponseResult<Object> getAllOrderNum() {
-		return ResponseResult.okResult(orderService.getOrderNum());
-	}
-
-	@GetMapping("/admin/getAmount")
-	@Permission(value = PermissionType.ADMIN, permission = "order:list")
-	public ResponseResult<Object> getAmount() {
-		double amount = Double.parseDouble(orderService.getAmount());
-		return ResponseResult.okResult(amount);
-	}
 }

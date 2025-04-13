@@ -14,14 +14,15 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.ProductCache;
+import org.jetbrains.annotations.NotNull;
 
 public interface IProductRedisService {
 
-    void setProduct(ProductCache product);
+    void setProduct(@NotNull ProductCache product);
 
     ProductCache getProduct(Long id);
 
-    Boolean hasProduct(Long id);
+    boolean hasProduct(Long id);
 
     void deleteProduct(Long id);
 }

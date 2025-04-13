@@ -42,4 +42,6 @@ public interface IOrderService extends IService<Order> {
 	Long getOrderNum();
 
 	String getAmount();
+
+	Long newOrder(String sessionId, Long addressId, List<CheckoutVo> listCheckoutVo);
 }

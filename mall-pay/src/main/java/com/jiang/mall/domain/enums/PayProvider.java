@@ -18,32 +18,30 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * 支付方式枚举类
- */
 @Getter
-public enum PaymentMethod {
-	OFFLINE(0,"货到付款"),
-	ONLINE(1,"在线支付");
+public enum PayProvider {
+	ALIPAY(     0,
+				"alipay",
+				"/images/alipay.png"),
+	WECHATPAY(  1,
+				"wechatpay",
+				"/images/wechatpay.png");
 
 	private final int key;
 	private final String name;
+	private final String ico;
+	private final String pay;
+	private final String callback;
 
-	PaymentMethod(int key, String name) {
+	PayProvider(int key, String name, String ico) {
 		this.key = key;
 		this.name = name;
+		this.ico = ico;
+		this.pay = "/pay/" + name;
+		this.callback = "/pay/callback/" + name;
 	}
 
-//	public static String getNameByValue(int value) {
-//        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
-//            if (paymentMethod.getValue() == value) {
-//                return paymentMethod.getName();
-//            }
-//        }
-//        throw new IllegalArgumentException("No PaymentMethod enum constant with value: " + value);
-//    }
-//
-	public static PaymentMethod fromKey(Integer key) {
+	public static PayProvider fromKey(Integer key) {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()

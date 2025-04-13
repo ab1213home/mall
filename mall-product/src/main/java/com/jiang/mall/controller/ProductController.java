@@ -108,9 +108,9 @@ public class ProductController {
      * @param productId 从请求参数中获取的产品ID
      * @return 返回产品信息或者错误信息
      */
-    @GetMapping("/getProduct")
+    @GetMapping("/getInfo")
     @Permission(PermissionType.NONE)
-    public ResponseResult<Object> getProduct(@RequestParam("productId") Long productId) {
+    public ResponseResult<Object> getInfo(@RequestParam("id") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
         }

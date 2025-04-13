@@ -13,7 +13,10 @@
 
 package com.jiang.mall.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -60,14 +63,15 @@ public class Order implements Serializable {
     private Long userId;
 
     /**
-     * 下单日期
-     */
-    private Date date;
-
-    /**
      * 订单总金额
      */
     private BigDecimal totalAmount;
+
+    /**
+     * 下单时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date orderDate;
 
     /**
      * 订单状态
@@ -77,22 +81,33 @@ public class Order implements Serializable {
     /**
      * 支付方式
      */
-    private  Integer paymentMethod;
+    private Integer paymentProvider;
 
-    /**
-     * 创建时间，自动填充
-     */
-    @TableField(fill = FieldFill.INSERT)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime createdAt;
+    /*
+	支付金额
+	 */
+	private BigDecimal paymentAmount;
 
-    /**
-     * 更新时间，自动填充
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime updatedAt;
+	/*
+	支付日期
+	 */
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	private LocalDateTime paymentDate;
 
+//    /**
+//     * 创建时间，自动填充
+//     */
+//    @TableField(fill = FieldFill.INSERT)
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    private LocalDateTime createdAt;
+//
+//    /**
+//     * 更新时间，自动填充
+//     */
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+//    private LocalDateTime updatedAt;
+//
     /**
      * 逻辑删除标记，默认为 false
      */

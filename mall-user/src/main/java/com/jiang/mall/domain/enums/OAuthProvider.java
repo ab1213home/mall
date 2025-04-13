@@ -25,21 +25,15 @@ public enum OAuthProvider {
             "https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&state=%s",
             "https://github.com/login/oauth/access_token",
             "https://api.github.com/user",
-			"/oauth/login/github",
-			"/oauth/bind/github",
-			"/oauth/unbind/github",
-			"/images/github.png",
-			"/oauth/callback/github"),
+			"/images/github.png"
+			),
     GITEE(  1,
             "gitee",
             "https://gitee.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code&scope=user_info&state=%s",
             "https://gitee.com/oauth/token",
             "https://gitee.com/api/v5/user?access_token=%s",
-		    "/oauth/login/gitee",
-		    "/oauth/bind/gitee",
-		    "/oauth/unbind/gitee",
-		    "/images/gitee.png",
-		    "/oauth/callback/gitee");
+		    "/images/gitee.png"
+		    );
 
     private final Integer key;
     private final String name;
@@ -52,17 +46,17 @@ public enum OAuthProvider {
 	private final String ico;
 	private final String callback;
 
-    OAuthProvider(Integer key, String name, String auth, String token, String user, String login, String bind, String unbind, String ico, String callback) {
+    OAuthProvider(Integer key, String name, String auth, String token, String user, String ico) {
         this.key = key;
         this.name = name;
         this.auth = auth;
         this.token = token;
         this.user = user;
-		this.login = login;
-		this.bind = bind;
-		this.unbind = unbind;
+		this.login = "/oauth/login/"+name;
+		this.bind = "/oauth/bind/"+name;
+		this.unbind = "/oauth/unbind/"+name;
 		this.ico = ico;
-		this.callback = callback;
+		this.callback = "/oauth/callback/"+name;
     }
 
     public static OAuthProvider fromKey(Integer key) {

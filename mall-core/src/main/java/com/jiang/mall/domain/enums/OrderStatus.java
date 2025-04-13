@@ -24,11 +24,13 @@ import java.util.Objects;
 @Getter
 public enum OrderStatus {
 
-	WAIT_PAYMENT(0,"待付款"),
-	WAIT_DELIVERY(1,"待发货"),
-	WAIT_RECEIVE(2,"待收货"),
-	WAIT_EVALUATE(3,"待评价"),
-	FINISHED(4,"已完成");
+	UNKNOWN(-1,"未知"),
+	CANCELED(0,"已取消"),
+	WAIT_PAYMENT(1,"待付款"),
+	WAIT_DELIVERY(2,"待发货"),
+	WAIT_RECEIVE(3,"待收货"),
+	WAIT_EVALUATE(4,"待评价"),
+	FINISHED(5,"已完成");
 
 	private final int key;
 	private final String name;
@@ -38,20 +40,12 @@ public enum OrderStatus {
 		this.name = name;
 	}
 
-//	@Contract(pure = true)
-//	public static @Nullable String getNameByValue(int value) {
-//		for (OrderStatus status : OrderStatus.values()) {
-//			if (status.key == value) {
-//				return status.name;
-//			}
-//		}
-//		throw new IllegalArgumentException("No OrderStatus enum constant with value: " + value);
-//	}
+
 	public static OrderStatus fromKey(Integer key) {
         return Arrays.stream(values())
                 .filter(p -> Objects.equals(p.key, key))
                 .findFirst()
-                .orElse(null);
+                .orElse(UNKNOWN);
     }
 
 }

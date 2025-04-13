@@ -13,15 +13,19 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.domain.cache.ProductCache;
 import com.jiang.mall.service.IProductRedisService;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProductRedisServiceImpl implements IProductRedisService {
@@ -40,11 +44,11 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	private ProductConfig coreConfig;
+	private ProductConfig productConfig;
 
 	@Autowired
-	public void setCoreConfig(ProductConfig coreConfig) {
-	    this.coreConfig = coreConfig;
+	public void setCoreConfig(ProductConfig productConfig) {
+	    this.productConfig = productConfig;
 	}
 
 	String prefix = "product:";
@@ -54,28 +58,24 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	    prefix = generalConfig.getRedisKeyPrefix()+":product:";
 	}
 
-    String key(String key){
-        return prefix+key;
-    }
-
-
 	@Override
-	public void setProduct(ProductCache product) {
-
+	public void setProduct(@NotNull ProductCache product) {
+		stringRedisTemplate.opsForValue().set(prefix+product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.MINUTES);
 	}
 
 	@Override
 	public ProductCache getProduct(Long id) {
-		return null;
+		String json = stringRedisTemplate.opsForValue().get(prefix+id);
+		return json == null ? null : JSON.parseObject(json, ProductCache.class);
 	}
 
 	@Override
-	public Boolean hasProduct(Long id) {
-		return null;
+	public boolean hasProduct(Long id) {
+		return stringRedisTemplate.hasKey(prefix+id);
 	}
 
 	@Override
 	public void deleteProduct(Long id) {
-
+		stringRedisTemplate.delete(prefix+id);
 	}
 }

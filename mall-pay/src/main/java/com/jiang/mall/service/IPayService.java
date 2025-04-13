@@ -19,6 +19,9 @@ import com.jiang.mall.domain.enums.AlipayType;
 import com.jiang.mall.domain.enums.WechatpayType;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
+import java.util.Map;
+
 public interface IPayService {
 
 	PayDto pay(Long orderId, String amount, String content, String userId, WechatpayType payType);
@@ -29,4 +32,6 @@ public interface IPayService {
 	PayCallbackDto verifyNotify(HttpServletRequest parameters, WechatpayType payType);
 
 	PayCallbackDto verifyNotify(HttpServletRequest parameters, AlipayType payType);
+
+	List<Map<String, String>> getPaymentList();
 }

@@ -108,11 +108,11 @@ function addCollect() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const data={
-        productId: productId
+        id: productId
     };
     $.ajax({
 		type:"GET",
-		url:"/product/getProduct",
+		url:"/product/getInfo",
 		data:data,
 		async:false,	//设置同步请求
 		dataType:"json",

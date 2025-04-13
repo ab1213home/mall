@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -20,12 +21,13 @@ import com.jiang.mall.dao.*;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.*;
 import com.jiang.mall.domain.enums.OrderStatus;
-import com.jiang.mall.domain.enums.PaymentMethod;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IOrderService;
+import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +37,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.jiang.mall.util.DecimalUtil.add;
 
@@ -82,6 +82,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.productMapper=productMapper;
 	}
 
+	private IProductService productService;
+
+	@Autowired
+	public void setProductService(IProductService productService) {
+		this.productService = productService;
+	}
+
 	private IAddressService addressService;
 	@Autowired
 	public void setAddressService(IAddressService addressService) {
@@ -118,83 +125,83 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 */
 	@Override
 	public Long insertOrder(String sessionId, Long addressId, byte paymentMethod, byte status, @NotNull List<CheckoutVo> listCheckoutVo) {
-		UserCache user = userService.getUserFromRedis(sessionId);
-	    // 创建订单对象并设置基本信息
-	    Order order = new Order();
-	    order.setUserId(user.getId());
-	    order.setAddressId(addressId);
-	    order.setDate(new Date());
-	    order.setTotalAmount(new BigDecimal("0.0"));
-	    // 计算订单总金额
-	    for (CheckoutVo checkoutVo : listCheckoutVo) {
-			if (checkoutVo.getProduct() == null) {
-				logger.error("结算信息中产品信息为空，无法创建订单");
-				return null;
-			}
-			if (checkoutVo.getNum() <= 0) {
-				logger.error("结算信息中商品数量小于等于0，无法创建订单");
-				return null;
-			}
-			// 计算单个订单项的金额
-		    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
-			// 计算订单总金额
-	        order.setTotalAmount(add(order.getTotalAmount(),amount));
-	    }
-	    order.setPaymentMethod((int)paymentMethod);
-	    order.setStatus((int)status);
-	    // 插入订单信息
-	    if (orderMapper.insert(order) > 0) {
-			//TODO：待修复，完善商品快照，减少重复快照产生
-	        for (CheckoutVo checkoutVo : listCheckoutVo) {
-	            // 创建订单详情对象并设置基本信息
-	            OrderList orderList = new OrderList(order.getId(),checkoutVo.getNum());
-	            // 获取产品和类别信息
-		        Product product = productMapper.selectById(checkoutVo.getProduct().getId());
-				if (product == null) {
-					logger.error("产品信息不存在，无法创建订单");
-					return null;
-				}
-				Category category = categoryMapper.selectById(product.getCategoryId());
-				if (category == null) {
-					logger.error("类别信息不存在，无法创建订单");
-					return null;
-				}
-				String category_str =queryCategoryToString(product.getCategoryId());
-	            // 查询是否存在相同的产品快照
-		        //TODO:使用哈希算法简化产品快照判断
-
-//	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
-//	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
-//	            queryWrapper_productSnapshot.eq("title", product.getTitle());
-//	            queryWrapper_productSnapshot.eq("price", product.getPrice());
-//	            queryWrapper_productSnapshot.eq("img", product.getImg());
-//				queryWrapper_productSnapshot.eq("category",category_str);
-//	            queryWrapper_productSnapshot.eq("description", product.getDescription());
-//	            queryWrapper_productSnapshot.eq("is_del", true);
-//	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
-//	            if (productSnapshot==null){
-//	                // 如果不存在，则创建新的产品快照
-//	                productSnapshot = new ProductSnapshot(product);
-//	                productSnapshot.setCategory(category_str);
-//	                // 插入新的产品快照
-//	                if (productSnapshotMapper.insert(productSnapshot)>0){
-//	                    orderList.setProdId(productSnapshot.getId());
-//	                }
-//	            }else {
-//					orderList.setProdId(productSnapshot.getId());
+//		UserCache user = userService.getUserFromRedis(sessionId);
+//	    // 创建订单对象并设置基本信息
+//	    Order order = new Order();
+//	    order.setUserId(user.getId());
+//	    order.setAddressId(addressId);
+////	    order.setDate(new Date());
+//	    order.setTotalAmount(new BigDecimal("0.0"));
+//	    // 计算订单总金额
+//	    for (CheckoutVo checkoutVo : listCheckoutVo) {
+//			if (checkoutVo.getProduct() == null) {
+//				logger.error("结算信息中产品信息为空，无法创建订单");
+//				return null;
+//			}
+//			if (checkoutVo.getNum() <= 0) {
+//				logger.error("结算信息中商品数量小于等于0，无法创建订单");
+//				return null;
+//			}
+//			// 计算单个订单项的金额
+//		    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+//			// 计算订单总金额
+//	        order.setTotalAmount(add(order.getTotalAmount(),amount));
+//	    }
+////	    order.setPaymentMethod((int)paymentMethod);
+//	    order.setStatus((int)status);
+//	    // 插入订单信息
+//	    if (orderMapper.insert(order) > 0) {
+//			//TODO：待修复，完善商品快照，减少重复快照产生
+//	        for (CheckoutVo checkoutVo : listCheckoutVo) {
+//	            // 创建订单详情对象并设置基本信息
+//	            OrderList orderList = new OrderList();
+//	            // 获取产品和类别信息
+//		        Product product = productMapper.selectById(checkoutVo.getProduct().getId());
+//				if (product == null) {
+//					logger.error("产品信息不存在，无法创建订单");
+//					return null;
+//				}
+//				Category category = categoryMapper.selectById(product.getCategoryId());
+//				if (category == null) {
+//					logger.error("类别信息不存在，无法创建订单");
+//					return null;
+//				}
+//				String category_str =queryCategoryToString(product.getCategoryId());
+//	            // 查询是否存在相同的产品快照
+//		        //TODO:使用哈希算法简化产品快照判断
+//
+////	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
+////	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
+////	            queryWrapper_productSnapshot.eq("title", product.getTitle());
+////	            queryWrapper_productSnapshot.eq("price", product.getPrice());
+////	            queryWrapper_productSnapshot.eq("img", product.getImg());
+////				queryWrapper_productSnapshot.eq("category",category_str);
+////	            queryWrapper_productSnapshot.eq("description", product.getDescription());
+////	            queryWrapper_productSnapshot.eq("is_del", true);
+////	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
+////	            if (productSnapshot==null){
+////	                // 如果不存在，则创建新的产品快照
+////	                productSnapshot = new ProductSnapshot(product);
+////	                productSnapshot.setCategory(category_str);
+////	                // 插入新的产品快照
+////	                if (productSnapshotMapper.insert(productSnapshot)>0){
+////	                    orderList.setProdId(productSnapshot.getId());
+////	                }
+////	            }else {
+////					orderList.setProdId(productSnapshot.getId());
+////	            }
+//
+//	            // 插入订单详情信息
+//	            if (orderListMapper.insert(orderList)>0){
+//	                logger.info("订单列表插入成功");
+//	            }else{
+//	                logger.error("订单列表插入失败，无法创建订单");
+//	                //TODO：待完善
+//	                return null;
 //	            }
-
-	            // 插入订单详情信息
-	            if (orderListMapper.insert(orderList)>0){
-	                logger.info("订单列表插入成功");
-	            }else{
-	                logger.error("订单列表插入失败，无法创建订单");
-	                //TODO：待完善
-	                return null;
-	            }
-	        }
-	        return order.getId();
-	    }
+//	        }
+//	        return order.getId();
+//	    }
 	    return null;
 	}
 
@@ -219,7 +226,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			AddressVo address = addressService.getAddress(order_item.getAddressId(), sessionId);
 			assert orderVo != null;
 			orderVo.setAddress(address);
-			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
+//			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
 			orderVo.setStatus(OrderStatus.fromKey(order_item.getStatus()).getName());
 			QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
 			queryWrapper_orderList.eq("order_id", order_item.getId());
@@ -289,7 +296,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		    // 设置订单VO对象的地址信息
 		    orderVo.setAddress(address);
 	        // 设置订单VO对象的支付方式和状态，通过数组获取对应的描述
-			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
+//			orderVo.setPaymentMethod(PaymentMethod.fromKey(order_item.getPaymentMethod()).getName());
 			orderVo.setStatus(OrderStatus.fromKey(order_item.getStatus()).getName());
 	        // 创建查询构造器，用于查询订单详情
 	        QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
@@ -346,5 +353,111 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		String amount = orderMapper.getAmount(firstDayOfMonth, lastDayOfMonth);
 
         return amount != null ? amount: "0.00";
+	}
+
+	@Override
+	public Long newOrder(String sessionId, Long addressId, List<CheckoutVo> listCheckoutVo) {
+		// 根据地址ID获取地址信息，以验证地址是否属于当前用户
+	    Address address = addressService.getById(addressId);
+		UserCache user = userService.getUserFromRedis(sessionId);
+	    if (!address.getUserId().equals(user.getId())) {
+	        return null;
+	    }
+		// 创建订单对象并设置基本信息
+	    Order order = new Order();
+	    order.setUserId(user.getId());
+	    order.setAddressId(addressId);
+	    order.setOrderDate(new Date());
+	    order.setTotalAmount(new BigDecimal("0.0"));
+	    // 计算订单总金额
+	    for (CheckoutVo checkoutVo : listCheckoutVo) {
+			if (checkoutVo.getProduct() == null) {
+				logger.error("结算信息中产品信息为空，无法创建订单");
+				return -1L;
+			}
+			if (checkoutVo.getNum() <= 0) {
+				logger.error("结算信息中商品数量小于等于0，无法创建订单");
+				return -1L;
+			}
+			// 计算单个订单项的金额
+		    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+			// 计算订单总金额
+	        order.setTotalAmount(add(order.getTotalAmount(),amount));
+	    }
+	    order.setStatus(OrderStatus.WAIT_PAYMENT.getKey());
+	    // 插入订单信息
+	    if (orderMapper.insert(order) > 0) {
+			//TODO：待修复，完善商品快照，减少重复快照产生
+		    //使用哈希算法简化产品快照判断
+	        for (CheckoutVo checkoutVo : listCheckoutVo) {
+	            // 创建订单详情对象并设置基本信息
+	            OrderList orderList = new OrderList();
+	            // 获取产品和类别信息
+//		        Product product = productMapper.selectById(checkoutVo.getProduct().getId());
+		        ProductVo product = productService.getProduct(checkoutVo.getProduct().getId());
+				if (product == null) {
+					logger.error("产品信息不存在，无法创建订单");
+					orderMapper.deleteById(order.getId());
+					return -1L;
+				}
+				String hash = getHash(product);
+
+//				Category category = categoryMapper.selectById(product.getCategoryId());
+//				if (category == null) {
+//					logger.error("类别信息不存在，无法创建订单");
+//					orderMapper.deleteById(order.getId());
+//					return -1L;
+//				}
+//				String category_str =queryCategoryToString(product.getCategoryId());
+	            // 查询是否存在相同的产品快照
+		        //TODO:使用哈希算法简化产品快照判断
+
+//	            QueryWrapper<ProductSnapshot> queryWrapper_productSnapshot = new QueryWrapper<>();
+//	            queryWrapper_productSnapshot.eq("prod_id", product.getId());
+//	            queryWrapper_productSnapshot.eq("title", product.getTitle());
+//	            queryWrapper_productSnapshot.eq("price", product.getPrice());
+//	            queryWrapper_productSnapshot.eq("img", product.getImg());
+//				queryWrapper_productSnapshot.eq("category",category_str);
+//	            queryWrapper_productSnapshot.eq("description", product.getDescription());
+//	            queryWrapper_productSnapshot.eq("is_del", true);
+//	            ProductSnapshot productSnapshot = productSnapshotMapper.selectOne(queryWrapper_productSnapshot);
+//	            if (productSnapshot==null){
+//	                // 如果不存在，则创建新的产品快照
+//	                productSnapshot = new ProductSnapshot(product);
+//	                productSnapshot.setCategory(category_str);
+//	                // 插入新的产品快照
+//	                if (productSnapshotMapper.insert(productSnapshot)>0){
+//	                    orderList.setProdId(productSnapshot.getId());
+//	                }
+//	            }else {
+//					orderList.setProdId(productSnapshot.getId());
+//	            }
+
+	            // 插入订单详情信息
+	            if (orderListMapper.insert(orderList)>0){
+	                logger.debug("订单列表插入成功");
+	            }else{
+	                logger.warn("订单列表插入失败，无法创建订单");
+					orderMapper.deleteById(order.getId());
+	                //TODO：待完善
+	                return -1L;
+	            }
+	        }
+	        return order.getId();
+	    }
+		return -1L;
+	}
+
+	private @NotNull String getHash(@NotNull ProductVo product) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", product.getId());
+		map.put("code", product.getCode());
+		map.put("title", product.getTitle());
+		map.put("price", product.getPrice());
+		map.put("img", product.getImg());
+		map.put("description", product.getDescription());
+		map.put("category", product.getCategory().getParent() + product.getCategory().getName());
+		map.put("properties", product.getProperties());
+		return SecureUtil.sha256Hex(JSON.toJSONString(map));
 	}
 }
