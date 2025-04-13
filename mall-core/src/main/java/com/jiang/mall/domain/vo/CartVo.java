@@ -40,5 +40,8 @@ public class CartVo {
      */
     private Long num;
 
+    public CartVo() {
+    }
+
 }
 

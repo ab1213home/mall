@@ -83,6 +83,9 @@ public class OrderCache{
 
     List<OrderListCache> orderList;
 
+    public OrderCache() {
+    }
+
     @Data
     public static class OrderListCache {
 

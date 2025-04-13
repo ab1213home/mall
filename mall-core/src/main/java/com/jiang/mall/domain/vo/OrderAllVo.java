@@ -86,4 +86,27 @@ public class OrderAllVo {
      * 订单商品列表
      */
     private List<OrderListVo> orderList;
+
+	public OrderAllVo() {
+
+	}
+
+	@Data
+    public static class OrderListVo {
+
+		/**
+	     * 订单项ID
+	     */
+	    private Long id;
+
+	    /**
+	     * 商品信息
+	     */
+	    private ProductSnapshotVo product;
+
+	    /**
+	     * 商品数量
+	     */
+	    private Long num;
+    }
 }

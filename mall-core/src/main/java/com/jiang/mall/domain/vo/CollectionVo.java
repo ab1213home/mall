@@ -30,4 +30,8 @@ public class CollectionVo {
 	 * 创建时间
 	 */
 	private String date;
+
+	public CollectionVo() {
+
+	}
 }

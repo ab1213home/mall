@@ -99,4 +99,7 @@ public class Order implements Serializable {
      */
     @TableLogic
     private Boolean isDel;
+
+    public Order() {
+    }
 }

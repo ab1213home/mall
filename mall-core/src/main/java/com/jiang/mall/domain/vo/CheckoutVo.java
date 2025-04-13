@@ -45,5 +45,8 @@ public class CheckoutVo {
      */
     private Long num;
 
+    public CheckoutVo() {
+    }
+
 }
 
