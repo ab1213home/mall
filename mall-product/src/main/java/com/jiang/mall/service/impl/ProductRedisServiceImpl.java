@@ -63,7 +63,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void setProduct(@NotNull ProductCache product) {
-		stringRedisTemplate.opsForValue().set(prefix+product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+			stringRedisTemplate.opsForValue().set(prefix+product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void refreshProduct(Long id) {
-		stringRedisTemplate.expire(prefix+id, productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+		stringRedisTemplate.expire(prefix+id, productConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void setSnapshotCache(@NotNull ProductSnapshotCache product) {
-		stringRedisTemplate.opsForValue().set(snapshot_prefix +product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+		stringRedisTemplate.opsForValue().set(snapshot_prefix +product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void refreshSnapshot(Long id) {
-		stringRedisTemplate.expire(snapshot_prefix +id, productConfig.getProductCacheTime(), TimeUnit.MINUTES);
+		stringRedisTemplate.expire(snapshot_prefix +id, productConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override

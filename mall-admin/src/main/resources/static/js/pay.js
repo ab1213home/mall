@@ -69,7 +69,7 @@ function getPayment(){
 function checkOut(){
 	$.ajax({
 		type: "POST",
-		url: "/order/pay",
+		url: "/pay",
 		data: {
 			id: id,
 			paymentAmount: order.course.price,

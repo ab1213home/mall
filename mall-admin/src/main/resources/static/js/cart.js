@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let cartArr = {};
+let cartObj = {};
 let currentPageNum_cart = 1;
 let num_cart = 0;
 
@@ -45,9 +45,9 @@ function getCartNum(){
 }
 
 function checkIfAllSelected() {
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			let good = cartArr[key];
+	for(let key in cartObj){
+		if(cartObj.hasOwnProperty(key)){
+			let good = cartObj[key];
 			if(!good.ischecked){
 				return false;
 			}
@@ -57,7 +57,7 @@ function checkIfAllSelected() {
 }
 
 function checkOneGood(id){
-	cartArr[id].ischecked = !cartArr[id].ischecked;
+	cartObj[id].ischecked = !cartObj[id].ischecked;
 	if (checkIfAllSelected()){
 		$("#sela").prop("checked", true);
 	}else{
@@ -69,9 +69,9 @@ function checkOneGood(id){
 function totalMoney(){
 	let total = 0;
 	let num = 0;
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			let good = cartArr[key];
+	for(let key in cartObj){
+		if(cartObj.hasOwnProperty(key)){
+			let good = cartObj[key];
 			if(good.ischecked){
 				total += good.product.price * good.num;
 				num++;
@@ -85,9 +85,9 @@ function totalMoney(){
 function checkAll(){
 	let result = $("#sela").is(":checked");
 	$(".ipt").prop("checked", result);
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			cartArr[key].ischecked = result;
+	for(let key in cartObj){
+		if(cartObj.hasOwnProperty(key)){
+			cartObj[key].ischecked = result;
 		}
 	}
 	totalMoney();
@@ -98,18 +98,18 @@ function sub(id){
 		show_warning('不能更小了');
 	}else{
 		// num = num -1;
-		updateCart(cartArr[id].product.id,-1);
+		updateCart(cartObj[id].product.id,-1);
 	}
 }
 
 function add(id){
 	// let num = parseInt($("#num_text" + id).val()) + 1;
-	updateCart(cartArr[id].product.id, 1);
+	updateCart(cartObj[id].product.id, 1);
 }
 
 function updateCart(id, num){
 	const data = {
-		productId:id,
+		prodId:id,
 		num:num
 	};
 	$.ajax({
@@ -119,9 +119,9 @@ function updateCart(id, num){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				cartArr[id].num = parseInt($("#num_text" + id).val())+num;
-				$("#num_text" + id).val(cartArr[id].num);	//界面更新
-				$("#sum_price"+id).html(cartArr[id].num * cartArr[id].product.price);	//更新改行的价格
+				cartObj[id].num = parseInt($("#num_text" + id).val())+num;
+				$("#num_text" + id).val(cartObj[id].num);	//界面更新
+				$("#sum_price"+id).html(cartObj[id].num * cartObj[id].product.price);	//更新改行的价格
 				totalMoney();
 			}else{
 				show_error("更新购物车失败:"+res.message);
@@ -132,7 +132,7 @@ function updateCart(id, num){
 
 function deleteCartGood(id){
 	const data={
-		productId:id
+		prodId:id
 	}
 	$.ajax({
 		type:"GET",
@@ -141,7 +141,7 @@ function deleteCartGood(id){
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
-				delete cartArr[id];	//删除内存中对应的商品
+				delete cartObj[id];	//删除内存中对应的商品
 				$("#cart" + id).remove();	//删除某个元素
 				totalMoney();
 			}else{
@@ -163,27 +163,19 @@ function queryCart(pn, pz){
 		data:data,
 		dataType:"json",
 		success:function(res){
+			$('#cartTable tbody').empty();
 			if(res.code == 200){
-				// 清空 tbody 中原有的内容
-				$('#cartTable tbody').empty();
-				if (res.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#cartTable tbody').append(row);
-				}
-				cartArr = {};
-				for(let record of res.data){
-					cartArr[record.id] = record;
-					cartArr[record.id].ischecked = false;
-				}
+				cartObj = {};
+				// for(let record of res.data){
+				// 	cartObj[record.id] = record;
+				// 	cartObj[record.id].ischecked = false;
+				// }
                 res.data.forEach((cart,index) => {
+					cartObj[cart.id] = cart;
+					cartObj[cart.id].ischecked = false;
                     const row =
                         `
-                        <tr id="cart`+ cart.id +`" class="address-row text-center">
+                        <tr id="cart`+ index +`" class="address-row text-center">
                             <th scope="row">
                             	<input type="checkbox" onclick='checkOneGood(`+ cart.id +`)' class="ipt">
                             </th>
@@ -226,6 +218,14 @@ function queryCart(pn, pz){
 					$("#nextPage").prop("disabled", false);
 				}
 				totalMoney();
+			}else if (res.code == 400) {
+				const row =
+					`
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+				$('#cartTable tbody').append(row);
 			}
 		}
 	})
@@ -248,27 +248,35 @@ function bindPreNextPage(){
 }
 
 function checkOut(){
-	const cartArray = Object.values(cartArr);
 	let flag = false;
-	for(let cart of cartArray){
+	let cartArr = [];
+	for (let cart of cartObj){
 		if(cart.ischecked){
+			if (cart.num<=0){
+				continue;
+			}
 			flag = true;
-			break;
+			let checkoutVo = {
+				prodId: cart.product.id,
+				num: cart.num
+			}
+			cartArr.push(checkoutVo);
 		}
 	}
+
 	if(!flag){
 		show_warning('购物车为空，请选择商品');
 		return;
 	}
 	$.ajax({
         type: 'POST',
-        url: "/order/checkout",
-        data: JSON.stringify(cartArray),
+        url: "/order/checkout/new",
+        data: JSON.stringify(cartArr),
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         success: function(res) {
             if (res.code == 200){
-				window.location.href = "./checkout.html";
+				window.location.href = "/checkout.html";
 			}else{
 				show_error("下单失败:"+res.message);
 			}

@@ -13,7 +13,10 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.cache.CheckoutCache;
 import com.jiang.mall.domain.cache.OrderCache;
+
+import java.util.List;
 
 public interface IOrderRedisService {
 
@@ -27,4 +30,11 @@ public interface IOrderRedisService {
 
 	void deleteOrder(Long id);
 
+	void setCheckoutList(Long userId, List<CheckoutCache> checkoutCaches);
+
+	List<CheckoutCache> getCheckoutList(Long userId);
+
+	boolean hasCheckoutList(Long userId);
+
+	void deleteCheckoutList(Long userId);
 }

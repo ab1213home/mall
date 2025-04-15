@@ -14,7 +14,7 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.service.ICheckoutRedisService;
+import com.jiang.mall.service.IOrderRedisService;
 import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,10 +26,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class CheckoutInterceptor implements HandlerInterceptor {
 
-	private ICheckoutRedisService redisService;
+	private IOrderRedisService redisService;
 
 	@Autowired
-	public void setCartRedisService(ICheckoutRedisService redisService) {
+	public void setCartRedisService(IOrderRedisService redisService) {
 		this.redisService = redisService;
 	}
 

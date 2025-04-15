@@ -324,7 +324,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			}
 			String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
 			if (!userOauth.getHash().equals(hash)){
-				userOauthMapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
+				userOauthMapper.setAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
 			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache,OAuthProvider.GITHUB);
 		}else if (action == OAuthAction.BINDING){
@@ -387,7 +387,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			}
 			String hash = SecureUtil.sha256Hex(JSON.toJSONString(user));
 			if (!userOauth.getHash().equals(hash)){
-				userOauthMapper.updateAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
+				userOauthMapper.setAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
 			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache, OAuthProvider.GITEE);
 		}else if (action == OAuthAction.BINDING){

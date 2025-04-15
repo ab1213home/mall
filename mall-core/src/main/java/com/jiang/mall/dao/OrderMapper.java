@@ -37,6 +37,6 @@ public interface OrderMapper extends BaseMapper<Order> {
 	@Select("SELECT user_id FROM tb_orders WHERE id = #{id} LIMIT 1")
 	Long selectOneUserIdById(Long id);
 
-	@Select("SELECT SUM(total_amount) AS total_amount FROM tb_orders WHERE date BETWEEN #{firstDayOfMonth} AND #{lastDayOfMonth}")
+	@Select("SELECT SUM(total_amount) AS total_amount FROM tb_orders WHERE order_date BETWEEN #{firstDayOfMonth} AND #{lastDayOfMonth}")
 	String getAmount(LocalDate firstDayOfMonth, LocalDate lastDayOfMonth);
 }

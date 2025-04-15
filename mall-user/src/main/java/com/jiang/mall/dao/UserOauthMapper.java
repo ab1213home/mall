@@ -22,5 +22,5 @@ import org.apache.ibatis.annotations.Update;
 public interface UserOauthMapper extends BaseMapper<UserOauth> {
 
 	@Update("update tb_user_oauths set hash = #{hash}, annotations = #{annotations} where id = #{id}")
-	void updateAnnotations(Long id, String hash, String annotations);
+	void setAnnotations(Long id, String hash, String annotations);
 }

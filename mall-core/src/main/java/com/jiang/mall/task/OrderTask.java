@@ -47,7 +47,7 @@ public class OrderTask {
 		this.coreConfig = coreConfig;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(OrderTask.class);
 
 	private long timer = -1;
 
@@ -56,14 +56,14 @@ public class OrderTask {
 		if (coreConfig.isOrderCacheEnabled()){
 			timer = timer + 1;
 			if (timer == 0){
-				logger.info("购物车数据缓存预热");
+				logger.info("订单数据缓存预热");
 //				cartService.checkCartFormMySQLToRedis();
 			}else if (timer>=coreConfig.getOrderSyncTime()){
 				timer = 0;
 //				cartService.checkCartFromRedisToMySQL();
 			}
 		}else if (timer == -1){
-			logger.info("购物车数据缓存已禁用。");
+			logger.info("订单数据缓存已禁用。");
 			timer = 0;
 		}
     }

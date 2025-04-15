@@ -16,17 +16,15 @@ package com.jiang.mall.controller;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 import com.jiang.mall.domain.vo.OrderVo;
 import com.jiang.mall.service.ICartService;
 import com.jiang.mall.service.IOrderService;
-import com.jiang.mall.service.IProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -47,57 +45,11 @@ public class OrderUserController {
 	    this.orderService = orderService;
 	}
 
-	private IProductService productService;
-
-	@Autowired
-	public void setProductService(IProductService productService) {
-	    this.productService = productService;
-	}
-
     private ICartService cartService;
 
 	@Autowired
 	public void setCartService(ICartService cartService) {
 	    this.cartService = cartService;
-	}
-
-	/**
-	 * 处理结账请求
-	 *
-	 * @param list_checkoutVo 包含选购商品信息的列表，用于结账
-	 * @param session HTTP会话，用于管理用户登录状态及购物车信息
-	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
-	 */
-	@PostMapping("/checkout")
-	@Permission(PermissionType.USER)
-	public ResponseResult<Object> checkout(@RequestBody List<CheckoutVo> list_checkoutVo, HttpSession session) {
-	    // 检查选购商品列表是否为空
-		if (list_checkoutVo == null) {
-	        return ResponseResult.failResult("参数错误");
-	    }
-	    if (list_checkoutVo.isEmpty()) {
-	        return ResponseResult.failResult("请选择商品");
-	    }
-	    // 用于存储已选商品的购物车ID
-	    List<Long> list_cartId = new ArrayList<>();
-	    for (CheckoutVo checkoutVo : list_checkoutVo) {
-	        // 检查商品是否被选中
-	        if (checkoutVo.getIschecked()){
-	            // 检查商品数量是否合法
-	            if (checkoutVo.getNum() <= 0) {
-	                return ResponseResult.failResult("请选择正确的商品数量");
-	            }
-	            // 检查商品库存是否充足
-	            if (productService.queryStoksById(checkoutVo.getProduct().getId()) < checkoutVo.getNum()) {
-	                return ResponseResult.failResult("商品"+ checkoutVo.getProduct().getTitle()+"库存不足，提交失败！");
-	            }
-	            // 将购物车商品ID添加到确认购买的商品ID列表中
-	            list_cartId.add(checkoutVo.getId());
-	        }
-	    }
-		cartService.setCheckoutListToRedis(list_cartId, session.getId());
-	    // 返回操作成功结果
-	    return ResponseResult.okResult();
 	}
 
 	/**
@@ -111,7 +63,7 @@ public class OrderUserController {
 	@PostMapping("/new")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> newOrder(@RequestParam("addressId") Long addressId,
-	                                       @RequestBody List<CheckoutVo> list_checkoutVo,
+	                                       @RequestBody List<CheckoutReceiverVo> list_checkoutVo,
 									       HttpSession session) {
 		// 检查会话中是否设置表示用户已登录的标志
 		if (addressId == null|| list_checkoutVo == null||addressId<=0){
@@ -133,10 +85,6 @@ public class OrderUserController {
 	    } else if (orderId == -1) {
 			return ResponseResult.failResult("提交失败");
 	    } else {
-			// 根据订单删除购物车中的商品
-		    cartService.deleteCartByOrder(session.getId(), list_checkoutVo);
-			//删除redis中的缓存
-		    cartService.deleteCheckoutListInRedis(session.getId());
 			return ResponseResult.okResult(orderId);
 	    }
 	}

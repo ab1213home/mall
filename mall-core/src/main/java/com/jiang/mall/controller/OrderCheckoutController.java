@@ -16,14 +16,12 @@ package com.jiang.mall.controller;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.service.ICartService;
+import com.jiang.mall.domain.vo.CheckoutReceiverVo;
+import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.service.IOrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,21 +33,46 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/order/temporary")
-public class OrderTemporaryController {
+@RequestMapping("/order/checkout")
+public class OrderCheckoutController {
 
-    private ICartService cartService;
+	private IOrderService orderService;
 
 	@Autowired
-	public void setCartService(ICartService cartService) {
-	    this.cartService = cartService;
+	public void setOrderService(IOrderService orderService) {
+	    this.orderService = orderService;
+	}
+
+	/**
+	 * 处理结账请求
+	 *
+	 * @param list_checkoutVo 包含选购商品信息的列表，用于结账
+	 * @param session HTTP会话，用于管理用户登录状态及购物车信息
+	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
+	 */
+	@PostMapping("/new")
+	@Permission(PermissionType.USER)
+	public ResponseResult<Object> checkout(@RequestBody List<CheckoutReceiverVo> list_checkoutVo, HttpSession session) {
+	    // 检查选购商品列表是否为空
+		if (list_checkoutVo == null) {
+	        return ResponseResult.failResult("参数错误");
+	    }
+	    if (list_checkoutVo.isEmpty()) {
+	        return ResponseResult.failResult("请选择商品");
+	    }
+		for (CheckoutReceiverVo checkoutCache : list_checkoutVo) {
+			if (checkoutCache.getNum() <= 0){
+				return ResponseResult.failResult("请选择正确的商品数量");
+			}
+		}
+		orderService.setCheckoutList(list_checkoutVo, session.getId());
+	    // 返回操作成功结果
+	    return ResponseResult.okResult();
 	}
 
 	/**
 	 * 获取临时订单列表
 	 *
-	 * @param pageNum 当前页码，默认为1
-	 * @param pageSize 每页大小，默认为5
 	 * @param session HTTP会话，用于检查用户登录状态和获取购物车ID列表
 	 * @return 返回获取临时订单列表的响应结果
 	 *
@@ -60,12 +83,10 @@ public class OrderTemporaryController {
 	 */
 	@GetMapping("/getList")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getList(@RequestParam(defaultValue = "1") Integer pageNum,
-	                                                    @RequestParam(defaultValue = "5") Integer pageSize,
-	                                                    HttpSession session) {
-	    List<CartVo> list_checkout = cartService.getCheckoutList(session.getId(), pageNum, pageSize);
+	public ResponseResult<Object> getList(HttpSession session) {
+	    List<CheckoutVo> list_checkout = orderService.getCheckoutList(session.getId());
 	    if (list_checkout.isEmpty()) {
-	        return ResponseResult.failResult("请先选择商品");
+	        return ResponseResult.notLoggedResult("请先选择商品");
 	    }
 	    return ResponseResult.okResult(list_checkout);
 	}
@@ -78,13 +99,13 @@ public class OrderTemporaryController {
 	 * @param session HTTP会话对象，用于获取会话中存储的商品列表
 	 * @return 返回一个响应结果，包含临时购物车中的商品数量或相关错误信息
 	 */
-	@GetMapping("/getNum")
-	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getNum(HttpSession session) {
-	    List<Long> list_cartId = cartService.getCheckoutListFormRedis(session.getId());
-	    if (list_cartId.isEmpty()){
-	        return ResponseResult.failResult("请先选择商品");
-	    }
-	    return ResponseResult.okResult(list_cartId.size());
-	}
+//	@GetMapping("/getNum")
+//	@Permission(PermissionType.USER)
+//	public ResponseResult<Object> getNum(HttpSession session) {
+//	    List<Long> list_cartId = orderService.getCheckoutNum(session.getId());
+//	    if (list_cartId.isEmpty()){
+//	        return ResponseResult.failResult("请先选择商品");
+//	    }
+//	    return ResponseResult.okResult(list_cartId.size());
+//	}
 }

@@ -35,11 +35,11 @@ import java.util.List;
 public interface AddressMapper extends BaseMapper<Address> {
 
 	@Select("SELECT user_id FROM tb_addresses WHERE id = #{id} AND is_del = false")
-	Long selectUserIdById(Long id);
+	Long getUserIdById(Long id);
 
 	@Select("SELECT * FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
-	List<Address> selectListByUserId(Long userId);
+	List<Address> getListByUserId(Long userId);
 
 	@Select("SELECT id FROM tb_addresses WHERE user_id = #{userId} AND is_del = false")
-	List<Long> selectIdByUserId(Long userId);
+	List<Long> getIdByUserId(Long userId);
 }

@@ -220,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	private void login(@NotNull User user, String token, String sessionId) {
 		UserCache userCache = BeanCopyUtil.copyBean(user, UserCache.class);
 		assert userCache != null;
-		Set<Long> groupIds = userGroupRelationMapper.selectGroupIdByUserId(user.getId());
+		Set<Long> groupIds = userGroupRelationMapper.getGroupIdByUserId(user.getId());
 		userCache.setGroups(groupIds);
 		Set<String> deniedPermissions = new HashSet<>();
 		if (user.getDeniedPermission() != null && !user.getDeniedPermission().isEmpty()) {
@@ -229,7 +229,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		Set<String> permissions = new HashSet<>();
 		if (!groupIds.isEmpty()){
 			for (Long groupId : groupIds) {
-				String groupPermission = groupMapper.selectPermissionByGroupId(groupId);
+				String groupPermission = groupMapper.getPermissionByGroupId(groupId);
 				permissions.addAll(Arrays.asList(groupPermission.split(",")));
 			}
 		}
@@ -237,7 +237,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		// 去除权限user.getDeniedPermission()
 		permissions.removeAll(deniedPermissions);
 		// 获取店铺权限与id
-		List<ShopPermissionDto> shopPermissions = shopStaffMapper.selectShopPermissionByUserId(user.getId());
+		List<ShopPermissionDto> shopPermissions = shopStaffMapper.getShopPermissionByUserId(user.getId());
 		if (!shopPermissions.isEmpty()){
 			for (ShopPermissionDto entry : shopPermissions){
 				String[] shopPermissionList = entry.getPermission().split(",");
@@ -255,12 +255,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	public User getUserByUserNameOrEmail(String username, String password) {
 	    // 根据查询条件尝试获取用户信息
-	    User user_username = userMapper.selectByUsernameAndIsActive(username,true );
+	    User user_username = userMapper.getUserByUsernameAndIsActive(username,true );
 
 	    // 根据邮箱格式匹配用户
 	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
-	        User user_email = userMapper.selectByEmailAndIsActive(username, true);
+	        User user_email = userMapper.getUserByEmailAndIsActive(username, true);
 			//encryptToSHA256(password,AES_SALT)
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
@@ -330,12 +330,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public User getUserByUserNameOrEmail(String username) {
 	    // 创建查询条件，指定用户名
-	    User user_username = userMapper.selectByUsername(username);
+	    User user_username = userMapper.getUserByUsername(username);
 
 	    // 根据邮箱格式匹配用户
 	    if (i18nService.isValidEmail(username)) {
 	        // 创建基于邮箱的查询条件
-	        User user_email = userMapper.selectByEmail(username);
+	        User user_email = userMapper.getUserByEmail(username);
 
 	        // 判断邮箱是否对应用户
 	        if (user_email == null) {
@@ -370,11 +370,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 		UserCache userVo = getUserFromRedis(sessionId);
-		User user = userMapper.selectUserByIdAndActive(userVo.getId(),true);
+		User user = userMapper.getUserByIdAndActive(userVo.getId(),true);
 		Map<String,Object> map = new HashMap<>();
 		map.put("new_email",verificationCode.getEmail());
 		map.put("old_email",user.getEmail());
-		if (userMapper.updateEmail(user.getId(),verificationCode.getEmail())>0){
+		if (userMapper.setEmailById(user.getId(),verificationCode.getEmail())>0){
 			// 验证码使用标记
 			emailService.useCode(userVo.getId(), verificationCode);
 			// 记录邮箱修改成功日志
@@ -588,18 +588,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public boolean getTotpStatus(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
-		return userMapper.selectTotpStatusById(user.getId());
+		return userMapper.getTotpStatusById(user.getId());
 	}
 
 	@Override
 	public String enableTotp(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
-		if (userMapper.selectTotpStatusById(user.getId())){
+		if (userMapper.getTotpStatusById(user.getId())){
 			return null;
 		}else {
 			Map<String, String> map = generateSecretKeyAndQRCodeUrl(user.getUsername());
 			logger.debug("用户{}生成TOTP密钥和二维码URL", user.getUsername());
-			if (userMapper.updateTotpSecretById(user.getId(),map.get("secretKey"))>0){
+			if (userMapper.setTotpSecretById(user.getId(),map.get("secretKey"))>0){
 				return map.get("qrCodeUrl");
 			}else {
 				return null;
@@ -610,15 +610,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public boolean disableTotp(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
-		return userMapper.updateTotpStatusById(user.getId(), false) > 0;
+		return userMapper.setTotpStatusById(user.getId(), false) > 0;
 	}
 
 	@Override
 	public boolean enableTotp(String sessionId, int code) {
 		UserCache user = getUserFromRedis(sessionId);
-		String secretKey = userMapper.selectTotpSecretById(user.getId());
+		String secretKey = userMapper.getTotpSecretById(user.getId());
 		if (verifyTOTP(secretKey, code)){
-			if (userMapper.updateTotpStatusById(user.getId(), true) > 0){
+			if (userMapper.setTotpStatusById(user.getId(), true) > 0){
 				//TODO: 修改成功后记录日志,用户行为日志计划重构
 //				userRecordService.successModifyTotpLog(user.getId(),clientIp,fingerprint);
 				return true;
@@ -640,7 +640,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public boolean login(String sessionId, int code, String token, String clientIp, String fingerprint) {
 		if (redisService.validateTwoLogin(sessionId)){
 			Long userId = redisService.getTwoLogin(sessionId);
-			String secretKey = userMapper.selectTotpSecretById(userId);
+			String secretKey = userMapper.getTotpSecretById(userId);
 			if (verifyTOTP(secretKey, code)){
 				User user = userMapper.selectById(userId);
 				// 登录成功，记录登录记录
@@ -720,7 +720,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			Map<String,Object> map = new HashMap<>();
 			map.put("provider", provider.getName());
 			Long userId = redisService.getTwoLogin(sessionId);
-			String secretKey = userMapper.selectTotpSecretById(userId);
+			String secretKey = userMapper.getTotpSecretById(userId);
 			if (verifyTOTP(secretKey, code)){
 				User user = userMapper.selectById(userId);
 				// 登录成功，记录登录记录
@@ -765,7 +765,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	    }
 
 	    // 尝试修改密码
-	    if (userMapper.modifyPasswordById(user.getId(), newPassword) > 0){
+	    if (userMapper.setPasswordById(user.getId(), newPassword) > 0){
 	        // 记录成功的修改密码日志
 	        userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_MODIFY_PASSWORD, map);
 	        // 清除会话中的用户信息，因为密码已修改
@@ -788,7 +788,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean queryByUserName(String userName) {
 	    // 根据查询条件尝试获取用户信息
-	    return userMapper.selectCountByUsername(userName)>0;
+	    return userMapper.getCountByUsername(userName)>0;
 	}
 
 	/**
@@ -801,7 +801,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public Boolean queryByEmail(String email) {
 		// 根据查询条件尝试获取用户信息
-		return userMapper.selectCountByEmail(email) > 0;
+		return userMapper.getCountByEmail(email) > 0;
 	}
 
     /**

@@ -22,5 +22,5 @@ import org.apache.ibatis.annotations.Select;
 public interface ProductSnapshotMapper extends BaseMapper<ProductSnapshot> {
 
 	@Select("select id from tb_product_snapshots where hash = #{hash}")
-	Long selectIdByHash(String hash);
+	Long getIdByHash(String hash);
 }

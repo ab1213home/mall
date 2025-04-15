@@ -190,7 +190,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    boolean result = addressMapper.insert(address) > 0;
 	    // 如果地址插入成功且新地址被指定为默认地址，则更新用户信息中的默认地址ID
 	    if (result && isDefault) {
-	        userMapper.updateDefaultAddressId(user.getId(), address.getId());
+	        userMapper.setDefaultAddressIdById(user.getId(), address.getId());
 			user.setDefaultAddressId(address.getId());
 			userService.setUserToRedis(user);
 	    }
@@ -211,25 +211,25 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 从Redis中获取当前用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 检查旧地址是否属于当前用户，如果不是，返回null
-	    if (!addressMapper.selectUserIdById(address.getId()).equals(user.getId())){
+	    if (!addressMapper.getUserIdById(address.getId()).equals(user.getId())){
 	        return null;
 	    }
 	    // 更新地址到数据库，并判断是否成功
 	    boolean result = addressMapper.updateById(address) > 0;
 	    // 如果地址插入成功且地址被指定为默认地址，则更新用户信息中的默认地址ID
 	    if (result && isDefault) {
-	        userMapper.updateDefaultAddressId(user.getId(), address.getId());
+	        userMapper.setDefaultAddressIdById(user.getId(), address.getId());
 	        user.setDefaultAddressId(address.getId());
 	        userService.setUserToRedis(user);
 	    // 如果地址插入成功且用户有默认地址且地址被指定为默认地址，但是地址更新后不为默认地址
 	    }else if (result && user.getDefaultAddressId() != null && address.getId().equals(user.getDefaultAddressId())){
-			List<Long> addressIds = addressMapper.selectIdByUserId(user.getId());
+			List<Long> addressIds = addressMapper.getIdByUserId(user.getId());
 	        // 如果用户有多个地址则更新用户信息中的默认地址ID为第一个地址的ID
 	        if (addressIds.size() > 1) {
 	            for (Long id : addressIds) {
 	                if (!id.equals(address.getId())) {
 	                    user.setDefaultAddressId(id);
-	                    userMapper.updateDefaultAddressId(user.getId(), id);
+	                    userMapper.setDefaultAddressIdById(user.getId(), id);
 	                    userService.setUserToRedis(user);
 	                    break;
 	                }
@@ -237,7 +237,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 			// 如果用户没有地址，则将用户信息中的默认地址ID设置为null
 		    //TODO:有争议，因为用户还有地址，所以可以不修改用户信息中的默认地址ID，但又不符合用户设置
 	        } else {
-	            userMapper.updateDefaultAddressId(user.getId(), null);
+	            userMapper.setDefaultAddressIdById(user.getId(), null);
 	            user.setDefaultAddressId(null);
 	            userService.setUserToRedis(user);
 	        }
@@ -258,7 +258,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 从Redis中获取当前用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
 	    // 检查旧地址是否属于当前用户，如果不是，返回null
-	    if (!addressMapper.selectUserIdById(id).equals(user.getId())){
+	    if (!addressMapper.getUserIdById(id).equals(user.getId())){
 	        return null;
 	    }
 
@@ -268,17 +268,17 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	    // 如果删除成功且用户有默认地址且删除地址被指定为默认地址
 	    if (result && user.getDefaultAddressId() != null && id.equals(user.getDefaultAddressId())){
 	        // 获取用户剩余的地址ID列表
-	        List<Long> addressIds = addressMapper.selectIdByUserId(user.getId());
+	        List<Long> addressIds = addressMapper.getIdByUserId(user.getId());
 	        // 如果用户没有地址，则将用户信息中的默认地址ID设置为null
 	        if (addressIds.isEmpty()) {
-	            userMapper.updateDefaultAddressId(user.getId(), null);
+	            userMapper.setDefaultAddressIdById(user.getId(), null);
 	            user.setDefaultAddressId(null);
 	            userService.setUserToRedis(user);
 	        }
 			// 如果用户有多个地址则更新用户信息中的默认地址ID为第一个地址的ID
 			for (Long _id : addressIds) {
 				user.setDefaultAddressId(_id);
-				userMapper.updateDefaultAddressId(user.getId(), _id);
+				userMapper.setDefaultAddressIdById(user.getId(), _id);
 				userService.setUserToRedis(user);
 				break;
 			}

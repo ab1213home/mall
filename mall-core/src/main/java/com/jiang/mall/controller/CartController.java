@@ -62,7 +62,7 @@ public class CartController {
 		List<CartVo> cartList = cartService.getCartList(session.getId(), pageNum, pageSize);
         return ResponseResult.okResult(cartList);
     }
-
+    //TODO:购物车全部显示，不需要分页
     /**
      * 通过HTTP GET请求获取购物车商品数量
      *
@@ -86,7 +86,7 @@ public class CartController {
      */
     @PostMapping("/addOrUpdate")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> addCart(@RequestParam("productId") Long productId,
+    public ResponseResult<Object> addCart(@RequestParam("prodId") Long productId,
                                           @RequestParam("num") Long num,
                                           HttpSession session) {
         if (productId == null|| num == null||productId <= 0){
@@ -116,7 +116,7 @@ public class CartController {
      */
     @GetMapping("/delete")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> deleteCart(@RequestParam("productId") Long productId,
+    public ResponseResult<Object> deleteCart(@RequestParam("prodId") Long productId,
                                              HttpSession session) {
 
         if (productId == null||productId <= 0){

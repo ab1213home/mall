@@ -18,9 +18,6 @@ import com.jiang.mall.domain.entity.Cart;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * Cart的映射接口，继承自BaseMapper<Cart>
@@ -39,23 +36,8 @@ public interface CartMapper extends BaseMapper<Cart> {
 	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId}) ON DUPLICATE KEY UPDATE num = num + #{num}")
 	int insertOrUpdateCart(Long prodId, Long num, Long userId);
 
-	@Select("SELECT user_id FROM tb_carts WHERE id = #{id} LIMIT 1")
-	Long selectUserIdById(Long id);
-
-//	@Insert("INSERT INTO tb_carts (prod_id, num, user_id) VALUES (#{prodId}, #{num}, #{userId})")
-//	void insert(Long prodId, Long num, Long userId);
-
-	@Select("SELECT MAX(version) AS version FROM tb_carts WHERE user_id = #{userId}")
-	Long getVersionByUserId(Long userId);
-
 	@Delete("DELETE FROM tb_carts WHERE prod_id = #{prodId} AND user_id = #{userId}")
 	int deleteByProdIdAndUserId(Long prodId, Long userId);
-
-	@Insert("INSERT INTO tb_carts (prod_id, num, user_id, version) VALUES (#{prodId}, #{num}, #{userId}, #{version})")
-	int checkCart(Long userId, Long prodId, Long num, Long version);
-
-	@Select("SELECT user_id FROM tb_carts GROUP BY user_id")
-	List<Long> selectUserIdList();
 
 	@Delete("DELETE FROM tb_carts")
 	void cleanAllCart();

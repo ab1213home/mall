@@ -241,7 +241,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     public Long queryStoksById(Long productId) {
         // 返回产品的库存数量
 	    //TODO:需要判断是否上架，防止爆破
-        return productMapper.selectStocksById(productId);
+        return productMapper.getStocksById(productId);
     }
 
     /**
@@ -253,7 +253,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public Boolean queryCode(String code) {
         // 执行查询并判断结果是否为空，返回查询结果的布尔值
-        return productMapper.selectCountByCode(code) != 0;
+        return productMapper.getCountByCode(code) != 0;
     }
 
     @Override
@@ -347,7 +347,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	@Override
 	public Long getSnapshotId(ProductVo product) {
 		String hash = getHash(product);
-		Long id = productSnapshotMapper.selectIdByHash(hash);
+		Long id = productSnapshotMapper.getIdByHash(hash);
 		if (id != null){
 			return id;
 		}else{

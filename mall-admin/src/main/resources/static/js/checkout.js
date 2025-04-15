@@ -11,17 +11,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let cartArr = {};
-let currentPageNum_cart = 1;
+let checkoutObj = {};
+// let currentPageNum_cart = 1;
 let num_cart = 0;
+let selectAddressObj = {};
 
 $(document).ready(function(){
     let res = isLogin();
 	getFooterInfo();
 	if (res){
-		getTemporaryNum();
-		queryCart(1, 10);
-		bindPreNextPage_product();
+		// getTemporaryNum();
+		queryCart();
+		// bindPreNextPage_product();
 		queryAddress(1,10);
 		getAddressNum();
 		bindPreNextPage_address();
@@ -33,19 +34,19 @@ $(document).ready(function(){
 	}
 })
 function getTemporaryNum(){
-	$.ajax({
-		type:"GET",
-		url:"/order/temporary/getNum",
-		data:{},
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				num_cart = res.data;
-			}else{
-				window.location.href = "./cart.html";
-			}
-		}
-	})
+	// $.ajax({
+	// 	type:"GET",
+	// 	url:"/order/checkout/getNum",
+	// 	data:{},
+	// 	dataType:"json",
+	// 	success:function(res){
+	// 		if(res.code == 200){
+	// 			num_cart = res.data;
+	// 		}else{
+	// 			window.location.href = "./cart.html";
+	// 		}
+	// 	}
+	// })
 }
 
 function queryAddress(pn, pz) {
@@ -60,12 +61,13 @@ function queryAddress(pn, pz) {
         success: function (response) {
 			$('#addresslist tbody').empty();
             if (response.code == 200) {
-				addressArr = {};
-				for(let record of response.data){
-					record.ischecked = record.default;
-					addressArr[record.id] = record;
-				}
+				addressObj = {};
+				// for(let record of response.data){
+				// 	record.ischecked = record.default;
+				// 	addressObj[record.id] = record;
+				// }
                 response.data.forEach((address,index) => {
+					addressObj[address.id]= address;
                     const row =
                         `
                         <tr id="address`+ address.id +`" class="address-row text-center">
@@ -84,12 +86,16 @@ function queryAddress(pn, pz) {
                         </tr>
                         `;
                     $('#addresslist tbody').append(row);
-                });
-				for(let record of response.data){
-					if(record.default){
-						selectAddress(record.id);
+					if (address.default){
+						selectAddressObj = address;
+						$("#address" + address.id).addClass("table-primary");
 					}
-				}
+                });
+				// for(let record of response.data){
+				// 	if(record.default){
+				// 		selectAddress(record.id);
+				// 	}
+				// }
                 currentPageNum_address = pn;
                 if (currentPageNum_address == 1) {
                     $("#prePage_address").prop("disabled", true);
@@ -121,11 +127,11 @@ function queryAddress(pn, pz) {
 }
 
 function selectAddress(id){
-	for(let key in addressArr){
-		if(addressArr.hasOwnProperty(key)){
-			let address = addressArr[key];
-			address.ischecked = address.id == id;
-			if(address.ischecked){
+	selectAddressObj = addressObj[id];
+	for(let key in addressObj){
+		if(addressObj.hasOwnProperty(key)){
+			let address = addressObj[key];
+			if(address.id==id){
 				$("#address" + address.id).addClass("table-primary");
 			}else {
 				$("#address" + address.id).removeClass("table-primary");
@@ -149,39 +155,31 @@ function bindPreNextPage_address(){
 		queryAddress(pageNum, 10);
 	})
 }
-function queryCart(pn, pz){
+function queryCart(){
 	const data = {
-		pageNum:pn,
-		pageSize:pz
+		// pageNum:pn,
+		// pageSize:pz
 	};
 	$.ajax({
 		type:"GET",
-		url:"/order/temporary/getList",
+		url:"/order/checkout/getList",
 		data:data,
 		dataType:"json",
 		success:function(res){
+			$('#cartTable tbody').empty();
 			if(res.code == 200){
-				// 清空 tbody 中原有的内容
-				$('#cartTable tbody').empty();
-				if (res.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#cartTable tbody').append(row);
-				}
-				cartArr = {};
-				for(let record of res.data){
-					cartArr[record.id] = record;
-					cartArr[record.id].ischecked = false;
-				}
+				checkoutObj = {};
+				// for(let record of res.data){
+				// 	checkoutObj[record.id] = record;
+				// 	checkoutObj[record.id].ischecked = false;
+				// }
                 res.data.forEach((cart,index) => {
+					cart.id = index;
+					checkoutObj[index] = cart;
                     const row =
                         `
                         <tr id="cart`+ cart.id +`" class="address-row text-center">
-                            <th scope="row">${(pn - 1) * 10 + index + 1}</th>
+                            <th scope="row"> index + 1}</th>
                             <td id="name`+ cart.id +`">
                             	<div class="row mt-2" style="display: flex; justify-content: center;">
 									<!-- 图片列 -->
@@ -209,18 +207,20 @@ function queryCart(pn, pz){
                         `;
                     $('#cartTable tbody').append(row);
                 });
-				currentPageNum_cart = pn;
-				if(currentPageNum_cart == 1){
-					$("#prePage").prop("disabled", true);
-				}else{
-					$("#prePage").prop("disabled", false);
-				}
-				if(num_cart-currentPageNum_cart*pz < 0){
-					$("#nextPage").prop("disabled", true);
-				}else{
-					$("#nextPage").prop("disabled", false);
-				}
+				// currentPageNum_cart = pn;
+				// if(currentPageNum_cart == 1){
+				// 	$("#prePage").prop("disabled", true);
+				// }else{
+				// 	$("#prePage").prop("disabled", false);
+				// }
+				// if(num_cart-currentPageNum_cart*pz < 0){
+				// 	$("#nextPage").prop("disabled", true);
+				// }else{
+				// 	$("#nextPage").prop("disabled", false);
+				// }
 				totalMoney();
+			}else if (res.code == 404) {
+				window.location.href = "/cart.html";
 			}
 		}
 	})
@@ -228,10 +228,10 @@ function queryCart(pn, pz){
 
 function totalMoney(){
 	let total = 0;
-	for(let key in cartArr){
-		if(cartArr.hasOwnProperty(key)){
-			let good = cartArr[key];
-			total += good.product.price * good.num;
+	for(let key in checkoutObj){
+		if(checkoutObj.hasOwnProperty(key)){
+			let checkout = checkoutObj[key];
+			total += checkout.product.price * checkout.num;
 		}
 	}
 	$("#totalNum").html(num_cart);
@@ -254,66 +254,82 @@ function add_checkout(id){
 
 function updateCart_checkout(id, num){
 	$("#num_text" + id).val(num);	//界面更新
-	cartArr[id].num = num;	//更新内存中对应商品的数量
-	$("#sum_price"+id).html(num * cartArr[id].product.price);	//更新改行的价格
+	checkoutObj[id].num = num;	//更新内存中对应商品的数量
+	$("#sum_price"+id).html(num * checkoutObj[id].product.price);	//更新改行的价格
 	totalMoney();
 }
 
 function deleteCartGood_checkout(id){
-	delete cartArr[id];	//删除内存中对应的商品
+	delete checkoutObj[id];	//删除内存中对应的商品
 	$("#cart" + id).remove();	//删除某个元素
 	totalMoney();
 }
 
-function bindPreNextPage_product(){
-	$("#prePage").on("click", function(){
-		if(currentPageNum_cart <= 1){
-			show_warning('已经是第一页');
-			return;
-		}
-		let pageNum = currentPageNum_cart -1;
-		queryCart(pageNum, 10);
-	})
-
-	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum_cart +1;
-		queryCart(pageNum, 10);
-	})
-}
+// function bindPreNextPage_product(){
+// 	$("#prePage").on("click", function(){
+// 		if(currentPageNum_cart <= 1){
+// 			show_warning('已经是第一页');
+// 			return;
+// 		}
+// 		let pageNum = currentPageNum_cart -1;
+// 		queryCart(pageNum, 10);
+// 	})
+//
+// 	$("#nextPage").on("click", function(){
+// 		let pageNum = currentPageNum_cart +1;
+// 		queryCart(pageNum, 10);
+// 	})
+// }
 
 function checkOut(){
-	let addressId = 0;
-	let paymentMethod = 1;
-	let status = 1;
-	for(let key in addressArr){
-		if(addressArr.hasOwnProperty(key)){
-			let address = addressArr[key];
-			if(address.ischecked){
-				addressId = address.id;
-				break;
-			}
-		}
-	}
-	if(cartArr.length == 0){
-		show_warning('商品为空');
-		return;
-	}
-	if(addressId == 0){
+	if (selectAddressObj == null){
 		show_warning('请先选择地址');
 		return;
 	}
-	const data = {
-		cartArr: JSON.stringify(Object.values(cartArr)),
-		addressId: addressId,
-		paymentMethod: paymentMethod,
-		status: status
-	};
-	console.log(data);
+
+	// let addressId = 0;
+	// let paymentMethod = 1;
+	// let status = 1;
+	// for(let key in addressObj){
+	// 	if(addressObj.hasOwnProperty(key)){
+	// 		let address = addressObj[key];
+	// 		if(address.ischecked){
+	// 			addressId = address.id;
+	// 			break;
+	// 		}
+	// 	}
+	// }
+	const checkoutArr = [];
+	for (let checkout of checkoutObj){
+		if (checkout.num<=0){
+			continue;
+		}
+		let checkoutVo = {
+			prodId: checkout.product.id,
+			num: checkout.num
+		}
+		checkoutArr.push(checkoutVo);
+	}
+	if(checkoutArr.length == 0){
+		show_warning('商品为空');
+		return;
+	}
+	// if(addressId == 0){
+	// 	show_warning('请先选择地址');
+	// 	return;
+	// }
+	// const data = {
+	// 	cartArr: JSON.stringify(Object.values(checkoutObj)),
+	// 	addressId: addressId,
+	// 	paymentMethod: paymentMethod,
+	// 	status: status
+	// };
+	// console.log(data);
 	// url: '/order/insert?addressId='+addressId+'&paymentMethod='+paymentMethod+'&status='+status,
 	$.ajax({
-        url: '/order/new?addressId='+addressId,
+        url: '/order/new?addressId='+selectAddressObj.id,
         type: 'POST',
-        data: JSON.stringify(Object.values(cartArr)),
+        data: JSON.stringify(checkoutArr),
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             if (response.code == '200') {

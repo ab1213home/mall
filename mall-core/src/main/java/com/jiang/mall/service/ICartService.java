@@ -16,7 +16,7 @@ package com.jiang.mall.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 
 import java.util.List;
 
@@ -38,10 +38,8 @@ public interface ICartService extends IService<Cart> {
 	 *
 	 * @param sessionId      会话ID，用于获取用户信息
 	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
-	 * @return 返回一个布尔值，表示删除操作是否成功
 	 */
-	@SuppressWarnings("UnusedReturnValue")
-	Boolean deleteCartByOrder(String sessionId, List<CheckoutVo> listCheckoutVo);
+	void deleteCartByOrder(String sessionId, List<CheckoutReceiverVo> listCheckoutVo);
 
 	List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize);
 
@@ -64,19 +62,6 @@ public interface ICartService extends IService<Cart> {
 	Boolean insertOrUpdateCart(Long productId, Long num, String sessionId);
 
 	/**
-     * 更新购物车中商品的数量
-     * 此方法首先验证给定的商品ID是否属于当前用户，以防止跨用户修改
-     * 如果商品不属于当前用户，方法返回null
-     * 如果验证通过，方法将尝试更新商品的数量，并返回更新是否成功的布尔值
-     *
-     * @param id 商品在购物车中的ID
-     * @param num 新的商品数量
-     * @param sessionId 用户的会话ID，用于识别和验证用户
-     * @return 如果商品不属于当前用户，返回null；否则，返回更新是否成功的布尔值
-     */
-//	Boolean updateCart(Long id, Long num, String sessionId);
-
-	/**
      * 删除购物车项
      * <p>
      * 此方法旨在删除指定的购物车项它首先确保只有该项的拥有者才能删除它，
@@ -90,17 +75,10 @@ public interface ICartService extends IService<Cart> {
      */
 	Boolean deleteCart(Long productId, String sessionId);
 
-	void setCheckoutListToRedis(List<Long> listCartId, String sessionId);
-
-	List<Long> getCheckoutListFormRedis(String sessionId);
-
-	void deleteCheckoutListInRedis(String sessionId);
-
-	List<CartVo> getCheckoutList(String sessionId, Integer pageNum, Integer pageSize);
-
 	void cleanAllCart();
 
 	void checkCartFormMySQLToRedis();
 
 	void checkCartFromRedisToMySQL();
+
 }

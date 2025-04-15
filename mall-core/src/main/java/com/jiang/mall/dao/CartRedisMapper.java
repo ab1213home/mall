@@ -14,24 +14,37 @@
 package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.entity.OrderList;
+import com.jiang.mall.domain.entity.CartRedis;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
- * OrderList的映射接口，继承自BaseMapper<OrderList>
- * 本接口用于定义与数据库中tb_orderLists表进行交互的方法，专门用于处理OrderList实体的CRUD操作
+ * CartRedis的映射接口，继承自BaseMapper<Cart>
+ * 本接口用于定义与数据库中tb_cart_redis表进行交互的方法，专门用于处理CartRedis实体的CRUD操作
  *
  * @author jiang
  * @email  jiangrongjun2004@163.com
  * @link <a href="https://github.com/ab1213home/mall">https://github.com/ab1213home/mall</a>
- * @apiNote OrderList的映射接口
+ * @apiNote CartRedis的映射接口
  * @version 1.0
- * @since 2024年9月8日
+ * @since 2025年4月15日
  */
 @Mapper
-public interface OrderListMapper extends BaseMapper<OrderList> {
+public interface CartRedisMapper extends BaseMapper<CartRedis> {
 
-	@Select("SELECT order_id FROM tb_order_lists WHERE prod_id = #{prodId} LIMIT 1")
-	Long selectOneOrderIdByProdId(Long prodId);
+	@Select("SELECT MAX(version) AS version FROM tb_cart_redis WHERE user_id = #{userId}")
+	Long getVersionByUserId(Long userId);
+
+	@Select("SELECT user_id FROM tb_cart_redis GROUP BY user_id")
+	List<Long> getUserIdList();
+
+	/**
+	 * 清空 tb_cart_redis 表中的所有数据
+	 * 注意：此操作会删除表中的所有数据，请谨慎使用。
+	 */
+	@Delete("DELETE FROM tb_cart_redis")
+	void cleanAllCart();
 }

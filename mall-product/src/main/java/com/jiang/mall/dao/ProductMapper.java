@@ -35,11 +35,11 @@ import java.util.List;
 public interface ProductMapper extends BaseMapper<Product> {
 
 	@Select("SELECT stocks FROM tb_products WHERE id = #{id} AND is_del = false")
-	Long selectStocksById(Long id);
+	Long getStocksById(Long id);
 
 	@Select("SELECT COUNT(*) FROM tb_products WHERE code = #{code} AND is_del = false")
-	int selectCountByCode(String code);
+	int getCountByCode(String code);
 
 	@Select("SELECT id FROM tb_products WHERE is_del = false")
-	List<Long> selectIdList();
+	List<Long> getIdList();
 }

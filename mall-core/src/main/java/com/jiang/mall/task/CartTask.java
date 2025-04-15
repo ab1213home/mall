@@ -48,7 +48,7 @@ public class CartTask {
 		this.coreConfig = coreConfig;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(CartTask.class);
 
 	private long timer = -1;
 

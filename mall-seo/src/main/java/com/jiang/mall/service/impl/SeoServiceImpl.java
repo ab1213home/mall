@@ -69,7 +69,7 @@ public class SeoServiceImpl implements ISeoService {
         wsg.addUrl(protocolUrl);
 
         // 商品列表页的url
-        List<Long> productList = productMapper.selectIdList();
+        List<Long> productList = productMapper.getIdList();
         for(Long id : productList){
             WebSitemapUrl productUrl = new WebSitemapUrl.Options(domain + "/product.html?id=" + id).lastMod(dateTimeFormatter.format(LocalDateTime.now())).priority(1.0).changeFreq(ChangeFreq.DAILY).build();
             wsg.addUrl(productUrl);

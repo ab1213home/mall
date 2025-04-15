@@ -15,6 +15,7 @@ package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Order;
+import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
 import com.jiang.mall.domain.vo.OrderAllVo;
 import com.jiang.mall.domain.vo.OrderVo;
@@ -41,7 +42,11 @@ public interface IOrderService extends IService<Order> {
 
 	String getAmount();
 
-	Long newOrder(String sessionId, Long addressId, List<CheckoutVo> listCheckoutVo);
+	Long newOrder(String sessionId, Long addressId, List<CheckoutReceiverVo> listCheckoutVo);
 
 	OrderVo getOrder(Long id, String sessionId);
+
+	void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, String sessionId);
+
+	List<CheckoutVo> getCheckoutList(String sessionId);
 }

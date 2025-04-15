@@ -22,5 +22,5 @@ import org.apache.ibatis.annotations.Select;
 public interface GroupMapper extends BaseMapper<Group> {
 
 	@Select("SELECT permission FROM tb_user_groups WHERE id = #{id}")
-	String selectPermissionByGroupId(Long id);
+	String getPermissionByGroupId(Long id);
 }

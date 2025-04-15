@@ -144,7 +144,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	@Override
 	public List<BannerVo> getBannerList() {
 	    // 查询当前时间下所有有效的Banner实体列表
-	    List<Banner> banners = bannerMapper.geTeffectiveBannerList(LocalDateTime.now());
+	    List<Banner> banners = bannerMapper.getTeffectiveBannerList(LocalDateTime.now());
 	    // 将Banner实体列表转换为BannerVo列表，并返回
 	    return BeanCopyUtil.copyBeanList(banners, BannerVo.class);
 	}

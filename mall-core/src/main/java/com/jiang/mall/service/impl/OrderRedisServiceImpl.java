@@ -16,6 +16,7 @@ package com.jiang.mall.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.domain.cache.CheckoutCache;
 import com.jiang.mall.domain.cache.OrderCache;
 import com.jiang.mall.service.IOrderRedisService;
 import jakarta.annotation.PostConstruct;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -57,15 +59,17 @@ public class OrderRedisServiceImpl implements IOrderRedisService {
 	}
 
 	String prefix = "order:";
+	String checkout_prefix = "checkout:";
 
 	@PostConstruct
 	private void init() {
 	    prefix = generalConfig.getRedisKeyPrefix()+":order:";
+		checkout_prefix = generalConfig.getRedisKeyPrefix()+":checkout:";
 	}
 
 	@Override
 	public void setOrder(@NotNull OrderCache order) {
-		stringRedisTemplate.opsForValue().set(prefix + order.getId(), JSON.toJSONString(order),coreConfig.getOrderCacheTime(), TimeUnit.MINUTES);
+		stringRedisTemplate.opsForValue().set(prefix + order.getId(), JSON.toJSONString(order),coreConfig.getOrderCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -81,11 +85,32 @@ public class OrderRedisServiceImpl implements IOrderRedisService {
 
 	@Override
 	public void refreshOrder(Long id) {
-		stringRedisTemplate.expire(prefix + id, coreConfig.getOrderCacheTime(), TimeUnit.MINUTES);
+		stringRedisTemplate.expire(prefix + id, coreConfig.getOrderCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
 	public void deleteOrder(Long id) {
 		stringRedisTemplate.delete(prefix + id);
+	}
+
+	@Override
+	public void setCheckoutList(Long userId, List<CheckoutCache> checkoutCaches) {
+		stringRedisTemplate.opsForValue().set(checkout_prefix + userId, JSON.toJSONString(checkoutCaches),30, TimeUnit.MINUTES);
+	}
+
+	@Override
+	public List<CheckoutCache> getCheckoutList(Long userId) {
+		String json = stringRedisTemplate.opsForValue().get(checkout_prefix + userId);
+		return json == null ? null : JSON.parseArray(json, CheckoutCache.class);
+	}
+
+	@Override
+	public boolean hasCheckoutList(Long userId) {
+		return stringRedisTemplate.hasKey(checkout_prefix + userId);
+	}
+
+	@Override
+	public void deleteCheckoutList(Long userId) {
+		stringRedisTemplate.delete(checkout_prefix + userId);
 	}
 }

@@ -19,7 +19,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.OrderListMapper;
 import com.jiang.mall.dao.OrderMapper;
-import com.jiang.mall.dao.ProductSnapshotMapper;
+import com.jiang.mall.domain.cache.CheckoutCache;
 import com.jiang.mall.domain.cache.OrderCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
@@ -44,6 +44,9 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.jiang.mall.util.DecimalUtil.add;
 
@@ -95,13 +98,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		this.addressService = addressService;
 	}
 
-	private ProductSnapshotMapper productSnapshotMapper;
-
-	@Autowired
-	public void setProductSnapshotMapper(ProductSnapshotMapper productSnapshotMapper) {
-		this.productSnapshotMapper = productSnapshotMapper;
-	}
-
 	private SeataSnowflakeUtil idGenerator;
 
 	@Autowired
@@ -121,6 +117,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Autowired
 	public void setRedisService(IOrderRedisService redisService) {
 		this.redisService = redisService;
+	}
+
+	private ICartService cartService;
+
+	@Autowired
+	public void setCartService(ICartService cartService) {
+		this.cartService = cartService;
 	}
 
 	@Override
@@ -224,7 +227,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	public Long newOrder(String sessionId, Long addressId, List<CheckoutVo> listCheckoutVo) {
+	public Long newOrder(String sessionId, Long addressId, List<CheckoutReceiverVo> listCheckoutVo) {
 		// 根据地址ID获取地址信息，以验证地址是否属于当前用户
 	    Address address = addressService.getById(addressId);
 		UserCache user = userService.getUserFromRedis(sessionId);
@@ -240,8 +243,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		order.setStatus(OrderStatus.WAIT_PAYMENT.getKey());
 	    order.setTotalAmount(new BigDecimal("0.0"));
 	    // 计算订单总金额
-	    for (CheckoutVo checkoutVo : listCheckoutVo) {
-			if (checkoutVo.getProduct() == null) {
+	    for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
+			if (checkoutVo.getProdId() == null) {
 				logger.error("结算信息中产品信息为空，无法创建订单");
 				return -1L;
 			}
@@ -252,7 +255,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			// 创建订单详情对象并设置基本信息
 		    OrderList orderList = new OrderList();
 			// 获取产品和类别信息
-		    ProductVo product = productService.getProduct(checkoutVo.getProduct().getId());
+		    ProductVo product = productService.getProduct(checkoutVo.getProdId());
 			if (product == null) {
 				logger.error("产品信息不存在，无法创建订单");
 				return -1L;
@@ -271,7 +274,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		    if (orderListMapper.insert(orderList)>0){
 				logger.debug("订单列表插入成功");
 				// 计算单个订单项的金额
-			    BigDecimal amount = checkoutVo.getProduct().getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+			    BigDecimal amount = product.getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
 				// 计算订单总金额
 		        order.setTotalAmount(add(order.getTotalAmount(),amount));
 			}else{
@@ -281,6 +284,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    }
 	    // 插入订单信息
 	    if (orderMapper.insert(order) > 0) {
+			//删除redis中的缓存
+		    redisService.deleteCheckoutList(user.getId());
+			// 根据订单删除购物车中的商品
+			cartService.deleteCartByOrder(sessionId, listCheckoutVo);
 	        return order.getId();
 	    }else{
 			logger.warn("订单插入失败，无法创建订单");
@@ -304,6 +311,52 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			return getOrder(order);
 		}
 		return null;
+	}
+
+	@Override
+	public void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, String sessionId) {
+		List<CheckoutCache> checkoutCaches = BeanCopyUtil.copyBeanList(checkoutReceiverVos, CheckoutCache.class);
+		UserCache user = userService.getUserFromRedis(sessionId);
+		if (redisService.hasCheckoutList(user.getId())){
+			List<CheckoutCache> checkoutCaches_redis = redisService.getCheckoutList(user.getId());
+
+			// 将Redis中的列表转换为以prodId为键的Map
+			Map<Long, CheckoutCache> redisMap = checkoutCaches_redis.stream()
+			    .collect(Collectors.toMap(CheckoutCache::getProdId, Function.identity()));
+
+			// 遍历本地列表并合并到Map中
+			for (CheckoutCache item : checkoutCaches) {
+			    Long prodId = item.getProdId();
+			    CheckoutCache existingItem = redisMap.get(prodId);
+			    if (existingItem != null) {
+			        // 累加数量
+			        existingItem.setNum(existingItem.getNum() + item.getNum());
+			    } else {
+			        // 新增条目
+			        redisMap.put(prodId, item);
+			    }
+			}
+
+			// 将合并后的Map转换回列表
+			checkoutCaches_redis = new ArrayList<>(redisMap.values());
+			redisService.setCheckoutList(user.getId(),checkoutCaches_redis);
+		}else{
+			redisService.setCheckoutList(user.getId(), checkoutCaches);
+		}
+	}
+
+	@Override
+	public List<CheckoutVo> getCheckoutList(String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		List<CheckoutCache> checkoutCaches = redisService.getCheckoutList(user.getId());
+		List<CheckoutVo> checkoutVoList = new ArrayList<>();
+		for (CheckoutCache checkoutCache : checkoutCaches) {
+			CheckoutVo checkoutVo = new CheckoutVo();
+			checkoutVo.setProduct(productService.getProduct(checkoutCache.getProdId()));
+			checkoutVo.setNum(checkoutCache.getNum());
+			checkoutVoList.add(checkoutVo);
+		}
+		return checkoutVoList;
 	}
 
 	private @Nullable OrderVo getOrder(Long id) {

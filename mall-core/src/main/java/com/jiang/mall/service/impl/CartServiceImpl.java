@@ -13,19 +13,25 @@
 
 package com.jiang.mall.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.CartMapper;
+import com.jiang.mall.dao.CartRedisMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.CartDto;
 import com.jiang.mall.domain.entity.Cart;
+import com.jiang.mall.domain.entity.CartRedis;
 import com.jiang.mall.domain.vo.CartVo;
-import com.jiang.mall.domain.vo.CheckoutVo;
+import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.ICartRedisService;
+import com.jiang.mall.service.ICartService;
+import com.jiang.mall.service.IProductService;
+import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -35,6 +41,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -56,6 +64,13 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         this.cartMapper = cartMapper;
     }
 
+    private CartRedisMapper cartRedisMapper;
+
+    @Autowired
+    public void setCartRedisMapper(CartRedisMapper cartRedisMapper) {
+        this.cartRedisMapper = cartRedisMapper;
+    }
+
     private IUserService userService;
 
     @Autowired
@@ -69,13 +84,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 	private void setCartRedisService(ICartRedisService cartRedisService) {
 		this.cartRedisService = cartRedisService;
 	}
-
-    private ICheckoutRedisService checkoutRedisService;
-
-    @Autowired
-    public void setCheckoutRedisService(ICheckoutRedisService checkoutRedisService) {
-        this.checkoutRedisService = checkoutRedisService;
-    }
 
     private IProductService productService;
 
@@ -97,19 +105,18 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      *
      * @param sessionId      会话ID，用于获取用户信息
      * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
-     * @return 如果成功更新购物车则返回true，否则返回false
      */
     @Override
-    public Boolean deleteCartByOrder(String sessionId, List<CheckoutVo> listCheckoutVo) {
+    public void deleteCartByOrder(String sessionId, List<CheckoutReceiverVo> listCheckoutVo) {
         UserCache user = userService.getUserFromRedis(sessionId);
         if (coreConfig.isCartCacheEnabled()){
-            return deleteCartByOrderInRedis(user.getId(), listCheckoutVo);
+            deleteCartByOrderInRedis(user.getId(), listCheckoutVo);
         }else{
-            return deleteCartByOrderInMySQL(user.getId(), listCheckoutVo);
+            deleteCartByOrderInMySQL(user.getId(), listCheckoutVo);
         }
     }
 
-    private @NotNull Boolean deleteCartByOrderInRedis(Long userId, List<CheckoutVo> listCheckoutVo) {
+    private void deleteCartByOrderInRedis(Long userId, List<CheckoutReceiverVo> listCheckoutVo) {
         //Redis不存在该商品该用户的购物车记录，判断是冷数据还是空数据
         Long version_redis = null;
         //尝试获取版本号
@@ -117,57 +124,59 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             version_redis = cartRedisService.getVersion(userId);
         }
         //获取数据库用户最新版本号
-        Long version_mysql = cartMapper.getVersionByUserId(userId);
+        Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
         if (version_redis == null || version_redis < version_mysql){
             checkCartFormMySQLToRedis(userId, version_mysql);
         }
-        List<CartDto> cartList = cartRedisService.getCart(userId);
-        for (CartDto cartDto : cartList) {
-            // 遍历订单详情，对比购物车中的商品
-            for (CheckoutVo checkoutVo : listCheckoutVo) {
-                // 如果购物车商品ID与订单中的商品ID匹配
-                if (cartDto.getProdId().equals(checkoutVo.getProduct().getId())) {
-                    // 计算购物车中商品的新数量
-                    cartRedisService.setCart(userId, cartDto.getProdId(), - checkoutVo.getNum());
-                }
+        for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
+            if (cartRedisService.hasCart(userId, checkoutVo.getProdId())){
+                cartRedisService.setCart(userId, checkoutVo.getProdId(), - checkoutVo.getNum());
             }
         }
-        return true;
     }
 
-    private @NotNull Boolean deleteCartByOrderInMySQL(Long userId, List<CheckoutVo> listCheckoutVo) {
-        // 根据购物车商品ID列表查询购物车商品信息
-        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", userId);
+    private void deleteCartByOrderInMySQL(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
+        if (listCheckoutVo.isEmpty()) {
+            return;
+        }
+        // 将订单商品转换为Map，合并相同prodId的数量
+        Map<Long, Long> prodIdToNumMap = listCheckoutVo.stream()
+            .collect(Collectors.toMap(
+                CheckoutReceiverVo::getProdId,
+                CheckoutReceiverVo::getNum
+            ));
+        // 根据用户和商品ID查询购物车
+        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>()
+            .eq(Cart::getUserId, userId)
+            .in(Cart::getProdId, prodIdToNumMap.keySet());
         List<Cart> carts = cartMapper.selectList(queryWrapper);
-        // 如果没有找到对应的购物车商品，直接返回成功
+
         if (carts.isEmpty()) {
-            return true;
+            return;
         }
-        // 遍历查询到的购物车商品
+
+        List<Cart> cartsToUpdate = new ArrayList<>();
+        List<Long> cartIdsToDelete = new ArrayList<>();
+
+        // 计算新数量并分类处理
         for (Cart cart : carts) {
-            // 检查购物车商品是否属于当前用户，如果不属于则返回失败
-            if (!cart.getUserId().equals(userId)){
-                return false;
-            }
-            // 遍历订单详情，对比购物车中的商品
-            for (CheckoutVo checkoutVo : listCheckoutVo) {
-                // 如果购物车商品ID与订单中的商品ID匹配
-                if (cart.getProdId().equals(checkoutVo.getProduct().getId())) {
-                    // 计算购物车中商品的新数量
-                    long num = cart.getNum() - checkoutVo.getNum();
-                    // 如果新数量大于0，则更新购物车商品数量
-                    if (num > 0) {
-                        cart.setNum(num);
-                        cartMapper.updateById(cart);
-                    } else {
-                        // 否则，删除购物车中的商品
-                        cartMapper.deleteById(cart);
-                    }
-                }
+            long checkoutNum = prodIdToNumMap.get(cart.getProdId());
+            long newNum = cart.getNum() - checkoutNum;
+            if (newNum > 0) {
+                cart.setNum(newNum);
+                cartsToUpdate.add(cart);
+            } else {
+                cartIdsToDelete.add(cart.getId());
             }
         }
-        return true;
+
+        // 批量处理数据库操作
+        if (!cartsToUpdate.isEmpty()) {
+            cartMapper.updateById(cartsToUpdate);
+        }
+        if (!cartIdsToDelete.isEmpty()) {
+            cartMapper.deleteByIds(cartIdsToDelete);
+        }
     }
 
     @Override
@@ -276,7 +285,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 version_redis = cartRedisService.getVersion(userId);
             }
             //获取数据库用户最新版本号
-            Long version_mysql = cartMapper.getVersionByUserId(userId);
+            Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
             if (version_redis == null || version_redis < version_mysql){
                 //数据库版本号大于redis版本号
                 //以数据库为基准
@@ -337,7 +346,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 version_redis = cartRedisService.getVersion(userId);
             }
             //获取数据库用户最新版本号
-            Long version_mysql = cartMapper.getVersionByUserId(userId);
+            Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
             if (version_redis == null || version_redis < version_mysql){
                 //数据库版本号大于redis版本号
                 //以数据库为基准
@@ -352,62 +361,19 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
-
-
-    @Override
-    public void setCheckoutListToRedis(@NotNull List<Long> listCartId, String sessionId) {
-        UserCache user = userService.getUserFromRedis(sessionId);
-        // 遍历购物车ID列表，检查每个购物车项是否属于当前用户
-        for (Long cartId : listCartId){
-            //检查是否合法
-            if (!cartMapper.selectUserIdById(cartId).equals(user.getId())){
-                logger.error("{}非法操作！试图添加不属于自己的购物车到预订单",user.getUsername());
-                return;
-            }
-        }
-        checkoutRedisService.setCheckoutList(user.getId(), listCartId);
-    }
-
-    @Override
-    public List<Long> getCheckoutListFormRedis(String sessionId) {
-        UserCache user = userService.getUserFromRedis(sessionId);
-        return checkoutRedisService.getCheckoutList(user.getId());
-    }
-
-    @Override
-    public void deleteCheckoutListInRedis(String sessionId) {
-        UserCache user = userService.getUserFromRedis(sessionId);
-        checkoutRedisService.deleteCheckoutList(user.getId());
-    }
-
-    @Override
-    public List<CartVo> getCheckoutList(String sessionId, Integer pageNum, Integer pageSize) {
-        List<Long> listCartId = getCheckoutListFormRedis(sessionId);
-        // 创建分页对象，指定页码和页面大小
-        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-        // 创建查询构造器，条件是购物车项ID
-        LambdaQueryWrapper<Cart> queryWrapper = new LambdaQueryWrapper<Cart>().in(Cart::getId, listCartId);
-        // 执行分页查询，获取查询结果
-        List<Cart> carts = cartMapper.selectPage(cartPage, queryWrapper).getRecords();
-        // 如果查询结果为空，则返回null
-        if (carts.isEmpty()) {
-            return null;
-        }
-        return cartToCartVo(carts);
-    }
-
     @Override
     public void cleanAllCart() {
         cartMapper.cleanAllCart();
         cartRedisService.cleanAllCart();
+        cartRedisMapper.cleanAllCart();
     }
 
 
     @Override
     public void checkCartFormMySQLToRedis() {
-        List<Long> listUserId = cartMapper.selectUserIdList();
+        List<Long> listUserId = cartRedisMapper.getUserIdList();
         for (Long userId : listUserId) {
-            Long version_mysql = cartMapper.getVersionByUserId(userId);
+            Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
             Long version_redis = null;
             if (cartRedisService.hasVersion(userId)){
                 version_redis = cartRedisService.getVersion(userId);
@@ -422,11 +388,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     private void checkCartFormMySQLToRedis(Long userId ,Long version) {
-        QueryWrapper<Cart> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<CartRedis> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("version", version);
-        List<Cart> carts = cartMapper.selectList(queryWrapper);
-        List<CartDto> cartDtos = BeanCopyUtil.copyBeanList(carts, CartDto.class);
+        CartRedis cartRedis = cartRedisMapper.selectOne(queryWrapper);
+        List<CartDto> cartDtos = JSON.parseArray(cartRedis.getContent(), CartDto.class);
         cartRedisService.initCart(userId, cartDtos, version);
     }
 
@@ -437,7 +403,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         List<Long> listUserId =cartRedisService.getChangeList();
         for (Long userId : listUserId) {
             Long version_redis = cartRedisService.getVersion(userId);
-            Long version_mysql = cartMapper.getVersionByUserId(userId);
+            Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
             if (version_redis > version_mysql){
                 logger.debug("{}购物车Redis版本号大于数据库版本号，开始同步",userId);
                 checkCartFormRedisToMySQL(userId, version_redis);
@@ -448,16 +414,20 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
+
     private void checkCartFormRedisToMySQL(Long userId, Long version) {
         List<CartDto> cartDtos = cartRedisService.getCart(userId);
-        for (CartDto cartDto : cartDtos) {
-            if (cartMapper.checkCart(userId, cartDto.getProdId(), cartDto.getNum(), version)>0){
-                continue;
-            }else{
-                logger.error("MySQL数据插入出错{}", cartDto);
-            }
+        String content = JSON.toJSONString(cartDtos);
+        CartRedis cartRedis = new CartRedis();
+        cartRedis.setUserId(userId);
+        cartRedis.setContent(content);
+        cartRedis.setVersion(version);
+        if (cartRedisMapper.insert(cartRedis) > 0){
+            logger.info("{}购物车Redis数据同步到MySQL成功", userId);
+            cartRedisService.removeChangeList(userId);
+        }else {
+            logger.error("{}购物车Redis数据同步到MySQL失败", userId);
         }
-        cartRedisService.removeChangeList(userId);
     }
 
 }

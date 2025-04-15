@@ -23,24 +23,19 @@ import lombok.Data;
  * @since 2024年9月8日
  */
 @Data
-public class CheckoutVo {
+public class CheckoutReceiverVo {
 
-//    /**
-//     * 结算项ID
-//     */
-//    private Long id;
-//
     /**
      * 商品信息
      */
-    private ProductVo product;
+    private Long prodId;
 
     /**
      * 商品数量
      */
     private Long num;
 
-    public CheckoutVo() {
+    public CheckoutReceiverVo() {
     }
 
 }

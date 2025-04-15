@@ -34,7 +34,7 @@ function queryAddress(pn, pz) {
         success: function (response) {
             $('#addresslist tbody').empty();
             if (response.code == 200) {
-				addressArr = {};
+				addressObj = {};
 				for(let record of response.data){
 					addressArr[record.id] = record;
 				}

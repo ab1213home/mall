@@ -260,7 +260,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	        // 将当前类别ID添加到列表中
 	        categoryIds.add(id);
 	        // 用于查找所有父类别ID等于当前类别ID的子类别
-	        List<Long> list = categoryMapper.selectIdListByParentId(id);
+	        List<Long> list = categoryMapper.getIdListByParentId(id);
             if (list.isEmpty()){
                 return categoryIds;
             }

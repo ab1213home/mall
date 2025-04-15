@@ -35,5 +35,5 @@ import java.util.List;
 public interface CategoryMapper extends BaseMapper<Category> {
 
 	@Select("SELECT id FROM tb_categories WHERE parent_id = #{parentId} AND is_del = false")
-	List<Long> selectIdListByParentId(Long parentId);
+	List<Long> getIdListByParentId(Long parentId);
 }

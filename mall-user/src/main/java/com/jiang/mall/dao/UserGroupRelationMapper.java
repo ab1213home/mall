@@ -24,5 +24,5 @@ import java.util.Set;
 public interface UserGroupRelationMapper extends BaseMapper<UserGroupRelation> {
 
 	@Select("SELECT group_id FROM tb_user_group_relations WHERE user_id = #{userId}")
-	Set<Long> selectGroupIdByUserId(Long userId);
+	Set<Long> getGroupIdByUserId(Long userId);
 }

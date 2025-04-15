@@ -25,6 +25,6 @@ import java.util.List;
 public interface ShopStaffMapper extends BaseMapper<ShopStaff> {
 
 	@Select("select shop_id,permission FROM tb_shop_staffs WHERE user_id = #{userId}")
-	List<ShopPermissionDto> selectShopPermissionByUserId(Long userId);
+	List<ShopPermissionDto> getShopPermissionByUserId(Long userId);
 
 }

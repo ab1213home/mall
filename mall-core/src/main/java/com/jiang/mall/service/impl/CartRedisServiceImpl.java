@@ -145,21 +145,24 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    // Lua脚本，用于原子地更新购物车中的商品数量、版本号和变更集合
 	    String luaScript =
 	    """
-             local cartKey = ARGV[1] .. KEYS[1]
-             local productId = ARGV[2]
-             local delta = tonumber(ARGV[3])
-             local versionKey = ARGV[4]
-             local changedSetKey = ARGV[5]
-             local expireTime = tonumber(ARGV[6])
-             local newVal = redis.call('HINCRBY', cartKey, productId, delta)
-             if newVal <= 0 then
-                 redis.call('HDEL', cartKey, productId)
-                 newVal = 1
-             end
-             redis.call('HINCRBY', versionKey, KEYS[1], 1)
-             redis.call('SADD', changedSetKey, KEYS[1])
-             redis.call('EXPIRE', cartKey, expireTime)
-             return newVal
+        local cartKey = ARGV[1] .. KEYS[1]
+        local productId = ARGV[2]
+        local delta = tonumber(ARGV[3])
+        local versionKey = ARGV[4]
+        local changedSetKey = ARGV[5]
+        local expireTime = tonumber(ARGV[6])
+        local newVal = redis.call('HINCRBY', cartKey, productId, delta)
+        if newVal <= 0 then
+            redis.call('HDEL', cartKey, productId)
+            newVal = 1
+        end
+        local added = redis.call('SADD', changedSetKey, KEYS[1])
+        if added == 1 then
+            redis.call('HINCRBY', versionKey, KEYS[1], 1)
+        end
+			 
+        edis.call('EXPIRE', cartKey, expireTime)
+        return newVal
         """;
 	    // 创建Redis脚本对象
 	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
@@ -403,8 +406,10 @@ public class CartRedisServiceImpl implements ICartRedisService {
         local expireTime = tonumber(ARGV[5])
         local delResult = redis.call('HDEL', cartKey, productId)
         if delResult > 0 then
-            redis.call('HINCRBY', versionKey, KEYS[1], 1)
-            redis.call('SADD', changedSetKey, KEYS[1])
+            local added = redis.call('SADD', changedSetKey, KEYS[1])
+            if added == 1 then
+                redis.call('HINCRBY', versionKey, KEYS[1], 1)
+            end
         end
         redis.call('EXPIRE', cartKey, expireTime)
         return delResult

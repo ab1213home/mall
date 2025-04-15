@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let addressArr = {};
+let addressObj = {};
 let currentPageNum_address = 1;
 let num_address = 0;
 
@@ -347,7 +347,7 @@ function listTownshipById(id) {
 		data:data,
         success: function (res) {
 			if (res.code == 200){
-				const address = addressArr[id];
+				const address = addressObj[id];
 				$('#township').empty().append('<option value="" disabled>请选择</option>');
 				res.data.forEach(township => {
 					const option = `
@@ -377,7 +377,7 @@ function listCountyById(id) {
 		data:data,
         success: function (res) {
 			if (res.code == 200){
-				const address = addressArr[id];
+				const address = addressObj[id];
 				$('#county').empty().append('<option value="" disabled>请选择</option>');
 				res.data.forEach(county => {
 					const option = `
@@ -410,7 +410,7 @@ function listCityById(id) {
 		data:data,
         success: function (res) {
 			if (res.code == 200){
-				const address = addressArr[id];
+				const address = addressObj[id];
 				$('#city').empty().append('<option value="" disabled>请选择</option>');
 				res.data.forEach(city => {
 					const option = `
@@ -444,7 +444,7 @@ function listProvinceById(id) {
 		data:data,
         success: function (res) {
 			if (res.code == 200){
-				const address = addressArr[id];
+				const address = addressObj[id];
 				$('#province').empty().append('<option value="" disabled>请选择省份或地区</option>');
 				res.data.forEach(province => {
 					const option = `
@@ -463,7 +463,7 @@ function listProvinceById(id) {
 }
 
 function getAddress(id) {
-	const address = addressArr[id];
+	const address = addressObj[id];
 	$("#firstName").val(address.firstName);
 	$("#lastName").val(address.lastName);
 	$("#phone").val(address.phone);
