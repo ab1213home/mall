@@ -46,7 +46,7 @@ public class OrderAdminController {
 
 	@GetMapping("/getList")
 	@Permission(type = PermissionType.ADMIN, permission = "order:list")
-	public ResponseResult<Object> getAllOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
+	public ResponseResult<Object> getOrderList(@RequestParam(defaultValue = "1") Integer pageNum,
 	                                            @RequestParam(defaultValue = "5") Integer pageSize
 												) {
 	    // 调用服务方法，根据用户ID获取订单列表
@@ -65,7 +65,7 @@ public class OrderAdminController {
 
 	@GetMapping("/getNum")
 	@Permission(type = PermissionType.ADMIN, permission = "order:list")
-	public ResponseResult<Object> getAllOrderNum() {
+	public ResponseResult<Object> getOrderNum() {
 		return ResponseResult.okResult(orderService.getOrderNum());
 	}
 

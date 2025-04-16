@@ -20,15 +20,15 @@ $(document).ready(function(){
 	getFooterInfo();
 	if (res){
 		getCartNum();
-		queryCart(1, 10);
+		queryCart(1, 15);
 		bindPreNextPage();
 	}else{
-		window.location.href = "/user/login.html?url=%2Fcart.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
 })
 function search_item(){
 	let keyword = document.getElementById("search").value;
-	window.location.href = "./index.html?keyword=" + keyword;
+	window.location.href = "/index.html?keyword=" + keyword;
 }
 function getCartNum(){
 	$.ajax({
@@ -97,13 +97,11 @@ function sub(id){
 	if(num == 1){
 		show_warning('不能更小了');
 	}else{
-		// num = num -1;
 		updateCart(cartObj[id].product.id,-1);
 	}
 }
 
 function add(id){
-	// let num = parseInt($("#num_text" + id).val()) + 1;
 	updateCart(cartObj[id].product.id, 1);
 }
 
@@ -166,10 +164,6 @@ function queryCart(pn, pz){
 			$('#cartTable tbody').empty();
 			if(res.code == 200){
 				cartObj = {};
-				// for(let record of res.data){
-				// 	cartObj[record.id] = record;
-				// 	cartObj[record.id].ischecked = false;
-				// }
                 res.data.forEach((cart,index) => {
 					cartObj[cart.id] = cart;
 					cartObj[cart.id].ischecked = false;
@@ -238,12 +232,12 @@ function bindPreNextPage(){
 			return;
 		}
 		let pageNum = currentPageNum_cart -1;
-		queryCart(pageNum, 10);
+		queryCart(pageNum, 15);
 	})
 	
 	$("#nextPage").on("click", function(){
 		let pageNum = currentPageNum_cart +1;
-		queryCart(pageNum, 10);
+		queryCart(pageNum, 15);
 	})
 }
 
@@ -270,7 +264,7 @@ function checkOut(){
 	}
 	$.ajax({
         type: 'POST',
-        url: "/order/checkout/new",
+        url: "/order/checkout",
         data: JSON.stringify(cartArr),
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
@@ -283,3 +277,8 @@ function checkOut(){
         },
     });
 }
+
+//绑定submitOrder
+$("#submitOrder").click(function () {
+	checkOut();
+});

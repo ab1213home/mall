@@ -50,7 +50,7 @@ public class OrderCheckoutController {
 	 * @param session HTTP会话，用于管理用户登录状态及购物车信息
 	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
 	 */
-	@PostMapping("/new")
+	@PostMapping("/")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> checkout(@RequestBody List<CheckoutReceiverVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
@@ -91,21 +91,4 @@ public class OrderCheckoutController {
 	    return ResponseResult.okResult(list_checkout);
 	}
 
-	/**
-	 * 获取临时购物车数量
-	 * 该方法用于获取当前会话中临时购物车内的商品数量
-	 * 需要确保用户已登录，并且会话中存在有效的商品列表
-	 *
-	 * @param session HTTP会话对象，用于获取会话中存储的商品列表
-	 * @return 返回一个响应结果，包含临时购物车中的商品数量或相关错误信息
-	 */
-//	@GetMapping("/getNum")
-//	@Permission(PermissionType.USER)
-//	public ResponseResult<Object> getNum(HttpSession session) {
-//	    List<Long> list_cartId = orderService.getCheckoutNum(session.getId());
-//	    if (list_cartId.isEmpty()){
-//	        return ResponseResult.failResult("请先选择商品");
-//	    }
-//	    return ResponseResult.okResult(list_cartId.size());
-//	}
 }

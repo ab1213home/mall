@@ -12,7 +12,6 @@
  */
 
 let checkoutObj = {};
-// let currentPageNum_cart = 1;
 let num_cart = 0;
 let selectAddressObj = {};
 
@@ -20,34 +19,18 @@ $(document).ready(function(){
     let res = isLogin();
 	getFooterInfo();
 	if (res){
-		// getTemporaryNum();
 		queryCart();
-		// bindPreNextPage_product();
 		queryAddress(1,10);
 		getAddressNum();
 		bindPreNextPage_address();
-		document.getElementById('submitOrder').addEventListener('click', function() {
-			checkOut();
-		});
 	}else{
-		window.location.href = "/user/login.html?url=%2Fcheckout.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/checkout.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
 })
-function getTemporaryNum(){
-	// $.ajax({
-	// 	type:"GET",
-	// 	url:"/order/checkout/getNum",
-	// 	data:{},
-	// 	dataType:"json",
-	// 	success:function(res){
-	// 		if(res.code == 200){
-	// 			num_cart = res.data;
-	// 		}else{
-	// 			window.location.href = "./cart.html";
-	// 		}
-	// 	}
-	// })
-}
+
+document.getElementById('submitOrder').addEventListener('click', function() {
+	checkOut();
+});
 
 function queryAddress(pn, pz) {
     $.ajax({
@@ -87,11 +70,6 @@ function queryAddress(pn, pz) {
 						$("#address" + address.id).addClass("table-primary");
 					}
                 });
-				// for(let record of response.data){
-				// 	if(record.default){
-				// 		selectAddress(record.id);
-				// 	}
-				// }
                 currentPageNum_address = pn;
                 if (currentPageNum_address == 1) {
                     $("#prePage_address").prop("disabled", true);
@@ -242,40 +220,12 @@ function deleteCartGood_checkout(id){
 	totalMoney();
 }
 
-// function bindPreNextPage_product(){
-// 	$("#prePage").on("click", function(){
-// 		if(currentPageNum_cart <= 1){
-// 			show_warning('已经是第一页');
-// 			return;
-// 		}
-// 		let pageNum = currentPageNum_cart -1;
-// 		queryCart(pageNum, 10);
-// 	})
-//
-// 	$("#nextPage").on("click", function(){
-// 		let pageNum = currentPageNum_cart +1;
-// 		queryCart(pageNum, 10);
-// 	})
-// }
-
 function checkOut(){
 	if (selectAddressObj == null){
 		show_warning('请先选择地址');
 		return;
 	}
 
-	// let addressId = 0;
-	// let paymentMethod = 1;
-	// let status = 1;
-	// for(let key in addressObj){
-	// 	if(addressObj.hasOwnProperty(key)){
-	// 		let address = addressObj[key];
-	// 		if(address.ischecked){
-	// 			addressId = address.id;
-	// 			break;
-	// 		}
-	// 	}
-	// }
 	const checkoutArr = [];
 	for (let checkout of checkoutObj){
 		if (checkout.num<=0){
@@ -291,18 +241,6 @@ function checkOut(){
 		show_warning('商品为空');
 		return;
 	}
-	// if(addressId == 0){
-	// 	show_warning('请先选择地址');
-	// 	return;
-	// }
-	// const data = {
-	// 	cartArr: JSON.stringify(Object.values(checkoutObj)),
-	// 	addressId: addressId,
-	// 	paymentMethod: paymentMethod,
-	// 	status: status
-	// };
-	// console.log(data);
-	// url: '/order/insert?addressId='+addressId+'&paymentMethod='+paymentMethod+'&status='+status,
 	$.ajax({
         url: '/order/new?addressId='+selectAddressObj.id,
         type: 'POST',
@@ -310,7 +248,6 @@ function checkOut(){
         contentType: 'application/json; charset=utf-8',
         success: function (response) {
             if (response.code == '200') {
-				// show_success('订单提交成功，订单ID:'+response.data);
 				window.location.href = "/pay.html?id="+response.data;
             } else {
                 show_error('订单提交失败：'+ response.message);

@@ -17,10 +17,11 @@ import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.IPayService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,16 @@ public class PayController {
 	public ResponseResult<Object> getPaymentList() {
 		List<Map<String, String>> list = payService.getPaymentList();
 		return ResponseResult.okResult(list);
+	}
+
+	@PostMapping("/")
+	@Permission(PermissionType.USER)
+	public ResponseResult<Object> pay(@RequestParam("id")Long orderId,
+	                                  @RequestParam("amount")String amount,
+	                                  @RequestParam("payment")String payment,
+	                                  HttpSession session, HttpServletRequest request, HttpServletResponse response){
+
+		return ResponseResult.okResult(amount);
 	}
 
 }
