@@ -19,39 +19,53 @@ $(document).ready(function(){
 	getFooterInfo();
 	if (flag){
 		getCartNum();
-	}
-})
-function search_item(){
-	let keyword = document.getElementById("search").value;
-	window.location.href = "./index.html?keyword=" + keyword;
-}
+		queryInfo();
 
-document.addEventListener('DOMContentLoaded', function() {
-    const data={
+	}
+	$('#search_btn').click(function(){
+		search_item();
+	});
+	// document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
+	// 	new bootstrap.Tooltip(tooltip);
+	// });
+})
+
+function queryInfo() {
+   const data={
         id: id
     };
     $.ajax({
 		type:"GET",
 		url:"/product/snapshot/getInfo",
 		data:data,
-		async:false,	//设置同步请求
+		async:false,
 		dataType:"json",
 		success:function(res){
 			if(res.code == 200){
 				const product = res.data;
-                document.getElementById('productTitle').textContent = product.title;
-                document.getElementById('productImg').src = product.img;
-                document.getElementById('productCode').textContent = product.code;
-                document.getElementById('productCategory').innerHTML = '<a data-bs-toggle="tooltip" data-bs-title="'+product.category.parent+'">' + product.category.name + '</a>';
-                document.getElementById('productPrice').textContent = product.price;
-                document.getElementById('productDescription').textContent = product.description;
-				document.getElementById('view-product-details').href = "./product.html?id=" + product.prodId;
+                // 使用jQuery更新页面内容
+				$('#productTitle').text(product.title);
+				$('#productImg').attr('src', product.img);
+				$('#productCode').text(product.code);
+				$('#productCategory').html('<a data-bs-toggle="tooltip" data-bs-title="' + product.category.parent + '">' + product.category.name + '</a>');
+				$('#productPrice').text(product.price);
+				$('#productDescription').text(product.description);
+				$('#view-product-details').attr('href', '/product.html?id=' + product.prodId);
+
+				// 初始化Bootstrap Tooltip
+				$('[data-bs-toggle="tooltip"]').tooltip();
 			}else{
-				window.location.href = "./index.html";
+				window.location.href = "/index.html";
 			}
 		}
 	});
-	document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
-		new bootstrap.Tooltip(tooltip);
-	});
-})
+}
+function search_item(){
+	let keyword = document.getElementById("search").value;
+	window.location.href = "./index.html?keyword=" + keyword;
+}
+
+// document.addEventListener('DOMContentLoaded', function() {
+//
+//
+// })

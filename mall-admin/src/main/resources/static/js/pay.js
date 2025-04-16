@@ -16,7 +16,7 @@ let payment = 0;
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get('id');
 
-function queryPay() {
+function queryInfo() {
     $.ajax({
 		type: "GET",
 		url: "/order/getInfo",
@@ -33,17 +33,20 @@ function queryPay() {
 	});
 }
 
-
 $(document).ready(function(){
 	let flag =isLogin();
 	getFooterInfo();
+	getPayment();
 	if (flag){
 		getCartNum();
-		queryPay();
-		getPayment();
+		queryInfo();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/pay.html?id=" + id) + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
+	$('#submitOrder').on('click', function(event) {
+        event.preventDefault(); // 阻止默认行为（如表单提交）
+        checkOut();
+    });
 })
 
 //获取支付方式
@@ -122,7 +125,29 @@ function checkOut(){
 	});
 }
 
-//绑定submitOrder
-$("#submitOrder").click(function () {
-	checkOut();
-});
+// document.addEventListener('DOMContentLoaded', function() {
+// 	$.ajax({
+// 		type: "GET",
+// 		url: "/order/getInfo",
+// 		data: {
+// 			id: id
+// 		},
+// 		dataType: "json",
+// 		success: function (res) {
+// 			if (res.code == 200) {
+// 				order = res.data;
+// 				$('#amount').text(order.totalAmount);
+// 			}
+// 		}
+// 	});
+// 	getPayment();
+// 	document.getElementById('submitOrder').addEventListener('click', function() {
+// 		//阻止默认事件
+// 		event.preventDefault();
+// 		checkOut();
+// 	});
+// 	$('#submitOrder').on('click', function(event) {
+//         event.preventDefault(); // 阻止默认行为（如表单提交）
+//         checkOut();
+//     });
+// });

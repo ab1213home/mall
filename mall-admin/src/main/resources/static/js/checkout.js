@@ -26,11 +26,19 @@ $(document).ready(function(){
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/checkout.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
+	$('#submitOrder').on('click', function(event) {
+        event.preventDefault(); // 阻止默认行为（如表单提交）
+        checkOut();
+    });
 })
 
-document.getElementById('submitOrder').addEventListener('click', function() {
-	checkOut();
-});
+// document.addEventListener('DOMContentLoaded', function() {
+// 	document.getElementById('submitOrder').addEventListener('click', function() {
+// 		//阻止默认事件
+// 		event.preventDefault();
+// 		checkOut();
+// 	});
+// });
 
 function queryAddress(pn, pz) {
     $.ajax({

@@ -71,6 +71,44 @@ $(document).ready(function(){
 		getCartNum();
 		bool=isCollected();
 	}
+	queryInfo();
+	// 绑定减号按钮点击事件
+    $('#minus-btn').click(function () {
+        let num = parseInt($('#productNum').val());
+        if (num > 1) {
+            num--;
+            $('#productNum').val(num);
+        } else {
+            show_warning('购买数量不能小于1');
+        }
+    });
+
+    // 绑定加号按钮点击事件
+    $('#plus-btn').click(function () {
+        let num = parseInt($('#productNum').val());
+        let stocks = parseInt($('#productStocks').text());
+        if (num < stocks) {
+            num++;
+            $('#productNum').val(num);
+        } else {
+            show_warning('库存不足，可能无法正常购买，请注意购买数量');
+        }
+    });
+
+    // 绑定添加到购物车按钮点击事件
+    $('#addcart-btn').click(function() {
+        addCart();
+    });
+
+	$('#collect-btn').click(function(){
+		Collect();
+	});
+	$('#search_btn').click(function(){
+		search_item();
+	});
+	// document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
+	// 	new bootstrap.Tooltip(tooltip);
+	// });
 })
 function search_item(){
 	let keyword = document.getElementById("search").value;
@@ -106,8 +144,8 @@ function addCollect() {
 	}
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const data={
+function queryInfo(){
+	const data={
         id: productId
     };
     $.ajax({
@@ -119,48 +157,54 @@ document.addEventListener('DOMContentLoaded', function() {
 		success:function(res){
 			if(res.code == 200) {
 				const product = res.data;
-				document.getElementById('productTitle').textContent = product.title;
-				document.getElementById('productImg').src = product.img;
-				document.getElementById('productCode').textContent = product.code;
-				document.getElementById('productCategory').innerHTML = '<a data-bs-toggle="tooltip" data-bs-title="'+product.category.parent+'">' + product.category.name + '</a>';
-				document.getElementById('productPrice').textContent = product.price;
-				document.getElementById('productStocks').textContent = product.stocks;
-				document.getElementById('productDescription').textContent = product.description;
+                $('#productTitle').text(product.title);
+                $('#productImg').attr('src', product.img);
+                $('#productCode').text(product.code);
+                $('#productCategory').html('<a data-bs-toggle="tooltip" data-bs-title="'+product.category.parent+'">' + product.category.name + '</a>');
+                $('#productPrice').text(product.price);
+                $('#productStocks').text(product.stocks);
+                $('#productDescription').text(product.description);
+
+                // 初始化Bootstrap Tooltip
+                $('[data-bs-toggle="tooltip"]').tooltip();
 			} else {
 				window.location.href = "/index.html";
 			}
 		}
 	});
-	document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
-		new bootstrap.Tooltip(tooltip);
-	});
-	// 绑定减号按钮点击事件
-	document.getElementById('minus-btn').addEventListener('click', function () {
-		let num = parseInt(document.getElementById('productNum').value);
-		if (num > 1) {
-			num--;
-			document.getElementById('productNum').value = num;
-		} else {
-			show_warning('购买数量不能小于1');
-		}
-	});
-	// 绑加号按钮点击事件
-	document.getElementById('plus-btn').addEventListener('click', function () {
-		let num = parseInt(document.getElementById('productNum').value);
-		if (num < parseInt(document.getElementById('productStocks').textContent)) {
-			num++;
-			document.getElementById('productNum').value = num;
-        }else {
-			show_warning('库存不足，可能无法正常购买，请注意购买数量');
-            num++;
-            document.getElementById('productNum').value = num;
-        }
+}
 
-    });
-	document.getElementById('addcart-btn').addEventListener('click', function() {
-		addCart();
-	});
-});
+// document.addEventListener('DOMContentLoaded', function() {
+// 	document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
+// 		new bootstrap.Tooltip(tooltip);
+// 	});
+// 	// 绑定减号按钮点击事件
+// 	document.getElementById('minus-btn').addEventListener('click', function () {
+// 		let num = parseInt(document.getElementById('productNum').value);
+// 		if (num > 1) {
+// 			num--;
+// 			document.getElementById('productNum').value = num;
+// 		} else {
+// 			show_warning('购买数量不能小于1');
+// 		}
+// 	});
+// 	// 绑加号按钮点击事件
+// 	document.getElementById('plus-btn').addEventListener('click', function () {
+// 		let num = parseInt(document.getElementById('productNum').value);
+// 		if (num < parseInt(document.getElementById('productStocks').textContent)) {
+// 			num++;
+// 			document.getElementById('productNum').value = num;
+//         }else {
+// 			show_warning('库存不足，可能无法正常购买，请注意购买数量');
+//             num++;
+//             document.getElementById('productNum').value = num;
+//         }
+//
+//     });
+// 	document.getElementById('addcart-btn').addEventListener('click', function() {
+// 		addCart();
+// 	});
+// });
 
 function addCart(){
 	const num = document.getElementById('productNum').value;

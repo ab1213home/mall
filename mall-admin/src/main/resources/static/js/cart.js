@@ -16,16 +16,56 @@ let currentPageNum_cart = 1;
 let num_cart = 0;
 
 $(document).ready(function(){
-	let res = isLogin();
-	getFooterInfo();
-	if (res){
-		getCartNum();
-		queryCart(1, 15);
-		bindPreNextPage();
-	}else{
-		window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
-	}
-})
+    // 检查登录状态
+    let res = isLogin();
+    getFooterInfo();
+
+    if (res) {
+        // 已登录：获取购物车数据
+        getCartNum();
+        queryCart(1, 15);
+        bindPreNextPage();
+    } else {
+        // 未登录：跳转到登录页
+        window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+    }
+
+    // 绑定全选按钮事件（使用jQuery简化代码）
+    $('#sela').on('click', function(event) {
+		event.preventDefault();
+        checkAll();
+    });
+
+    // 绑定提交订单按钮事件
+    $('#submitOrder').on('click', function(event) {
+        event.preventDefault(); // 阻止默认行为（如表单提交）
+        checkOut();
+    });
+});
+
+// $(document).ready(function(){
+// 	let res = isLogin();
+// 	getFooterInfo();
+// 	if (res){
+// 		getCartNum();
+// 		queryCart(1, 15);
+// 		bindPreNextPage();
+// 	}else{
+// 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+// 	}
+// })
+//
+// document.addEventListener('DOMContentLoaded', function() {
+// 	document.getElementById('sela').addEventListener('click', function() {
+// 		checkAll();
+// 	});
+// 	document.getElementById('submitOrder').addEventListener('click', function() {
+// 		//阻止默认事件
+// 		// event.preventDefault();
+// 		checkOut();
+// 	});
+// });
+
 function search_item(){
 	let keyword = document.getElementById("search").value;
 	window.location.href = "/index.html?keyword=" + keyword;
@@ -277,8 +317,3 @@ function checkOut(){
         },
     });
 }
-
-//绑定submitOrder
-$("#submitOrder").click(function () {
-	checkOut();
-});

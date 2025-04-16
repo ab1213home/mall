@@ -130,14 +130,14 @@ function queryGoodsByCategoryId(cgId, cgName, pn, ps){
                 //生成商品列表HTML
 				let i = 0;
 				for (let val of goodsMap[cgName]) {
-					if(i==0){
+					if(i == 0){
 						s1 += "<ul>";
 					}
 					s1 += `<li class="cd_li">
                                 <a href="/product.html?id=`+ val.id +`">`+ val.title + `</a>
                            </li>`
 					i++;
-					if(i==6){
+					if(i == 6){
 						s1 += "</ul>";
 						i == 0;
 					}
