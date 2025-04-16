@@ -93,11 +93,10 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	 * @param version 购物车版本号，用于标识购物车数据的版本。
 	 */
 	@Override
-	public void initCart(Long userId, @NotNull List<CartDto> cartList, Long version) {
+	public void initCart(@NotNull Long userId, @NotNull List<CartDto> cartList,@NotNull Long version) {
 		// 使用pipeline批量操作
 	    stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
 	        // 1. 删除旧数据
-//	        connection.del(("cart:" + userId).getBytes());
 			connection.keyCommands().del((prefix + userId).getBytes());
 	        // 2. 批量插入新数据
 	        Map<byte[], byte[]> cartData = cartList.stream()
@@ -106,27 +105,14 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	                c -> c.getNum().toString().getBytes()
 	            ));
 	        connection.hashCommands().hMSet((prefix + userId).getBytes(), cartData);
-//			stringRedisTemplate.opsForHash().putAll(prefix + userId, cartData);
-
 	        // 3. 设置过期时间
 	        connection.keyCommands().expire((prefix + userId).getBytes(), coreConfig.getCartCacheTime());
-//			stringRedisTemplate.expire(prefix + userId, coreConfig.getCartCacheTime(), TimeUnit.SECONDS);
-
 	        // 4. 更新版本号
 	        connection.hashCommands().hSet(version_prefix.getBytes(), userId.toString().getBytes(), version.toString().getBytes());
-//			stringRedisTemplate.opsForHash().put( version_prefix, userId.toString(), version.toString());
 	        // 5. 清除变更标记
 	        connection.setCommands().sRem(change_prefix.getBytes(), userId.toString().getBytes());
-//			stringRedisTemplate.opsForSet().remove(change_prefix, userId.toString());
 	        return null;
 	    });
-//		stringRedisTemplate.delete(prefix+userId);
-//		for (CartDto cartDto : cartList) {
-//			stringRedisTemplate.opsForHash().put(prefix+userId, cartDto.getProdId().toString(), cartDto.getNum().toString());
-//		}
-//		stringRedisTemplate.expire(prefix+userId, coreConfig.getCartCacheTime(), TimeUnit.SECONDS);
-//		stringRedisTemplate.opsForHash().put(version_prefix, userId.toString() , version.toString());
-//		stringRedisTemplate.opsForSet().remove(change_prefix, userId.toString());
 	}
 
 
@@ -553,5 +539,11 @@ public class CartRedisServiceImpl implements ICartRedisService {
 		stringRedisTemplate.delete(prefix);
 		stringRedisTemplate.delete(version_prefix);
 		stringRedisTemplate.delete(change_prefix);
+	}
+
+	@Override
+	public void initCart(@NotNull Long userId, @NotNull Long version) {
+		stringRedisTemplate.opsForHash().put(version_prefix, userId.toString(), version.toString());
+		removeChangeList(userId);
 	}
 }

@@ -35,7 +35,7 @@ public interface ICartRedisService {
 	 * @param cartList 购物车数据列表，包含商品ID和数量信息，不能为空。
 	 * @param version 购物车版本号，用于标识购物车数据的版本。
 	 */
-    void initCart(Long userId, @NotNull List<CartDto> cartList, Long version);
+    void initCart(@NotNull Long userId, @NotNull List<CartDto> cartList,@NotNull Long version);
 
     /**
 	 * 设置购物车中商品的数量
@@ -181,4 +181,6 @@ public interface ICartRedisService {
     int getCartNum(Long userId);
 
     void cleanAllCart();
+
+	void initCart(@NotNull Long userId,@NotNull Long version);
 }

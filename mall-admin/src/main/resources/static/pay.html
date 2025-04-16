@@ -18,7 +18,7 @@
 		<link rel="stylesheet" href="/public/bootstrap-5.3.3-dist/css/bootstrap.min.css">
 		<link rel="stylesheet" href="/public/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 		<link rel="stylesheet" href="/css/style.css">
-		<link rel="stylesheet" href="/css/cart.css">
+		<link rel="stylesheet" href="/css/pay.css">
 		<link rel="stylesheet" href="/css/font-awesome.min.css"></link>
 		<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
 		<script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
@@ -41,6 +41,11 @@
 				align-items: center;
 				justify-content: center;
 				padding: 10px 10px;
+			}
+			/* 自定义选择样式 */
+			.selected-payment {
+				border: 2px solid #007bff;
+				background-color: #e6f7ff;
 			}
 		</style>
 	</head>
@@ -87,40 +92,56 @@
 
 		<!-- 主体部分 -->
 		<div class="w main-content">
-			<div class="cartd1">
-				确认订单信息
-			</div>
-			<table class="table table-hover" id="cartTable">
-				<thead>
-					<tr class="table-warning">
-						<th scope="col" class="text-center">序号</th>
-						<th scope="col" class="text-center">商品</th>
-						<th scope="col" class="text-center">单价</th>
-						<th scope="col" class="text-center">数量</th>
-						<th scope="col" class="text-center">小计</th>
-						<th scope="col" class="text-center">操作</th>
-					</tr>
-				</thead>
-				<tbody></tbody>
-			</table>
-			<div class="cartd6 mt-2">
-				<button id="prePage" disabled>上一页</button>
-				<button id="nextPage">下一页</button>
-			</div>
-			<div class="mt-2">
-				<div class="fr">
-					<ul class="cartul3">
-						<li>已选择<span id="totalNum">0</span>件商品</li>
-						<li>总价: ￥<span id="totalPrice">0</span></li>
-					</ul>
+			<div class="payment-container">
+				<div class="order-summary">
+					<div class="success-icon">
+						<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="12" cy="12" r="12" fill="#E5E5E5"></circle>
+							<path d="M10.596 3.88L16.17 9.464L22.69 3.044" stroke="#2D8CF0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+						</svg>
+					</div>
+					<div class="summary-text">
+						<p>您的订单已提交成功！请尽快付款</p>
+						<p>金额：<span class="amount price-tag" id="amount">888.00</span></p>
+					</div>
 				</div>
-				<div class="cls"></div>
+				<div id="paymentMethods" class="payment-methods">
+					<h3>请选择支付方式</h3>
+				</div>
+<!--				<div class="payment-methods">-->
+<!--					<h3>请选择支付方式</h3>-->
+<!--					&lt;!&ndash;			支付方式选择,动态加载&ndash;&gt;-->
+<!--					<div class="method-option" id="method-option">-->
+<!--					</div>-->
+<!--					<div class="method-option">-->
+<!--						<input type="radio" id="alipay" name="paymentMethod" value="支付宝" checked>-->
+<!--						<label for="alipay">-->
+<!--							<img src="/images/alipay.png" alt="支付宝" class="logo">-->
+<!--							<span>支付宝</span>-->
+<!--							<span class="recommended">推荐</span>-->
+<!--						</label>-->
+<!--					</div>-->
+<!--					<div class="method-option">-->
+<!--						<input type="radio" id="wechatpay" name="paymentMethod" value="微信支付">-->
+<!--						<label for="wechatpay">-->
+<!--							<img src="/images/wechatpay.png" alt="微信支付" class="logo">-->
+<!--							<span>微信支付</span>-->
+<!--						</label>-->
+<!--					</div>-->
+<!--					<div class="method-option">-->
+<!--						<input type="radio" id="bankcard" name="paymentMethod" value="银行卡">-->
+<!--						<label for="bankcard">-->
+<!--							<img src="https://example.com/bankcard.png" alt="银行卡" class="logo">-->
+<!--							<span>银行卡</span>-->
+<!--						</label>-->
+<!--					</div>-->
+<!--				</div>-->
 			</div>
 
 			<!-- 提交订单 -->
 			<div class="row d-flex justify-content-end mt-4">
 				<div class="col-12 text-end">
-					<button id="submitOrder" class="btn btn-primary btn-block btn-flat">提交订单</button>
+					<button id="submitOrder" class="btn btn-primary btn-block btn-flat">去支付</button>
 				</div>
 			</div>
 		</div>

@@ -62,10 +62,6 @@ function queryAddress(pn, pz) {
 			$('#addresslist tbody').empty();
             if (response.code == 200) {
 				addressObj = {};
-				// for(let record of response.data){
-				// 	record.ischecked = record.default;
-				// 	addressObj[record.id] = record;
-				// }
                 response.data.forEach((address,index) => {
 					addressObj[address.id]= address;
                     const row =
@@ -156,30 +152,22 @@ function bindPreNextPage_address(){
 	})
 }
 function queryCart(){
-	const data = {
-		// pageNum:pn,
-		// pageSize:pz
-	};
 	$.ajax({
 		type:"GET",
 		url:"/order/checkout/getList",
-		data:data,
+		data: {},
 		dataType:"json",
 		success:function(res){
 			$('#cartTable tbody').empty();
 			if(res.code == 200){
 				checkoutObj = {};
-				// for(let record of res.data){
-				// 	checkoutObj[record.id] = record;
-				// 	checkoutObj[record.id].ischecked = false;
-				// }
                 res.data.forEach((cart,index) => {
 					cart.id = index;
 					checkoutObj[index] = cart;
                     const row =
                         `
                         <tr id="cart`+ cart.id +`" class="address-row text-center">
-                            <th scope="row"> index + 1}</th>
+                            <th scope="row"> ${index + 1}</th>
                             <td id="name`+ cart.id +`">
                             	<div class="row mt-2" style="display: flex; justify-content: center;">
 									<!-- 图片列 -->
@@ -207,17 +195,6 @@ function queryCart(){
                         `;
                     $('#cartTable tbody').append(row);
                 });
-				// currentPageNum_cart = pn;
-				// if(currentPageNum_cart == 1){
-				// 	$("#prePage").prop("disabled", true);
-				// }else{
-				// 	$("#prePage").prop("disabled", false);
-				// }
-				// if(num_cart-currentPageNum_cart*pz < 0){
-				// 	$("#nextPage").prop("disabled", true);
-				// }else{
-				// 	$("#nextPage").prop("disabled", false);
-				// }
 				totalMoney();
 			}else if (res.code == 404) {
 				window.location.href = "/cart.html";

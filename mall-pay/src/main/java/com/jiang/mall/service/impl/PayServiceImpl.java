@@ -212,18 +212,21 @@ public class PayServiceImpl implements IPayService {
 		}
 	}
 
+	//TODO:临时放行
 	@Override
 	public List<Map<String, String>> getPaymentList() {
 		List<Map<String, String>> map = new ArrayList<>();
-		if (wechatpayConfig.getIsEnabled()){
+		if (!wechatpayConfig.getIsEnabled()){
 			Map<String,String> map_wechatpay = new HashMap<>();
-			map_wechatpay.put("name","wechatpay");
+			map_wechatpay.put("id","wechatpay");
+			map_wechatpay.put("name","微信支付");
 			map_wechatpay.put("ico","/images/wechatpay.png");
 			map.add(map_wechatpay);
 		}
-		if (alipayConfig.getIsEnabled()){
+		if (!alipayConfig.getIsEnabled()){
 			Map<String,String> map_alipay = new HashMap<>();
-			map_alipay.put("name","alipay");
+			map_alipay.put("id","alipay");
+			map_alipay.put("name","支付宝");
 			map_alipay.put("ico","/images/alipay.png");
 			map.add(map_alipay);
 		}

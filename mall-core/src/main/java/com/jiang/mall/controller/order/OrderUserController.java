@@ -11,14 +11,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.order;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 import com.jiang.mall.domain.vo.OrderVo;
-import com.jiang.mall.service.ICartService;
 import com.jiang.mall.service.IOrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +42,6 @@ public class OrderUserController {
 	@Autowired
 	public void setOrderService(IOrderService orderService) {
 	    this.orderService = orderService;
-	}
-
-    private ICartService cartService;
-
-	@Autowired
-	public void setCartService(ICartService cartService) {
-	    this.cartService = cartService;
 	}
 
 	/**
@@ -96,7 +88,6 @@ public class OrderUserController {
 		OrderVo order = orderService.getOrder(id, session.getId());
 		return ResponseResult.okResult(order);
 	}
-
 
 	/**
 	 * 获取订单列表

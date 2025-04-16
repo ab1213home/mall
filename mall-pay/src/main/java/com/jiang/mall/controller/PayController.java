@@ -59,7 +59,7 @@ public class PayController {
 
 	//获取可用支付方式
 	@GetMapping("/getPaymentList")
-	@Permission(PermissionType.USER)
+	@Permission(PermissionType.GUEST)
 	public ResponseResult<Object> getPaymentList() {
 		List<Map<String, String>> list = payService.getPaymentList();
 		return ResponseResult.okResult(list);
