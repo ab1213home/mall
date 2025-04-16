@@ -233,18 +233,20 @@ function checkOut(){
 		show_warning('请先选择地址');
 		return;
 	}
-
-	const checkoutArr = [];
-	for (let checkout of checkoutObj){
-		if (checkout.num<=0){
-			continue;
-		}
-		let checkoutVo = {
-			prodId: checkout.product.id,
-			num: checkout.num
-		}
-		checkoutArr.push(checkoutVo);
-	}
+	let checkoutArr = [];
+	for (let key in checkoutObj) {
+        if (checkoutObj.hasOwnProperty(key)) {
+            let checkout = checkoutObj[key];
+            if (checkout.num<=0){
+				continue;
+			}
+			let checkoutVo = {
+				prodId: checkout.product.id,
+				num: checkout.num
+			}
+			checkoutArr.push(checkoutVo);
+        }
+    }
 	if(checkoutArr.length == 0){
 		show_warning('商品为空');
 		return;

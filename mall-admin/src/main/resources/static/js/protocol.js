@@ -17,8 +17,11 @@ $(document).ready(function(){
 	if (flag){
 		getCartNum();
 	}
+	$('#search_btn').click(function(){
+		search_item();
+	});
 })
 function search_item(){
 	let keyword = document.getElementById("search").value;
-	window.location.href = "./index.html?keyword=" + keyword;
+	window.location.href = "/index.html?keyword=" + keyword;
 }

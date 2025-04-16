@@ -41,30 +41,12 @@ $(document).ready(function(){
         event.preventDefault(); // 阻止默认行为（如表单提交）
         checkOut();
     });
+
+	$('#search_btn').click(function(){
+		search_item();
+	});
 });
 
-// $(document).ready(function(){
-// 	let res = isLogin();
-// 	getFooterInfo();
-// 	if (res){
-// 		getCartNum();
-// 		queryCart(1, 15);
-// 		bindPreNextPage();
-// 	}else{
-// 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
-// 	}
-// })
-//
-// document.addEventListener('DOMContentLoaded', function() {
-// 	document.getElementById('sela').addEventListener('click', function() {
-// 		checkAll();
-// 	});
-// 	document.getElementById('submitOrder').addEventListener('click', function() {
-// 		//阻止默认事件
-// 		// event.preventDefault();
-// 		checkOut();
-// 	});
-// });
 
 function search_item(){
 	let keyword = document.getElementById("search").value;
@@ -284,19 +266,22 @@ function bindPreNextPage(){
 function checkOut(){
 	let flag = false;
 	let cartArr = [];
-	for (let cart of cartObj){
-		if(cart.ischecked){
-			if (cart.num<=0){
-				continue;
+	for (let key in cartObj) {
+        if (cartObj.hasOwnProperty(key)) {
+            let cart = cartObj[key];
+            if(cart.ischecked){
+				if (cart.num<=0){
+					continue;
+				}
+				flag = true;
+				let checkoutVo = {
+					prodId: cart.product.id,
+					num: cart.num
+				}
+				cartArr.push(checkoutVo);
 			}
-			flag = true;
-			let checkoutVo = {
-				prodId: cart.product.id,
-				num: cart.num
-			}
-			cartArr.push(checkoutVo);
-		}
-	}
+        }
+    }
 
 	if(!flag){
 		show_warning('购物车为空，请选择商品');

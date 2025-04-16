@@ -106,13 +106,10 @@ $(document).ready(function(){
 	$('#search_btn').click(function(){
 		search_item();
 	});
-	// document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
-	// 	new bootstrap.Tooltip(tooltip);
-	// });
 })
 function search_item(){
 	let keyword = document.getElementById("search").value;
-	window.location.href = "./index.html?keyword=" + keyword;
+	window.location.href = "/index.html?keyword=" + keyword;
 }
 
 function addCollect() {
@@ -140,7 +137,7 @@ function addCollect() {
 			}
 		})
 	}else{
-		window.location.href = "./user/login.html?url=/product.html?id="+productId+"&message=添加收藏失败，请登录！";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/product.html?id="+productId) + "&message=" + encodeURIComponent("添加收藏失败，请登录！");
 	}
 }
 
@@ -174,38 +171,6 @@ function queryInfo(){
 	});
 }
 
-// document.addEventListener('DOMContentLoaded', function() {
-// 	document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
-// 		new bootstrap.Tooltip(tooltip);
-// 	});
-// 	// 绑定减号按钮点击事件
-// 	document.getElementById('minus-btn').addEventListener('click', function () {
-// 		let num = parseInt(document.getElementById('productNum').value);
-// 		if (num > 1) {
-// 			num--;
-// 			document.getElementById('productNum').value = num;
-// 		} else {
-// 			show_warning('购买数量不能小于1');
-// 		}
-// 	});
-// 	// 绑加号按钮点击事件
-// 	document.getElementById('plus-btn').addEventListener('click', function () {
-// 		let num = parseInt(document.getElementById('productNum').value);
-// 		if (num < parseInt(document.getElementById('productStocks').textContent)) {
-// 			num++;
-// 			document.getElementById('productNum').value = num;
-//         }else {
-// 			show_warning('库存不足，可能无法正常购买，请注意购买数量');
-//             num++;
-//             document.getElementById('productNum').value = num;
-//         }
-//
-//     });
-// 	document.getElementById('addcart-btn').addEventListener('click', function() {
-// 		addCart();
-// 	});
-// });
-
 function addCart(){
 	const num = document.getElementById('productNum').value;
 	if(isLogin()){
@@ -232,6 +197,6 @@ function addCart(){
 			}
 		})
 	}else{
-		window.location.href = "./user/login.html?url=/product.html?id="+productId+"&message=添加购物车失败，请登录！";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/product.html?id="+productId) + "&message=" + encodeURIComponent("添加购物车失败，请登录！");
 	}
 }

@@ -25,9 +25,6 @@ $(document).ready(function(){
 	$('#search_btn').click(function(){
 		search_item();
 	});
-	// document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((tooltip) => {
-	// 	new bootstrap.Tooltip(tooltip);
-	// });
 })
 
 function queryInfo() {
@@ -65,7 +62,3 @@ function search_item(){
 	window.location.href = "./index.html?keyword=" + keyword;
 }
 
-// document.addEventListener('DOMContentLoaded', function() {
-//
-//
-// })
