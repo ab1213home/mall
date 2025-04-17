@@ -57,7 +57,7 @@ public class OrderTask {
 			timer = timer + 1;
 			if (timer == 0){
 				logger.info("订单数据缓存预热");
-//				cartService.checkCartFormMySQLToRedis();
+//				cartService.checkCartFromMySQLToRedis();
 			}else if (timer>=coreConfig.getOrderSyncTime()){
 				timer = 0;
 //				cartService.checkCartFromRedisToMySQL();

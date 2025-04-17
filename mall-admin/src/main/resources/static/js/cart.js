@@ -25,6 +25,7 @@ $(document).ready(function(){
         getCartNum();
         queryCart(1, 15);
         bindPreNextPage();
+		// $("#sela").prop("checked", false);
     } else {
         // 未登录：跳转到登录页
         window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
@@ -32,13 +33,13 @@ $(document).ready(function(){
 
     // 绑定全选按钮事件（使用jQuery简化代码）
     $('#sela').on('click', function(event) {
-		event.preventDefault();
+		// event.preventDefault();
         checkAll();
     });
 
     // 绑定提交订单按钮事件
     $('#submitOrder').on('click', function(event) {
-        event.preventDefault(); // 阻止默认行为（如表单提交）
+        // event.preventDefault(); // 阻止默认行为（如表单提交）
         checkOut();
     });
 
@@ -105,7 +106,8 @@ function totalMoney(){
 }
 
 function checkAll(){
-	let result = $("#sela").is(":checked");
+	// let result = $("#sela").is(":checked");
+	const result = $("#sela").prop('checked');
 	$(".ipt").prop("checked", result);
 	for(let key in cartObj){
 		if(cartObj.hasOwnProperty(key)){

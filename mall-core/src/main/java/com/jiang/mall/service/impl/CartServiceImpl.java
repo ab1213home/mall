@@ -127,7 +127,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         //获取数据库用户最新版本号
         Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
         if (version_redis == null || version_redis < version_mysql){
-            checkCartFormMySQLToRedis(userId, version_mysql);
+            checkCartFromMySQLToRedis(userId, version_mysql);
         }
         for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
             if (redisService.hasCart(userId, checkoutVo.getProdId())){
@@ -256,12 +256,12 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * 插入购物车功能
      *
      * @param productId 产品ID
-     * @param num 购买数量
+     * @param num       购买数量
      * @param sessionId 用户会话ID
      * @return 布尔值，表示购物车记录是否成功插入或更新
      */
     @Override
-    public Boolean insertOrUpdateCart(Long productId, Long num, String sessionId) {
+    public boolean insertOrUpdateCart(Long productId, Long num, String sessionId) {
         // 从Redis中获取用户信息
         UserCache user = userService.getUserFromRedis(sessionId);
         // 根据商品ID和用户ID查询购物车记录
@@ -287,11 +287,14 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             }
             //获取数据库用户最新版本号
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_redis == null || version_redis < version_mysql){
+            if (version_mysql == null){
+                checkCartFromRedisToMySQL(userId, version_redis);
+                return redisService.setCart(userId, productId, num);
+            }else if (version_redis == null || version_redis < version_mysql){
                 //数据库版本号大于redis版本号
                 //以数据库为基准
                 //冷数据
-                checkCartFormMySQLToRedis(userId, version_mysql);
+                checkCartFromMySQLToRedis(userId, version_mysql);
                 return redisService.setCart(userId, productId, num);
             }else {
                 //redis版本号大于等于数据库版本号
@@ -352,7 +355,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 //数据库版本号大于redis版本号
                 //以数据库为基准
                 //冷数据
-                checkCartFormMySQLToRedis(userId ,version_mysql);
+                checkCartFromMySQLToRedis(userId ,version_mysql);
                 return redisService.deleteCart(userId, productId);
             }else {
                 //redis版本号大于等于数据库版本号
@@ -371,7 +374,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
 
     @Override
-    public void checkCartFormMySQLToRedis() {
+    public void checkCartFromMySQLToRedis() {
         List<Long> listUserId = cartRedisMapper.getUserIdList();
         for (Long userId : listUserId) {
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
@@ -380,7 +383,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 version_redis = redisService.getVersion(userId);
             }
             if (version_redis == null || version_redis <= version_mysql){
-                checkCartFormMySQLToRedis(userId, version_mysql);
+                checkCartFromMySQLToRedis(userId, version_mysql);
             }else {
                 //redis版本号大于数据库版本号
                 logger.info("Redis版本号大于MySQL数据库版本号，{}用户购物车缓存已同步", userId);
@@ -388,7 +391,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
-    private void checkCartFormMySQLToRedis(Long userId ,Long version) {
+    private void checkCartFromMySQLToRedis(Long userId ,Long version) {
         QueryWrapper<CartRedis> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("version", version);
@@ -409,18 +412,23 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         for (Long userId : listUserId) {
             Long version_redis = redisService.getVersion(userId);
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_redis > version_mysql){
-                logger.debug("{}购物车Redis版本号大于数据库版本号，开始同步",userId);
-                checkCartFormRedisToMySQL(userId, version_redis);
-            }else {
-                //redis版本号小于等于数据库版本号
-                logger.error("{}购物车Redis版本号小于等于数据库版本号，无需同步",userId);
+            if (version_mysql == null) {
+                // 处理 version_mysql 为 null 的情况
+                logger.warn("用户 {} 的数据库版本号为 null，需要重新同步购物车数据", userId);
+                checkCartFromRedisToMySQL(userId, version_redis);
+            } else if (version_redis != null && version_redis > version_mysql) {
+                // 如果 version_redis 不为 null 且大于 version_mysql，则进行同步
+                logger.debug("{} 购物车 Redis 版本号大于数据库版本号，开始同步", userId);
+                checkCartFromRedisToMySQL(userId, version_redis);
+            } else {
+                // redis 版本号小于等于数据库版本号
+                logger.error("{} 购物车 Redis 版本号小于等于数据库版本号，无需同步", userId);
             }
         }
     }
 
 
-    private void checkCartFormRedisToMySQL(Long userId, Long version) {
+    private void checkCartFromRedisToMySQL(Long userId, Long version) {
         List<CartDto> cartDtos = redisService.getCart(userId);
         CartRedis cartRedis = new CartRedis();
         if(!cartDtos.isEmpty()){

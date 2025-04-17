@@ -66,7 +66,7 @@ public class PayController {
 		return ResponseResult.okResult(list);
 	}
 
-	@PostMapping("/")
+	@PostMapping
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> pay(@RequestParam("id")Long orderId,
 	                                  @RequestParam("amount")String amount,

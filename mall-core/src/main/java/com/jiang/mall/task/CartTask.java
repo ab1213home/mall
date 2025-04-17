@@ -58,7 +58,7 @@ public class CartTask {
 			timer = timer + 1;
 			if (timer == 0){
 				logger.info("购物车数据缓存预热");
-				cartService.checkCartFormMySQLToRedis();
+				cartService.checkCartFromMySQLToRedis();
 			}else if (timer>=coreConfig.getCartSyncTime()){
 				timer = 0;
 				cartService.checkCartFromRedisToMySQL();

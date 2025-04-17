@@ -168,23 +168,6 @@ public class MyLocaleResolverConfig implements LocaleResolver {
         return null;
     }
 
-//	@PostConstruct
-//	public void checkResourceLoading() {
-//	    try {
-//	        Resource resource = new ClassPathResource("i18n/messages_ja_JP.properties");
-//	        if (resource.exists()) {
-//	            logger.info("✅ 日语资源文件存在，路径: {}", resource.getURI());
-//	            Properties props = new Properties();
-//	            props.load(resource.getInputStream());
-//	            logger.info("日语资源内容示例: {}", props.getProperty("text"));
-//	        } else {
-//	            logger.error("❌ 日语资源文件未找到");
-//	        }
-//	    } catch (Exception e) {
-//	        logger.error("资源加载诊断失败", e);
-//	    }
-//	}
-
 	@Override
 	public void setLocale(@NotNull HttpServletRequest request, HttpServletResponse response, Locale locale) {
 

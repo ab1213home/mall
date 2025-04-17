@@ -52,14 +52,14 @@ public interface ICartService extends IService<Cart> {
 	Long getCartNum(String sessionId);
 
 	/**
-     * 插入购物车功能
-     *
-     * @param productId 产品ID
-     * @param num 购买数量
-     * @param sessionId 用户会话ID
-     * @return 布尔值，表示购物车记录是否成功插入或更新
-     */
-	Boolean insertOrUpdateCart(Long productId, Long num, String sessionId);
+	 * 插入购物车功能
+	 *
+	 * @param productId 产品ID
+	 * @param num       购买数量
+	 * @param sessionId 用户会话ID
+	 * @return 布尔值，表示购物车记录是否成功插入或更新
+	 */
+	boolean insertOrUpdateCart(Long productId, Long num, String sessionId);
 
 	/**
      * 删除购物车项
@@ -77,7 +77,7 @@ public interface ICartService extends IService<Cart> {
 
 	void cleanAllCart();
 
-	void checkCartFormMySQLToRedis();
+	void checkCartFromMySQLToRedis();
 
 	void checkCartFromRedisToMySQL();
 

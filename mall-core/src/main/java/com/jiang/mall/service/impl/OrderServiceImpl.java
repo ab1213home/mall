@@ -242,6 +242,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    order.setOrderDate(new Date());
 		order.setStatus(OrderStatus.WAIT_PAYMENT.getKey());
 	    order.setTotalAmount(new BigDecimal("0.0"));
+		List<OrderList> newOrderList = new ArrayList<>();
 	    // 计算订单总金额
 	    for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
 			if (checkoutVo.getProdId() == null) {
@@ -265,30 +266,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			if (productSnapshotId==-1L){
 				logger.error("产品快照信息不存在，无法创建订单");
 			}
-
 			orderList.setOrderId(order.getId());
 			orderList.setProdId(productSnapshotId);
 			orderList.setNum(checkoutVo.getNum());
-
-			// 插入订单详情信息
-		    if (orderListMapper.insert(orderList)>0){
-				logger.debug("订单列表插入成功");
-				// 计算单个订单项的金额
-			    BigDecimal amount = product.getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
-				// 计算订单总金额
-		        order.setTotalAmount(add(order.getTotalAmount(),amount));
-			}else{
-				logger.warn("订单列表插入失败，无法创建订单");
-				return -1L;
-			}
+			BigDecimal amount = product.getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+			// 计算订单总金额
+		    order.setTotalAmount(add(order.getTotalAmount(),amount));
+			newOrderList.add(orderList);
 	    }
 	    // 插入订单信息
 	    if (orderMapper.insert(order) > 0) {
-			//删除redis中的缓存
-		    redisService.deleteCheckoutList(user.getId());
-			// 根据订单删除购物车中的商品
-			cartService.deleteCartByOrder(sessionId, listCheckoutVo);
-	        return order.getId();
+			// 插入订单详情信息
+		    if (orderListMapper.insert(newOrderList).size() == newOrderList.size()){
+				//删除redis中的缓存
+			    redisService.deleteCheckoutList(user.getId());
+				// 根据订单删除购物车中的商品
+				cartService.deleteCartByOrder(sessionId, listCheckoutVo);
+		        return order.getId();
+			}else{
+				logger.warn("订单列表插入失败，无法创建订单");
+				orderMapper.deleteById(order.getId());
+				return -1L;
+			}
 	    }else{
 			logger.warn("订单插入失败，无法创建订单");
 			return -1L;

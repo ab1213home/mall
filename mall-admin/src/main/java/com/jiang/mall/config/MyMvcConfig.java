@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -144,5 +145,10 @@ public class MyMvcConfig implements WebMvcConfigurer {
     public LocaleResolver localeResolver() {
         return new MyLocaleResolverConfig();
     }
+
+	@Bean
+	public RequestContextFilter requestContextFilter() {
+	    return new RequestContextFilter();
+	}
 
 }

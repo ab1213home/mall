@@ -50,7 +50,7 @@ public class OrderCheckoutController {
 	 * @param session HTTP会话，用于管理用户登录状态及购物车信息
 	 * @return ResponseResult 结账操作的结果，包含成功或失败信息
 	 */
-	@PostMapping("/")
+	@PostMapping
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> checkout(@RequestBody List<CheckoutReceiverVo> list_checkoutVo, HttpSession session) {
 	    // 检查选购商品列表是否为空
