@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -113,6 +114,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 返回产品列表（ProductVo类型）
      */
     @Override
+    @Transactional
     public List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
         // 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
@@ -155,6 +157,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return ProductVo对象，包含产品的详细信息和类别名称；如果产品不存在，则返回null
      */
     @Override
+    @Transactional
     public ProductVo getProduct(Long id) {
 		if (productConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
 			ProductCache productCache = redisService.getProduct(id);
@@ -196,6 +199,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 操作是否成功执行的布尔值，成功返回true，失败返回false
      */
     @Override
+    @Transactional
     public Boolean insertProduct(Product product) {
         return productMapper.insert(product)==1;
     }
@@ -211,6 +215,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return boolean 表示产品信息更新是否成功
      */
     @Override
+    @Transactional
     public Boolean updateProduct(Product product) {
         return productMapper.updateById(product)==1;
     }
@@ -227,6 +232,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 删除操作是否成功
      */
     @Override
+    @Transactional
     public Boolean deleteProduct(Long id) {
         return productMapper.deleteById(id) == 1;
     }
@@ -238,6 +244,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 产品的库存数量
      */
     @Override
+    @Transactional
     public Long queryStoksById(Long productId) {
         // 返回产品的库存数量
 	    //TODO:需要判断是否上架，防止爆破
@@ -251,17 +258,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @return 如果找到商品返回true，否则返回false
      */
     @Override
+    @Transactional
     public Boolean queryCode(String code) {
         // 执行查询并判断结果是否为空，返回查询结果的布尔值
         return productMapper.getCountByCode(code) != 0;
     }
 
     @Override
+    @Transactional
     public Long getProductNum() {
 	    return productMapper.selectCount(null);
     }
 
     @Override
+    @Transactional
     public List<Product> queryAll() {
 	    return productMapper.selectList(null);
     }
@@ -314,6 +324,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	}
 
 	@Override
+	@Transactional
 	public ProductSnapshotVo getSnapshot(Long id) {
 		//TODO:使用拦截器判断是否合法
 		if (productConfig.isProductCacheEnabled() && redisService.hasSnapshotCache(id)){
@@ -345,29 +356,37 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	}
 
 	@Override
+	@Transactional
 	public Long getSnapshotId(ProductVo product) {
-		String hash = getHash(product);
-		Long id = productSnapshotMapper.getIdByHash(hash);
-		if (id != null){
-			return id;
-		}else{
-			ProductSnapshot productSnapshot = new ProductSnapshot();
-			productSnapshot.setHash(hash);
-			productSnapshot.setProdId(product.getId());
-			productSnapshot.setCode(product.getCode());
-			productSnapshot.setTitle(product.getTitle());
-			productSnapshot.setCategory(JSON.toJSONString(product.getCategory()));
-			productSnapshot.setImg(product.getImg());
-			productSnapshot.setPrice(product.getPrice());
-			productSnapshot.setDescription(product.getDescription());
-			productSnapshot.setProperties(product.getProperties());
-			if (productSnapshotMapper.insert(productSnapshot)> 0){
-				return productSnapshot.getId();
-			}else{
-				logger.warn("插入产品快照失败");
-				return -1L;
-			}
-		}
+	    String hash = getHash(product);
+	    Long id = productSnapshotMapper.getIdByHash(hash);
+	    if (id != null) {
+	        return id;
+	    } else {
+	        ProductSnapshot productSnapshot = new ProductSnapshot();
+	        productSnapshot.setHash(hash);
+	        productSnapshot.setProdId(product.getId());
+	        productSnapshot.setCode(product.getCode());
+	        productSnapshot.setTitle(product.getTitle());
+	        productSnapshot.setCategory(JSON.toJSONString(product.getCategory()));
+	        productSnapshot.setImg(product.getImg());
+	        productSnapshot.setPrice(product.getPrice());
+	        productSnapshot.setDescription(product.getDescription());
+	        productSnapshot.setProperties(product.getProperties());
+
+	        if (productSnapshotMapper.insert(productSnapshot) > 0) {
+	            Long insertedId = productSnapshot.getId();
+	            if (insertedId != null) {
+	                return insertedId;
+	            } else {
+	                logger.error("插入产品快照成功，但未获取到主键ID，请检查Mapper配置！");
+	                return -1L;
+	            }
+	        } else {
+	            logger.warn("插入产品快照失败，影响行数为0");
+	            return -1L;
+	        }
+	    }
 	}
 
 	private @NotNull String getHash(@NotNull ProductVo product) {

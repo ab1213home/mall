@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -69,6 +70,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	 * @return 返回用户的登录尝试次数如果超过最大尝试次数，返回最大尝试次数+1
 	 */
 	@Override
+	@Transactional
 	public Integer countTryNumber(String username, String clientIp, String fingerprint) {
 	    // 当前时间
 	    Date now = new Date();
@@ -143,6 +145,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	 * @return 返回日志记录是否成功，如果插入数据库成功则返回true，否则返回false
 	 */
 	@Override
+	@Transactional
 	public boolean defaultLog(String username, String clientIp, String fingerprint, @NotNull UserStatus status, Map<String, Object> properties) {
 	    // 创建UserLog对象以记录用户操作日志
 	    UserLog userLog = new UserLog();
@@ -163,6 +166,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	}
 
 	@Override
+	@Transactional
 	public void defaultLogToMq(String username, String clientIp, String fingerprint, @NotNull UserStatus status, Map<String, Object> properties) {
 		// 创建UserLog对象以记录用户操作日志
 	    UserLog userLog = new UserLog();
@@ -182,6 +186,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	}
 
 	@Override
+	@Transactional
 	public void oauthLoginLog(String username, @NotNull UserStatus status) {
 		UserLog userLog = new UserLog();
 		// 设置日志中的用户名

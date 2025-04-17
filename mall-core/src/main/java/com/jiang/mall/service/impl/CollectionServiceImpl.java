@@ -28,6 +28,7 @@ import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Boolean insertCollection(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -72,6 +74,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Collection queryByProductIdByUserId(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -81,6 +84,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteCollection(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -90,6 +94,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -113,6 +118,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Long getCollectionNum(String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -121,6 +127,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Boolean isCollect(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
@@ -130,6 +137,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteById(Long id) {
 		return collectionMapper.deleteById(id)>0;
 	}

@@ -48,7 +48,7 @@
         <spring-boot.version>3.4.3</spring-boot.version>
         <mysql.version>9.2.0</mysql.version>
         <mybatis-plus.version>3.5.8</mybatis-plus.version>
-        <mybatis.version>3.0.3</mybatis.version>
+        <mybatis.version>3.0.4</mybatis.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <logback.version>1.18.36</logback.version>
@@ -162,6 +162,18 @@
             </dependency>
 
             <!-- mybatis-plus -->
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-bom</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--                <type>pom</type>-->
+<!--                <scope>import</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-extension</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>

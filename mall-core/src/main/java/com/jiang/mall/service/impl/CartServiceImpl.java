@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @param listCheckoutVo 订单详情列表，包含已购买的商品信息
      */
     @Override
+    @Transactional
     public void deleteCartByOrder(String sessionId, List<CheckoutReceiverVo> listCheckoutVo) {
         UserCache user = userService.getUserFromRedis(sessionId);
         if (coreConfig.isCartCacheEnabled()){
@@ -181,6 +183,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
+    @Transactional
     public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize) {
         UserCache user = userService.getUserFromRedis(sessionId);
         Page<Cart> cartPage = new Page<>(pageNum, pageSize);
@@ -230,6 +233,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 返回购物车中的商品数量
      */
     @Override
+    @Transactional
     public Long getCartNum(String sessionId) {
         UserCache user = userService.getUserFromRedis(sessionId);
         if (coreConfig.isCartCacheEnabled()){
@@ -261,6 +265,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 布尔值，表示购物车记录是否成功插入或更新
      */
     @Override
+    @Transactional
     public boolean insertOrUpdateCart(Long productId, Long num, String sessionId) {
         // 从Redis中获取用户信息
         UserCache user = userService.getUserFromRedis(sessionId);
@@ -321,6 +326,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
      * @return 如果删除成功，返回true；如果删除失败或未经授权，返回false或null
      */
     @Override
+    @Transactional
     public Boolean deleteCart(Long productId, String sessionId) {
         // 从Redis中获取用户信息
         UserCache user = userService.getUserFromRedis(sessionId);
@@ -366,6 +372,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     }
 
     @Override
+    @Transactional
     public void cleanAllCart() {
         cartMapper.cleanAllCart();
         redisService.cleanAllCart();
@@ -374,6 +381,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
 
     @Override
+    @Transactional
     public void checkCartFromMySQLToRedis() {
         List<Long> listUserId = cartRedisMapper.getUserIdList();
         for (Long userId : listUserId) {
@@ -407,6 +415,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
 
 
     @Override
+    @Transactional
     public void checkCartFromRedisToMySQL() {
         List<Long> listUserId = redisService.getChangeList();
         for (Long userId : listUserId) {
@@ -418,11 +427,11 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
                 checkCartFromRedisToMySQL(userId, version_redis);
             } else if (version_redis != null && version_redis > version_mysql) {
                 // 如果 version_redis 不为 null 且大于 version_mysql，则进行同步
-                logger.debug("{} 购物车 Redis 版本号大于数据库版本号，开始同步", userId);
+                logger.debug("用户 {} 购物车 Redis 版本号大于数据库版本号，开始同步", userId);
                 checkCartFromRedisToMySQL(userId, version_redis);
             } else {
                 // redis 版本号小于等于数据库版本号
-                logger.error("{} 购物车 Redis 版本号小于等于数据库版本号，无需同步", userId);
+                logger.error("用户 {} 购物车 Redis 版本号小于等于数据库版本号，无需同步", userId);
             }
         }
     }
@@ -440,10 +449,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         cartRedis.setUserId(userId);
         cartRedis.setVersion(version);
         if (cartRedisMapper.insert(cartRedis) > 0){
-            logger.info("{}购物车Redis数据同步到MySQL成功", userId);
+            logger.info("用户 {} 购物车Redis数据同步到MySQL成功", userId);
             redisService.removeChangeList(userId);
         }else {
-            logger.error("{}购物车Redis数据同步到MySQL失败", userId);
+            logger.error("用户 {} 购物车Redis数据同步到MySQL失败", userId);
         }
     }
 

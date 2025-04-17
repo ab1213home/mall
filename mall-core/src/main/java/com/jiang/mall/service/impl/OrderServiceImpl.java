@@ -29,14 +29,17 @@ import com.jiang.mall.domain.enums.OrderStatus;
 import com.jiang.mall.domain.enums.PayProvider;
 import com.jiang.mall.domain.vo.*;
 import com.jiang.mall.service.*;
+import com.jiang.mall.util.BatchUtil;
 import com.jiang.mall.util.BeanCopyUtil;
 import com.jiang.mall.util.SeataSnowflakeUtil;
+import org.apache.ibatis.executor.BatchResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -59,6 +62,7 @@ import static com.jiang.mall.util.DecimalUtil.add;
  * @since 2024年9月11日
  */
 @Service
+@Transactional
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
@@ -127,6 +131,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
+	@Transactional
 	public List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		Page<Order> orderPage = new Page<>(pageNum, pageSize);
@@ -151,6 +156,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 * @param sessionId@return 用户的订单数量
 	 */
 	@Override
+	@Transactional
 	public Long getOrderNum(String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
@@ -167,6 +173,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 * @return 包含订单详细信息的列表
 	 */
 	@Override
+	@Transactional
 	public List<OrderAllVo> getOrderList(Integer pageNum, Integer pageSize) {
 	    // 创建分页对象，指定当前页码和每页显示数量
 	    Page<Order> orderPage = new Page<>(pageNum, pageSize);
@@ -212,11 +219,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	 * @return 订单数量
 	 */
 	@Override
+	@Transactional
 	public Long getOrderNum() {
 	    return orderMapper.selectCount(null);
 	}
 
 	@Override
+	@Transactional
 	public String getAmount() {
 		// 获取当前月份的第一天和最后一天
         LocalDate now = LocalDate.now();
@@ -227,6 +236,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
+	@Transactional
 	public Long newOrder(String sessionId, Long addressId, List<CheckoutReceiverVo> listCheckoutVo) {
 		// 根据地址ID获取地址信息，以验证地址是否属于当前用户
 	    Address address = addressService.getById(addressId);
@@ -263,8 +273,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			}
 
 			Long productSnapshotId = productService.getSnapshotId(product);
-			if (productSnapshotId==-1L){
+			if (productSnapshotId == -1L){
 				logger.error("产品快照信息不存在，无法创建订单");
+				return -1L;
 			}
 			orderList.setOrderId(order.getId());
 			orderList.setProdId(productSnapshotId);
@@ -275,16 +286,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			newOrderList.add(orderList);
 	    }
 	    // 插入订单信息
-	    if (orderMapper.insert(order) > 0) {
+		int insert = orderMapper.insert(order);
+
+	    if (insert > 0) {
 			// 插入订单详情信息
-		    if (orderListMapper.insert(newOrderList).size() == newOrderList.size()){
+		    List<BatchResult> batchResults = orderListMapper.insert(newOrderList);
+		    if (BatchUtil.getTotalAffectedRows(batchResults) == newOrderList.size()){
 				//删除redis中的缓存
 			    redisService.deleteCheckoutList(user.getId());
 				// 根据订单删除购物车中的商品
 				cartService.deleteCartByOrder(sessionId, listCheckoutVo);
 		        return order.getId();
 			}else{
-				logger.warn("订单列表插入失败，无法创建订单");
+				logger.warn("订单列表插入失败，无法创建订单{}",insert);
 				orderMapper.deleteById(order.getId());
 				return -1L;
 			}
@@ -295,6 +309,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
+	@Transactional
 	public OrderVo getOrder(Long id, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
@@ -313,6 +328,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
+	@Transactional
 	public void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, String sessionId) {
 		List<CheckoutCache> checkoutCaches = BeanCopyUtil.copyBeanList(checkoutReceiverVos, CheckoutCache.class);
 		UserCache user = userService.getUserFromRedis(sessionId);
@@ -345,6 +361,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
+	@Transactional
 	public List<CheckoutVo> getCheckoutList(String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		List<CheckoutCache> checkoutCaches = redisService.getCheckoutList(user.getId());

@@ -19,6 +19,7 @@ import com.jiang.mall.domain.entity.AdministrativeDivision;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 * @return 返回符合条件的行政区划列表
 	 */
 	@Override
+	@Transactional
 	public List<AdministrativeDivision> getList(Integer level, Long parentCode) {
 	    return administrativeDivisionMapper.selectByLevelAndParentCode(level,parentCode);
 	}
@@ -51,6 +53,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 * @return 返回对应的邮政编码如果找不到对应的行政区域，则返回null
 	 */
 	@Override
+	@Transactional
 	public Integer getPostalCode(Long areaCode) {
 	    return administrativeDivisionMapper.selectZipCodeByAreaCode(areaCode);
 	}
@@ -62,6 +65,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 * @return 如果地区代码存在，则返回true；否则返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean isTure(Long areaCode) {
 	    return administrativeDivisionMapper.countByAreaCode(areaCode) == 0;
 	}

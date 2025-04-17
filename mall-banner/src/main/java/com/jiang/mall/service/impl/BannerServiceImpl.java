@@ -68,13 +68,6 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 		this.redisService = redisService;
 	}
 
-//	private BannerTask bannerTask;
-//
-//	@Autowired
-//	public void setBannerTask(@Lazy BannerTask bannerTask) {
-//		this.bannerTask = bannerTask;
-//	}
-
 	private BannerConfig bannerConfig;
 
 	@Autowired
@@ -106,6 +99,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	 * @return 横幅的管理员视图列表
 	 */
     @Override
+    @Transactional
     public List<BannerAdminVo> getBannerList(Integer pageNum, Integer pageSize) {
         Page<Banner> bannerPage = new Page<>(pageNum, pageSize);
         List<Banner> banners = bannerMapper.selectPage(bannerPage, null).getRecords();
@@ -129,6 +123,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
      * @return 轮播图的总数
      */
     @Override
+    @Transactional
     public Long getBannerNum() {
         return bannerMapper.selectCount(null);
     }
@@ -142,6 +137,7 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 	 * @return List<BannerVo> 返回转换后的BannerVo列表，包含当前有效的所有Banner信息
 	 */
 	@Override
+	@Transactional
 	public List<BannerVo> getBannerList() {
 	    // 查询当前时间下所有有效的Banner实体列表
 	    List<Banner> banners = bannerMapper.getTeffectiveBannerList(LocalDateTime.now());

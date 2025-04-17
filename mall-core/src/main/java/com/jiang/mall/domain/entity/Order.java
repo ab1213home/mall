@@ -47,7 +47,7 @@ public class Order implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID，自增
+     * 主键ID，应用生成
      */
     @TableId(value = "id", type = IdType.NONE)
     private Long id;

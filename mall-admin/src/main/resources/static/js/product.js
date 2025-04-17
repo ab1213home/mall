@@ -19,7 +19,7 @@ function delCollect() {
 		type:"GET",
 		url:"/collection/delete",
 		data:{
-			productId: productId
+			prodId: productId
 		},
 		async:false,	//设置同步请求
 		dataType:"json",
@@ -48,7 +48,7 @@ function isCollected() {
 		type:"GET",
 		url:"/collection/isCollected",
 		data:{
-			productId: productId
+			prodId: productId
 		},
 		async:false,	//设置同步请求
 		dataType:"json",
@@ -115,7 +115,7 @@ function search_item(){
 function addCollect() {
 	if(isLogin()){
 		const data={
-			productId: productId,
+			prodId: productId,
 		};
 		$.ajax({
 			type:"POST",
@@ -175,7 +175,7 @@ function addCart(){
 	const num = document.getElementById('productNum').value;
 	if(isLogin()){
 		const data={
-			productId: productId,
+			prodId: productId,
 			num: num
 		};
 		$.ajax({

@@ -29,6 +29,7 @@ import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +123,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 返回一个包含地址信息的列表
 	 */
 	@Override
+	@Transactional
 	public List<AddressVo> getAddressList(String sessionId, Integer pageNum, Integer pageSize) {
 	    // 从Redis中获取用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
@@ -158,6 +160,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 返回用户的地址数量
 	 */
 	@Override
+	@Transactional
 	public Long getAddressNum(String sessionId) {
 	    // 从Redis中获取用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
@@ -181,6 +184,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 返回一个布尔值，表示地址插入操作是否成功
 	 */
 	@Override
+	@Transactional
 	public Boolean insertAddress(@NotNull Address address, boolean isDefault, String sessionId) {
 	    // 从Redis中获取当前用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
@@ -207,6 +211,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 返回一个布尔值，表示地址信息是否更新成功如果用户尝试更新非自己的地址，方法返回null
 	 */
 	@Override
+	@Transactional
 	public Boolean updateAddress(@NotNull Address address, boolean isDefault, String sessionId) {
 	    // 从Redis中获取当前用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
@@ -254,6 +259,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	 * @return 删除是否成功，成功返回true，否则返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean deleteAddress(Long id, String sessionId) {
 	    // 从Redis中获取当前用户信息
 	    UserCache user = userService.getUserFromRedis(sessionId);
@@ -287,6 +293,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	}
 
 	@Override
+	@Transactional
 	public AddressVo getAddress(Long id, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
 		Address address = addressMapper.selectById(id);
@@ -302,6 +309,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	}
 
 	@Override
+	@Transactional
 	public AddressVo getAddress(Long id, Long userId) {
 		Address address = addressMapper.selectById(id);
 		if (address == null){
@@ -314,6 +322,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 	}
 
 	@Override
+	@Transactional
 	public AddressVo getAddress(Long id) {
 		Address address = addressMapper.selectById(id);
 		if (address == null){

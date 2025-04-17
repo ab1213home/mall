@@ -46,7 +46,7 @@ public class CollectionController {
 
 	@PostMapping("/add")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> insertCollection(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> insertCollection(@RequestParam("prodId") Long productId,
 	                                               HttpSession session) {
         // 校验商品ID是否为空
         if (productId == null|| productId <= 0) {
@@ -65,7 +65,7 @@ public class CollectionController {
 
 	@GetMapping("/delete")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> deleteCollection(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> deleteCollection(@RequestParam("prodId") Long productId,
                                                     HttpSession session) {
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
@@ -104,7 +104,7 @@ public class CollectionController {
 
 	@GetMapping("/isCollected")
 	@Permission(PermissionType.USER)
-	public ResponseResult<Object> isCollected(@RequestParam("productId") Long productId,
+	public ResponseResult<Object> isCollected(@RequestParam("prodId") Long productId,
 	                                  HttpSession session) {
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");

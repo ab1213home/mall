@@ -25,7 +25,25 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MybatisPlusConfig {
-
+//自动分页: PaginationInnerInterceptor
+//多租户: TenantLineInnerInterceptor
+//动态表名: DynamicTableNameInnerInterceptor
+//乐观锁: OptimisticLockerInnerInterceptor
+//SQL 性能规范: IllegalSQLInnerInterceptor
+//防止全表更新与删除: BlockAttackInnerInterceptor
+//@Service
+//@DS("slave")
+//public class UserServiceImpl implements UserService {
+//
+//  @Autowired
+//  private JdbcTemplate jdbcTemplate;
+//
+//  @Override
+//  @DS("slave_1")
+//  public List selectByCondition() {
+//    return jdbcTemplate.queryForList("select * from user where age >10");
+//  }
+//}
     /**
      * 配置MybatisPlus拦截器
      * 该方法用于创建并返回一个MybatisPlusInterceptor对象，用于增强MybatisPlus的功能
@@ -40,6 +58,7 @@ public class MybatisPlusConfig {
         // 添加分页拦截器到MybatisPlus拦截器中，指定数据库类型为MySQL
         mybatisPlusInterceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         // 返回配置好的MybatisPlus拦截器对象
+//        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor())乐观锁;
         return mybatisPlusInterceptor;
     }
 
@@ -57,7 +76,8 @@ public class MybatisPlusConfig {
     @Bean
     public SqlSessionTemplate sqlSessionTemplate(
             @Qualifier("sqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
-        return new SqlSessionTemplate(sqlSessionFactory, ExecutorType.BATCH);
+        return new SqlSessionTemplate(sqlSessionFactory, ExecutorType.SIMPLE);
     }
+
 
 }

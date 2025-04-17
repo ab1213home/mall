@@ -137,17 +137,20 @@ public class CartRedisServiceImpl implements ICartRedisService {
         local versionKey = ARGV[4]
         local changedSetKey = ARGV[5]
         local expireTime = tonumber(ARGV[6])
+        -- 增加或减少商品数量
         local newVal = redis.call('HINCRBY', cartKey, productId, delta)
+        -- 如果新的数量小于等于0，则从购物车中删除该商品
         if newVal <= 0 then
             redis.call('HDEL', cartKey, productId)
-            newVal = 1
+            newVal = 0 -- 修改为0以表示商品已被移除
         end
+        -- 更新变更集合
         local added = redis.call('SADD', changedSetKey, KEYS[1])
         if added == 1 then
             redis.call('HINCRBY', versionKey, KEYS[1], 1)
         end
-			 
-        edis.call('EXPIRE', cartKey, expireTime)
+        -- 设置过期时间
+        redis.call('EXPIRE', cartKey, expireTime)
         return newVal
         """;
 	    // 创建Redis脚本对象
@@ -165,7 +168,7 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    // 执行Redis脚本并处理结果
 	    try {
 	        Long result = stringRedisTemplate.execute(script, keys, args);
-	        return result > 0;
+	        return result >= 0;
 	    } catch (Exception e) {
 	        logger.error("Lua脚本执行出错", e);
 	        return false;
@@ -390,17 +393,19 @@ public class CartRedisServiceImpl implements ICartRedisService {
         local versionKey = ARGV[3]
         local changedSetKey = ARGV[4]
         local expireTime = tonumber(ARGV[5])
+        -- 执行 HDEL 操作并获取结果
         local delResult = redis.call('HDEL', cartKey, productId)
+        -- 如果删除成功（返回值大于0），则更新变更集合和版本号
         if delResult > 0 then
             local added = redis.call('SADD', changedSetKey, KEYS[1])
             if added == 1 then
                 redis.call('HINCRBY', versionKey, KEYS[1], 1)
             end
         end
+        -- 设置过期时间
         redis.call('EXPIRE', cartKey, expireTime)
         return delResult
         """;
-
 	    // 将 Lua 脚本封装为 RedisScript 对象，指定返回值类型为 Long
 	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
 

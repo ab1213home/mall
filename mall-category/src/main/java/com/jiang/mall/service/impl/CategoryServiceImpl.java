@@ -83,6 +83,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
     @Override
+    @Transactional
     public List<CategoryVo> getCategoryList(Integer pageNum, Integer pageSize, Long parentId, Integer level) {
         Page<Category> categoryPage = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
@@ -135,6 +136,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @Transactional
     public Long getCategoryNum(Long parentId, Integer level) {
 		LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(parentId != null,Category::getParentId, parentId);
@@ -159,6 +161,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @Transactional
     public List<CategoryVo> getCategoryTopList() {
 	    if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
 			return getCategoryTopListFromRedis();
@@ -166,6 +169,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	        return getCategoryTopListFromMySQL();
 	    }
     }
+
 
 	private @NotNull List<CategoryVo> getCategoryTopListFromMySQL() {
 		QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
@@ -203,6 +207,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
 	@Override
+	@Transactional
     public String getCategoryName(Long id) {
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
 			return getCategoryNameFromRedis(id);
@@ -219,6 +224,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 			return getCategoryName(category.getParentId()) + "-" + category.getName();
 		}
 	}
+
 
 	private String getCategoryNameFromMySQL(Long id) {
 		Category category = categoryMapper.selectById(id);
@@ -244,6 +250,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	 * @return 包含指定类别及其所有子类别ID的列表
 	 */
     @Override
+    @Transactional
     public @NotNull List<Long> getCategoryIds(Long id){
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(0L)){
 			return getCategoryIdsFromRedis(id);
@@ -297,6 +304,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
 	@Override
+	@Transactional
 	public List<CategoryVo> getList() {
 		List<Category> categories = categoryMapper.selectList(null);
         List<CategoryVo> categoryVos = new ArrayList<>();
@@ -327,6 +335,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 	}
 
 	@Override
+	@Transactional
 	public CategoryVo getCategory(Long id) {
 		if (categoryConfig.isCategoryCacheEnabled() && redisService.hasCategory(id)){
 			return selectByIdFromRedis(id);
@@ -365,11 +374,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		for (Category child : children) {
 			CategoryTreeCache childCache = BeanCopyUtil.copyBean(child, CategoryTreeCache.class);
 			assert childCache != null;
-//			childCache.setId(child.getId());
-//			childCache.setName(child.getName());
 			childCache.setParentId(id);
-//			childCache.setLevel(child.getLevel());
-//			childCache.setSort(child.getSort());
 			childCache.setChildren(findCategoryChildren(child.getId()));
 			redisService.setCategory(childCache);
 			childIds.add(child.getId());

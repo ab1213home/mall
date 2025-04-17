@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -140,6 +141,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
+	@Transactional
 	public boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId) {
 		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
@@ -149,6 +151,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
+	@Transactional
 	public boolean authUnbind(@NotNull OAuthProvider oAuthProvider, String sessionId) {
 		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();

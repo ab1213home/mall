@@ -21,7 +21,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.UserConfig;
-import com.jiang.mall.dao.*;
+import com.jiang.mall.dao.GroupMapper;
+import com.jiang.mall.dao.ShopStaffMapper;
+import com.jiang.mall.dao.UserGroupRelationMapper;
+import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
@@ -41,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -109,13 +113,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.userGroupRelationMapper = userGroupRelationMapper;
 	}
 
-	private UserOauthMapper userOauthMapper;
-
-	@Autowired
-	public void setUserOauth2Mapper(UserOauthMapper userOauthMapper) {
-		this.userOauthMapper = userOauthMapper;
-	}
-
 	private ShopStaffMapper shopStaffMapper;
 
 	@Autowired
@@ -147,6 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
 	 */
 	@Override
+	@Transactional
 	public ResponseResult<Object> checkUserLogin(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
 		if (user == null){
@@ -176,6 +174,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 用户数量
 	 */
 	@Override
+	@Transactional
 	public Long getUserNum() {
 	    // 通过userMapper查询所有用户，null参数表示不使用任何条件
 	    return userMapper.selectCount(null);
@@ -193,6 +192,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果验证成功，返回对应的ture对象；如果验证失败或用户不存在，返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean login(String username, String password, String token, String clientIp, String fingerprint, String sessionId) {
 		User user = getUserByUserNameOrEmail(username, password);
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
@@ -328,6 +328,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果找到对应的用户信息，则返回User对象；否则返回null
 	 */
 	@Override
+	@Transactional
 	public User getUserByUserNameOrEmail(String username) {
 	    // 创建查询条件，指定用户名
 	    User user_username = userMapper.getUserByUsername(username);
@@ -363,11 +364,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean validatePassword(Long userId, String password) {
 		return userMapper.validatePassword(userId,password, true )>0;
 	}
 
 	@Override
+	@Transactional
 	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 		UserCache userVo = getUserFromRedis(sessionId);
 		User user = userMapper.getUserByIdAndActive(userVo.getId(),true);
@@ -390,6 +393,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Long register(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
 		User user = new User();
 		user.setUsername(verificationCode.getUsername());
@@ -418,6 +422,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean register(@NotNull User user, String sessionId) {
 		Long userId = redisService.getTwoRegister(sessionId);
 		user.setId(userId);
@@ -440,6 +445,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 返回一个布尔值，表示密码重置是否成功
 	 */
 	@Override
+	@Transactional
 	public Boolean forgot(@NotNull VerificationCode verificationCode, String password, String clientIp, String fingerprint) {
 	    // 根据查询条件尝试获取用户信息。
 	    User user = userMapper.selectById(verificationCode.getUserId());
@@ -475,6 +481,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean lock(String sessionId, String clientIp, String fingerprint) {
 		UserCache user = getUserFromRedis(sessionId);
 		if(userMapper.lockById(user.getId(),user.getId())>0) {
@@ -488,6 +495,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean lock(Long userId, String sessionId, String clientIp, String fingerprint) {
 		UserCache user = getUserFromRedis(sessionId);
 		if (userMapper.selectById(userId)==null){
@@ -505,6 +513,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean unlock(Long userId, String sessionId, String clientIp, String fingerprint) {
 		UserCache user = getUserFromRedis(sessionId);
 		if (userMapper.selectById(userId)==null){
@@ -529,6 +538,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户信息修改成功，则返回true；否则返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean modifyInfo(@NotNull User user, String sessionId) {
 	    // 从Redis中获取当前用户信息，并设置其ID到用户对象中
 	    user.setId(getUserFromRedis(sessionId).getId());
@@ -556,6 +566,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public UserVo getUserById(Long userId) {
 		if (userId==-1){
 			UserVo userVo = new UserVo();
@@ -586,12 +597,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public boolean getTotpStatus(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
 		return userMapper.getTotpStatusById(user.getId());
 	}
 
 	@Override
+	@Transactional
 	public String enableTotp(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
 		if (userMapper.getTotpStatusById(user.getId())){
@@ -608,12 +621,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public boolean disableTotp(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
 		return userMapper.setTotpStatusById(user.getId(), false) > 0;
 	}
 
 	@Override
+	@Transactional
 	public boolean enableTotp(String sessionId, int code) {
 		UserCache user = getUserFromRedis(sessionId);
 		String secretKey = userMapper.getTotpSecretById(user.getId());
@@ -637,6 +652,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public boolean login(String sessionId, int code, String token, String clientIp, String fingerprint) {
 		if (redisService.validateTwoLogin(sessionId)){
 			Long userId = redisService.getTwoLogin(sessionId);
@@ -666,6 +682,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId) {
 		if (!redisService.validateRememberMe(token)){
 			return null;
@@ -696,6 +713,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider) {
 		User user = userMapper.selectById(userId);
 		if (!user.isActive()){
@@ -715,6 +733,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	}
 
 	@Override
+	@Transactional
 	public boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider) {
 		if (redisService.validateTwoLogin(sessionId)){
 			Map<String,Object> map = new HashMap<>();
@@ -751,6 +770,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 返回一个布尔值表示密码修改的结果如果返回null，则表示修改密码失败
 	 */
 	@Override
+	@Transactional
 	public Boolean modifyPassword(@NotNull String oldPassword, String newPassword, String sessionId, String clientIp, String fingerprint) {
 	    // 从Redis中获取当前用户信息
 	    UserCache user = getUserFromRedis(sessionId);
@@ -786,6 +806,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户存在则返回true，否则返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean queryByUserName(String userName) {
 	    // 根据查询条件尝试获取用户信息
 	    return userMapper.getCountByUsername(userName)>0;
@@ -799,6 +820,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 * @return 如果用户存在则返回true，否则返回false
 	 */
 	@Override
+	@Transactional
 	public Boolean queryByEmail(String email) {
 		// 根据查询条件尝试获取用户信息
 		return userMapper.getCountByEmail(email) > 0;
@@ -816,6 +838,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * @return 用户列表的Vo对象
      */
 	@Override
+	@Transactional
     public List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize) {
         // 创建分页对象
         Page<User> userPage = new Page<>(pageNum, pageSize);
