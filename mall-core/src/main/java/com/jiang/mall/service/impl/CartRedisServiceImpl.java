@@ -102,39 +102,30 @@ public class CartRedisServiceImpl implements ICartRedisService {
         local changedSetKey = ARGV[3]           -- 变更集合键
         local expireTime = tonumber(ARGV[4])    -- 过期时间
         local productsData = ARGV[5]            -- 商品数据
+        local version = tonumber(ARGV[6])       -- 版本号
 	    
         -- 1. 删除旧数据
         redis.call('DEL', cartKey)
 	    
-        -- 2. 批量插入新数据（当有商品时）
-        if string.len(productsData) > 0 then
-            local cartMap = {}
-            for product in string.gmatch(productsData, "([^,]+)") do
-                local prodId, num = string.match(product, "([^:]+):([^:]+)")
-                if prodId and num then
-                    cartMap[prodId] = num
-                end
-            end
-	       
-            if next(cartMap) ~= nil then
-                redis.call('HMSET', cartKey, unpack(
-                    [===[flat]===] -- 特殊标记用于展开table
-                    local temp = {}
-                    for k,v in pairs(cartMap) do
-                        table.insert(temp, k)
-                        table.insert(temp, v)
+        -- 2. 批量插入新数据
+        for product in string.gmatch(productsData, "[^,]+") do
+            local prodId, num = string.match(product, "([^:]+):([^:]+)")
+            if prodId and num then
+                local delta = tonumber(num)
+                if delta ~= nil then
+                    local newVal = redis.call('HSET', cartKey, prodId, delta)
+                    if newVal <= 0 then
+                        redis.call('HDEL', cartKey, prodId)
                     end
-                    return temp
-                    [===[flat]===]
-                ))
+                end
             end
         end
 	    
         -- 3. 设置过期时间
         redis.call('EXPIRE', cartKey, expireTime)
 	    
-        -- 4. 更新版本号（原子递增）
-        redis.call('HINCRBY', versionKey, KEYS[1], 1)
+        -- 4. 更新版本号
+        redis.call('HSET', versionKey, KEYS[1], version)
 	    
         -- 5. 清除变更标记
         redis.call('SREM', changedSetKey, KEYS[1])
@@ -154,7 +145,8 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	        version_prefix,                     // ARGV[2] 版本键
 	        change_prefix,                      // ARGV[3] 变更集合
 	        coreConfig.getCartCacheTime().toString(), // ARGV[4] 过期时间
-	        productsData                       // ARGV[5] 商品数据
+	        productsData,                       // ARGV[5] 商品数据
+			version.toString()                 // ARGV[6] 版本号
 	    };
 
 	    try {
@@ -206,23 +198,15 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
 
 	    // 构建商品列表字符串
-	    StringBuilder productsStrBuilder = new StringBuilder();
-	    for (int i = 0; i < cart.size(); i++) {
-	        CartDto dto = cart.get(i);
-	        productsStrBuilder.append(dto.getProdId())
-	            .append(":")
-	            .append(dto.getNum());
-	        if (i < cart.size() - 1) {
-	            productsStrBuilder.append(",");
-	        }
-	    }
-	    String productsStr = productsStrBuilder.toString();
+	    String productsData = cart.stream()
+	        .map(dto -> dto.getProdId() + ":" + dto.getNum())
+	        .collect(Collectors.joining(","));
 
 	    // 准备参数
 	    List<String> keys = Collections.singletonList(userId.toString());
 	    Object[] args = {
 	        prefix,                                     // ARGV[1] 购物车键前缀
-	        productsStr,                                // ARGV[2] 商品列表字符串
+	        productsData,                                // ARGV[2] 商品列表字符串
 	        version_prefix,                             // ARGV[3] 版本哈希表
 	        change_prefix,                              // ARGV[4] 变更集合
 	        coreConfig.getCartCacheTime().toString()    // ARGV[5] 过期时间
@@ -321,44 +305,69 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	 * @return 返回一个CartDto对象列表，包含用户的购物车商品信息
 	 */
 	@Override
-	public List<CartDto> getCart(Long userId, Integer pageNum, Integer pageSize) {
-	    // 参数校验，确保pageNum和pageSize的值是合理的
-	    if (pageNum == null || pageNum < 1) pageNum = 1;
-	    if (pageSize == null || pageSize < 1) pageSize = 10;
-
-	    // 从Redis中获取用户购物车的所有商品信息
-	    Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(prefix + userId);
-
-	    // 2. 计算分页参数，确定从哪条记录开始获取，以及最多获取多少条记录
-	    int skip = (pageNum - 1) * pageSize;
-	    int limit = pageSize;
-
-	    // 3. 数据转换和过滤
-	    return entries.entrySet().stream()
-	        .map(entry -> {
-	            try {
-	                // 创建CartDto对象，并设置商品ID和数量
-	                CartDto cart = new CartDto();
-	                cart.setProdId(Long.parseLong(entry.getKey().toString()));
-	                cart.setNum(Long.parseLong(entry.getValue().toString()));
-
-	                // 记录日志，方便调试和追踪
-	                logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, cart.getProdId(), cart.getNum());
-
-	                return cart;
-	            } catch (NumberFormatException e) {
-	                // 如果商品ID或数量不是数字，则记录警告日志并返回null
-	                logger.warn("购物车中存在无效商品ID或数量，请检查购物车缓存数据！");
-	                return null;
-	            }
-	        })
-	        .filter(Objects::nonNull) // 过滤转换失败的记录
-	        // 按商品ID排序保证分页稳定性
-	        .sorted(Comparator.comparingLong(CartDto::getProdId))
-	        // 应用分页
-	        .skip(skip)
-	        .limit(limit)
-	        .collect(Collectors.toList());
+	public List<CartDto> getCart(@NotNull Long userId, Integer pageNum, Integer pageSize) {
+	    String luaScript =
+	    """
+        local cartKey = ARGV[1]..KEYS[1]
+        local pageNum = tonumber(ARGV[2])
+        local pageSize = tonumber(ARGV[3])
+	    
+        -- 参数校验
+        if pageNum < 1 then pageNum = 1 end
+        if pageSize < 1 then pageSize = 10 end
+	    
+        -- 获取所有商品ID并排序
+        local allFields = redis.call('HKEYS', cartKey)
+        table.sort(allFields, function(a,b) return tonumber(a) < tonumber(b) end)
+	    
+        -- 计算分页范围
+        local total = #allFields
+        local start = (pageNum - 1) * pageSize + 1
+        local stop = start + pageSize - 1
+        start = math.max(1, math.min(start, total))
+        stop = math.max(start, math.min(stop, total))
+	    
+        -- 获取分页数据
+        local result = {}
+        for i = start, stop do
+            local field = allFields[i]
+            local value = redis.call('HGET', cartKey, field)
+            table.insert(result, {field, value})
+        end
+	    
+        return result
+        """;
+	    // 参数处理
+	    List<String> keys = Collections.singletonList(userId.toString());
+	    Object[] args = {
+	        prefix,                                      // ARGV[1] 购物车前缀
+	        pageNum != null ? pageNum.toString() : "1",  // ARGV[2]
+	        pageSize != null ? pageSize.toString() : "10" // ARGV[3]
+	    };
+		// 创建Redis脚本对象
+	    DefaultRedisScript<List> script = new DefaultRedisScript<>(luaScript, List.class);
+	    try {
+	        // 执行脚本
+	        List<?> redisResult = stringRedisTemplate.execute(script, keys, args);
+			List<CartDto> cart = new ArrayList<>();
+			// 处理结果
+		    for (Object item : redisResult) {
+			    if (item instanceof List<?> itemList && itemList.size() == 2) {
+				    String productId = (String) itemList.get(0);
+				    String num = (String) itemList.get(1);
+					CartDto cartDto = new CartDto();
+					cartDto.setProdId(Long.parseLong(productId));
+					cartDto.setNum(Long.parseLong(num));
+					cart.add(cartDto);
+			    }else {
+					logger.warn("解析购物车项目时遇到意外的数据类型。");
+				}
+		    }
+		    return cart;
+	    } catch (Exception e) {
+	        logger.error("Lua脚本执行失败", e);
+	        return Collections.emptyList();
+	    }
 	}
 
 	/**
@@ -382,10 +391,6 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	                cart.setProdId(Long.parseLong(entry.getKey().toString()));
 	                // 将条目的值转换为商品数量
 	                cart.setNum(Long.parseLong(entry.getValue().toString()));
-
-	                // 记录调试信息
-	                logger.debug("用户ID为{}的购物车中获取了商品ID为{}的商品，数量为{}", userId, cart.getProdId(), cart.getNum());
-
 	                return cart;
 	            } catch (NumberFormatException e) {
 	                // 如果转换失败，记录警告信息并返回null
