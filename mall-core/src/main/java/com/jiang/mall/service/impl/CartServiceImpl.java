@@ -131,11 +131,14 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         if (version_redis == null || version_redis < version_mysql){
             checkCartFromMySQLToRedis(userId, version_mysql);
         }
+        List<CartDto> listCartDto = new ArrayList<>();
         for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
-            if (redisService.hasCart(userId, checkoutVo.getProdId())){
-                redisService.setCart(userId, checkoutVo.getProdId(), - checkoutVo.getNum());
-            }
+            CartDto cartDto = new CartDto();
+            cartDto.setProdId(checkoutVo.getProdId());
+            cartDto.setNum(-checkoutVo.getNum());
+            listCartDto.add(cartDto);
         }
+        redisService.setCart(userId,listCartDto);
     }
 
     private void deleteCartByOrderInMySQL(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {

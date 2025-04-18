@@ -32,12 +32,14 @@ public interface ICartRedisService {
 	 * 5. 清除用户的购物车变更标记。
 	 *
 	 * @param userId 用户ID，用于标识购物车数据的归属用户。
-	 * @param cartList 购物车数据列表，包含商品ID和数量信息，不能为空。
+	 * @param cart 购物车数据列表，包含商品ID和数量信息，不能为空。
 	 * @param version 购物车版本号，用于标识购物车数据的版本。
 	 */
-    void initCart(@NotNull Long userId, @NotNull List<CartDto> cartList,@NotNull Long version);
+    void initCart(@NotNull Long userId, @NotNull List<CartDto> cart, @NotNull Long version);
 
-    /**
+	boolean setCart(@NotNull Long userId, @NotNull List<CartDto> cart);
+
+	/**
 	 * 设置购物车中商品的数量
 	 * 如果数量小于等于0，则从购物车中移除该商品
 	 * 同时更新购物车的版本号和变更集合，并设置过期时间

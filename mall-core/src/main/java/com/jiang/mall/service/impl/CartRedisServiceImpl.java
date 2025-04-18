@@ -89,32 +89,153 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	 * 5. 清除用户的购物车变更标记。
 	 *
 	 * @param userId 用户ID，用于标识购物车数据的归属用户。
-	 * @param cartList 购物车数据列表，包含商品ID和数量信息，不能为空。
+	 * @param cart 购物车数据列表，包含商品ID和数量信息，不能为空。
 	 * @param version 购物车版本号，用于标识购物车数据的版本。
 	 */
 	@Override
-	public void initCart(@NotNull Long userId, @NotNull List<CartDto> cartList,@NotNull Long version) {
-		// 使用pipeline批量操作
-	    stringRedisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-	        // 1. 删除旧数据
-			connection.keyCommands().del((prefix + userId).getBytes());
-	        // 2. 批量插入新数据
-	        Map<byte[], byte[]> cartData = cartList.stream()
-	            .collect(Collectors.toMap(
-	                c -> c.getProdId().toString().getBytes(),
-	                c -> c.getNum().toString().getBytes()
-	            ));
-	        connection.hashCommands().hMSet((prefix + userId).getBytes(), cartData);
-	        // 3. 设置过期时间
-	        connection.keyCommands().expire((prefix + userId).getBytes(), coreConfig.getCartCacheTime());
-	        // 4. 更新版本号
-	        connection.hashCommands().hSet(version_prefix.getBytes(), userId.toString().getBytes(), version.toString().getBytes());
-	        // 5. 清除变更标记
-	        connection.setCommands().sRem(change_prefix.getBytes(), userId.toString().getBytes());
-	        return null;
-	    });
+	public void initCart(@NotNull Long userId, @NotNull List<CartDto> cart, @NotNull Long version) {
+		String luaScript =
+	    """
+        -- 基本参数定义
+        local cartKey = ARGV[1]..KEYS[1]         -- 购物车键
+        local versionKey = ARGV[2]              -- 版本键
+        local changedSetKey = ARGV[3]           -- 变更集合键
+        local expireTime = tonumber(ARGV[4])    -- 过期时间
+        local productsData = ARGV[5]            -- 商品数据
+	    
+        -- 1. 删除旧数据
+        redis.call('DEL', cartKey)
+	    
+        -- 2. 批量插入新数据（当有商品时）
+        if string.len(productsData) > 0 then
+            local cartMap = {}
+            for product in string.gmatch(productsData, "([^,]+)") do
+                local prodId, num = string.match(product, "([^:]+):([^:]+)")
+                if prodId and num then
+                    cartMap[prodId] = num
+                end
+            end
+	       
+            if next(cartMap) ~= nil then
+                redis.call('HMSET', cartKey, unpack(
+                    [===[flat]===] -- 特殊标记用于展开table
+                    local temp = {}
+                    for k,v in pairs(cartMap) do
+                        table.insert(temp, k)
+                        table.insert(temp, v)
+                    end
+                    return temp
+                    [===[flat]===]
+                ))
+            end
+        end
+	    
+        -- 3. 设置过期时间
+        redis.call('EXPIRE', cartKey, expireTime)
+	    
+        -- 4. 更新版本号（原子递增）
+        redis.call('HINCRBY', versionKey, KEYS[1], 1)
+	    
+        -- 5. 清除变更标记
+        redis.call('SREM', changedSetKey, KEYS[1])
+	    
+        return 1
+        """;
+
+	    // 构建商品数据字符串
+	    String productsData = cart.stream()
+	        .map(dto -> dto.getProdId() + ":" + dto.getNum())
+	        .collect(Collectors.joining(","));
+
+	    // 参数列表
+	    List<String> keys = Collections.singletonList(userId.toString());
+	    Object[] args = {
+	        prefix,                             // ARGV[1] 购物车前缀
+	        version_prefix,                     // ARGV[2] 版本键
+	        change_prefix,                      // ARGV[3] 变更集合
+	        coreConfig.getCartCacheTime().toString(), // ARGV[4] 过期时间
+	        productsData                       // ARGV[5] 商品数据
+	    };
+
+	    try {
+	        RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
+	        stringRedisTemplate.execute(script, keys, args);
+	    } catch (Exception e) {
+	        logger.error("Lua脚本执行失败", e);
+	    }
 	}
 
+	@Override
+	public boolean setCart(@NotNull Long userId, @NotNull List<CartDto> cart) {
+	    // Lua脚本，原子性地批量更新购物车中的商品数量，并更新版本号和变更集合
+	    String luaScript =
+	    """
+        local cartKey = ARGV[1] .. KEYS[1]
+        local productsStr = ARGV[2]
+        local versionKey = ARGV[3]
+        local changedSetKey = ARGV[4]
+        local expireTime = tonumber(ARGV[5])
+	    
+        -- 解析商品列表
+        for product in string.gmatch(productsStr, "[^,]+") do
+            local prodId, num = string.match(product, "([^:]+):([^:]+)")
+            if prodId and num then
+                local delta = tonumber(num)
+                if delta ~= nil then
+                    local newVal = redis.call('HINCRBY', cartKey, prodId, delta)
+                    if newVal <= 0 then
+                        redis.call('HDEL', cartKey, prodId)
+                    end
+                end
+            end
+        end
+	    
+        -- 更新变更集合和版本号
+        local added = redis.call('SADD', changedSetKey, KEYS[1])
+        if added == 1 then
+            redis.call('HINCRBY', versionKey, KEYS[1], 1)
+        end
+	    
+        -- 设置过期时间
+        redis.call('EXPIRE', cartKey, expireTime)
+	    
+        return 1
+        """;
+
+	    // 创建Redis脚本对象
+	    RedisScript<Long> script = new DefaultRedisScript<>(luaScript, Long.class);
+
+	    // 构建商品列表字符串
+	    StringBuilder productsStrBuilder = new StringBuilder();
+	    for (int i = 0; i < cart.size(); i++) {
+	        CartDto dto = cart.get(i);
+	        productsStrBuilder.append(dto.getProdId())
+	            .append(":")
+	            .append(dto.getNum());
+	        if (i < cart.size() - 1) {
+	            productsStrBuilder.append(",");
+	        }
+	    }
+	    String productsStr = productsStrBuilder.toString();
+
+	    // 准备参数
+	    List<String> keys = Collections.singletonList(userId.toString());
+	    Object[] args = {
+	        prefix,                                     // ARGV[1] 购物车键前缀
+	        productsStr,                                // ARGV[2] 商品列表字符串
+	        version_prefix,                             // ARGV[3] 版本哈希表
+	        change_prefix,                              // ARGV[4] 变更集合
+	        coreConfig.getCartCacheTime().toString()    // ARGV[5] 过期时间
+	    };
+
+	    try {
+	        Long result = stringRedisTemplate.execute(script, keys, args);
+	        return result == 1;
+	    } catch (Exception e) {
+	        logger.error("Lua脚本执行出错", e);
+	        return false;
+	    }
+	}
 
 	/**
 	 * 设置购物车中商品的数量
