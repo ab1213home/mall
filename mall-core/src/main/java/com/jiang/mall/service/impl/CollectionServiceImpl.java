@@ -16,21 +16,20 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.dao.CollectionMapper;
-import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Collection;
-import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.CollectionVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.ICollectionService;
+import com.jiang.mall.service.IProductService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +43,11 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		this.collectionMapper = collectionMapper;
 	}
 
-	private ProductMapper productMapper;
+	private IProductService productService;
 
 	@Autowired
-	public void setProductMapper(ProductMapper productMapper) {
-		this.productMapper = productMapper;
+	public void setProductService(IProductService productService) {
+		this.productService = productService;
 	}
 
 	private IUserService userService;
@@ -56,6 +55,13 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	@Autowired
 	public void setUserService(IUserService userService) {
 		this.userService = userService;
+	}
+
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+		this.generalConfig = generalConfig;
 	}
 
 	@Override
@@ -104,14 +110,11 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 		List<CollectionVo> collectionVo = new ArrayList<>();
 		for (Collection collection : collectionList){
 			CollectionVo collectionVoMin = BeanCopyUtil.copyBean(collection, CollectionVo.class);
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	        // 格式化日期时间
-	        String formattedDateTime = collection.getCreatedAt().format(formatter);
+	        String formattedDateTime = collection.getCreatedAt().format(generalConfig.getDateFormatPattern());
 			assert collectionVoMin != null;
 			collectionVoMin.setDate(formattedDateTime);
-			Product product= productMapper.selectById(collection.getProdId());
-			ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
-			collectionVoMin.setProduct(productVo);
+			ProductVo product = productService.getProduct(collection.getProdId());
+			collectionVoMin.setProduct(product);
 			collectionVo.add(collectionVoMin);
 		}
 		return collectionVo;

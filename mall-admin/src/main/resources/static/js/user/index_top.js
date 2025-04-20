@@ -22,8 +22,6 @@ const signList = ["我感到难过，不是因为你欺骗了我，而是因为�
 // 定义登出函数
 function logout() {
   // 清除登录状态（清除 token 或 session）
-  // localStorage.removeItem('token');
-  // sessionStorage.removeItem('token');
   $.ajax({
 		type:"GET",
 		url:"/user/logout",

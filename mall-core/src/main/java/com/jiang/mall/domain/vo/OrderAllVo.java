@@ -46,16 +46,11 @@ public class OrderAllVo {
     private AddressVo address;
 
     /**
-     * 下单时间
-     */
-    private Date date;
-
-    /**
      * 订单总金额
      */
     private Double totalAmount;
 
-        /**
+	/**
      * 订单状态
      */
     private String status;

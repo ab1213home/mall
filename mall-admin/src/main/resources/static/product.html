@@ -19,7 +19,7 @@
 		<link rel="stylesheet" href="/css/index.css">
 		<link rel="stylesheet" href="/css/style.css">
 		<link rel="stylesheet" href="/public/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
-		<link rel="shortcut icon" href="/images/favicon.png"/>
+		<link rel="shortcut icon" href="/favicon.ico"/>
 		<link rel="stylesheet" href="/css/font-awesome.min.css">
 		<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
 		<script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
@@ -28,7 +28,7 @@
 		<script src="/js/index_footer.js"></script>
 		<script src="/js/index_cart.js"></script>
 		<script src="/js/product.js"></script>
-		<title>商品详情页</title>
+		<title>Jiang Mall | 商品详情页</title>
 		<style>
 			.product-card {
 				background-color: white;
@@ -88,8 +88,8 @@
 		<div class="header">
 			<div class="w headerBody">
 				<div class="hb1">
-					<a href="index.html">
-						<img src="images/logo.png" alt="学校图标">
+					<a href="/index.html">
+						<img src="/images/logo.png" alt="学校图标">
 					</a>
 				</div>
 				<!--父相子绝-->
@@ -220,12 +220,13 @@
 					<div class="modal-header">
 						<h5 class="modal-title" id="loadingModalLabel">加载中...</h5>
 					</div>
-					<div class="modal-body text-center" style="min-height:150px;">
-						<div id="spinnerContainer" class="spinner-container"></div>
+					<div class="d-flex justify-content-center">
+						<div class="spinner-border m-5" style="width: 4.5rem; height: 4.5rem;border-width: 0.5em;" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<script src="/public/spin-2.3.2-dist/spin.min.js"></script>
 	</body>
 </html>

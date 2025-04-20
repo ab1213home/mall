@@ -32,10 +32,8 @@ function queryOrders(pn, pz) {
 			$('#orderTable tbody').empty();
             if (response.code == 200) {
 				orderArr = {};
-				for(let record of response.data){
-					orderArr[record.id] = record;
-				}
                 response.data.forEach((order,index) => {
+					orderArr[order.id] = order;
 					let row =
 						`
                         <tr id="order` + order.id + `" class="order-row text-center">
@@ -46,39 +44,93 @@ function queryOrders(pn, pz) {
                             	<p>${order.address.addressDetail}</p>
                             	<p>邮政编码：${order.address.postalCode}</p>
 							</td>
-                            <td id="date` + order.id + `">${new Date(order.date).toLocaleString()}</td>
+                            <td id="orderDate` + order.id + `">${order.orderDate}</td>
                             <td id="totalAmount` + order.id + `" class="price-tag">${order.totalAmount}</td>
-                            <td id="status` + order.id + `">${order.status}</td>
-                            <td id="paymentMethod` + order.id + `">${order.paymentMethod}</td>
-                            <td id="orderList` + order.id + `">`;
+                        `
+					if (order.status < 2 ){
+						row=row+`
+							<td id="status` + order.id + `" colspan="2">${order.statusStr}</td>
+                            <td id="orderList` + order.id + `">
+						`;
+					}else {
+						row=row+`
+                            <td id="status` + order.id + `">${order.statusStr}</td>
+                            <td id="paymentMethod` + order.id + `">
+                            	<div class="d-flex flex-column align-items-center justify-content-center">\t
+									<div class="fl row text-center mb-2">`+ order.paymentProvider +`</div>
+									<div class="price-tag row text-center mb-2" >`+ paymentAmount +`</div>
+									<div class="num-tag row text-center">`+ paymentDate +`</div>
+								</div>
+							</td>
+                            <td id="orderList` + order.id + `">
+						`;
+					}
+
 					const orderList = order.orderList;
-							for(let order of orderList){
-								row=row+`
-									<a href="./tradeSnap.html?id=`+ order.product.id +`" target="_blank" class="glid1">
-										<div class="row mt-2" style="display: flex; justify-content: center;">
-											<!-- 图片列 -->
-											<div class="col-md-4">
-												<img src="` + order.product.img + `" alt="商品图片" class="img-fluid mx-auto d-block" style="height: 60%; width: auto;">
-											</div>
-											<!-- 文字信息列 -->
-        									<div class="col-md-6">
-        										<div class="d-flex flex-column align-items-center justify-content-center">	
-        											<div class="fl row text-center mb-2">`+ order.product.title +`</div>
-													<div class="price-tag row text-center mb-2" style="color: #ff0000;">`+ order.product.price +`</div>
-													<div class="num-tag row text-center">`+ order.num +`</div>
-        										</div>
-											</div>
-										</div>
-									</a>
-										`;
-							}
-                            row=row+`</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-primary" onclick="">取消订单</button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="">删除</button>
-                            </td>
-                        </tr>
-                        `;
+					for(let order of orderList){
+						row=row+`
+							<a href="/tradeSnap.html?id=`+ order.product.id +`" target="_blank" class="glid1">
+								<div class="row mt-2" style="display: flex; justify-content: center;">
+									<!-- 图片列 -->
+									<div class="col-md-4">
+										<img src="` + order.product.img + `" alt="` + order.product.title + `" class="img-fluid mx-auto d-block" style="height: 60%; width: auto;">
+									</div>
+									<!-- 文字信息列 -->
+        							<div class="col-md-6">
+        								<div class="d-flex flex-column align-items-center justify-content-center">	
+        									<div class="fl row text-center mb-2">`+ order.product.title +`</div>
+											<div class="price-tag row text-center mb-2" style="color: #ff0000;">`+ order.product.price +`</div>
+											<div class="num-tag row text-center">`+ order.num +`</div>
+        								</div>
+									</div>
+								</div>
+							</a>
+						`;
+					}
+					if (order.status == -1){
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-primary" onclick="" disabled>取消订单</button>
+							</td>
+						</tr>
+						`;//TODO:去支付
+					}else if (order.status < 3){
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">取消订单</button>
+							</td>
+						</tr>
+						`;
+					}else if (order.status == 3){
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-danger" onclick="">订单进度</button>
+							</td>
+						</tr>
+						`;
+					}else if (order.status == 4){
+						//评价
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">评价</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">退货</button>
+							</td>
+						</tr>
+						`;
+					}else if (order.status == 5){
+						//再来一单
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">再来一单</button>
+							</td>
+						</tr>
+						`;
+					}
                     $('#orderTable tbody').append(row);
                 });
                 currentPageNum_order = pn;

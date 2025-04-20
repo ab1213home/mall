@@ -44,7 +44,7 @@ $(document).ready(function(){
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/pay.html?id=" + id) + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
 	$('#submitOrder').on('click', function(event) {
-        event.preventDefault(); // 阻止默认行为（如表单提交）
+        // event.preventDefault(); // 阻止默认行为（如表单提交）
         checkOut();
     });
 })

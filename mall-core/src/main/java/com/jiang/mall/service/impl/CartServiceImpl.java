@@ -298,7 +298,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             if (version_mysql == null){
                 checkCartFromRedisToMySQL(userId, version_redis);
                 return redisService.setCart(userId, productId, num);
-            }else if (version_redis == null || version_redis < version_mysql){
+            }else if (version_redis == null || version_redis <= version_mysql){
                 //数据库版本号大于redis版本号
                 //以数据库为基准
                 //冷数据
@@ -360,7 +360,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             }
             //获取数据库用户最新版本号
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_redis == null || version_redis < version_mysql){
+            if (version_redis == null || version_redis <= version_mysql){
                 //数据库版本号大于redis版本号
                 //以数据库为基准
                 //冷数据

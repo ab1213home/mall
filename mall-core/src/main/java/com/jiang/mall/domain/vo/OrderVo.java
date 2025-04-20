@@ -47,10 +47,15 @@ public class OrderVo {
      */
     private Double totalAmount;
 
+	/**
+     * 订单状态
+     */
+	private Integer status;
+
     /**
      * 订单状态
      */
-    private String status;
+    private String statusStr;
 
     /**
      * 下单时间

@@ -22,8 +22,8 @@
 		<link rel="stylesheet" href="/css/font-awesome.min.css"></link>
 		<script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
 		<script src="/public/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-		<link rel="shortcut icon" href="/images/favicon.png"/>
-		<title>订单确认页</title>
+		<link rel="shortcut icon" href="/favicon.ico"/>
+		<title>Jiang Mall | 订单确认页</title>
 		<style>
 			/* 默认样式 */
 			.address-row {
@@ -49,7 +49,7 @@
 			<div class="inner-top w">
 				<ul class="fr">
 					<!-- li变为行内块元素 -->
-					<li id="username"><a href="./user/login.html">你好！nano</a></li>
+					<li id="username"><a href="/user/index.html">你好！nano</a></li>
 					<li class="spacer"></li>
 					<li><a href="javascript:">网络无障碍</a></li>
 				</ul>
@@ -61,8 +61,8 @@
 		<div class="header">
 			<div class="w headerBody">
 				<div class="hb1">
-					<a href="index.html">
-						<img src="images/logo.png" alt="学校图标">
+					<a href="/index.html">
+						<img src="/images/logo.png" alt="学校图标">
 					</a>
 				</div>
 				<!-- 父相子绝 -->
@@ -285,11 +285,12 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="loadingModalLabel">加载中...</h5>
                 </div>
-                <div class="modal-body text-center" style="min-height:150px;">
-                    <div id="spinnerContainer" class="spinner-container"></div>
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border m-5" style="width: 4.5rem; height: 4.5rem;border-width: 0.5em;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="/public/spin-2.3.2-dist/spin.min.js"></script>
 </html>
