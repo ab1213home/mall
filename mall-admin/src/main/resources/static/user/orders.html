@@ -116,7 +116,7 @@
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                         <li class="nav-header text-center">个人中心</li>
                         <li class="nav-item">
-                            <a href="/user/index.html" class="nav-link active">
+                            <a href="/user/index.html" class="nav-link">
                                 <i class="nav-icon bi bi-house"></i>
                                 <p>个人主页</p>
                             </a> </li>
@@ -138,7 +138,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/user/orders.html" class="nav-link">
+                            <a href="/user/orders.html" class="nav-link active">
                                 <i class="nav-icon bi bi-list-ul"></i>
                                 <p>我的订单</p>
                             </a>
@@ -171,7 +171,7 @@
                                         <i class="nav-icon bi bi-clock-history"></i>
                                         <p>登录历史</p>
                                     </a> </li>
-                                <li class="nav-item">
+                                <li class="nav-item admin" style="display: none;">
                                     <a href="/user/security/api.html" class="nav-link">
                                         <i class="nav-icon bi bi-key"></i>
                                         <p>个人令牌</p>
@@ -189,9 +189,9 @@
                                 <i class="nav-icon bi bi-megaphone"></i>
                                 <p>通知消息</p>
                             </a> </li>
-                        <li class="nav-header text-center">管理控制台</li>
+                        <li class="nav-header text-center admin" style="display: none;">管理控制台</li>
                         <!-- 管理控制台 -->
-                        <li class="nav-item">
+                        <li class="nav-item admin" style="display: none;">
                             <a href="/admin/index.html" class="nav-link">
                                 <i class="nav-icon bi bi-gear"></i>
                                 <p>管理控制台</p>
