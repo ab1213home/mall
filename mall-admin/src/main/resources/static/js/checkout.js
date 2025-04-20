@@ -15,6 +15,10 @@ let checkoutObj = {};
 let num_cart = 0;
 let selectAddressObj = {};
 
+let addressObj = {};
+let currentPageNum_address = 1;
+let num_address = 0;
+
 $(document).ready(function(){
     let res = isLogin();
 	getFooterInfo();

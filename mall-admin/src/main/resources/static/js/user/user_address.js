@@ -11,47 +11,40 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let addressObj = {};
-let currentPageNum_address = 1;
-let num_address = 0;
+$(function() {
+    const $modal = $('#addressModal');
+    const $form = $('form');
 
-document.addEventListener('DOMContentLoaded', function() {
-    var itemModal = document.getElementById('addressModal');
+    // 模态框显示事件
+    $modal.on('show.bs.modal', function(event) {
+        const $button = $(event.relatedTarget);
+        const type = $button.attr('data-bs-type');
+        const $modalTitle = $('#addressModalLabel');
+        const $submitBtn = $('#addressSubmit');
 
-    itemModal.addEventListener("show.bs.modal", function(event) {
-        var button = event.relatedTarget;
-        var type = button.getAttribute('data-bs-type');
-        var modalTitle = document.getElementById('addressModalLabel');
-        var submitBtn = document.getElementById('addressSubmit');
+        // 绑定带命名空间的表单提交事件
+        $form.off('submit.modalEvent').on('submit.modalEvent', function(e) {
+            e.preventDefault();
+            type == 'add' ? insertAddress() : updateAddress($button.attr('data-bs-prod-id'));
+        });
 
-		// 绑定新的表单提交事件
-		$('form').on('submit', function(event) {
-			event.preventDefault(); // 阻止默认提交行为
-			if (type === 'add') {
-				insertAddress(); // 自定义提交处理
-			}else if (type === 'edit'){
-				let id = button.getAttribute('data-bs-prod-id');
-				updateAddress(id); // 自定义提交处理
-			}
-		});
-        if (type === 'add') {
-            modalTitle.textContent = '添加收件信息';
-            submitBtn.textContent = '添加';
+        // 根据类型配置模态框
+        if (type == 'add') {
+            $modalTitle.text('添加收件信息');
+            $submitBtn.text('添加');
             clearModal();
-			listProvince();
-        } else if (type === 'edit') {
-            modalTitle.textContent = '编辑收件信息';
-            submitBtn.textContent = '保存';
-			let id = button.getAttribute('data-bs-prod-id');
+            listProvince();
+        } else {
+            $modalTitle.text('编辑收件信息');
+            $submitBtn.text('保存');
             clearModal();
-            getAddress(id);
+            getAddress($button.attr('data-bs-prod-id'));
         }
     });
 
-	// 绑定模态框关闭事件
-    itemModal.addEventListener("hidden.bs.modal", function(event) {
-        // 清除表单提交事件
-        $('form').off('submit');
+    // 模态框关闭事件
+    $modal.on('hidden.bs.modal', function() {
+        $form.off('submit.modalEvent'); // 移除带命名空间的事件
     });
 });
 

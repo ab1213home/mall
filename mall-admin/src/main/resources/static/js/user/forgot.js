@@ -12,58 +12,58 @@
  */
 
 function submitForgotStepOneForm() {
-  // 获取表单数据
-  const username = $('#username').val();
-  const captcha = $('#captcha').val();
+    // 获取表单数据
+    const username = $('#username').val();
+    const captcha = $('#captcha').val();
 
-  // 构建请求体
-  const data = {
-    username: username,
-    captcha: captcha
-  };
+    // 构建请求体
+    const data = {
+        username: username,
+        captcha: captcha
+    };
 
-  // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/forgot/step1',
-    type: 'POST',
-    data: data,
-    success: function (res) {
-        // 处理成功响应
-        if (res.code === 200) {
-            const step2 = document.querySelectorAll('.step2');
-            const step1 = document.querySelectorAll('.step1');
-            step1.forEach(element => {
-                element.style.display = 'none';
-            });
-            step2.forEach(element => {
-                element.style.display = 'block';
-            });
-            // show_info('验证码已发送，请查收');
-            if (document.getElementById("email_show")!= null){
-                document.getElementById("email_show").textContent = res.data;
+    // 发送 AJAX 请求
+    $.ajax({
+        url: '/user/forgot/step1',
+        type: 'POST',
+        data: data,
+        success: function (res) {
+            // 处理成功响应
+            if (res.code == 200) {
+                const step2 = document.querySelectorAll('.step2');
+                const step1 = document.querySelectorAll('.step1');
+                step1.forEach(element => {
+                    element.style.display = 'none';
+                });
+                step2.forEach(element => {
+                    element.style.display = 'block';
+                });
+                // show_info('验证码已发送，请查收');
+                if (document.getElementById("email_show")!= null){
+                    document.getElementById("email_show").textContent = res.data;
+                }
+                startIntervalTimer(600);
+            } else {
+                show_error('发送验证码失败:'+res.message);
+                let captchaImg = document.getElementById('captchaImg');
+                captchaImg.src = '/common/captcha';
             }
-            startIntervalTimer(600);
-        } else {
-            show_error('发送验证码失败:'+res.message);
-            let captchaImg = document.getElementById('captchaImg');
-            captchaImg.src = '/common/captcha';
+        },
+        fail: function(xhr, status, error) {
+        // 显示错误信息给用户
+        show_error('发送验证码失败:'+error);
+        let captchaImg = document.getElementById('captchaImg');
+        captchaImg.src = '/common/captcha';
         }
-    },
-    fail: function(xhr, status, error) {
-      // 显示错误信息给用户
-      show_error('发送验证码失败:'+error);
-      let captchaImg = document.getElementById('captchaImg');
-      captchaImg.src = '/common/captcha';
-    }
-  });
+    });
 }
 
 // 绑定表单提交事件
 $(document).ready(function() {
-  $('#step1').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitForgotStepOneForm(); // 自定义提交处理
-  });
+    $('#step1').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitForgotStepOneForm(); // 自定义提交处理
+    });
 });
 
 function startIntervalTimer(duration) {
@@ -88,44 +88,44 @@ function startIntervalTimer(duration) {
     }, 1000);
 }
 function submitForgotStepTwoForm() {
-  // 获取表单数据
-  const code = $('#verificationCode').val();
-  const password = $('#password').val();
-  const confirmPassword = $('#confirmPassword').val();
+    // 获取表单数据
+    const code = $('#verificationCode').val();
+    const password = $('#password').val();
+    const confirmPassword = $('#confirmPassword').val();
 
-  if (password !== confirmPassword) {
-    show_error('两次输入的密码不一致');
-    return;
-  }
-
-  // 构建请求体
-  const data = {
-    code: code,
-    password: sha256(password),
-  };
-
-  // 发送 AJAX 请求
-  $.ajax({
-    url: '/user/forgot/step2',
-    type: 'POST',
-    data: data,
-    headers: {
-        'X-Real-FINGERPRINT':fingerprint,
-        'X-Real-IP':ip,
-    },
-    success: function (res) {
-        // 处理成功响应
-        if (res.code === 200) {
-            window.location.href = '/user/login.html';
-        } else {
-            show_error('验证码错误');
-        }
-    },
-    fail: function(xhr, status, error) {
-      // 显示错误信息给用户
-      show_error('验证码错误:'+error);
+    if (password !== confirmPassword) {
+        show_error('两次输入的密码不一致');
+        return;
     }
-  });
+
+    // 构建请求体
+    const data = {
+        code: code,
+        password: sha256(password),
+    };
+
+    // 发送 AJAX 请求
+    $.ajax({
+        url: '/user/forgot/step2',
+        type: 'POST',
+        data: data,
+        headers: {
+            'X-Real-FINGERPRINT':fingerprint,
+            'X-Real-IP':ip,
+        },
+        success: function (res) {
+            // 处理成功响应
+            if (res.code == 200) {
+                window.location.href = '/user/login.html';
+            } else {
+                show_error('验证码错误');
+            }
+        },
+        fail: function(xhr, status, error) {
+        // 显示错误信息给用户
+        show_error('验证码错误:'+error);
+        }
+    });
 }
 
 // 绑定表单提交事件
