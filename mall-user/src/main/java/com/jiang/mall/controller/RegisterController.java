@@ -13,11 +13,13 @@
 
 package com.jiang.mall.controller;
 
+import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.annotation.Register;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,6 +149,13 @@ public class RegisterController {
         else {
             return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
         }
+    }
+
+    @PostMapping("/step1/refresh")
+    @Permission(PermissionType.GUEST)
+    public ResponseResult<Object> registerStep1Refresh(HttpSession session) {
+        //TODO:重发验证码。时间间隔10分钟
+        return ResponseResult.okResult(i18nService.getMessage("email.register.resend"));
     }
 
 	/**

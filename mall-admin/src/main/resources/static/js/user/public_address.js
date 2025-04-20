@@ -10,8 +10,7 @@
  * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  */
-
-$(function() {
+$(document).ready(function() {
     const $modal = $('#addressModal');
     const $form = $('form');
 
@@ -548,4 +547,54 @@ function getAddressNum(){
 			}
 		}
 	})
+}
+
+function generatePagination(totalCount, pn, pageSize) {
+    const totalPages = Math.ceil(totalCount / pageSize); // 计算总页数
+
+    if (totalPages === 0) return; // 如果没有数据，则不生成分页
+    const pagination = $('#pagination-ul');
+    pagination.empty(); // 清空之前的分页内容
+
+    let paginationHTML = '';
+
+    // 添加“上一页”按钮
+    paginationHTML += `<li class="page-item ${pn === 1 ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                         </a>
+                       </li>`;
+
+    // 添加页码按钮
+    for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<li class="page-item ${i === pn ? 'active' : ''}">
+                             <a class="page-link" href="#">${i}</a>
+                           </li>`;
+    }
+
+    // 添加“下一页”按钮
+    paginationHTML += `<li class="page-item ${pn === totalPages ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                         </a>
+                       </li>`;
+
+    pagination.html(paginationHTML); // 使用jQuery设置HTML内容
+
+    // 绑定点击事件
+    $('.page-link').click(function(e) {
+        e.preventDefault(); // 阻止默认行为
+        const pageText = $(this).text().trim(); // 获取点击的页码或符号
+
+        if (pageText === '&laquo;' && pn > 1) {
+            queryAddress(pn - 1, pageSize);
+        } else if (pageText === '&raquo;' && pn < totalPages) {
+            queryAddress(pn + 1, pageSize);
+        } else if (!isNaN(pageText)) {
+            const pageNumber = parseInt(pageText, 10);
+            if (pageNumber >= 1 && pageNumber <= totalPages) {
+                queryAddress(pageNumber, pageSize);
+            }
+        }
+    });
 }

@@ -11,8 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-let collectionArr = {};
-let currentPageNum_collection = 1;
+let collectionObj = {};
 let num_collection = 0;
 
 function queryCollection(pn, pz) {
@@ -25,23 +24,12 @@ function queryCollection(pn, pz) {
         },
         dataType: "json",
         success: function (response) {
+            // 清空 tbody 中原有的内容
+            $('#collectionTable tbody').empty();
             if (response.code == 200) {
-				// 清空 tbody 中原有的内容
-				$('#collectionTable tbody').empty();
-				if (response.data.length == 0) {
-					const row =
-						`
-						<tr>
-							<td colspan="11" style="text-align: center">暂无数据</td>
-						</tr>
-						`;
-					$('#collectionTable tbody').append(row);
-				}
-				collectionArr = {};
-				for(let record of response.data){
-					collectionArr[record.id] = record;
-				}
+				collectionObj = {};
                 response.data.forEach((collection,index) => {
+                    collectionObj[collection.id] = collection;
                     var row =
                         `
                         <tr id="collection`+ collection.id +`" class="order-row text-center">
@@ -62,25 +50,68 @@ function queryCollection(pn, pz) {
                         `;
                     $('#collectionTable tbody').append(row);
                 });
-                currentPageNum_collection = pn;
-                if (currentPageNum_collection == 1) {
-                    $("#prePage").prop("disabled", true);
-                } else {
-                    $("#prePage").prop("disabled", false);
-                }
-                if (num_collection - currentPageNum_collection * pz < 0) {
-                    $("#nextPage").prop("disabled", true);
-                } else {
-                    $("#nextPage").prop("disabled", false);
-                }
-				if (num_collection == 0){
-					 $("#nextPage").prop("disabled", true);
-				}
+            }else if (response.code == 404) {
+                const row =
+                    `
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+                $('#collectionTable tbody').append(row);
+            }
+            generatePagination(num_collection, pn, pz);
+        }
+    });
+}
+function generatePagination(totalCount, pn, pageSize) {
+    const totalPages = Math.ceil(totalCount / pageSize); // 计算总页数
+
+    if (totalPages === 0) return; // 如果没有数据，则不生成分页
+    const pagination = $('#pagination-ul');
+    pagination.empty(); // 清空之前的分页内容
+
+    let paginationHTML = '';
+
+    // 添加“上一页”按钮
+    paginationHTML += `<li class="page-item ${pn === 1 ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                         </a>
+                       </li>`;
+
+    // 添加页码按钮
+    for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<li class="page-item ${i === pn ? 'active' : ''}">
+                             <a class="page-link" href="#">${i}</a>
+                           </li>`;
+    }
+
+    // 添加“下一页”按钮
+    paginationHTML += `<li class="page-item ${pn === totalPages ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                         </a>
+                       </li>`;
+
+    pagination.html(paginationHTML); // 使用jQuery设置HTML内容
+
+    // 绑定点击事件
+    $('.page-link').click(function(e) {
+        e.preventDefault(); // 阻止默认行为
+        const pageText = $(this).text().trim(); // 获取点击的页码或符号
+
+        if (pageText === '&laquo;' && pn > 1) {
+            queryCollection(pn - 1, pageSize);
+        } else if (pageText === '&raquo;' && pn < totalPages) {
+            queryCollection(pn + 1, pageSize);
+        } else if (!isNaN(pageText)) {
+            const pageNumber = parseInt(pageText, 10);
+            if (pageNumber >= 1 && pageNumber <= totalPages) {
+                queryCollection(pageNumber, pageSize);
             }
         }
     });
 }
-
 function getCollectionNum() {
 	$.ajax({
 		type:"GET",
@@ -96,28 +127,19 @@ function getCollectionNum() {
 }
 
 $(document).ready(function() {
-    isAdminUser();
-	queryMyUserInfo();
-	getCollectionNum();
-	queryCollection(currentPageNum_collection, 10);
-	bindPreNextPage();
+    let res = queryMyUserInfo();
+	if (res){
+        isAdminUser();
+        getCollectionNum();
+	    queryCollection(1, 10);
+	}else{
+        window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/collections.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+	}
+    $("#logout").on('click', function(event) {
+        logout();
+    });
 });
 
-function bindPreNextPage(){
-	$("#prePage").on("click", function(){
-		if(currentPageNum_collection <= 1){
-			show_warning("已经是第一页")
-			return;
-		}
-		let pageNum = currentPageNum_collection -1;
-		queryCollection(pageNum, 10);
-	})
-
-	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum_collection +1;
-		queryCollection(pageNum, 10);
-	})
-}
 
 function deleteCollection(id){
     $.ajax({
@@ -139,6 +161,6 @@ function deleteCollection(id){
 }
 
 function showProduct(id){
-    let collection = collectionArr[id];
+    let collection = collectionObj[id];
     window.location.href = "/product.html?id="+collection.product.id;
 }

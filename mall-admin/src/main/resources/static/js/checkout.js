@@ -16,7 +16,6 @@ let num_cart = 0;
 let selectAddressObj = {};
 
 let addressObj = {};
-let currentPageNum_address = 1;
 let num_address = 0;
 
 $(document).ready(function(){
@@ -24,25 +23,17 @@ $(document).ready(function(){
 	getFooterInfo();
 	if (res){
 		queryCart();
-		queryAddress(1,10);
 		getAddressNum();
-		bindPreNextPage_address();
+		queryAddress(1,10);
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/checkout.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
 	$('#submitOrder').on('click', function(event) {
-        event.preventDefault(); // 阻止默认行为（如表单提交）
+        // event.preventDefault(); // 阻止默认行为（如表单提交）
         checkOut();
     });
 })
 
-// document.addEventListener('DOMContentLoaded', function() {
-// 	document.getElementById('submitOrder').addEventListener('click', function() {
-// 		//阻止默认事件
-// 		event.preventDefault();
-// 		checkOut();
-// 	});
-// });
 
 function queryAddress(pn, pz) {
     $.ajax({
@@ -82,23 +73,6 @@ function queryAddress(pn, pz) {
 						$("#address" + address.id).addClass("table-primary");
 					}
                 });
-                currentPageNum_address = pn;
-                if (currentPageNum_address == 1) {
-                    $("#prePage_address").prop("disabled", true);
-                } else {
-                    $("#prePage_address").prop("disabled", false);
-                }
-                if (num_address - currentPageNum_address * pz < 0) {
-                    $("#nextPage_address").prop("disabled", true);
-                } else {
-                    $("#nextPage_address").prop("disabled", false);
-                }
-				if (num_address == 0){
-					 $("#nextPage_address").prop("disabled", true);
-				}
-				if (message!=null){
-					show_warning(message);
-				}
             }else if (response.code == 404) {
                 const row =
                     `
@@ -108,6 +82,7 @@ function queryAddress(pn, pz) {
 					`;
                 $('#addresslist tbody').append(row);
             }
+			generatePagination(num_address, pn, pz);
         }
     });
 }
@@ -126,21 +101,6 @@ function selectAddress(id){
 	}
 }
 
-function bindPreNextPage_address(){
-	$("#prePage_address").on("click", function(){
-		if(currentPageNum_address <= 1){
-			show_warning('已经是第一页');
-			return;
-		}
-		let pageNum = currentPageNum_address -1;
-		queryAddress(pageNum, 10);
-	})
-
-	$("#nextPage_address").on("click", function(){
-		let pageNum = currentPageNum_address +1;
-		queryAddress(pageNum, 10);
-	})
-}
 function queryCart(){
 	$.ajax({
 		type:"GET",

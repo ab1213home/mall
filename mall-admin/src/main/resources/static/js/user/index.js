@@ -17,7 +17,7 @@ $(document).ready(function(){
 		isAdminUser();
 		queryBirthday();
 	}else{
-		window.location.href = "/user/login.html?url=%2Fuser%2Findex.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/index.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
 	$("#logout").on('click', function(event) {
         logout();

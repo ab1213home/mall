@@ -16,78 +16,6 @@ const url = urlParams.get('url');
 const model = localStorage.getItem('model');
 let oauthArr = [];
 
-document.addEventListener('DOMContentLoaded', function() {
-    const message = urlParams.get('message');
-    if (model!=null && model=='oauth'){
-        const step2 = document.querySelectorAll('.step2');
-        const step1 = document.querySelectorAll('.step1');
-        step1.forEach(element => {
-            element.style.display = 'none';
-        });
-        step2.forEach(element => {
-            element.style.display = 'block';
-        });
-    }else{
-        if (message != null) {
-            show_error(message);
-        }
-        const remember = localStorage.getItem('remember');
-        if (remember == 'true') {
-            $('#username').val(localStorage.getItem('username'));
-            $('#password').val(localStorage.getItem('password'));
-            $('#remember').prop('checked', true);
-        } else {
-            $('#remember').prop('checked', false);
-        }
-        const socialLogin = document.getElementById('socialLogin');
-        const socialLoginDiv = document.getElementById('socialLoginDiv');
-        $.ajax({
-            url: '/oauth/getList',
-            type: 'GET',
-            dataType: 'json',
-            async:false,
-            success: function (res) {
-                if (res.code == 200) {
-                    oauthArr = res.data;
-                    if (oauthArr.length == 0) {
-                        socialLogin.style.display = 'none';
-                        socialLoginDiv.style.display = 'none';
-                    } else {
-                        socialLogin.style.display = 'block';
-                        socialLoginDiv.style.display = 'block';
-                        res.data.forEach(function (item) {
-                            if (item.login != null) {
-                                const div = document.createElement('div');
-                                div.classList.add('d-inline-flex', 'justify-content-center', 'gap-3');
-                                // href="' + login + '"
-                                div.innerHTML =
-                                    `<a id="` + item.name + `"> 
-                                    <img src="` + item.ico + `" alt="` + item.name + `" class="img-fluid" style="width: 30px; height: 30px;">
-                                    </a>`;
-                                socialLogin.appendChild(div);
-                                $('#' + item.name ).click(function() {
-                                   jumpTo(item.login)
-                                });
-                            }
-                        });
-                    }
-                }
-            },
-            fail: function(xhr, status, error) {
-                show_error('获取第三方登录信息失败，请联系管理员！'+error);
-            }
-        });
-    }
-});
-
-document.getElementById('remember').addEventListener('change', function() {
-    if(this.checked) {
-        localStorage.setItem('remember', 'true');
-    } else {
-        localStorage.setItem('remember', 'false');
-    }
-});
-
 /**
  * 跳转到OAuth登录页面
  *
@@ -99,12 +27,10 @@ document.getElementById('remember').addEventListener('change', function() {
 function jumpTo(oauth){
     // 构造初始登录URL，包含客户端IP和指纹信息
     let login = oauth + "?clientIp=" + ip + "&fingerprint=" + fingerprint;
-
     // 如果有重定向URL，则将其添加到登录URL中
     if (url != null) {
         login = login + "&url=" + url;
     }
-
     // 使页面跳转到构造好的登录URL
     window.location.href = login;
 }
@@ -225,12 +151,75 @@ function refreshCaptcha() {
         captchaImg.src = '/common/captcha?' + new Date().getTime(); // 添加时间戳避免缓存
     }
 }
-
+$('#remember').change(function() {
+    localStorage.setItem('remember', this.checked.toString());
+});
 // 绑定表单提交事件
 $(document).ready(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    const $socialLogin = $('#socialLogin');
+    const $socialLoginDiv = $('#socialLoginDiv');
+
+    // OAuth模式处理
+    if (model !== null && model === 'oauth') {
+        $('.step1').hide();
+        $('.step2').show();
+        return; // 提前返回避免执行后续逻辑
+    }
+
+    // 消息提示
+    message && show_error(message);
+
+    // 记住密码功能
+    const remember = localStorage.getItem('remember') == 'true';
+    $('#remember').prop('checked', remember);
+    if (remember) {
+        $('#username').val(localStorage.getItem('username'));
+        $('#password').val(localStorage.getItem('password'));
+    }
+    $.ajax({
+        url: '/oauth/getList',
+        type: 'GET',
+        dataType: 'json',
+        async:false,
+        success: function (res) {
+            if (res.code == 200) {
+                oauthArr = res.data;
+                if (oauthArr.length == 0) {
+                    $socialLogin.style.display = 'none';
+                    $socialLoginDiv.style.display = 'none';
+                } else {
+                    $socialLogin.style.display = 'block';
+                    $socialLoginDiv.style.display = 'block';
+                    res.data.forEach(function (item) {
+                        if (item.login != null) {
+                            const div = document.createElement('div');
+                            div.classList.add('d-inline-flex', 'justify-content-center', 'gap-3');
+                            div.innerHTML =
+                                `<a id="` + item.name + `"> 
+                                   <img src="` + item.ico + `" alt="` + item.name + `" class="img-fluid" style="width: 30px; height: 30px;">
+                                </a>`;
+                            $socialLogin.appendChild(div);
+                            $('#' + item.name ).click(function() {
+                                jumpTo(item.login)
+                            });
+                        }
+                    });
+                }
+            }
+        },
+        fail: function(xhr, status, error) {
+            show_error('获取第三方登录信息失败，请联系管理员！'+error);
+        }
+    });
     $('#step1').on('submit', function(event) {
         event.preventDefault(); // 阻止默认提交行为
         submitLoginForm();
+    });
+    $('#step2').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitTwoVerifyForm(); // 自定义提交处理
     });
 });
 
@@ -299,10 +288,3 @@ function submitTwoVerifyForm() {
         }
     });
 }
-
-$(document).ready(function() {
-    $('#step2').on('submit', function(event) {
-        event.preventDefault(); // 阻止默认提交行为
-        submitTwoVerifyForm(); // 自定义提交处理
-    });
-});

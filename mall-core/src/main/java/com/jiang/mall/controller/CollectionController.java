@@ -91,7 +91,7 @@ public class CollectionController {
                                             HttpSession session){
 		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize, session.getId());
 		if (collections.isEmpty()) {
-			return ResponseResult.okResult(collections,"没有收藏记录");
+			return ResponseResult.notFoundResourceResult("没有收藏记录");
 		}
 		return ResponseResult.okResult(collections);
 	}

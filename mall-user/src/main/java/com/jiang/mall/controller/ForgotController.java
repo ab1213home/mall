@@ -123,6 +123,13 @@ public class ForgotController {
         }
     }
 
+    @PostMapping("/step1/refresh")
+    @Permission(PermissionType.GUEST)
+    public ResponseResult<Object> forgotStep1Refresh(HttpSession session) {
+        //TODO:重发验证码。时间间隔10分钟
+        return ResponseResult.okResult(i18nService.getMessage("email.register.resend"));
+    }
+
     /**
      * 处理用户忘记密码后的第二步操作，包括验证邮箱、验证码、新密码及其确认，并修改密码
      *

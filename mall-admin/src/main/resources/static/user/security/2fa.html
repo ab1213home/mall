@@ -10,16 +10,17 @@
   ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
   ~ See the Mulan PSL v2 for more details.
   -->
+
 <!DOCTYPE html>
 <html lang="zh"> <!--begin::Head-->
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Jiang Mall | 我的订单</title><!--begin::Primary Meta Tags-->
+    <title>Jiang Mall | 双因素认证</title><!--begin::Primary Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="Jiang Mall | 我的订单">
+    <meta name="title" content="Jiang Mall | 双因素认证">
     <meta name="author" content="jiang">
-    <meta name="description" content="Jiang Mall | 我的订单">
+    <meta name="description" content="Jiang Mall | 双因素认证">
     <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
     <link rel="stylesheet" href="/public/source-sans-3-5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link rel="stylesheet" href="/public/overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
@@ -28,46 +29,7 @@
     <link rel="stylesheet" href="/public/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <style>
-        canvas {
-          display: block;
-          vertical-align: bottom;
-        }
-        .password-box {
-          background-color: rgba(255, 255, 255, 0);
-          z-index: 1;
-        }
-        .cartd6{
-            text-align: center;
-            margin-top: 10px;
-        }
-        .price-tag::before {
-				content: "￥"; /* 添加货币符号 */
-        }
-        .num-tag::before {
-				content: "x";
-        }
-        .glid1{
-            position: relative;
-            width: 210px;
-            height: 340px;
-            text-decoration: none; /* 取消下划线 */
-            color: inherit; /* 继承父元素的颜色 */
-        }
-        .spinner-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            overflow: hidden; /* 防止内容溢出 */
-        }
-
-        .spinner-border {
-            width: 5rem; /* 调整大小 */
-            height: 5rem; /* 调整大小 */
-        }
-    </style>
+    <link rel="shortcut icon" href="/favicon.ico"/>
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -234,13 +196,14 @@
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row">
                         <div class="col-sm-6">
-                            <h3 class="mb-0">我的订单</h3>
+                            <h3 class="mb-0">双因素认证</h3>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-end">
                                 <li class="breadcrumb-item"><a href="/user/index.html">个人中心</a></li>
+                                <li class="breadcrumb-item"><a href="#">账号与安全</a></li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    我的订单
+                                    双因素认证
                                 </li>
                             </ol>
                         </div>
@@ -250,32 +213,48 @@
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row"> <!--begin::Col-->
-                        <div class="card col-12 mx-auto my-auto">
-                            <div class="card-body login-card-body">
-                                <table class="table table-hover" id="orderTable">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="text-center">ID</th>
-                                            <th scope="col" class="text-center">地址信息</th>
-                                            <th scope="col" class="text-center">日期</th>
-                                            <th scope="col" class="text-center">总金额</th>
-                                            <th scope="col" class="text-center">状态</th>
-                                            <th scope="col" class="text-center">支付信息</th>
-                                            <th scope="col" class="text-center">订单详情</th>
-                                            <th scope="col" class="text-center">操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                                <div id="pagination" class="mt-4">
-                                    <nav aria-label="Page navigation example">
-                                        <ul class="pagination justify-content-center" id="pagination-ul">
-                                        </ul>
-                                    </nav>
+                        <div class="info-box">
+                            <p>双因素认证（Two-Factor Authentication，缩写 2FA）是一种安全的登录验证技术。要求用户登录时除密码外，需要额外的身份验证信息从而提升帐号的安全性。</p>
+                        </div>
+                        <h2>双因素认证方式</h2>
+                        <div class="method-box">
+                            <div class="method-item">
+                                <i class="bi bi-person-lock"></i>
+                                <div>
+                                    <h3>TOTP 身份验证应用</h3>
+                                    <p>TOTP 身份验证 APP (Authenticator App)</p>
+                                    <button class="add-btn" id="add-btn">添加</button>
+                                    <button class="edit-btn" id="edit-btn" style="display: none;">编辑</button>
+                                    <button class="remove-btn" id="remove-btn" style="display: none;">移除</button>
+                                    <div class="qrcode-box" id="qrcode-box" style="display: none;">
+                                        <p>你可使用第三方 TOTP 身份验证应用扫描下方二维码。扫描成功后会生成一次性密码（口令），该密码（口令）可在登录时作为身份验证的第二要素。</p>
+                                        <p>常见的 TOTP 身份验证应用有: 1Password、Authy、Microsoft Authenticator 等</p>
+                                        <p>请使用 TOTP 身份验证应用扫描下方二维码:</p>
+                                        <img src="" alt="QR Code" id="qr-code">
+                                        <form id="totp-form">
+                                            <label for="totp-input">一次性密码（口令）验证</label>
+                                            <input type="number" id="totp-input" placeholder="请输入从 TOTP 应用获得的 6 位数字进行验证">
+                                            <button type="submit" class="save-btn" id="save-btn">保存</button>
+                                            <button type="button" class="cancel-btn" id="cancel-btn">取消</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div> <!--end::Row--> <!--begin::Row-->
+                    <div class="row">
+                        <h2>恢复代码</h2>
+                        <div class="recovery-box">
+                            <div class="recovery-item">
+                                <i class="bi bi-printer"></i>
+                                <div>
+                                    <h3>TOTP 恢复代码</h3>
+                                    <p>如果你无法访问你的设备并且无法接收双因素身份验证码，则可以使用恢复代码来访问你的账户。</p>
+                                    <button class="browse-btn">浏览</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div> <!--end::Container-->
             </div> <!--end::App Content-->
         </main> <!--end::App Main--> <!--begin::Footer-->
@@ -326,7 +305,7 @@
     <script src="/js/user/index_top.js"></script>
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
-    <script src="/js/user/orders.js"></script>
+    <script src="/js/user/2fa.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

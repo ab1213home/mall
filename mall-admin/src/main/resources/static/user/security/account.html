@@ -10,16 +10,17 @@
   ~ NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
   ~ See the Mulan PSL v2 for more details.
   -->
+
 <!DOCTYPE html>
 <html lang="zh"> <!--begin::Head-->
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Jiang Mall | 我的订单</title><!--begin::Primary Meta Tags-->
+    <title>Jiang Mall | 帐号管理</title><!--begin::Primary Meta Tags-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="Jiang Mall | 我的订单">
+    <meta name="title" content="Jiang Mall | 帐号管理">
     <meta name="author" content="jiang">
-    <meta name="description" content="Jiang Mall | 我的订单">
+    <meta name="description" content="Jiang Mall | 帐号管理">
     <meta name="keywords" content="bootstrap 5, bootstrap, bootstrap 5 admin dashboard, bootstrap 5 dashboard, bootstrap 5 charts, bootstrap 5 calendar, bootstrap 5 datepicker, bootstrap 5 tables, bootstrap 5 datatable, vanilla js datatable, colorlibhq, colorlibhq dashboard, colorlibhq admin dashboard"><!--end::Primary Meta Tags--><!--begin::Fonts-->
     <link rel="stylesheet" href="/public/source-sans-3-5.1.0/index.css"><!--end::Fonts--><!--begin::Third Party Plugin(OverlayScrollbars)-->
     <link rel="stylesheet" href="/public/overlayscrollbars-2.10.0-dist/styles/overlayscrollbars.min.css"><!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Third Party Plugin(Bootstrap Icons)-->
@@ -28,46 +29,7 @@
     <link rel="stylesheet" href="/public/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <style>
-        canvas {
-          display: block;
-          vertical-align: bottom;
-        }
-        .password-box {
-          background-color: rgba(255, 255, 255, 0);
-          z-index: 1;
-        }
-        .cartd6{
-            text-align: center;
-            margin-top: 10px;
-        }
-        .price-tag::before {
-				content: "￥"; /* 添加货币符号 */
-        }
-        .num-tag::before {
-				content: "x";
-        }
-        .glid1{
-            position: relative;
-            width: 210px;
-            height: 340px;
-            text-decoration: none; /* 取消下划线 */
-            color: inherit; /* 继承父元素的颜色 */
-        }
-        .spinner-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            overflow: hidden; /* 防止内容溢出 */
-        }
-
-        .spinner-border {
-            width: 5rem; /* 调整大小 */
-            height: 5rem; /* 调整大小 */
-        }
-    </style>
+    <link rel="shortcut icon" href="/favicon.ico"/>
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -234,13 +196,14 @@
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row">
                         <div class="col-sm-6">
-                            <h3 class="mb-0">我的订单</h3>
+                            <h3 class="mb-0">帐号管理</h3>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-end">
                                 <li class="breadcrumb-item"><a href="/user/index.html">个人中心</a></li>
+                                <li class="breadcrumb-item"><a href="#">账号与安全</a></li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    我的订单
+                                    帐号管理
                                 </li>
                             </ol>
                         </div>
@@ -250,30 +213,47 @@
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row"> <!--begin::Col-->
-                        <div class="card col-12 mx-auto my-auto">
-                            <div class="card-body login-card-body">
-                                <table class="table table-hover" id="orderTable">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col" class="text-center">ID</th>
-                                            <th scope="col" class="text-center">地址信息</th>
-                                            <th scope="col" class="text-center">日期</th>
-                                            <th scope="col" class="text-center">总金额</th>
-                                            <th scope="col" class="text-center">状态</th>
-                                            <th scope="col" class="text-center">支付信息</th>
-                                            <th scope="col" class="text-center">订单详情</th>
-                                            <th scope="col" class="text-center">操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                                <div id="pagination" class="mt-4">
-                                    <nav aria-label="Page navigation example">
-                                        <ul class="pagination justify-content-center" id="pagination-ul">
-                                        </ul>
-                                    </nav>
-                                </div>
-                            </div>
+                        <h2>登录账号</h2>
+                        <!-- 登录邮箱 -->
+                        <div class="email-section">
+                            <label for="email">登录邮箱</label>
+                            <div id="email" class="form-control"></div>
+                            <button class="change-email">更换邮箱</button>
+                        </div>
+                        <!-- 登录密码 -->
+                        <div class="password-section">
+                            <label for="password">登录密码</label>
+                            <div id="password" class="form-control">*******</div>
+                            <button class="change-password">修改密码</button>
+                        </div>
+                    </div> <!--end::Row--> <!--begin::Row-->
+                    <div class="row"> <!--begin::Col-->
+                        <h2>第三方帐号绑定</h2>
+                        <p>使用以下任一方式都可以登录到您的 Jiang Mall 帐号，避免由于某个帐号失效导致无法登录</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>绑定帐号信息</th>
+                                    <th>详情</th>
+                                    <th>绑定时间</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+<!--                                <tr>-->
+<!--                                    <td>1</td>-->
+<!--                                    <td>QQ</td>-->
+<!--                                    <td>小军迷</td>-->
+<!--                                    <td>2021-10-01 11:32</td>-->
+<!--                                    <td><span class="status active">使用中</span></td>-->
+<!--                                    <td><button class="unbind">解除绑定</button></td>-->
+<!--                                </tr>-->
+                            </tbody>
+                        </table>
+                        <p>你还可以绑定以下第三方帐号</p>
+                        <div class="third-party-accounts" id="third-party-accounts">
                         </div>
                     </div> <!--end::Row--> <!--begin::Row-->
                 </div> <!--end::Container-->
@@ -326,7 +306,7 @@
     <script src="/js/user/index_top.js"></script>
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
-    <script src="/js/user/orders.js"></script>
+    <script src="/js/user/account.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

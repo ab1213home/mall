@@ -58,7 +58,7 @@ public class AdministrativeDivisionController {
 		if (level == null || parentCode == null){
 			return ResponseResult.failResult("参数错误");
 		}
-		if (administrativeDivisionService.isTure(parentCode)){
+		if (parentCode != 0 && administrativeDivisionService.isTure(parentCode)){
 			return ResponseResult.failResult("地区代码不正确");
 		}
 		if (!StringUtils.hasText(parentCode.toString())){

@@ -16,18 +16,15 @@ $(document).ready(function(){
 	if (res){
 		isAdminUser();
 	}else{
-		window.location.href = "/user/login.html?url=%2Fuser%2Fmodify%2Flock.html&message=%E6%82%A8%E6%9C%AA%E7%99%BB%E5%BD%95%EF%BC%8C%E8%AF%B7%E5%85%88%E7%99%BB%E5%BD%95";
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/lock.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
-})
-
-document.addEventListener('DOMContentLoaded', function() {
-    const lockButton = document.getElementById('button_lock');
-
-    lockButton.addEventListener('click', function(e) {
-        e.preventDefault(); // 阻止默认行为
+	$("#logout").on('click', function(event) {
+        logout();
+    });
+    $("#button_lock").on('click', function(event) {
         lock_user();
     });
-});
+})
 
 function lock_user() {
     $.ajax({

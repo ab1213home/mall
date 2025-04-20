@@ -11,30 +11,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-document.addEventListener('DOMContentLoaded', function () {
-  const birthdayInput = document.getElementById('birthday');
-  const today = new Date();
-  const maxDate = today.toISOString().split('T')[0];
-  // 设置 max 属性
-  birthdayInput.setAttribute('max', maxDate);
-
-  // 验证日期是否在未来
-  function validateBirthday() {
-    const selectedDate = new Date(birthdayInput.value);
-    if (selectedDate > today) {
-      show_warning('生日不能在未来，请输入正确的日期');
-      return false;
-    }
-    return true;
-  }
-  // 在表单提交时进行验证
-  const form = document.getElementById("step3");
-  form.addEventListener('submit', function (event) {
-    if (!validateBirthday()) {
-      event.preventDefault(); // 阻止表单提交
-    }
-  });
-});
 let imagesArr = [];
 getFaceTemplateList();
 function submitRegisterStepOneForm() {
@@ -53,7 +29,6 @@ function submitRegisterStepOneForm() {
         captcha: captcha,
         username: username,
         password: sha256(password),
-        // confirmPassword: sha256(confirmPassword),
     };
     $.ajax({
         url: '/user/register/step1',
@@ -79,25 +54,60 @@ function submitRegisterStepOneForm() {
                 startIntervalTimer(600);
             } else {
                 show_error('发送验证码失败:'+res.message);
-                let captchaImg = document.getElementById('captchaImg');
-                captchaImg.src = '/common/captcha';
+                refreshCaptcha();
             }
         },
         fail: function(xhr, status, error) {
             // 显示错误信息给用户
             show_error('发送验证码失败，请联系管理员！'+error);
-            let captchaImg = document.getElementById('captchaImg');
-            captchaImg.src = '/common/captcha';
+            refreshCaptcha();
         }
     })
 }
-
+function refreshCaptcha() {
+    const captchaImg = document.getElementById('captchaImg');
+    if (captchaImg) {
+        captchaImg.src = '/common/captcha?' + new Date().getTime(); // 添加时间戳避免缓存
+    }
+}
 // 绑定表单提交事件
 $(document).ready(function() {
-  $('#step1').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitRegisterStepOneForm(); // 自定义提交处理
-  });
+    const $birthday = $('#birthday').attr('max', getToday());
+
+    function getToday() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    const validateBirthday = () => {
+        $birthday.removeClass('is-invalid');
+        const selectedDate = new Date($birthday.val());
+
+        if (selectedDate > new Date()) {
+            show_warning('生日不能在未来，请输入正确的日期');
+            $birthday.addClass('is-invalid').focus();
+            return false;
+        }
+        return true;
+    };
+
+    $('#step1').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitRegisterStepOneForm(); // 自定义提交处理
+    });
+    $('#step2').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitRegisterStepTowForm(); // 自定义提交处理
+    });
+    $('#step4').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        if (validateBirthday()) {
+            submitRegisterStepThreeForm(); // 自定义提交处理
+        }
+    });
+    $('#step3').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitRegisterStepThreeForm(); // 自定义提交处理
+    });
 });
 
 function startIntervalTimer(duration) {
@@ -208,13 +218,6 @@ function submitRegisterStepTowForm() {
   });
 }
 
-// 绑定表单提交事件
-$(document).ready(function() {
-  $('#step2').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitRegisterStepTowForm(); // 自定义提交处理
-  });
-});
 function submitRegisterStepFourForm() {
     // 获取表单数据
     const phone = $('#phone').val();
@@ -251,13 +254,7 @@ function submitRegisterStepFourForm() {
     }
   });
 }
-// 绑定表单提交事件
-$(document).ready(function() {
-  $('#step4').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitRegisterStepFourForm(); // 自定义提交处理
-  });
-});
+
 function submitRegisterStepThreeForm() {
   const step4 = document.querySelectorAll('.step4');
   const step3 = document.querySelectorAll('.step3');
@@ -268,11 +265,3 @@ function submitRegisterStepThreeForm() {
       element.style.display = 'block';
   });
 }
-
-// 绑定表单提交事件
-$(document).ready(function() {
-  $('#step3').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitRegisterStepThreeForm(); // 自定义提交处理
-  });
-});

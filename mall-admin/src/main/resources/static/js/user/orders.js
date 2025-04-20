@@ -87,15 +87,24 @@ function queryOrders(pn, pz) {
 							</a>
 						`;
 					}
-					if (order.status == -1){
+					if (order.status <= 0){
 						row=row+`
 						</td>
 							<td>
-								<button type="button" class="btn btn-sm btn-primary" onclick="" disabled>取消订单</button>
+								<button type="button" class="btn btn-sm btn-primary" disabled>取消订单</button>
 							</td>
 						</tr>
-						`;//TODO:去支付
-					}else if (order.status < 3){
+						`;
+					}else if (order.status == 1){
+						row=row+`
+						</td>
+							<td>
+								<button type="button" class="btn btn-sm btn-success" onclick="">去支付</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">取消订单</button>
+							</td>
+						</tr>
+						`;
+					}else if (order.status == 2){
 						row=row+`
 						</td>
 							<td>
@@ -112,17 +121,15 @@ function queryOrders(pn, pz) {
 						</tr>
 						`;
 					}else if (order.status == 4){
-						//评价
 						row=row+`
 						</td>
 							<td>
-								<button type="button" class="btn btn-sm btn-primary" onclick="">评价</button>
-								<button type="button" class="btn btn-sm btn-primary" onclick="">退货</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">去评价</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="">去退货</button>
 							</td>
 						</tr>
 						`;
 					}else if (order.status == 5){
-						//再来一单
 						row=row+`
 						</td>
 							<td>
@@ -133,20 +140,6 @@ function queryOrders(pn, pz) {
 					}
                     $('#orderTable tbody').append(row);
                 });
-                currentPageNum_order = pn;
-                if (currentPageNum_order == 1) {
-                    $("#prePage").prop("disabled", true);
-                } else {
-                    $("#prePage").prop("disabled", false);
-                }
-                if (num_order - currentPageNum_order * pz < 0) {
-                    $("#nextPage").prop("disabled", true);
-                } else {
-                    $("#nextPage").prop("disabled", false);
-                }
-				if (num_order == 0){
-					 $("#nextPage").prop("disabled", true);
-				}
             }else if (response.code == 404){
 				const row =
 					`
@@ -155,14 +148,61 @@ function queryOrders(pn, pz) {
 					</tr>
 					`;
 				$('#orderTable tbody').append(row);
-				$("#prePage").prop("disabled", false);
-				$("#nextPage").prop("disabled", false);
 			}
+			generatePagination(num_order, pn, pz);
 			closeLoadingModal();
         }
     });
 }
+function generatePagination(totalCount, pn, pageSize) {
+    const totalPages = Math.ceil(totalCount / pageSize); // 计算总页数
 
+    if (totalPages === 0) return; // 如果没有数据，则不生成分页
+    const pagination = $('#pagination-ul');
+    pagination.empty(); // 清空之前的分页内容
+
+    let paginationHTML = '';
+
+    // 添加“上一页”按钮
+    paginationHTML += `<li class="page-item ${pn === 1 ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                         </a>
+                       </li>`;
+
+    // 添加页码按钮
+    for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<li class="page-item ${i === pn ? 'active' : ''}">
+                             <a class="page-link" href="#">${i}</a>
+                           </li>`;
+    }
+
+    // 添加“下一页”按钮
+    paginationHTML += `<li class="page-item ${pn === totalPages ? 'disabled' : ''}">
+                         <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                         </a>
+                       </li>`;
+
+    pagination.html(paginationHTML); // 使用jQuery设置HTML内容
+
+    // 绑定点击事件
+    $('.page-link').click(function(e) {
+        e.preventDefault(); // 阻止默认行为
+        const pageText = $(this).text().trim(); // 获取点击的页码或符号
+
+        if (pageText === '&laquo;' && pn > 1) {
+            queryOrders(pn - 1, pageSize);
+        } else if (pageText === '&raquo;' && pn < totalPages) {
+            queryOrders(pn + 1, pageSize);
+        } else if (!isNaN(pageText)) {
+            const pageNumber = parseInt(pageText, 10);
+            if (pageNumber >= 1 && pageNumber <= totalPages) {
+                queryOrders(pageNumber, pageSize);
+            }
+        }
+    });
+}
 function getOrdersNum() {
 	$.ajax({
 		type:"GET",
@@ -178,25 +218,15 @@ function getOrdersNum() {
 }
 
 $(document).ready(function() {
-    isAdminUser();
-	queryMyUserInfo();
-	getOrdersNum();
-	queryOrders(currentPageNum_order, 5);
-	bindPreNextPage();
+    let res = queryMyUserInfo();
+	if (res){
+        isAdminUser();
+        getOrdersNum();
+	    queryOrders(1, 5);
+	}else{
+        window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/orders.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+	}
+    $("#logout").on('click', function(event) {
+        logout();
+    });
 });
-
-function bindPreNextPage(){
-	$("#prePage").on("click", function(){
-		if(currentPageNum_order <= 1){
-			show_warning("已经是第一页")
-			return;
-		}
-		let pageNum = currentPageNum_order -1;
-		queryOrders(pageNum, 5);
-	})
-
-	$("#nextPage").on("click", function(){
-		let pageNum = currentPageNum_order +1;
-		queryOrders(pageNum, 5);
-	})
-}

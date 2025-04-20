@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) 2024 Jiang RongJun
+ * Jiang Mall is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan
+ * PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+ * KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+ * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
+$(document).ready(function(){
+	let res = queryMyUserInfo();
+	if (res){
+		isAdminUser();
+	}else{
+		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/profile.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+	}
+	$("#logout").on('click', function(event) {
+        logout();
+    });
+	const $birthday = $('#birthday').attr('max', getToday());
+
+    function getToday() {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    const validateBirthday = () => {
+        $birthday.removeClass('is-invalid');
+        const selectedDate = new Date($birthday.val());
+
+        if (selectedDate > new Date()) {
+            show_warning('生日不能在未来，请输入正确的日期');
+            $birthday.addClass('is-invalid').focus();
+            return false;
+        }
+        return true;
+    };
+
+  	$('#change-info').on('submit', function(event) {
+    	event.preventDefault(); // 阻止默认提交行为
+		if (validateBirthday()) {
+            changeInfo(); // 自定义提交处理
+        }
+  	});
+})
+
+// 修改用户信息处理函数
+function changeInfo() {
+  	const phone = $('#phone').val();
+  	const firstName = $('#firstName').val();
+  	const lastName = $('#lastName').val();
+  	const birthday = $('#birthday').val();
+
+  	// 构建请求体
+  	const data = {
+    	phone: phone,
+    	firstName: firstName,
+    	lastName: lastName,
+    	birthday: birthday,
+  	};
+
+  	// 发送 AJAX 请求
+  	$.ajax({
+    	url: '/user/modify/info',
+    	type: 'POST',
+    	data: data,
+    	dataType:"json",
+    	success: function (data) {
+      		if (data.code === 200) {
+        		show_success('用户信息已成功更新！');
+				window.location.href = '/user/index.html';
+      		} else {
+        		show_error('用户信息更新失败：'+data.message);
+      		}
+		},
+    	fail: function(xhr, status, error) {
+      		show_error('用户信息更新失败，请联系管理员！' + error);
+    	}
+  	});
+}
+

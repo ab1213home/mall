@@ -45,17 +45,47 @@ function submitForgotStepOneForm() {
                 startIntervalTimer(600);
             } else {
                 show_error('发送验证码失败:'+res.message);
-                let captchaImg = document.getElementById('captchaImg');
-                captchaImg.src = '/common/captcha';
+                refreshCaptcha()
             }
         },
         fail: function(xhr, status, error) {
         // 显示错误信息给用户
         show_error('发送验证码失败:'+error);
-        let captchaImg = document.getElementById('captchaImg');
-        captchaImg.src = '/common/captcha';
+        refreshCaptcha()
         }
     });
+}
+function refreshCaptcha() {
+    const captchaImg = document.getElementById('captchaImg');
+    if (captchaImg) {
+        captchaImg.src = '/common/captcha?' + new Date().getTime(); // 添加时间戳避免缓存
+    }
+}
+
+function submitForgotStepOneRefresh() {
+    $.ajax({
+        url: '/user/forgot/step1/refresh',
+        type: 'POST',
+        success: function (res) {
+            const step2 = document.querySelectorAll('.step2');
+            const step1 = document.querySelectorAll('.step1');
+            // 处理成功响应
+            if (res.code == 200) {
+                // 处理成功响应
+                startIntervalTimer(600);
+            } else {
+                show_error('验证码请求失败');
+                step1.forEach(element => {
+                    element.style.display = 'block';
+                });
+                step2.forEach(element => {
+                    element.style.display = 'none';
+                });
+                refreshCaptcha()
+            }
+        },
+        fail:function(xhr, status, error) {}
+    })
 }
 
 // 绑定表单提交事件
@@ -64,6 +94,13 @@ $(document).ready(function() {
         event.preventDefault(); // 阻止默认提交行为
         submitForgotStepOneForm(); // 自定义提交处理
     });
+    $('#step2').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitForgotStepTwoForm(); // 自定义提交处理
+    });
+    $('#sendmail').onclick = function (event) {
+        submitForgotStepOneRefresh();
+    }
 });
 
 function startIntervalTimer(duration) {
@@ -127,11 +164,3 @@ function submitForgotStepTwoForm() {
         }
     });
 }
-
-// 绑定表单提交事件
-$(document).ready(function() {
-  $('#step2').on('submit', function(event) {
-    event.preventDefault(); // 阻止默认提交行为
-    submitForgotStepTwoForm(); // 自定义提交处理
-  });
-});

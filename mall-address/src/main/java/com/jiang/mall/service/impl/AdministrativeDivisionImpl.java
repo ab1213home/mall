@@ -66,7 +66,7 @@ public class AdministrativeDivisionImpl extends ServiceImpl<AdministrativeDivisi
 	 */
 	@Override
 	@Transactional
-	public Boolean isTure(Long areaCode) {
+	public boolean isTure(Long areaCode) {
 	    return administrativeDivisionMapper.countByAreaCode(areaCode) == 0;
 	}
 
