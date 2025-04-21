@@ -14,7 +14,7 @@
 let category_arr = [];
 let goodsMap = {};
 $(document).ready(function(){
-    let flag=isLogin();
+    let flag=checkLoginStatus();
 	getFooterInfo();
 	if (flag){
 		getCartNum();

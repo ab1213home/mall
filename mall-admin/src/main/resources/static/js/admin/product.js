@@ -17,7 +17,7 @@ let num_product = 0;
 let categoryArr = [];
 
 $(document).ready(function(){
-	let res = queryMyUserInfo();
+	let res = getLoginStatusAndUserInfo();
 	if (res){
 		isAdminUser();
 	}else{

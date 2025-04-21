@@ -11,21 +11,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-// 获取完整 URL
-	const fullUrl = window.location.href;
-	console.log("完整 URL:", fullUrl);
+// 创建一个URL对象，基于当前页面的URL
+const url = new URL(window.location.href);
 
-	// 获取 URL 的各个部分
-	const protocol = window.location.protocol;
-	const hostname = window.location.hostname;
-	const port = window.location.port;
-	const pathname = window.location.pathname;
-	const search = window.location.search;
-	const hash = window.location.hash;
+// 访问不同的URL部分
+console.log("Href (完整的URL):", url.href);
+console.log("Protocol (协议):", url.protocol); // 例如: "https:"
+console.log("Hostname (主机名):", url.hostname); // 例如: "example.com"
+console.log("Port (端口):", url.port); // 如果没有指定端口，则可能是空字符串 ""
+console.log("Pathname (路径):", url.pathname); // 例如: "/path/to/resource"
+console.log("Search (查询参数):", url.search); // 包括 '?' 在内的查询字符串, 例如 "?key=value"
+console.log("Hash (哈希/片段标识符):", url.hash); // 包括 '#' 在内的哈希值, 例如 "#section1"
 
-	console.log("协议:", protocol);
-	console.log("主机名:", hostname);
-	console.log("端口:", port);
-	console.log("路径名:", pathname);
-	console.log("查询字符串:", search);
-	console.log("锚点:", hash);
+// 如果需要单独处理查询参数，可以使用 URLSearchParams
+const params = new URLSearchParams(url.search);
+for (let param of params.entries()) {
+    console.log(param[0], param[1]); // 输出每个键值对
+}

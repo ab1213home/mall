@@ -30,6 +30,124 @@
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
+    <style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    h2 {
+        color: #333;
+    }
+
+    p {
+        margin: 10px 0;
+    }
+
+    #qr-code {
+        width: 200px;
+        height: 200px;
+        margin: 20px 0;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input[type="text"] {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .save-btn {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    .cancel-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .edit-btn,
+    .remove-btn {
+        background-color: #e0e0e0;
+        color: #333;
+        margin-top: 20px;
+    }
+    .info-box {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .method-box,
+    .recovery-box {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .method-item,
+    .recovery-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .method-item img,
+    .recovery-item img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .method-item div,
+    .recovery-item div {
+        flex: 1;
+    }
+
+    .edit-btn,
+    .remove-btn,
+    .browse-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .edit-btn {
+        background-color: orange;
+        color: white;
+    }
+
+    .remove-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .browse-btn {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+  </style>
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -151,12 +269,19 @@
                                 <i class="nav-icon bi bi-megaphone"></i>
                                 <p>通知消息</p>
                             </a> </li>
-                        <li class="nav-header text-center admin" style="display: none;">管理控制台</li>
-                        <!-- 管理控制台 -->
+                        <li class="nav-header text-center admin seller" style="display: none;">管理控制台</li>
+                        <!-- 店铺管理 -->
+                        <li class="nav-item seller" style="display: none;">
+                            <a href="/shop/index.html" class="nav-link">
+                                <i class="nav-icon bi bi-shop"></i>
+                                <p>商家中心</p>
+                            </a>
+                        </li>
+                        <!-- 管理中心 -->
                         <li class="nav-item admin" style="display: none;">
                             <a href="/admin/index.html" class="nav-link">
                                 <i class="nav-icon bi bi-gear"></i>
-                                <p>管理控制台</p>
+                                <p>管理中心</p>
                             </a>
                         </li>
                         <li class="nav-header text-center">关于商城</li>
@@ -212,7 +337,7 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
-                    <div class="row"> <!--begin::Col-->
+                    <div class="row container"> <!--begin::Col-->
                         <div class="info-box">
                             <p>双因素认证（Two-Factor Authentication，缩写 2FA）是一种安全的登录验证技术。要求用户登录时除密码外，需要额外的身份验证信息从而提升帐号的安全性。</p>
                         </div>
@@ -306,6 +431,26 @@
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/user/2fa.js"></script>
+    <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
+    <script type="application/javascript">
+        let fingerprint = "";
+        let ip = "127.0.0.1";
+        function getIP(json) {
+            ip = json.ip;
+        }
+        async function getFingerprint() {
+            // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+            const fpPromise = await FingerprintJS.load();
+            // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+            const result = await fpPromise.get();
+            // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+            return result.visitorId
+        }
+        (async () => {
+            fingerprint=await getFingerprint();
+        })();
+    </script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

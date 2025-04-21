@@ -12,7 +12,7 @@
  */
 
 $(document).ready(function() {
-    isLogin();
+    checkLoginStatus();
 	getFooterInfo();
     queryGitInfo();
     $('#search_btn').click(function(){

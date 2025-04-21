@@ -13,7 +13,7 @@
 
 $(document).ready(function(){
 	isAdminUser();
-	queryMyUserInfo()
+	getLoginStatusAndUserInfo()
 })
 document.addEventListener('DOMContentLoaded', function() {
     var editButton = document.getElementById('edit');

@@ -48,11 +48,6 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <dependency>
-			<groupId>com.jiang</groupId>
-			<artifactId>mall-email</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>com.jiang</groupId>
 			<artifactId>mall-common</artifactId>

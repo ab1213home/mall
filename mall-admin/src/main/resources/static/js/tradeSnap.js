@@ -15,7 +15,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get('id');
 
 $(document).ready(function(){
-	let flag=isLogin();
+	let flag=checkLoginStatus();
 	getFooterInfo();
 	if (flag){
 		getCartNum();

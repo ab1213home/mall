@@ -110,28 +110,6 @@ $(document).ready(function() {
     });
 });
 
-function startIntervalTimer(duration) {
-    let timer = duration, minutes, seconds;
-    const interval = setInterval(function () {
-
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        document.querySelector('#sendmail').disabled = true;
-        document.querySelector('#sendmail').textContent = minutes + ":" + seconds;
-
-        if (--timer < 0) {
-            clearInterval(interval);
-            document.querySelector('#sendmail').disabled = false;
-            document.querySelector('#sendmail').textContent = "重新发送";
-            // 这里可以添加倒计时结束后需要执行的代码
-        }
-    }, 1000);
-}
-
 function getRandomImages(images, n) {
     let shuffled = images.slice(0); // 复制数组
     for (let i = shuffled.length - 1; i > 0; i--) {

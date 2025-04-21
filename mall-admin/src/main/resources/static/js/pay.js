@@ -34,7 +34,7 @@ function queryInfo() {
 }
 
 $(document).ready(function(){
-	let flag =isLogin();
+	let flag =checkLoginStatus();
 	getFooterInfo();
 	getPayment();
 	if (flag){

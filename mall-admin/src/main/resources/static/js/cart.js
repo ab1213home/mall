@@ -17,7 +17,7 @@ let num_cart = 0;
 
 $(document).ready(function(){
     // 检查登录状态
-    let res = isLogin();
+    let res = checkLoginStatus();
     getFooterInfo();
 
     if (res) {

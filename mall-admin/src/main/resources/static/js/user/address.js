@@ -14,7 +14,7 @@ let addressObj = {};
 let num_address = 0;
 
 $(document).ready(function(){
-    let res = queryMyUserInfo();
+    let res = getLoginStatusAndUserInfo();
 	if (res){
         isAdminUser();
         getAddressNum();

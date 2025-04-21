@@ -70,6 +70,16 @@ public class UserVo {
     private Date birthDate;
 
     /**
+     * 是否拥有管理员角色
+     */
+    private boolean isAdmin;
+
+    /**
+     * 是否拥有商家角色
+     */
+    private boolean isSeller;
+
+    /**
      * 默认构造方法
      */
     public UserVo() {

@@ -30,6 +30,16 @@
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
+    <style>
+    canvas {
+      display: block;
+      vertical-align: bottom;
+    }
+    .password-box {
+      background-color: rgba(255, 255, 255, 0);
+      z-index: 1;
+    }
+  </style>
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -151,12 +161,19 @@
                                 <i class="nav-icon bi bi-megaphone"></i>
                                 <p>通知消息</p>
                             </a> </li>
-                        <li class="nav-header text-center admin" style="display: none;">管理控制台</li>
-                        <!-- 管理控制台 -->
+                        <li class="nav-header text-center admin seller" style="display: none;">管理控制台</li>
+                        <!-- 店铺管理 -->
+                        <li class="nav-item seller" style="display: none;">
+                            <a href="/shop/index.html" class="nav-link">
+                                <i class="nav-icon bi bi-shop"></i>
+                                <p>商家中心</p>
+                            </a>
+                        </li>
+                        <!-- 管理中心 -->
                         <li class="nav-item admin" style="display: none;">
                             <a href="/admin/index.html" class="nav-link">
                                 <i class="nav-icon bi bi-gear"></i>
-                                <p>管理控制台</p>
+                                <p>管理中心</p>
                             </a>
                         </li>
                         <li class="nav-header text-center">关于商城</li>
@@ -212,16 +229,22 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
+                    <div class="row"><!--end::Col-->
+                    <p>本页面展示当前帐号最近登录的50条历史记录，一个自然日内相同IP视为一条记录</p>
+                    </div>
                     <div class="row"> <!--begin::Col-->
-                        <div class="col-lg-12">
-                            <p id="welcome"></p>
-                        </div>
-                        <div class="col-lg-12">
-                            <p id="randomText"></p>
-                        </div>
-                        <div class="col-lg-12">
-                            <p id="birthday"></p>
-                        </div>
+                        <table class="table table-hover" id="historyTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="text-center">序号</th>
+                                    <th scope="col" class="text-center">IP</th>
+                                    <th scope="col" class="text-center">登录帐号</th>
+                                    <th scope="col" class="text-center">浏览器指纹</th>
+                                    <th scope="col" class="text-center">类型</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div> <!--end::Row--> <!--begin::Row-->
                 </div> <!--end::Container-->
             </div> <!--end::App Content-->

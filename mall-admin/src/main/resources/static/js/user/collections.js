@@ -127,7 +127,7 @@ function getCollectionNum() {
 }
 
 $(document).ready(function() {
-    let res = queryMyUserInfo();
+    let res = getLoginStatusAndUserInfo();
 	if (res){
         isAdminUser();
         getCollectionNum();

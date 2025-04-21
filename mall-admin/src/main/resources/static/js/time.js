@@ -21,12 +21,13 @@ function startIntervalTimer(duration) {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        document.querySelector('#time').textContent = minutes + ":" + seconds;
+        document.querySelector('#sendmail').disabled = true;
+        document.querySelector('#sendmail').textContent = minutes + ":" + seconds;
 
         if (--timer < 0) {
-
             clearInterval(interval);
-            alert("时间到！");
+            document.querySelector('#sendmail').disabled = false;
+            document.querySelector('#sendmail').textContent = "重新发送";
             // 这里可以添加倒计时结束后需要执行的代码
         }
     }, 1000);

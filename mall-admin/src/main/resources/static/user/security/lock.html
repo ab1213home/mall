@@ -30,6 +30,16 @@
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
+    <style>
+    canvas {
+      display: block;
+      vertical-align: bottom;
+    }
+    .password-box {
+      background-color: rgba(255, 255, 255, 0);
+      z-index: 1;
+    }
+  </style>
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -151,12 +161,19 @@
                                 <i class="nav-icon bi bi-megaphone"></i>
                                 <p>通知消息</p>
                             </a> </li>
-                        <li class="nav-header text-center admin" style="display: none;">管理控制台</li>
-                        <!-- 管理控制台 -->
+                       <li class="nav-header text-center admin seller" style="display: none;">管理控制台</li>
+                        <!-- 店铺管理 -->
+                        <li class="nav-item seller" style="display: none;">
+                            <a href="/shop/index.html" class="nav-link">
+                                <i class="nav-icon bi bi-shop"></i>
+                                <p>商家中心</p>
+                            </a>
+                        </li>
+                        <!-- 管理中心 -->
                         <li class="nav-item admin" style="display: none;">
                             <a href="/admin/index.html" class="nav-link">
                                 <i class="nav-icon bi bi-gear"></i>
-                                <p>管理控制台</p>
+                                <p>管理中心</p>
                             </a>
                         </li>
                         <li class="nav-header text-center">关于商城</li>
@@ -224,10 +241,10 @@
                                                     <span class="text-danger">
                                                         <i class="bi bi-exclamation-circle"></i>
                                                         <p>锁定账户是为了保护用户的信息安全和个人隐私</p>
-                                                        <p>安全原因：如果检测到异常登录活动或者怀疑账户已被未经授权的人访问，系统可能会自动锁定账户以防止进一步的潜在损害。</p>
-                                                        <p>防止欺诈：当发现有可疑行为或交易时，锁定账户可以阻止欺诈性的活动继续进行。</p>
-                                                        <p>保护个人信息：如果用户的密码或其他安全信息可能已被泄露，锁定账户可以帮助阻止敏感信息被盗用。</p>
-                                                        <p>用户请求：有时候用户自己会请求锁定他们的账户，可能是为了防止自己过度使用某个服务，或者是出于个人隐私考虑。</p>
+                                                        <p>如果检测到异常登录活动或者怀疑账户已被未经授权的人访问，系统可能会自动锁定账户以防止进一步的潜在损害。</p>
+                                                        <p>当发现有可疑行为或交易时，锁定账户可以阻止欺诈性的活动继续进行。</p>
+                                                        <p>如果用户的密码或其他安全信息可能已被泄露，锁定账户可以帮助阻止敏感信息被盗用。</p>
+                                                        <p>有时候用户自己会请求锁定他们的账户，可能是为了防止自己过度使用某个服务，或者是出于个人隐私考虑。</p>
                                                         <p>当账户被锁定后，用户需要通过重置密码的验证流程来重新激活账户。这样做有助于确保只有真正的账户所有者能够恢复对账户的访问权限。</p>
                                                     </span>
                                                 </p>
@@ -294,6 +311,26 @@
     <script src="/js/user/index_sidebar.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/user/lock.js"></script>
+    <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
+    <script type="application/javascript">
+        let fingerprint = "";
+        let ip = "127.0.0.1";
+        function getIP(json) {
+            ip = json.ip;
+        }
+        async function getFingerprint() {
+            // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
+            const fpPromise = await FingerprintJS.load();
+            // 调用get()方法获取设备的指纹信息，这是一个异步操作，需要使用await等待获取完成
+            const result = await fpPromise.get();
+            // 获取到指纹信息后，可以将其保存到数据库或者本地存储中，以便后续使用
+            return result.visitorId
+        }
+        (async () => {
+            fingerprint=await getFingerprint();
+        })();
+    </script>
+    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

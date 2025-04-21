@@ -65,7 +65,7 @@ function isCollected() {
 }
 
 $(document).ready(function(){
-	let flag=isLogin();
+	let flag=checkLoginStatus();
 	getFooterInfo();
 	if (flag){
 		getCartNum();
@@ -113,7 +113,7 @@ function search_item(){
 }
 
 function addCollect() {
-	if(isLogin()){
+	if(checkLoginStatus()){
 		const data={
 			prodId: productId,
 		};
@@ -173,7 +173,7 @@ function queryInfo(){
 
 function addCart(){
 	const num = document.getElementById('productNum').value;
-	if(isLogin()){
+	if(checkLoginStatus()){
 		const data={
 			prodId: productId,
 			num: num

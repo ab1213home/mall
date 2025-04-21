@@ -21,8 +21,8 @@ const signList = ["我感到难过，不是因为你欺骗了我，而是因为�
 	"哪里有天才，我只是把别人喝咖啡的功夫都用在了学习上"];
 // 定义登出函数
 function logout() {
-  // 清除登录状态（清除 token 或 session）
-  $.ajax({
+  	// 清除登录状态（清除 token 或 session）
+  	$.ajax({
 		type:"GET",
 		url:"/user/logout",
 		data:{},
@@ -46,7 +46,7 @@ function logout() {
  *
  * @return {boolean} 返回用户是否已登录的状态 true表示已登录，false表示未登录
  */
-function queryMyUserInfo(){
+function getLoginStatusAndUserInfo(){
 	let result = false;
 	const token = localStorage.getItem('token');
 	$.ajax({
@@ -62,7 +62,21 @@ function queryMyUserInfo(){
 			if(res.code == 200){
 				//已登录
 				result = true;
-				// 选择所有具有 class="example" 的元素
+				// const admin = document.querySelectorAll('.admin');
+				// const seller = document.querySelectorAll('.seller');
+				const adminOrSellerElements = document.querySelectorAll('.admin, .seller');
+				// 遍历这些元素，并根据条件设置 display 属性
+				adminOrSellerElements.forEach(element => {
+					if (element.classList.contains('admin') && res.data.isAdmin) {
+						element.style.display = 'block';
+					} else if (element.classList.contains('seller') && res.data.isSeller) {
+						element.style.display = 'block';
+					} else {
+						// 如果不满足条件，隐藏元素
+						element.style.display = 'none';
+					}
+				});
+				// 选择所有具有 class="" 的元素
         		const username = document.querySelectorAll('.username');
 				// 遍历所有选中的元素并更改文本
 				username.forEach(element => {

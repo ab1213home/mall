@@ -19,7 +19,7 @@
  * 
  * @return {boolean} 返回用户是否已登录的状态 true表示已登录，false表示未登录
  */
-function isLogin(){
+function checkLoginStatus(){
     // 默认设置result为false，表示未登录
 	let result = false;
 	const token = localStorage.getItem('token');
@@ -48,15 +48,20 @@ function isLogin(){
             // 如果服务器返回状态码为200，表示已登录
 			if(res.code == 200){
                 // 显示用户名
-				$("#username").html("<a href='./user/index.html'>"+"你好! " + res.data.username);
+				$("#username").html("<a href='/user/index.html'>"+"你好! " + res.data.username);
                 // 隐藏注册链接
-				if (document.getElementById('register')!= null){
-					document.getElementById('register').style.display = 'none';
-				}
-                // 隐藏注册间隔符
-				if (document.getElementById('register_spacer')!= null){
-					document.getElementById('register_spacer').style.display = 'none';
-				}
+				const register = document.querySelectorAll('.register');
+				// 遍历这些元素，并根据条件设置 display 属性
+				register.forEach(element => {
+					element.style.display = 'none';
+				});
+				// if (document.getElementById('register')!= null){
+				// 	document.getElementById('register').style.display = 'none';
+				// }
+                // // 隐藏注册间隔符
+				// if (document.getElementById('register_spacer')!= null){
+				// 	document.getElementById('register_spacer').style.display = 'none';
+				// }
                 // 设置result为true，表示已登录
 				result = true;
 			}else{

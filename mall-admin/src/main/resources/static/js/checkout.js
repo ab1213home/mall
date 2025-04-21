@@ -19,7 +19,7 @@ let addressObj = {};
 let num_address = 0;
 
 $(document).ready(function(){
-    let res = isLogin();
+    let res = checkLoginStatus();
 	getFooterInfo();
 	if (res){
 		queryCart();

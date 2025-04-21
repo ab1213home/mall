@@ -26,7 +26,7 @@ function getBannerNum() {
 }
 
 $(document).ready(function(){
-	let res = queryMyUserInfo();
+	let res = getLoginStatusAndUserInfo();
 	if (res){
 		isAdminUser();
 	}else{
