@@ -14,7 +14,6 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.OAuthResultDto;
@@ -46,8 +45,6 @@ public interface IUserService extends IService<User> {
     Boolean queryByEmail(String email);
 
     List<UserAdminVo> getUserList(Integer pageNum, Integer pageSize);
-
-    ResponseResult<Object> checkUserLogin(String sessionId);
 
     UserCache getUserFromRedis(String sessionId);
 
@@ -92,8 +89,6 @@ public interface IUserService extends IService<User> {
     boolean login(String sessionId, int code, String token, String clientIp, String fingerprint);
 
 	boolean countTryNumber(String username, String clientIp, String fingerprint);
-
-    Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId);
 
     OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
 

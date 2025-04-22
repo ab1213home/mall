@@ -25,14 +25,12 @@ import com.jiang.mall.dao.GroupMapper;
 import com.jiang.mall.dao.ShopStaffMapper;
 import com.jiang.mall.dao.UserGroupRelationMapper;
 import com.jiang.mall.dao.UserMapper;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
-import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
@@ -92,11 +90,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         this.redisService = redisService;
     }
 
-	private IEmailService emailService;
+	private INoticeService noticeService;
 
 	@Autowired
-	public void setEmailService(IEmailService emailService) {
-		this.emailService = emailService;
+	public void setNoticeService(INoticeService noticeService) {
+		this.noticeService = noticeService;
 	}
 
 	private GroupMapper groupMapper;
@@ -132,30 +130,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Autowired
 	public void setGeneralConfig(GeneralConfig generalConfig) {
 		this.generalConfig = generalConfig;
-	}
-
-	/**
-	 * 检查用户是否已登录
-	 * <p>
-	 * 此方法检查会话中的 "User" 属性以确认用户是否已经登录。
-	 * 如果用户未登录，则返回失败的结果；如果已登录，则返回用户对象。
-	 *
-	 * @param sessionId 当前用户的会话Id
-	 * @return 如果用户已登录，返回用户ID；否则返回失败结果
-	 */
-	@Override
-	@Transactional
-	public ResponseResult<Object> checkUserLogin(String sessionId) {
-		UserCache user = getUserFromRedis(sessionId);
-		if (user == null){
-			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
-		}else{
-			if (user.getId()==null){
-				return ResponseResult.failResult(i18nService.getMessage("user.checkUser.error"));
-			}else{
-				return ResponseResult.okResult(BeanCopyUtil.copyBean(user, UserVo.class));
-			}
-		}
 	}
 
 	@Override
@@ -232,10 +206,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 				String groupPermission = groupMapper.getPermissionByGroupId(groupId);
 				permissions.addAll(Arrays.asList(groupPermission.split(",")));
 			}
+
 		}
 		permissions.addAll(Arrays.asList(user.getPermission().split(",")));
 		// 去除权限user.getDeniedPermission()
 		permissions.removeAll(deniedPermissions);
+		userCache.setAdmin(!permissions.isEmpty());
 		// 获取店铺权限与id
 		List<ShopPermissionDto> shopPermissions = shopStaffMapper.getShopPermissionByUserId(user.getId());
 		if (!shopPermissions.isEmpty()){
@@ -246,7 +222,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 				}
 			}
 		}
-
+		userCache.setSeller(!shopPermissions.isEmpty());
 		userCache.setPermissions(permissions);
 		// 将用户信息存储到Redis中，并设置过期时间
 		redisService.setUser(sessionId, token, userCache);
@@ -679,37 +655,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	public boolean countTryNumber(String username, String clientIp, String fingerprint) {
 		return userLogService.countTryNumber(username, clientIp, fingerprint) >= userConfig.getUserMaxTry();
-	}
-
-	@Override
-	@Transactional
-	public Boolean login(String password, String token, String clientIp, String fingerprint, String sessionId) {
-		if (!redisService.validateRememberMe(token)){
-			return null;
-		}
-		Long userId = redisService.getRememberMe(token);
-		User user = userMapper.selectById(userId);
-		Map<String, Object> map = new HashMap<>();
-		map.put("username", user.getUsername());
-		map.put("password", password);
-		map.put("token", token);
-		if (!user.isActive()||!validatePassword(userId, password)){
-			map.put("reason", "账号未激活或token或密码错误");
-			userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.FAIL_LOGIN , map);
-			logger.debug("账号未激活或token或密码错误");
-			return null;
-		}
-		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
-		if (user.isTotpEnabled()) {
-			//TODO:需要完善逻辑
-			redisService.setTwoLogin(user.getId(), sessionId);
-			return false;
-		} else {
-			// 登录成功，记录登录记录
-			userLogService.defaultLog(user.getUsername(), clientIp, fingerprint, UserStatus.SUCCESS_LOGIN , map);
-			login(user, token, sessionId);
-			return true;
-		}
 	}
 
 	@Override

@@ -22,13 +22,16 @@ import java.util.Map;
 public interface INoticeService {
 
 	//发送通知
-	boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties);
+	Boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties);
 
-	boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties);
+	Boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties);
 
 	//账号类型通知（验证码）
-	boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId ,String token);
+	Boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId ,String token);
 
 	//验证验证码并且使用他
-	boolean validateAccountCaptcha(String code, String sessionId , String token);
+	Boolean validateAccountCaptcha(String code, String sessionId , String token);
+
+	//检查是否可以发送通知
+	boolean inspect(String receiver, NoticeChannel noticeChannel);
 }

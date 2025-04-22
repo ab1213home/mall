@@ -142,12 +142,4 @@ public interface IUserRedisService {
 
 	void deleteTwoRegister(@NotNull String sessionId);
 
-	//记住我相关Remember Me
-
-	void setRememberMe(Long userId, @NotNull String token);
-
-	boolean validateRememberMe(@NotNull String token);
-
-	Long getRememberMe(@NotNull String token);
-
 }

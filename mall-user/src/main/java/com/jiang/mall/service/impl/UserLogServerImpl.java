@@ -18,10 +18,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.dao.UserLogMapper;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.enums.UserStatus;
+import com.jiang.mall.domain.vo.UserLogVo;
 import com.jiang.mall.mq.UserLogProducer;
 import com.jiang.mall.service.IUserLogService;
+import com.jiang.mall.util.BeanCopyUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> implements IUserLogService {
@@ -199,6 +199,34 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    userLog.setState(status.getValue());
 	    // 将日志对象插入数据库，如果插入成功则返回true，否则返回false
 	    userLogMapper.insert(userLog);
+	}
+
+	//获取登录用户的登录日志50条
+//	@Override
+	@Transactional
+	public List<UserLogVo> getUserLoginLog(@NotNull UserCache userCache) {
+		QueryWrapper<UserLog> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("username", userCache.getUsername()).or().eq("username", userCache.getEmail());
+		queryWrapper.orderByDesc("trigger_time");
+		queryWrapper.eq("state", UserStatus.SUCCESS_LOGIN.getValue());
+		queryWrapper.last("limit 50");
+		List<UserLog> userLogs = userLogMapper.selectList(queryWrapper);
+		List<UserLogVo> userLogVos = new ArrayList<>();
+		for (UserLog userLog : userLogs) {
+			UserLogVo userLogVo = BeanCopyUtil.copyBean(userLogs, UserLogVo.class);
+			assert userLogVo != null;
+			if (userLog.getProperties()!=null){
+				Map<String, Object> map = JSON.parseObject(userLog.getProperties(), Map.class);
+				if (map.get("provider")!=null){
+					userLogVo.setType(map.get("provider").toString()+"登录");
+				}else {
+					userLogVo.setType("账号密码登录");
+				}
+			}
+			userLogVos.add(userLogVo);
+//			userLogVo.setUsername(userCache.getUsername());
+		}
+		return userLogVos;
 	}
 
 }

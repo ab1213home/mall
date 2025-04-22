@@ -17,11 +17,19 @@ import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.NoticeChannel;
+import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.ICaptchaService;
+import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.INoticeService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 用户控制器
@@ -38,6 +46,13 @@ public class ForgotController {
     @Autowired
     public void setUserService(IUserService userService) {
         this.userService = userService;
+    }
+
+    private INoticeService noticeService;
+
+    @Autowired
+    public void setNoticeService(INoticeService noticeService) {
+        this.noticeService = noticeService;
     }
 
     private IVerificationCodeService verificationCodeService;
@@ -108,11 +123,15 @@ public class ForgotController {
             return ResponseResult.failResult("用户不存在");
         }
         // 检查邮箱是否请求过多验证码
-        if (verificationCodeService.inspectByEmail(user.getEmail())) {
+        if (noticeService.inspect(user.getEmail(), NoticeChannel.EMAIL)) {
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
+        Map<String,Object> properties = new HashMap<>();
+        properties.put("email",user.getEmail());
+        properties.put("username",user.getUsername());
         // 发送邮件并处理结果
-        flag=emailService.sendResetPasswordEmail(user.getEmail(),user.getUsername(),user.getId(),session.getId());
+        flag=noticeService.sendAccountNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
+//        sendResetPassword(user.getEmail(),user.getUsername(),user.getId(),session.getId())
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }else if (flag){

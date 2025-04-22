@@ -77,7 +77,7 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
+	public Boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
 		String template;
 		if (redisService.hasTemplate(purpose, channel)){
 			template = redisService.getTemplate(purpose, channel);
@@ -96,7 +96,7 @@ public class NoticeServiceImpl implements INoticeService {
 			Boolean flag = emailService.sendEmail(receiver, "Jiang Mall | "+purpose.getName(), html);
 			if (flag==null){
 				logger.warn("管理员不允许发送邮件，邮件发送失败");
-				return false;
+				return null;
 			}else if (flag){
 				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, properties);
 				return true;
@@ -109,7 +109,7 @@ public class NoticeServiceImpl implements INoticeService {
 			Boolean flag = smsService.sendSms(receiver, template, JSON.toJSONString(properties));
 			if (flag==null){
 				logger.warn("管理员不允许发送短信，短信发送失败");
-				return false;
+				return null;
 			}else if (flag){
 				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, properties);
 				return true;
@@ -127,7 +127,7 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
+	public Boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
 		String template = templateService.getTemplate(templateId);
 		if (template == null){
 			logger.error("{}模板不存在", templateId);
@@ -137,27 +137,22 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, @NotNull Map<String, Object> properties, String sessionId, String token) {
+	public Boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, @NotNull Map<String, Object> properties, String sessionId, String token) {
 		properties.put("expiration_time", noticeConfig.getNoticeExpirationTime());
 		return false;
 	}
 
 	@Override
-	public boolean validateAccountCaptcha(String code, String sessionId, String token) {
+	public Boolean validateAccountCaptcha(String code, String sessionId, String token) {
 		return false;
 	}
 
+	@Override
+	public boolean inspect(String receiver, NoticeChannel noticeChannel) {
+		return noticeLogService.inspectByChannel(receiver, noticeChannel);
+	}
+
 	private static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
-		//初始化代码
-//		StringTemplateResourceLoader resourceLoader = new StringTemplateResourceLoader();
-//		Configuration cfg = Configuration.defaultConfiguration();
-//		GroupTemplate gt = new GroupTemplate(resourceLoader, cfg);
-//		//获取模板
-//		Template t = gt.getTemplate("hello,${name}");
-//		t.binding("name", "beetl");
-//		//渲染结果
-//		String str = t.render();
-//		System.out.println(str);
 		// 遍历 properties 映射，替换模板字符串中的相应内容
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             String key = entry.getKey();

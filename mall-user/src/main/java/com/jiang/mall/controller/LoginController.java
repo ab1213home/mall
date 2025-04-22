@@ -15,7 +15,6 @@ package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
@@ -167,34 +166,6 @@ public class LoginController {
 	    }
 	}
 
-//	@PostMapping("/login/rememberMe")
-//	@Permission(PermissionType.GUEST)
-//	public ResponseResult<Object> loginRememberMe(@RequestParam("password") String password,
-//                                                 @RequestParam("token") String token,
-//                                                 @RequestHeader("X-Real-IP") String clientIp,
-//                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-//                                                 HttpSession session) {
-//	    // 验证客户端IP是否有效
-//	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-//	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-//	    }
-//	    // 验证客户端指纹是否有效
-//	    if (!i18nService.checkString(fingerprint)){
-//	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
-//	    }
-//	    // 调用用户服务进行登录验证
-//	    Boolean flag = userService.login(password, token, clientIp, fingerprint,session.getId());
-//	    //flag==null账号密码token错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
-//        if (flag == null) {
-//	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
-//        } else if (!flag){
-//            // 登录失败，返回相应错误信息
-//            return ResponseResult.okResult("false","需要双因素认证(2FA)");
-//        }else {
-//	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
-//        }
-//	}
-
 	/**
      * 处理用户登出请求
      * 该方法通过移除会话中所有的用户相关属性来实现登出功能
@@ -224,25 +195,15 @@ public class LoginController {
     public ResponseResult<Object> isLogin(HttpServletRequest request){
 	    UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request);
 		if (permissionInterceptor.checkLogin(userCache)){
+			assert userCache != null;
 			UserVo userVo = BeanCopyUtil.copyBean(userCache, UserVo.class);
+			assert userVo != null;
+//			userVo.setAdmin(permissionInterceptor.checkAdminUser(userCache.getPermissions()));
+//			userVo.setSeller(permissionInterceptor.checkSellerUser(userCache.getPermissions()));
 			return ResponseResult.okResult(userVo);
 		}else {
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));
 		}
     }
 
-    /**
-     * 检查当前用户是否为管理员用户
-     *
-     * @param session HTTP会话对象，用于获取用户是否为管理员的信息
-     * @return 如果会话中没有"UserIsAdmin"属性，返回服务器错误结果；
-     *         如果"UserIsAdmin"属性值为"false"，返回OK结果包含false；
-     *         否则，返回OK结果包含true，表示用户是管理员
-     */
-    @GetMapping("/isAdminUser")
-    @Permission(PermissionType.USER)
-    public ResponseResult<Object> isAdminUser(HttpSession session){
-//		userService.checkAdminUser(session.getId()).isSuccess()
-        return ResponseResult.okResult(true);
-    }
 }
