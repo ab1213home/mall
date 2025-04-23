@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -47,27 +46,17 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
-	public Integer countSendNumber(String receiver, @NotNull NoticeChannel channel) {
-		// 当前时间
-	    Date now = new Date();
-	    // 一天前的时间
-	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
-		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
-
-		return (int) (count - failCount);
-	}
-
-	@Override
 	public boolean inspectByChannel(String receiver, @NotNull NoticeChannel channel) {
+		if (channel == NoticeChannel.WEB){
+			return true;
+		}
 		// 当前时间
 	    Date now = new Date();
 	    // 一天前的时间
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-		long count = noticeLogMapper.selectCountByReceiverAndChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
-		long failCount = noticeLogMapper.selectStatusCountByReceiverAndChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
+		long count = noticeLogMapper.selectCountBySingleChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
+		long failCount = noticeLogMapper.selectCountBySingleChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
 
 		//检查请求数量是否小于等于最小请求数量
 	    if (count <= noticeConfig.getNoticeMinRequestNum()) {
@@ -82,11 +71,12 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
-	public boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, Map<String, Object> properties) {
+	public boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setTemplateId(templateId);
 		noticeLog.setReceiver(receiver);
 		noticeLog.setStatus(status.getKey());
+		noticeLog.setChannel(channel.getKey());
 		if (properties != null){
 			noticeLog.setProperties(JSON.toJSONString(properties));
 		}
@@ -94,11 +84,28 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	public Long defaultLogWithId(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties) {
+		NoticeLog noticeLog = new NoticeLog();
+		noticeLog.setTemplateId(templateId);
+		noticeLog.setReceiver(receiver);
+		noticeLog.setStatus(status.getKey());
+		noticeLog.setChannel(channel.getKey());
+		if (properties != null){
+			noticeLog.setProperties(JSON.toJSONString(properties));
+		}
+		if (noticeLogMapper.insert(noticeLog) > 0){
+			return noticeLog.getId();
+		}else{
+			return null;
+		}
+	}
+
+	@Override
 	public boolean updateStatus(Long id, @NotNull NoticeStatus status) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setId(id);
 		noticeLog.setStatus(status.getKey());
-		return noticeLogMapper.updateById(noticeLog) > 0;
+		return noticeLogMapper.updateStatusById(id, status.getKey()) > 0;
 	}
 
 	@Override
@@ -109,15 +116,15 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	    Date yesterday = new Date(now.getTime() -noticeConfig.getNoticeExpirationTime() * 60 * 1000);
 
 	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-	    List<Long> list = noticeLogMapper.selectIdListByTimeRangeAndStatus(NoticeStatus.SUCCESS.getKey(),yesterday);
-
-		// 如果列表为空，则返回null
-		if (list.isEmpty()) {
-	        return;
-	    }
-		for (Long id : list) {
-			noticeLogMapper.updateStatusById(id,NoticeStatus.EXPIRED.getKey());
-		}
+//	    List<Long> list = noticeLogMapper.selectIdListByTimeRangeAndStatus(NoticeStatus.SUCCESS.getKey(),yesterday);
+//
+//		// 如果列表为空，则返回null
+//		if (list.isEmpty()) {
+//	        return;
+//	    }
+//		for (Long id : list) {
+//			noticeLogMapper.updateStatusById(id,NoticeStatus.EXPIRED.getKey());
+//		}
 
 	}
 }

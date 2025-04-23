@@ -24,7 +24,17 @@ import java.time.LocalDateTime;
 @Data
 @TableName("tb_templates")
 public class Template implements Serializable {
-
+//CREATE TABLE notice_template (
+//    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+//    channels VARCHAR(50) COMMENT '支持渠道（逗号分隔，如：0,1,2）',
+//    purposes VARCHAR(255) COMMENT '适用场景（逗号分隔，如：1,3,5）',
+//    template_content TEXT NOT NULL,
+//    variables VARCHAR(255) COMMENT '变量列表（逗号分隔）',
+//    region_config JSON COMMENT '区域配置（JSON格式）',
+//    priority INT DEFAULT 0 COMMENT '优先级',
+//    status TINYINT DEFAULT 1,
+//    content_type VARCHAR(20) DEFAULT 'TEXT'
+//);
 	/**
      * 序列化版本UID
      */
@@ -50,12 +60,22 @@ public class Template implements Serializable {
 	/**
      * 通道
      */
-	private Integer channel;
+	private String channels;
 
 	/**
      * 用途
      */
-	private Integer purpose;
+	private String purposes;
+
+	/**
+     * 区域
+     */
+	private String region;
+
+	/**
+     * 优先级
+     */
+	private Integer priority;
 
 	/**
      * 创建人

@@ -16,10 +16,11 @@ package com.jiang.mall.domain.cache;
 import lombok.Data;
 
 @Data
-public class CodeCache {
-	private Long id;
-	private String code;
-
-	public CodeCache() {
-	}
+public class TemplateCache {
+	//模板内容
+	private String content;
+	//模板名，向中国境内发送短信时使用
+	private String name;
+	//快照id，缓存加快访问速度
+	private String id;
 }

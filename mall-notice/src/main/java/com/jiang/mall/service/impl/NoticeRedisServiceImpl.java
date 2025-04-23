@@ -17,6 +17,7 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.NoticeConfig;
 import com.jiang.mall.domain.cache.CodeCache;
+import com.jiang.mall.domain.cache.TemplateCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.service.INoticeRedisService;
@@ -54,44 +55,41 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 	}
 
 	String prefix = "notice:";
+	String code_prefix = "notice:code";
 
 	@PostConstruct
 	public void init() {
 	    prefix = generalConfig.getRedisKeyPrefix()+":notice:";
+		code_prefix = generalConfig.getRedisKeyPrefix()+":notice:code";
 	}
 
-    String key(String key){
-        return prefix+key;
-    }
 
 	@Override
-	public void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull String template) {
-		stringRedisTemplate.opsForValue().set(prefix+purpose.getKey()+":"+channel.getKey(), template, 1 , TimeUnit.DAYS);
+	public void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull TemplateCache template) {
+		stringRedisTemplate.opsForValue().set(prefix+purpose.getKey()+":"+channel.getKey(), JSON.toJSONString(template), 1 , TimeUnit.DAYS);
 	}
 
 	@Override
-	public String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		Object template =stringRedisTemplate.opsForHash().get(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
-//		return template == null ? null:template.toString();
+	public TemplateCache getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
 		stringRedisTemplate.expire(prefix+purpose.getKey()+":"+channel.getKey(), 1 , TimeUnit.DAYS);
-		return stringRedisTemplate.opsForValue().get(prefix+purpose.getKey()+":"+channel.getKey());
+		String template = stringRedisTemplate.opsForValue().get(prefix+purpose.getKey()+":"+channel.getKey());
+		return template == null ? null : JSON.parseObject(template, TemplateCache.class);
 	}
 
 	@Override
 	public boolean hasTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		return stringRedisTemplate.opsForHash().hasKey(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
 		return stringRedisTemplate.hasKey(prefix+purpose.getKey()+":"+channel.getKey());
 	}
 
 	@Override
 	public void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
-//		stringRedisTemplate.opsForHash().delete(prefix+purpose.getKey(), String.valueOf(channel.getKey()));
 		stringRedisTemplate.delete(prefix+purpose.getKey()+":"+channel.getKey());
 	}
 
 	@Override
-	public void setCode(@NotNull CodeCache code, @NotNull String key) {
+	public void setCode(@NotNull String key, @NotNull CodeCache code) {
 		stringRedisTemplate.opsForValue().set(prefix+key, JSON.toJSONString(code), noticeConfig.getNoticeExpirationTime() , TimeUnit.MINUTES);
+		stringRedisTemplate.opsForSet().add(code_prefix, key);
 	}
 
 	@Override
@@ -108,7 +106,17 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 	@Override
 	public void deleteCode(@NotNull String key) {
 		stringRedisTemplate.delete(prefix+key);
+		stringRedisTemplate.opsForSet().remove(code_prefix, key);
 	}
 
+	@Override
+	public void clean() {
+		stringRedisTemplate.delete(code_prefix);
+	}
+
+	@Override
+	public Boolean hasCodeSet(@NotNull String key) {
+		return stringRedisTemplate.opsForSet().isMember(code_prefix, key);
+	}
 
 }

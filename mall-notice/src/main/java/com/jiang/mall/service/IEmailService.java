@@ -14,6 +14,8 @@
 package com.jiang.mall.service;
 
 
+import com.jiang.mall.domain.dto.NoticeResultDto;
+
 public interface IEmailService {
 
 	/**
@@ -24,6 +26,6 @@ public interface IEmailService {
 	 * @param content  内容
 	 * @return 是否发送成功
 	 */
-	Boolean sendEmail(String receiver, String subject, String content);
+	NoticeResultDto sendEmail(String receiver, String subject, String content);
 
 }

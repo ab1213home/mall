@@ -84,8 +84,9 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		for (Template template : templates) {
 			TemplateVo templateVo = BeanCopyUtil.copyBean(template, TemplateVo.class);
 			assert templateVo != null;
-			templateVo.setChannel(NoticeChannel.fromKey(template.getChannel()).getName());
-			templateVo.setPurpose(NoticePurpose.fromKey(template.getPurpose()).getName());
+			//TODO:使用json映射
+//			templateVo.setChannel(NoticeChannel.fromKey(template.getChannel()).getName());
+//			templateVo.setPurpose(NoticePurpose.fromKey(template.getPurpose()).getName());
 			templateVo.setCreator(userService.getUserById(template.getCreator()));
 			templateVo.setUpdater(userService.getUserById(template.getUpdater()));
 			templateVos.add(templateVo);
@@ -102,30 +103,32 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 	public boolean insertTemplate(@NotNull Template template, String sessionId) {
 		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("purpose", template.getPurpose());
-		queryWrapper.eq("channel", template.getChannel());
-		if (templateMapper.selectCount(queryWrapper) > 0) {
-			//去除旧模板用途
-			templateMapper.removePurposeByChannelAndPurpose(template.getChannel(), template.getPurpose(), userCache.getId());
-			return templateMapper.insert(template) > 0;
-		}else{
-			return templateMapper.insert(template) > 0;
-		}
+//		queryWrapper.eq("purpose", template.getPurpose());
+//		queryWrapper.eq("channel", template.getChannel());
+//		if (templateMapper.selectCount(queryWrapper) > 0) {
+//			//去除旧模板用途
+//			templateMapper.removePurposeByChannelAndPurpose(template.getChannel(), template.getPurpose(), userCache.getId());
+//			return templateMapper.insert(template) > 0;
+//		}else{
+//			return templateMapper.insert(template) > 0;
+//		}
+		return false;
 	}
 
 	@Override
 	public boolean updateTemplate(@NotNull Template template, String sessionId) {
 		UserCache userCache = userService.getUserFromRedis(sessionId);
-		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("purpose", template.getPurpose());
-		queryWrapper.eq("channel", template.getChannel());
-		if (templateMapper.selectCount(queryWrapper) > 0) {
-			//去除旧模板用途
-			templateMapper.removePurposeByChannelAndPurpose(template.getChannel(), template.getPurpose(), userCache.getId());
-			return templateMapper.updateById(template) > 0;
-		}else{
-			return templateMapper.updateById(template) > 0;
-		}
+//		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
+//		queryWrapper.eq("purpose", template.getPurpose());
+//		queryWrapper.eq("channel", template.getChannel());
+//		if (templateMapper.selectCount(queryWrapper) > 0) {
+//			//去除旧模板用途
+//			templateMapper.removePurposeByChannelAndPurpose(template.getChannel(), template.getPurpose(), userCache.getId());
+//			return templateMapper.updateById(template) > 0;
+//		}else{
+//			return templateMapper.updateById(template) > 0;
+//		}
+		return false;
 	}
 
 	@Override
@@ -141,12 +144,13 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		if (templateMapper.selectCount(queryWrapper) == 0){
 			return null;
 		}
-		Template template = templateMapper.selectOne(queryWrapper);
-		if (template.getChannel() == NoticeChannel.SMS_OVERSEAS.getKey()){
-			return template.getName();
-		}else{
-			return template.getContent();
-		}
+//		Template template = templateMapper.selectOne(queryWrapper);
+//		if (template.getChannel() == NoticeChannel.SMS_OVERSEAS.getKey()){
+//			return template.getName();
+//		}else{
+//			return template.getContent();
+//		}
+		return null;
 	}
 
 	@Override
@@ -167,36 +171,48 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 
 	@Override
 	public String getTemplate(Long id) {
-		Template template = templateMapper.selectById(id);
-		if (template == null){
-			return null;
-		}else {
-			if (template.getChannel() == NoticeChannel.SMS_MAINLAND.getKey()){
-				return template.getName();
-			}else{
-				return template.getContent();
-			}
-		}
+//		Template template = templateMapper.selectById(id);
+//		if (template == null){
+//			return null;
+//		}else {
+//			if (template.getChannel() == NoticeChannel.SMS_MAINLAND.getKey()){
+//				return template.getName();
+//			}else{
+//				return template.getContent();
+//			}
+//		}
+		return null;
 	}
 
 	@Override
-	public Map<String, Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose) {
+	public Map<String, Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, String region) {
 		Map<String, Object> result = new HashMap<>();
-		String template;
-		if (redisService.hasTemplate(purpose, channel)){
-			template = redisService.getTemplate(purpose, channel);
-		}else {
-			template = getTemplate(purpose, channel);
-			if (template == null){
-				logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
-				return null;
-			}else {
-				redisService.setTemplate(purpose, channel, template);
-			}
-		}
-		result.put("template", template);
-		result.put("name", template);
-		result.put("id", getTemplate(template));
+		logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
+		//邮件
+//		Long templateId = (Long) template.get("id");
+//		String templateContent = (String) template.get("template");
+
+		//短信（中国境内）
+//		Long templateId = (Long) template.get("id");
+
+
+		//短信（中国香港、中国澳门、中国台湾以及中国境外地区）
+
+//		String template;
+//		if (redisService.hasTemplate(purpose, channel)){
+//			template = redisService.getTemplate(purpose, channel);
+//		}else {
+//			template = getTemplate(purpose, channel);
+//			if (template == null){
+//				logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
+//				return null;
+//			}else {
+//				redisService.setTemplate(purpose, channel, template);
+//			}
+//		}
+//		result.put("template", template);
+//		result.put("name", template);
+//		result.put("id", getTemplate(template));
 		return result;
 	}
 }

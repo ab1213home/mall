@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.jiang.mall.config.EmailConfig;
+import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.service.IEmailService;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -46,9 +47,9 @@ public class EmailServiceImpl implements IEmailService {
 	 * @return 是否发送成功
 	 */
 	@Override
-	public Boolean sendEmail(String receiver, String subject, String content) {
+	public NoticeResultDto sendEmail(String receiver, String subject, String content) {
 		if (!emailConfig.isEmailEnabled()){
-			return null;
+			return NoticeResultDto.adminForbid();
 		}
 	    try {
 	        // 创建邮件消息
@@ -64,10 +65,10 @@ public class EmailServiceImpl implements IEmailService {
 	        // 发送邮件
 	        Transport.send(message);
 		    logger.debug("邮件发送成功，收件人：{}", receiver);
-	        return true;
+	        return NoticeResultDto.success();
 	    } catch (MessagingException e) {
 	        logger.error("发送邮件产生异常", e);
-	        return false;
+	        return NoticeResultDto.error(String.valueOf(e));
 	    }
 	}
 }

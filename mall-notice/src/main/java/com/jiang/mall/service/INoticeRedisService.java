@@ -14,6 +14,7 @@
 package com.jiang.mall.service;
 
 import com.jiang.mall.domain.cache.CodeCache;
+import com.jiang.mall.domain.cache.TemplateCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import org.jetbrains.annotations.NotNull;
@@ -21,16 +22,16 @@ import org.jetbrains.annotations.NotNull;
 public interface INoticeRedisService {
 
 	//模板缓存
-	void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull String template);
+	void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull TemplateCache template);
 
-	String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
+	TemplateCache getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
 
 	boolean hasTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
 
 	void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
 
 	//通知验证码缓存
-	void setCode(@NotNull CodeCache code, @NotNull String key);
+	void setCode(@NotNull String key,@NotNull CodeCache code);
 
 	CodeCache getCode(@NotNull String key);
 
@@ -38,4 +39,7 @@ public interface INoticeRedisService {
 
 	void deleteCode(@NotNull String key);
 
+	void clean();
+
+	Boolean hasCodeSet(@NotNull String key);
 }

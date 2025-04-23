@@ -48,9 +48,19 @@ public class NoticeLog implements Serializable {
 	private String properties;
 
 	/**
+	 * 渠道
+	 */
+	private Integer channel;
+
+	/**
      * 通知接收者
      */
 	private String receiver;
+
+	/**
+	 * 关联用户ID
+	 */
+//	private Long userId;
 
 	/**
      * 通知状态

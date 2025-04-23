@@ -59,9 +59,9 @@ public class RandomUtil {
         return new String(passwordArray);
     }
 
-	 public  @NotNull String generateRandomCode(int length) {
+	 public static @NotNull String generateRandomCode(int length) {
         if (length <= 0) {
-            throw new IllegalArgumentException("验证码长度必须大于0");
+            length = 4;
         }
 
         Random random = new Random();

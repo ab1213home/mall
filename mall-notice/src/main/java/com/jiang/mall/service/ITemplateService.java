@@ -40,5 +40,5 @@ public interface ITemplateService {
 
 	String getTemplate(Long id);
 
-	Map<String,Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose);
+	Map<String,Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose,String region);
 }

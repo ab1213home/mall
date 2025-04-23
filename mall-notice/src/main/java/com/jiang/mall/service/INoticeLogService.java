@@ -21,12 +21,12 @@ import java.util.Map;
 
 public interface INoticeLogService {
 
-	Integer countSendNumber(String receiver,@NotNull NoticeChannel channel);
 
 	boolean inspectByChannel(String receiver,@NotNull NoticeChannel channel);
 
-	@SuppressWarnings("UnusedReturnValue")
-	boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, Map<String, Object> properties);
+	boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status,@NotNull NoticeChannel channel, Map<String, Object> properties);
+
+	Long defaultLogWithId(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties);
 
 	boolean updateStatus(Long id, @NotNull NoticeStatus status);
 

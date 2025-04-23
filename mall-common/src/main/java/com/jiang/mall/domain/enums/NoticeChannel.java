@@ -26,19 +26,14 @@ public enum NoticeChannel {
 	EMAIL(0, "邮件"),
 
 	/**
-	 * 短信(中国内地)
+	 * 短信
 	 */
-	SMS_MAINLAND(1, "短信(中国内地)"),
-
-	/**
-	 * 短信(港澳台及中国境外)
-	 */
-	SMS_OVERSEAS(2, "短信(港澳台及中国境外)"),
+	SMS(1, "短信"),
 
 	/**
 	 * 站内信
 	 */
-	WEB(3, "站内信");
+	WEB(2, "站内信");
 
 	private final int key;
 	private final String name;

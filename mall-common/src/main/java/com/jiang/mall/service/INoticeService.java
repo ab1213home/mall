@@ -22,12 +22,9 @@ import java.util.Map;
 
 public interface INoticeService {
 
-	//发送通知
-	NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties);
-
 	NoticeResultDto sendNotice(String receiver, Long templateId, Map<String, Object> properties);
 
-	//账号类型通知（验证码）
+	//发送通知
 	NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId , String token);
 
 	//验证验证码并且使用他
