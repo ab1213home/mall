@@ -131,9 +131,9 @@ public class NoticeServiceImpl implements INoticeService {
 		String text = applyPropertiesToTemplate(templateContent, properties);
 		//TODO:需要完善web通知
 		NoticeResultDto flag = smsService.SendMessageToGlobe(receiver,text);
-		if (flag.getResult()==NoticeResultDto.NoticeResult.SUCCESS){
+		if (flag.isSuccess()){
 			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.WEB, properties);
-		}else if (flag.getResult()==NoticeResultDto.NoticeResult.ERROR){
+		}else if (flag.isError()){
 			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.WEB, properties);
 		}
 		return flag;
@@ -163,7 +163,7 @@ public class NoticeServiceImpl implements INoticeService {
 		String text = applyPropertiesToTemplate(templateContent, properties);
 		receiver = i18nService.convertToInternationalFormat(receiver);
 		NoticeResultDto flag = smsService.SendMessageToGlobe(receiver,text);
-		if (flag.getResult()==NoticeResultDto.NoticeResult.SUCCESS){
+		if (flag.isSuccess()){
 			properties.put("messageId",flag.getData().get("messageId"));
 			properties.put("requestId",flag.getData().get("requestId"));
 			properties.put("responseCode",flag.getData().get("responseCode"));
@@ -181,7 +181,7 @@ public class NoticeServiceImpl implements INoticeService {
 			}else {
 				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.SMS, properties);
 			}
-		}else if (flag.getResult()==NoticeResultDto.NoticeResult.ERROR){
+		}else if (flag.isError()){
 			logger.warn("短信发送失败，但是根据阿里api规定按照短信提交状态计费，即便运营商回执为“失败”，仍然收费");
 			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.SMS, properties);
 		}
@@ -204,7 +204,7 @@ public class NoticeServiceImpl implements INoticeService {
 		Map<String, String> text = getPropertiesToTemplate(templateContent, properties);
 		receiver = i18nService.convertToInternationalFormat(receiver);
 		NoticeResultDto flag = smsService.SendMessageWithTemplate(receiver, templateCode, JSON.toJSONString(text));
-		if (flag.getResult()==NoticeResultDto.NoticeResult.SUCCESS){
+		if (flag.isSuccess()){
 			properties.put("messageId",flag.getData().get("messageId"));
 			properties.put("requestId",flag.getData().get("requestId"));
 			properties.put("responseCode",flag.getData().get("responseCode"));
@@ -222,7 +222,7 @@ public class NoticeServiceImpl implements INoticeService {
 			}else {
 				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.SMS, properties);
 			}
-		}else if (flag.getResult()==NoticeResultDto.NoticeResult.ERROR){
+		}else if (flag.isError()){
 			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.SMS, properties);
 		}
 		return flag;
@@ -242,7 +242,7 @@ public class NoticeServiceImpl implements INoticeService {
 		}
 		String html = applyPropertiesToTemplate(templateContent, properties);
 		NoticeResultDto flag = emailService.sendEmail(receiver, generalConfig.getName()+" | "+purpose.getName(), html);
-		if (flag.getResult()==NoticeResultDto.NoticeResult.SUCCESS){
+		if (flag.isSuccess()){
 			if (purpose.getKey()>=1 && purpose.getKey()<=5){
 				Long logId = noticeLogService.defaultLogWithId(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.EMAIL, properties);
 				if (logId!=null){
@@ -257,7 +257,7 @@ public class NoticeServiceImpl implements INoticeService {
 			}else {
 				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.EMAIL, properties);
 			}
-		}else if (flag.getResult()==NoticeResultDto.NoticeResult.ERROR){
+		}else if (flag.isError()){
 			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.EMAIL, properties);
 		}
 		return flag;

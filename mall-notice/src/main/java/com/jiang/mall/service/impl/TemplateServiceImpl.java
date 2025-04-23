@@ -194,9 +194,16 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 
 		//短信（中国境内）
 //		Long templateId = (Long) template.get("id");
-
+//		String templateContent = (String) template.get("template");
+//		String templateCode = (String) template.get("name");
 
 		//短信（中国香港、中国澳门、中国台湾以及中国境外地区）
+//		Long templateId = (Long) template.get("id");
+//		String templateContent = (String) template.get("template");
+
+		//SSE
+//		Long templateId = (Long) template.get("id");
+//		String templateContent = (String) template.get("template");
 
 //		String template;
 //		if (redisService.hasTemplate(purpose, channel)){

@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
@@ -130,11 +131,11 @@ public class ForgotController {
         properties.put("email",user.getEmail());
         properties.put("username",user.getUsername());
         // 发送邮件并处理结果
-        flag=noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
+        NoticeResultDto res =noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
 //        sendResetPassword(user.getEmail(),user.getUsername(),user.getId(),session.getId())
-        if (flag==null){
+        if (res==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
-        }else if (flag){
+        }else if (res.isSuccess()){
             return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
         }
         else {

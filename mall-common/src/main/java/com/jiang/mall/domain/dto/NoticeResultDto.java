@@ -70,6 +70,14 @@ public class NoticeResultDto {
 		return dto;
 	}
 
+	public boolean isSuccess() {
+		return this.result == NoticeResult.SUCCESS;
+	}
+
+	public boolean isError() {
+		return this.result == NoticeResult.ERROR;
+	}
+
 	@Getter
 	public enum NoticeResult {
 		//管理员禁止发送
