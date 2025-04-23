@@ -13,12 +13,6 @@
 
 package com.jiang.mall.service;
 
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 public interface ISseService {
-	SseEmitter subscribe();
 
-	void broadcast(String message);
-
-	int getActiveConnections();
 }

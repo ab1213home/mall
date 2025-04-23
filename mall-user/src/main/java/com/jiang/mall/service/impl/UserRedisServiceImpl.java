@@ -491,29 +491,4 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		stringRedisTemplate.delete(twoRegister_prefix+sessionId);
 	}
 
-	@Override
-	public void setRememberMe(Long userId, @NotNull String token) {
-		if (userConfig.isUserRedisEncryption()){
-			token = SecureUtil.sha256Hex(token);
-		}
-		stringRedisTemplate.opsForValue().set(rememberMe_prefix+token, String.valueOf(userId), 7 , TimeUnit.DAYS);
-	}
-
-	@Override
-	public boolean validateRememberMe(@NotNull String token) {
-		if (userConfig.isUserRedisEncryption()){
-			token = SecureUtil.sha256Hex(token);
-		}
-		return stringRedisTemplate.hasKey(rememberMe_prefix+token);
-	}
-
-	@Override
-	public Long getRememberMe(@NotNull String token) {
-		if (userConfig.isUserRedisEncryption()){
-			token = SecureUtil.sha256Hex(token);
-		}
-		String userId = stringRedisTemplate.opsForValue().get(rememberMe_prefix+token);
-		return userId == null ? null : Long.parseLong(userId);
-	}
-
 }

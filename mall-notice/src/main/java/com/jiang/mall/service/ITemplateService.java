@@ -20,6 +20,7 @@ import com.jiang.mall.domain.vo.TemplateVo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ITemplateService {
 
@@ -35,7 +36,9 @@ public interface ITemplateService {
 
 	String getTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
 
-	Long getTemplateId(String template);
+	Long getTemplate(String template);
 
 	String getTemplate(Long id);
+
+	Map<String,Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose);
 }

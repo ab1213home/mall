@@ -50,5 +50,4 @@ public class GiteeUserDto {
 	private String location;
 	private String twitter_username;
 	private String hireable;
-
 }

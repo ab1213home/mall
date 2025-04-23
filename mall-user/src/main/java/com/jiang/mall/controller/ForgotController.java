@@ -130,7 +130,7 @@ public class ForgotController {
         properties.put("email",user.getEmail());
         properties.put("username",user.getUsername());
         // 发送邮件并处理结果
-        flag=noticeService.sendAccountNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
+        flag=noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
 //        sendResetPassword(user.getEmail(),user.getUsername(),user.getId(),session.getId())
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));

@@ -603,12 +603,6 @@
 
             <dependency>
                 <groupId>com.jiang</groupId>
-                <artifactId>mall-sse</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
                 <artifactId>mall-notice</artifactId>
                 <version>${mall.version}</version>
             </dependency>
@@ -619,24 +613,11 @@
                 <version>${mall.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-phone</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-kafka</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
     <modules>
         <module>mall-admin</module>
 <!--        <module>mall-framework</module>-->
-        <module>mall-system</module>
         <module>mall-common</module>
 		<module>mall-file</module>
 		<module>mall-user</module>
@@ -647,22 +628,18 @@
         <module>mall-shop</module>
         <module>mall-notice</module>
 <!--        <module>mall-websocket</module>-->
-        <module>mall-sse</module>
         <module>mall-banner</module>
         <module>mall-core</module>
         <module>mall-address</module>
         <module>mall-monitor</module>
 		<module>mall-pay</module>
         <module>mall-product</module>
-        <module>mall-phone</module>
-        <module>mall-kafka</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->
 <!--        <module>mall-business</module>-->
 <!--        <module>mall-review</module>-->
 <!--        <module>mall-report</module>-->
-        <module>mall-task</module>
     </modules>
 
 	<repositories>

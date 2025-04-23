@@ -13,8 +13,8 @@
 
 package com.jiang.mall.domain.dto;
 
-import com.jiang.mall.domain.enums.OAuthResult;
 import lombok.Data;
+import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,5 +51,19 @@ public class OAuthResultDto {
 	@Contract(value = "_ -> new", pure = true)
 	public static @NotNull OAuthResultDto secondVerify(String url) {
 		return new OAuthResultDto(OAuthResult.SECOND_VERIFY, url);
+	}
+
+	@Getter
+	public enum OAuthResult {
+		ERROR("错误"),
+	    UNBOUND("未绑定系统账号"),
+	    SECOND_VERIFY("账号需要双因素认证(2FA)"),
+	    SUCCESS("登录成功");
+
+		private final String value;
+
+		OAuthResult(String value) {
+			this.value = value;
+		}
 	}
 }

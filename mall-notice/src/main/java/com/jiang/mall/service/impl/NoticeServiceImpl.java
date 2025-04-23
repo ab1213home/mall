@@ -15,6 +15,7 @@ package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.NoticeConfig;
+import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.enums.NoticeStatus;
@@ -77,74 +78,62 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public Boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
-		String template;
-		if (redisService.hasTemplate(purpose, channel)){
-			template = redisService.getTemplate(purpose, channel);
-		}else {
-			template = templateService.getTemplate(purpose, channel);
-			if (template == null){
-				logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
-				return false;
-			}else {
-				redisService.setTemplate(purpose, channel, template);
-			}
-		}
-		Long templateId = templateService.getTemplateId(template);
+	public NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties) {
+		Map<String, Object> template = templateService.getTemplate(channel,purpose);
 		if (channel == NoticeChannel.EMAIL){
-			String html = applyPropertiesToTemplate(template, properties);
+			String html = applyPropertiesToTemplate((String)template.get("template"), properties);
 			Boolean flag = emailService.sendEmail(receiver, "Jiang Mall | "+purpose.getName(), html);
 			if (flag==null){
 				logger.warn("管理员不允许发送邮件，邮件发送失败");
-				return null;
+				return NoticeResultDto.adminForbid();
 			}else if (flag){
-				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, properties);
-				return true;
+				noticeLogService.defaultLog((Long) template.get("id"), receiver, NoticeStatus.SUCCESS, properties);
+				return NoticeResultDto.success();
 			}else {
-				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, properties);
-				return false;
+				noticeLogService.defaultLog((Long) template.get("id"), receiver, NoticeStatus.FAILED, properties);
+				return NoticeResultDto.error();
 			}
 		}else if (channel == NoticeChannel.SMS_OVERSEAS || channel == NoticeChannel.SMS_MAINLAND){
 //			String params = getParamsFormTemplate(properties);
-			Boolean flag = smsService.sendSms(receiver, template, JSON.toJSONString(properties));
+			Boolean flag = smsService.sendSms(receiver, (String)template.get("template"), JSON.toJSONString(properties));
 			if (flag==null){
 				logger.warn("管理员不允许发送短信，短信发送失败");
-				return null;
+				return NoticeResultDto.adminForbid();
 			}else if (flag){
-				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, properties);
-				return true;
+				noticeLogService.defaultLog((Long) template.get("id"), receiver, NoticeStatus.SUCCESS, properties);
+				return NoticeResultDto.success();
 			}else {
-				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, properties);
-				return false;
+				noticeLogService.defaultLog((Long) template.get("id"), receiver, NoticeStatus.FAILED, properties);
+				return NoticeResultDto.error();
 			}
 		}else if (channel == NoticeChannel.WEB){
-			String html = applyPropertiesToTemplate(template, properties);
-			return false;
+			String html = applyPropertiesToTemplate((String)template.get("template"), properties);
+			return NoticeResultDto.error();
 		}else {
 			logger.error("未知渠道{}", channel.getName());
-			return false;
+			return NoticeResultDto.error("未知渠道");
 		}
 	}
 
 	@Override
-	public Boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
+	public NoticeResultDto sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
 		String template = templateService.getTemplate(templateId);
 		if (template == null){
 			logger.error("{}模板不存在", templateId);
-			return false;
+			return NoticeResultDto.error("模板不存在");
 		}
-		return false;
+		return NoticeResultDto.error();
 	}
 
 	@Override
-	public Boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, @NotNull Map<String, Object> properties, String sessionId, String token) {
+	public NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, @NotNull Map<String, Object> properties, String sessionId, String token) {
 		properties.put("expiration_time", noticeConfig.getNoticeExpirationTime());
-		return false;
+		return NoticeResultDto.error();
 	}
 
 	@Override
-	public Boolean validateAccountCaptcha(String code, String sessionId, String token) {
-		return false;
+	public NoticeResultDto validateAccountCaptcha(String code, String sessionId, String token) {
+		return NoticeResultDto.error();
 	}
 
 	@Override

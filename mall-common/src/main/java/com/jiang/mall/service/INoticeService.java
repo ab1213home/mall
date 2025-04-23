@@ -13,6 +13,7 @@
 
 package com.jiang.mall.service;
 
+import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import org.jetbrains.annotations.NotNull;
@@ -22,15 +23,15 @@ import java.util.Map;
 public interface INoticeService {
 
 	//发送通知
-	Boolean sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties);
+	NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties);
 
-	Boolean sendNotice(String receiver, Long templateId, Map<String, Object> properties);
+	NoticeResultDto sendNotice(String receiver, Long templateId, Map<String, Object> properties);
 
 	//账号类型通知（验证码）
-	Boolean sendAccountNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId ,String token);
+	NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId , String token);
 
 	//验证验证码并且使用他
-	Boolean validateAccountCaptcha(String code, String sessionId , String token);
+	NoticeResultDto validateAccountCaptcha(String code, String sessionId , String token);
 
 	//检查是否可以发送通知
 	boolean inspect(String receiver, NoticeChannel noticeChannel);

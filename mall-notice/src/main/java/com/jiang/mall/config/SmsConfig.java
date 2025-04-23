@@ -50,7 +50,7 @@ public class SmsConfig {
         // 确保配置注入后初始化路径和加载属性
         CONFIG_FILE_PATH = generalConfig.getConfigFilePath("phone");
         loadProperties();
-        if (isSendPhoneEnabled()){
+        if (isSendSmaEnabled()){
             logger.info("短信配置已启用");
 			iniPoneConfig();
 		}else {
@@ -125,7 +125,7 @@ public class SmsConfig {
         }
     }
 
-    public boolean isSendPhoneEnabled() {
+    public boolean isSendSmaEnabled() {
         return Boolean.parseBoolean(properties.getProperty(SmsConfigItems.NOTICE_SMS_ENABLED.getKey(), SmsConfigItems.NOTICE_SMS_ENABLED.getDefaultValue()));
     }
 
@@ -189,7 +189,7 @@ public class SmsConfig {
         smsSettingVo.setEndpoint(getEndpoint());
         smsSettingVo.setSignName(getSignName());
         smsSettingVo.setSenderId(getSenderId());
-        smsSettingVo.setEnabled(isSendPhoneEnabled());
+        smsSettingVo.setEnabled(isSendSmaEnabled());
         smsSettingVo.setUpCode(getUpCode());
         return smsSettingVo;
     }

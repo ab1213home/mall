@@ -11,20 +11,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.enums;
+package com.jiang.mall.service.impl;
 
-import lombok.Getter;
+import com.jiang.mall.service.ISseService;
+import org.springframework.stereotype.Service;
 
-@Getter
-public enum OAuthResult {
-	ERROR("错误"),
-    UNBOUND("未绑定系统账号"),
-    SECOND_VERIFY("账号需要双因素认证(2FA)"),
-    SUCCESS("登录成功");
+@Service
+public class SseServiceImpl implements ISseService {
 
-	private final String value;
-
-	OAuthResult(String value) {
-		this.value = value;
-	}
 }

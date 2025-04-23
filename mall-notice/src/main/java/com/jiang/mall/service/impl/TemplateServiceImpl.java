@@ -16,7 +16,6 @@ package com.jiang.mall.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.dao.NoticeLogMapper;
 import com.jiang.mall.dao.TemplateMapper;
 import com.jiang.mall.dao.TemplateSnapshotMapper;
 import com.jiang.mall.domain.cache.UserCache;
@@ -25,19 +24,26 @@ import com.jiang.mall.domain.entity.TemplateSnapshot;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.vo.TemplateVo;
+import com.jiang.mall.service.INoticeRedisService;
 import com.jiang.mall.service.ITemplateService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
 import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> implements ITemplateService {
+
+	private static final Logger logger = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
 	private TemplateMapper templateMapper;
 
@@ -53,11 +59,11 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 		this.templateSnapshotMapper = templateSnapshotMapper;
 	}
 
-	private NoticeLogMapper noticeLogMapper;
+	private INoticeRedisService redisService;
 
 	@Autowired
-	public void setNoticeLogMapper(NoticeLogMapper noticeLogMapper) {
-		this.noticeLogMapper = noticeLogMapper;
+	public void setRedisService(INoticeRedisService redisService) {
+		this.redisService = redisService;
 	}
 
 	private IUserService userService;
@@ -109,9 +115,6 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 
 	@Override
 	public boolean updateTemplate(@NotNull Template template, String sessionId) {
-		if (noticeLogMapper.selectCountByTemplateId(template.getId())> 0){
-			return false;
-		}
 		UserCache userCache = userService.getUserFromRedis(sessionId);
 		QueryWrapper<Template> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("purpose", template.getPurpose());
@@ -127,9 +130,6 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 
 	@Override
 	public boolean deleteTemplate(Long id) {
-		if (noticeLogMapper.selectCountByTemplateId(id)> 0){
-			return false;
-		}
 		return templateMapper.deleteById(id) > 0;
 	}
 
@@ -142,7 +142,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 			return null;
 		}
 		Template template = templateMapper.selectOne(queryWrapper);
-		if (template.getChannel()== NoticeChannel.SMS_OVERSEAS.getKey()){
+		if (template.getChannel() == NoticeChannel.SMS_OVERSEAS.getKey()){
 			return template.getName();
 		}else{
 			return template.getContent();
@@ -150,7 +150,7 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 	}
 
 	@Override
-	public Long getTemplateId(String template) {
+	public Long getTemplate(String template) {
 		//模板哈希值
 		String templateHash = SecureUtil.sha256Hex(template);
 		Long templateId = templateSnapshotMapper.selectByHash(templateHash);
@@ -177,5 +177,26 @@ public class TemplateServiceImpl extends ServiceImpl<TemplateMapper, Template> i
 				return template.getContent();
 			}
 		}
+	}
+
+	@Override
+	public Map<String, Object> getTemplate(@NotNull NoticeChannel channel, @NotNull NoticePurpose purpose) {
+		Map<String, Object> result = new HashMap<>();
+		String template;
+		if (redisService.hasTemplate(purpose, channel)){
+			template = redisService.getTemplate(purpose, channel);
+		}else {
+			template = getTemplate(purpose, channel);
+			if (template == null){
+				logger.error("{}{}模板不存在", purpose.getName(), channel.getName());
+				return null;
+			}else {
+				redisService.setTemplate(purpose, channel, template);
+			}
+		}
+		result.put("template", template);
+		result.put("name", template);
+		result.put("id", getTemplate(template));
+		return result;
 	}
 }

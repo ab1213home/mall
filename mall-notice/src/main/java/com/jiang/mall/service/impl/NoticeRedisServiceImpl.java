@@ -66,7 +66,6 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 
 	@Override
 	public void setTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel, @NotNull String template) {
-//		stringRedisTemplate.opsForHash().put(prefix+purpose.getKey(), String.valueOf(channel.getKey()), template);
 		stringRedisTemplate.opsForValue().set(prefix+purpose.getKey()+":"+channel.getKey(), template, 1 , TimeUnit.DAYS);
 	}
 
