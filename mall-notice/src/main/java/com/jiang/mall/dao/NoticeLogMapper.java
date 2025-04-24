@@ -20,7 +20,6 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.Date;
-import java.util.List;
 
 @Mapper
 public interface NoticeLogMapper extends BaseMapper<NoticeLog> {
@@ -30,9 +29,6 @@ public interface NoticeLogMapper extends BaseMapper<NoticeLog> {
 
 	@Select("SELECT COUNT(*) FROM tb_notice_logs  WHERE receiver = #{receiver} AND channel = #{channel} AND trigger_time BETWEEN #{start} AND #{end} AND status = #{status} AND purpose BETWEEN 1 AND 5")
 	long selectCountBySingleChannelAndTimeRangeAndStatus(String receiver, int channel, int status, Date start, Date end);
-
-	@Select("SELECT id FROM tb_notice_logs WHERE status = #{status} AND trigger_time < #{end}")
-	List<Long> selectIdListByTimeRangeAndStatus(int status, Date end);
 
 	@Update("UPDATE tb_notice_logs SET status = #{status} WHERE id = #{id}")
 	int updateStatusById(Long id, int status);

@@ -130,16 +130,16 @@ public class ForgotController {
         Map<String,Object> properties = new HashMap<>();
         properties.put("email",user.getEmail());
         properties.put("username",user.getUsername());
+        properties.put("userId",user.getId());
         // 发送邮件并处理结果
         NoticeResultDto res =noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
-//        sendResetPassword(user.getEmail(),user.getUsername(),user.getId(),session.getId())
-        if (res==null){
-            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
-        }else if (res.isSuccess()){
-            return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
+        if (res.isSuccess()){
+             return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
+        }else if (res.isError()){
+            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
         }
         else {
-            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }
     }
 
@@ -147,7 +147,14 @@ public class ForgotController {
     @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep1Refresh(HttpSession session) {
         //TODO:重发验证码。时间间隔10分钟
-        return ResponseResult.okResult(i18nService.getMessage("email.register.resend"));
+        NoticeResultDto res =noticeService.refreshNotice(session.getId(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD);
+        if (res.isSuccess()){
+            return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
+        }else if (res.isError()){
+            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+        }else {
+            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
+        }
     }
 
     /**

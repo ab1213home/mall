@@ -13,7 +13,6 @@
 
 package com.jiang.mall.service;
 
-import com.jiang.mall.domain.cache.CodeCache;
 import com.jiang.mall.domain.cache.TemplateCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
@@ -30,16 +29,4 @@ public interface INoticeRedisService {
 
 	void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel);
 
-	//通知验证码缓存
-	void setCode(@NotNull String key,@NotNull CodeCache code);
-
-	CodeCache getCode(@NotNull String key);
-
-	boolean hasCode(@NotNull String key);
-
-	void deleteCode(@NotNull String key);
-
-	void clean();
-
-	Boolean hasCodeSet(@NotNull String key);
 }

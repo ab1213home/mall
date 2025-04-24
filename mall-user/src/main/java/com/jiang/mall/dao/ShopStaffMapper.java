@@ -14,17 +14,10 @@
 package com.jiang.mall.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jiang.mall.domain.dto.ShopPermissionDto;
 import com.jiang.mall.domain.entity.ShopStaff;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 @Mapper
 public interface ShopStaffMapper extends BaseMapper<ShopStaff> {
-
-	@Select("select shop_id,permission FROM tb_shop_staffs WHERE user_id = #{userId}")
-	List<ShopPermissionDto> getShopPermissionByUserId(Long userId);
 
 }

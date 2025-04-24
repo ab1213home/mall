@@ -26,6 +26,6 @@ public interface IEmailService {
 	 * @param content  内容
 	 * @return 是否发送成功
 	 */
-	NoticeResultDto sendEmail(String receiver, String subject, String content);
+	NoticeResultDto SendEmail(String receiver, String subject, String content);
 
 }

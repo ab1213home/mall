@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.NoticeConfig;
 import com.jiang.mall.dao.NoticeLogMapper;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -109,22 +111,31 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
-	public void clean() {
+	public void check() {
 		// 获取当前时间
 	    Date now = new Date();
 	    // 计算expiration_time分钟前的时间，作为验证码的有效期起点
 	    Date yesterday = new Date(now.getTime() -noticeConfig.getNoticeExpirationTime() * 60 * 1000);
 
-	    // 构建查询条件：针对特定邮箱、在有效期内的验证码
-//	    List<Long> list = noticeLogMapper.selectIdListByTimeRangeAndStatus(NoticeStatus.SUCCESS.getKey(),yesterday);
-//
-//		// 如果列表为空，则返回null
-//		if (list.isEmpty()) {
-//	        return;
-//	    }
-//		for (Long id : list) {
-//			noticeLogMapper.updateStatusById(id,NoticeStatus.EXPIRED.getKey());
-//		}
+	    // 构建查询条件：需要检查的日志id列表
+		QueryWrapper<NoticeLog> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("purpose", 1,2,3,4);
+		queryWrapper.between("trigger_time", yesterday, now);
+		queryWrapper.select("id");
+		List<NoticeLog> list = noticeLogMapper.selectList(queryWrapper);
 
+		// 如果列表为空，则返回null
+		if (list.isEmpty()) {
+	        return;
+	    }
+		for (NoticeLog noticeLog : list) {
+			noticeLogMapper.updateStatusById(noticeLog.getId(),NoticeStatus.EXPIRED.getKey());
+		}
+
+	}
+
+	@Override
+	public NoticeLog getNoticeLog(Long id) {
+		return noticeLogMapper.selectById(id);
 	}
 }

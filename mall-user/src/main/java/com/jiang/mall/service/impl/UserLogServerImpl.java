@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.UserConfig;
@@ -216,7 +217,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 			UserLogVo userLogVo = BeanCopyUtil.copyBean(userLogs, UserLogVo.class);
 			assert userLogVo != null;
 			if (userLog.getProperties()!=null){
-				Map<String, Object> map = JSON.parseObject(userLog.getProperties(), Map.class);
+				Map<String, Object> map = JSON.parseObject(userLog.getProperties(), new TypeReference<>() {});
 				if (map.get("provider")!=null){
 					userLogVo.setType(map.get("provider").toString()+"登录");
 				}else {

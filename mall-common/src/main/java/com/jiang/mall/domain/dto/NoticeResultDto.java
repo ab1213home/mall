@@ -70,6 +70,14 @@ public class NoticeResultDto {
 		return dto;
 	}
 
+	@Contract(value = "-> new", pure = true)
+	public static @NotNull NoticeResultDto offline() {
+		NoticeResultDto dto = new NoticeResultDto();
+		dto.setResult(NoticeResult.OFFLINE);
+		dto.setMessage("用户不在线");
+		return dto;
+	}
+
 	public boolean isSuccess() {
 		return this.result == NoticeResult.SUCCESS;
 	}
@@ -78,13 +86,35 @@ public class NoticeResultDto {
 		return this.result == NoticeResult.ERROR;
 	}
 
+	public boolean isAdminForbid() {
+		return this.result == NoticeResult.ADMIN_FORBID;
+	}
+
+	public boolean isOffline() {
+		return this.result == NoticeResult.OFFLINE;
+	}
+
 	@Getter
 	public enum NoticeResult {
-		//管理员禁止发送
+
+		/**
+		 * 管理员禁止发送
+		 */
 		ADMIN_FORBID("管理员禁止发送"),
-		//发送失败
+
+		/**
+		 * 错误
+		 */
 		ERROR("错误"),
-		//登录成功
+
+		/**
+		 * 用户不在线
+		 */
+		OFFLINE("用户不在线"),
+
+		/*
+		 * 登录成功
+		 */
 		SUCCESS("登录成功");
 
 		private final String value;

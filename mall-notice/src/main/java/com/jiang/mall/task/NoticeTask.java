@@ -61,7 +61,7 @@ public class NoticeTask {
 
 	@Scheduled(fixedRate = 3600 * 1000, initialDelay = 300000)
     public void cleanNoticeLogTask() {
-		noticeLogService.clean();
+		noticeLogService.check();
 		logger.info("通知记录清理完成");
     }
 }

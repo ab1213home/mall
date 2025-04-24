@@ -18,18 +18,20 @@ import lombok.Getter;
 @Getter
 public enum NoticeStatus {
 
-	FAILED(0,"发送失败"),
-	SUCCESS(1,"发送成功"),
-	READ(2,"发送成功并已阅读"),
-	USED(3,"发送成功并已使用"),
-	EXPIRED(4,"发送成功并已失效");
+	FAILED(0,"generic","发送失败"),
+	OFFLINE(1,"web","用户不在线"),
+	SUCCESS(2,"generic","发送成功"),
+	USED(3,"verify","发送成功并已使用"),
+	EXPIRED(4,"verify","发送成功并已失效");
 
 	private final int key;
+	private final String type;
 	private final String name;
 
-	NoticeStatus(int key, String name) {
+	NoticeStatus(int key, String type, String name) {
 		this.key = key;
 		this.name = name;
+		this.type = type;
 	}
 
 	//	public static OAuthProvider fromKey(Integer key) {

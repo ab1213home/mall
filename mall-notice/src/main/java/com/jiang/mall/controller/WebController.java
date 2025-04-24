@@ -15,14 +15,12 @@ package com.jiang.mall.controller;
 
 
 import com.jiang.mall.annotation.Permission;
-import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ISseService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/web")
@@ -51,14 +49,14 @@ public class WebController {
 		sseService.close(session.getId());
 	}
 
-	@RequestMapping("/send")
-	@Permission(PermissionType.USER)
-	@ResponseBody
-	public ResponseResult<Object> send(String userId, String messageId, String message,HttpSession session){
-		if(sseService.sendMessage(session.getId(), userId, messageId, message)){
-			return ResponseResult.okResult(200, "推送成功");
-		}else{
-			return ResponseResult.failResult(500, "推送失败");
-		}
-	}
+//	@RequestMapping("/send")
+//	@Permission(PermissionType.USER)
+//	@ResponseBody
+//	public ResponseResult<Object> send(String userId, String messageId, String message,HttpSession session){
+//		if(sseService.sendMessage(session.getId(), userId, messageId, message)){
+//			return ResponseResult.okResult(200, "推送成功");
+//		}else{
+//			return ResponseResult.failResult(500, "推送失败");
+//		}
+//	}
 }

@@ -13,25 +13,25 @@
 
 package com.jiang.mall.service;
 
-import com.jiang.mall.domain.entity.NoticeLog;
+import com.jiang.mall.domain.cache.CodeCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
-import com.jiang.mall.domain.enums.NoticeStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+public interface ICodeRedisService {
 
-public interface INoticeLogService {
+	void setCode(@NotNull String key, @NotNull CodeCache code, @NotNull NoticeChannel channel);
 
+	CodeCache getCode(@NotNull String key, @NotNull NoticeChannel channel);
 
-	boolean inspectByChannel(String receiver,@NotNull NoticeChannel channel);
+	boolean hasCode(@NotNull String key, @NotNull NoticeChannel channel);
 
-	boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status,@NotNull NoticeChannel channel, Map<String, Object> properties);
+	long getCodeExpire(@NotNull String key, @NotNull NoticeChannel channel);
 
-	Long defaultLogWithId(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties);
+	void deleteCode(@NotNull String key, @NotNull NoticeChannel channel);
 
-	boolean updateStatus(Long id, @NotNull NoticeStatus status);
+	void clean();
 
-	void check();
+	Boolean hasCodeHash(@NotNull String key, @NotNull NoticeChannel channel);
 
-	NoticeLog getNoticeLog(Long id);
+	Long getCodeId(@NotNull String key, @NotNull NoticeChannel channel);
 }

@@ -345,6 +345,7 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	        pageSize != null ? pageSize.toString() : "10" // ARGV[3]
 	    };
 		// 创建Redis脚本对象
+//		Map<String, Object> map = JSON.parseObject(userLog.getProperties(), new TypeReference<>() {});
 	    DefaultRedisScript<List> script = new DefaultRedisScript<>(luaScript, List.class);
 	    try {
 	        // 执行脚本

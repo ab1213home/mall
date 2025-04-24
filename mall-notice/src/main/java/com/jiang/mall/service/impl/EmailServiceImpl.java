@@ -47,7 +47,7 @@ public class EmailServiceImpl implements IEmailService {
 	 * @return 是否发送成功
 	 */
 	@Override
-	public NoticeResultDto sendEmail(String receiver, String subject, String content) {
+	public NoticeResultDto SendEmail(String receiver, String subject, String content) {
 		if (!emailConfig.isEmailEnabled()){
 			return NoticeResultDto.adminForbid();
 		}

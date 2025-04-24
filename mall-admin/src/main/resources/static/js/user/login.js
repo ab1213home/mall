@@ -221,6 +221,17 @@ $(document).ready(function() {
         event.preventDefault(); // 阻止默认提交行为
         submitTwoVerifyForm(); // 自定义提交处理
     });
+    // 自动跳转到下一个输入框
+    // $('.input-group input').on('keyup', function(e){
+    //     if (e.which >= 48 && e.which <= 57) { // 数字键
+    //         const next = $(this).next('.form-control');
+    //         if (next.length > 0) {
+    //             next.focus();
+    //         } else {
+    //             // 如果是最后一个输入框，则提交表单或执行其他操作
+    //         }
+    //     }
+    // });
 });
 
 function submitTwoVerifyForm() {

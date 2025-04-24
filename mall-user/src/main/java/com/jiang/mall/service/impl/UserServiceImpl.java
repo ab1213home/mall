@@ -28,7 +28,7 @@ import com.jiang.mall.dao.UserMapper;
 import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.OAuthResultDto;
-import com.jiang.mall.domain.dto.ShopPermissionDto;
+import com.jiang.mall.domain.entity.ShopStaff;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.enums.OAuthProvider;
@@ -213,16 +213,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		permissions.removeAll(deniedPermissions);
 		userCache.setAdmin(!permissions.isEmpty());
 		// 获取店铺权限与id
-		List<ShopPermissionDto> shopPermissions = shopStaffMapper.getShopPermissionByUserId(user.getId());
-		if (!shopPermissions.isEmpty()){
-			for (ShopPermissionDto entry : shopPermissions){
+		QueryWrapper<ShopStaff> queryWrapper_shop = new QueryWrapper<>();
+		queryWrapper_shop.eq("user_id", user.getId());
+		queryWrapper_shop.select("shop_id,permission");
+		List<ShopStaff> shopStaffs = shopStaffMapper.selectList(queryWrapper_shop);
+		if (!shopStaffs.isEmpty()){
+			for (ShopStaff entry : shopStaffs){
 				String[] shopPermissionList = entry.getPermission().split(",");
 				for (String permission : shopPermissionList) {
 					permissions.add("shop_"+entry.getShopId()+":"+permission);
 				}
 			}
 		}
-		userCache.setSeller(!shopPermissions.isEmpty());
+		userCache.setSeller(!shopStaffs.isEmpty());
 		userCache.setPermissions(permissions);
 		// 将用户信息存储到Redis中，并设置过期时间
 		redisService.setUser(sessionId, token, userCache);

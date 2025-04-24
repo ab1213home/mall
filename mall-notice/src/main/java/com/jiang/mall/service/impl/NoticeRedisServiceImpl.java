@@ -15,8 +15,6 @@ package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.config.GeneralConfig;
-import com.jiang.mall.config.NoticeConfig;
-import com.jiang.mall.domain.cache.CodeCache;
 import com.jiang.mall.domain.cache.TemplateCache;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
@@ -47,20 +45,11 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 	    this.generalConfig = generalConfig;
 	}
 
-	private NoticeConfig noticeConfig;
-
-	@Autowired
-	public void setNoticeConfig(NoticeConfig noticeConfig) {
-	    this.noticeConfig = noticeConfig;
-	}
-
-	String prefix = "notice:";
-	String code_prefix = "notice:code";
+	String prefix = "template:";
 
 	@PostConstruct
 	public void init() {
-	    prefix = generalConfig.getRedisKeyPrefix()+":notice:";
-		code_prefix = generalConfig.getRedisKeyPrefix()+":notice:code";
+	    prefix = generalConfig.getRedisKeyPrefix()+":template:";
 	}
 
 
@@ -84,39 +73,6 @@ public class NoticeRedisServiceImpl implements INoticeRedisService {
 	@Override
 	public void deleteTemplate(@NotNull NoticePurpose purpose, @NotNull NoticeChannel channel) {
 		stringRedisTemplate.delete(prefix+purpose.getKey()+":"+channel.getKey());
-	}
-
-	@Override
-	public void setCode(@NotNull String key, @NotNull CodeCache code) {
-		stringRedisTemplate.opsForValue().set(prefix+key, JSON.toJSONString(code), noticeConfig.getNoticeExpirationTime() , TimeUnit.MINUTES);
-		stringRedisTemplate.opsForSet().add(code_prefix, key);
-	}
-
-	@Override
-	public CodeCache getCode(@NotNull String key) {
-		String code = stringRedisTemplate.opsForValue().get(prefix+key);
-		return code == null ? null : JSON.parseObject(code, CodeCache.class);
-	}
-
-	@Override
-	public boolean hasCode(@NotNull String key) {
-		return stringRedisTemplate.hasKey(prefix+key);
-	}
-
-	@Override
-	public void deleteCode(@NotNull String key) {
-		stringRedisTemplate.delete(prefix+key);
-		stringRedisTemplate.opsForSet().remove(code_prefix, key);
-	}
-
-	@Override
-	public void clean() {
-		stringRedisTemplate.delete(code_prefix);
-	}
-
-	@Override
-	public Boolean hasCodeSet(@NotNull String key) {
-		return stringRedisTemplate.opsForSet().isMember(code_prefix, key);
 	}
 
 }

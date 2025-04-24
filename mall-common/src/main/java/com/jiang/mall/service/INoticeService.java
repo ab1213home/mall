@@ -28,8 +28,10 @@ public interface INoticeService {
 	NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId , String token);
 
 	//验证验证码并且使用他
-	NoticeResultDto validateAccountCaptcha(String code, String sessionId , String token);
+	NoticeResultDto validateAccountCaptcha(String code, @NotNull NoticeChannel channel, String sessionId , String token);
 
 	//检查是否可以发送通知
-	boolean inspect(String receiver, NoticeChannel noticeChannel);
+	boolean inspect(String receiver, @NotNull NoticeChannel channel);
+
+	NoticeResultDto refreshNotice(String sessionId, @NotNull NoticeChannel channel, NoticePurpose purpose);
 }

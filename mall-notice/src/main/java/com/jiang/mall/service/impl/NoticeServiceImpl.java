@@ -14,10 +14,12 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.config.NoticeConfig;
 import com.jiang.mall.domain.cache.CodeCache;
 import com.jiang.mall.domain.dto.NoticeResultDto;
+import com.jiang.mall.domain.entity.NoticeLog;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.enums.NoticeStatus;
@@ -53,13 +55,6 @@ public class NoticeServiceImpl implements INoticeService {
 		this.templateService = templateService;
 	}
 
-	private INoticeRedisService redisService;
-
-	@Autowired
-	public void setRedisService(INoticeRedisService redisService) {
-		this.redisService = redisService;
-	}
-
 	private NoticeConfig noticeConfig;
 
 	@Autowired
@@ -86,6 +81,13 @@ public class NoticeServiceImpl implements INoticeService {
 	@Autowired
 	public void setSseService(ISseService sseService) {
 		this.sseService = sseService;
+	}
+
+	private ICodeRedisService redisService;
+
+	@Autowired
+	public void setCodeRedisService(ICodeRedisService redisService) {
+		this.redisService = redisService;
 	}
 
 	private GeneralConfig generalConfig;
@@ -129,19 +131,27 @@ public class NoticeServiceImpl implements INoticeService {
 		Long templateId = (Long) template.get("id");
 		String templateContent = (String) template.get("template");
 		String text = applyPropertiesToTemplate(templateContent, properties);
-		//TODO:需要完善web通知
-		NoticeResultDto flag = smsService.SendMessageToGlobe(receiver,text);
-		if (flag.isSuccess()){
-			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.WEB, properties);
-		}else if (flag.isError()){
-			noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.WEB, properties);
+		try {
+			Long to = Long.parseLong(receiver);
+			NoticeResultDto flag = sseService.SendMessage(to,text);
+			if (flag.isSuccess()){
+				properties.put("messageId",flag.getData().get("messageId"));
+				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.WEB, properties);
+			}else if (flag.isError()){
+				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.FAILED, NoticeChannel.WEB, properties);
+			}else if (flag.isOffline()){
+				properties.put("messageId",flag.getData().get("messageId"));
+				noticeLogService.defaultLog(templateId, receiver, NoticeStatus.OFFLINE, NoticeChannel.WEB, properties);
+			}
+			return flag;
+		}catch (NumberFormatException e){
+			return NoticeResultDto.error("错误的接收者用户ID"+receiver);
 		}
-		return flag;
 	}
 
 	private @NotNull NoticeResultDto sendNoticeBySms(String receiver, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
 		if (i18nService.isChineseNumber(receiver)){
-			return sendNoticeByEmailInMainland(receiver, purpose, properties, sessionId, token);
+			return sendNoticeBySmsInMainland(receiver, purpose, properties, sessionId, token);
 		}else if (i18nService.isValidPhone(receiver)){
 			return sendNoticeBySmsInOverseas(receiver, purpose, properties,sessionId, token);
 		}
@@ -149,7 +159,7 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	private @NotNull NoticeResultDto sendNoticeBySmsInOverseas(String receiver, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
-		Map<String, Object> template = templateService.getTemplate(NoticeChannel.EMAIL,purpose,"overseas");
+		Map<String, Object> template = templateService.getTemplate(NoticeChannel.SMS,purpose,"overseas");
 		if (template == null){
 			return NoticeResultDto.error("模板不存在");
 		}
@@ -174,7 +184,7 @@ public class NoticeServiceImpl implements INoticeService {
 					CodeCache codeCache = new CodeCache();
 					codeCache.setId(logId);
 					codeCache.setCode(properties.get("code").toString());
-					redisService.setCode(sessionId , codeCache);
+					redisService.setCode(sessionId , codeCache, NoticeChannel.SMS);
 				}else {
 					flag = NoticeResultDto.error("短信发送成功但是日志记录失败");
 				}
@@ -188,8 +198,8 @@ public class NoticeServiceImpl implements INoticeService {
 		return flag;
 	}
 
-	private @NotNull NoticeResultDto sendNoticeByEmailInMainland(String receiver, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
-		Map<String, Object> template = templateService.getTemplate(NoticeChannel.EMAIL,purpose,"mainland");
+	private @NotNull NoticeResultDto sendNoticeBySmsInMainland(String receiver, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
+		Map<String, Object> template = templateService.getTemplate(NoticeChannel.SMS,purpose,"mainland");
 		if (template == null){
 			return NoticeResultDto.error("模板不存在");
 		}
@@ -215,7 +225,7 @@ public class NoticeServiceImpl implements INoticeService {
 					CodeCache codeCache = new CodeCache();
 					codeCache.setId(logId);
 					codeCache.setCode(properties.get("code").toString());
-					redisService.setCode(sessionId , codeCache);
+					redisService.setCode(sessionId , codeCache, NoticeChannel.SMS);
 				}else {
 					flag = NoticeResultDto.error("邮件发送成功但是日志记录失败");
 				}
@@ -241,7 +251,7 @@ public class NoticeServiceImpl implements INoticeService {
 			addVerificationProperties(purpose,properties);
 		}
 		String html = applyPropertiesToTemplate(templateContent, properties);
-		NoticeResultDto flag = emailService.sendEmail(receiver, generalConfig.getName()+" | "+purpose.getName(), html);
+		NoticeResultDto flag = emailService.SendEmail(receiver, generalConfig.getName()+" | "+purpose.getName(), html);
 		if (flag.isSuccess()){
 			if (purpose.getKey()>=1 && purpose.getKey()<=5){
 				Long logId = noticeLogService.defaultLogWithId(templateId, receiver, NoticeStatus.SUCCESS, NoticeChannel.EMAIL, properties);
@@ -250,7 +260,7 @@ public class NoticeServiceImpl implements INoticeService {
 					CodeCache codeCache = new CodeCache();
 					codeCache.setId(logId);
 					codeCache.setCode(properties.get("code").toString());
-					redisService.setCode(sessionId , codeCache);
+					redisService.setCode(sessionId , codeCache, NoticeChannel.EMAIL);
 				}else {
 					flag = NoticeResultDto.error("邮件发送成功但是日志记录失败");
 				}
@@ -281,13 +291,47 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public NoticeResultDto validateAccountCaptcha(String code, String sessionId, String token) {
-		return NoticeResultDto.error();
+	public NoticeResultDto validateAccountCaptcha(String code, @NotNull NoticeChannel channel, String sessionId, String token) {
+		CodeCache codeCache = redisService.getCode(sessionId, channel);
+		if (codeCache.getCode().equals(code)){
+			redisService.deleteCode(sessionId, channel);
+			NoticeLog noticeLog = noticeLogService.getNoticeLog(codeCache.getId());
+			Map<String, Object> properties = JSON.parseObject(noticeLog.getProperties(), new TypeReference<>() {});
+			return NoticeResultDto.success(properties);
+		}else {
+			return NoticeResultDto.error();
+		}
 	}
 
 	@Override
-	public boolean inspect(String receiver, NoticeChannel noticeChannel) {
+	public boolean inspect(String receiver, @NotNull NoticeChannel noticeChannel) {
 		return noticeLogService.inspectByChannel(receiver, noticeChannel);
+	}
+
+	@Override
+	public NoticeResultDto refreshNotice(String sessionId, @NotNull NoticeChannel channel, NoticePurpose purpose) {
+		if (noticeConfig.getNoticeExpirationTime() < 10L){
+			if (redisService.hasCode(sessionId, channel)){
+				return NoticeResultDto.success();
+			}else {
+				return NoticeResultDto.error();
+			}
+		}else {
+			if (redisService.hasCode(sessionId, channel)){
+				long expire = redisService.getCodeExpire(sessionId, channel);
+				if (noticeConfig.getNoticeExpirationTime() - expire > 10L){
+					return NoticeResultDto.success();
+				}else {
+					return NoticeResultDto.error();
+				}
+			}else {
+				if (redisService.hasCodeHash(sessionId, channel)){
+					return NoticeResultDto.success();
+				}else {
+					return NoticeResultDto.error();
+				}
+			}
+		}
 	}
 
 	private static @NotNull String applyPropertiesToTemplate(String template, @NotNull Map<String, Object> properties) {
