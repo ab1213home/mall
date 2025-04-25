@@ -16,18 +16,15 @@ package com.jiang.mall.domain.vo;
 import lombok.Data;
 
 @Data
-public class EmailSettingVo {
-	private String host;
-	private String port;
-	private boolean auth;
-	private boolean tls;
-	private String username;
-	private String sender_end;
-	private String nickname;
-	private String password;
-	private int expiration_time;
-	private int max_request_num;
-	private int min_request_num;
-	private double max_fail_rate;
-	private boolean AllowSendEmail;
+public class EnumVo {
+	private Integer key;
+	private String name;
+
+	public EnumVo(Integer key, String name) {
+		this.key = key;
+		this.name = name;
+	}
+
+	public EnumVo(){
+	}
 }

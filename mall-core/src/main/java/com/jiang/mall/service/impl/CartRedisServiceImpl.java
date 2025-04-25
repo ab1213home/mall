@@ -24,15 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -416,32 +412,47 @@ public class CartRedisServiceImpl implements ICartRedisService {
 	 */
 	@Override
 	public List<CartListDto> getCart() {
-	    // 扫描Redis中所有以prefix开头的键，避免使用KEYS命令导致性能问题
-	    Set<String> keys = stringRedisTemplate.execute((RedisCallback<Set<String>>) connection -> {
-	        Set<String> matchedKeys = new HashSet<>();
-	        // 使用SCAN命令迭代获取匹配的键，匹配格式为prefix + "*"
-	        ScanOptions options = ScanOptions.scanOptions()
-	                .match(prefix + "*")
-	                .count(1000) // 每次扫描的批次大小
-	                .build();
-	        Cursor<byte[]> cursor = connection.scan(options);
-	        while (cursor.hasNext()) {
-	            matchedKeys.add(new String(cursor.next(), StandardCharsets.UTF_8));
-	        }
-	        return matchedKeys;
-	    });
+	    // Lua脚本，用于扫描Redis中所有以prefix开头的键
+	    String luaScript =
+	    """
+        local cursor = "0"
+        local matchedKeys = {}
+        local matchPattern = ARGV[1]
+        local count = tonumber(ARGV[2])
+	
+        repeat
+            local result = redis.call('SCAN', cursor, 'MATCH', matchPattern, 'COUNT', count)
+            cursor = result[1]
+            for _, key in ipairs(result[2]) do
+                table.insert(matchedKeys, key)
+            end
+        until cursor == "0"
+	
+        return matchedKeys
+        """;
+
+	    // 参数列表
+	    List<String> keys = Collections.emptyList();
+	    Object[] args = {
+	        prefix + "*", // 匹配模式
+	        "1000"        // 每次扫描的批次大小
+	    };
+
+	    // 创建Redis脚本对象
+	    RedisScript<List> script = new DefaultRedisScript<>(luaScript, List.class);
+
+	    // 执行Lua脚本并获取匹配的键
+	    List<?> matchedKeys = stringRedisTemplate.execute(script, keys, args);
 
 	    // 初始化结果列表，用于存储所有用户的购物车数据
 	    List<CartListDto> userCartMap = new ArrayList<>();
-	    if (keys == null) {
-	        return userCartMap;
-	    }
 
 	    // 遍历所有匹配的键，提取用户ID并获取对应购物车数据
-	    for (String key : keys) {
+	    for (Object key : matchedKeys) {
 	        try {
 	            // 从键中提取用户ID（移除prefix部分）
-	            String userIdStr = key.substring(prefix.length());
+		        String keyStr = key.toString();
+	            String userIdStr = keyStr.substring(prefix.length());
 	            Long userId = Long.parseLong(userIdStr);
 	            Long version = getVersion(userId);
 

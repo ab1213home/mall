@@ -19,7 +19,6 @@ import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserLogVo;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -55,9 +54,9 @@ public interface IUserLogService extends IService<UserLog> {
 
 	void defaultLogToMq(String username, String clientIp, String fingerprint , @NotNull UserStatus status, Map<String, Object> properties);
 
+	@Deprecated
 	void oauthLoginLog(String username, UserStatus userStatus);
 
 	//获取登录用户的登录日志50条
-	@Transactional
 	List<UserLogVo> getUserLoginLog(@NotNull UserCache userCache);
 }

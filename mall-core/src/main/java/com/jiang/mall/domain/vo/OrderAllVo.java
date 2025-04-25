@@ -53,7 +53,7 @@ public class OrderAllVo {
 	/**
      * 订单状态
      */
-    private String status;
+    private EnumVo status;
 
     /**
      * 下单时间
@@ -64,7 +64,7 @@ public class OrderAllVo {
     /**
      * 支付方式
      */
-    private String paymentProvider;
+    private EnumVo paymentProvider;
 
     /*
 	支付金额

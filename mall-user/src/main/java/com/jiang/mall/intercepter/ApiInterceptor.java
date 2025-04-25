@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
+@Deprecated
 public class ApiInterceptor implements HandlerInterceptor {
 
 //	@Override

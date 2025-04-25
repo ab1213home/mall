@@ -278,7 +278,7 @@
                 <version>${modelmapper.version}</version>
             </dependency>
 
-            <!--ip2region-->
+            <!--离线IP地址定位库-->
             <dependency>
                 <groupId>org.lionsoul</groupId>
                 <artifactId>ip2region</artifactId>
@@ -628,7 +628,7 @@
         <module>mall-common</module>
 		<module>mall-file</module>
 		<module>mall-user</module>
-		<module>mall-email</module>
+<!--		<module>mall-email</module>-->
         <module>mall-seo</module>
         <module>mall-captcha</module>
         <module>mall-category</module>

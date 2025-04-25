@@ -394,9 +394,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		AddressVo address = addressService.getAddress(orderCache.getAddressId());
 		order.setAddress(address);
 		if (orderCache.getStatus() > 1){
-			order.setPaymentProvider(PayProvider.fromKey(orderCache.getPaymentProvider()).getName());
+			order.setPaymentProvider(new EnumVo(orderCache.getPaymentProvider(),PayProvider.fromKey(orderCache.getPaymentProvider()).getName()));
+		}else{
+			order.setPaymentProvider(new EnumVo(0,"无消息"));
 		}
-		order.setStatusStr(OrderStatus.fromKey(orderCache.getStatus()).getName());
+		order.setStatus(new EnumVo(orderCache.getStatus(),OrderStatus.fromKey(orderCache.getStatus()).getName()));
 		List<OrderVo.OrderListVo> orderList_VoList = new ArrayList<>();
 		for (OrderCache.OrderListCache orderList : orderCache.getOrderList()) {
 			OrderVo.OrderListVo orderListVo = new OrderVo.OrderListVo();
@@ -415,9 +417,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		assert orderVo != null;
 		orderVo.setAddress(address);
 		if (order.getStatus() > 1){
-			orderVo.setPaymentProvider(PayProvider.fromKey(order.getPaymentProvider()).getName());
+			orderVo.setPaymentProvider(new EnumVo(order.getPaymentProvider(),PayProvider.fromKey(order.getPaymentProvider()).getName()));
+		}else{
+			orderVo.setPaymentProvider(new EnumVo(0,"无消息"));
 		}
-		orderVo.setStatusStr(OrderStatus.fromKey(order.getStatus()).getName());
+		orderVo.setStatus(new EnumVo(order.getStatus(),OrderStatus.fromKey(order.getStatus()).getName()));
 		QueryWrapper<OrderList> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("order_id",order.getId());
 		List<OrderList> orderList_List = orderListMapper.selectList(queryWrapper);

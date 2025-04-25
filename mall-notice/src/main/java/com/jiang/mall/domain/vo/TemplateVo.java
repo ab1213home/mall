@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class TemplateVo {
@@ -40,12 +41,12 @@ public class TemplateVo {
 	/**
      * 通道
      */
-	private String channel;
+	private List<EnumVo> channels;
 
 	/**
      * 用途
      */
-	private String purpose;
+	private List<EnumVo> purposes;
 
 	/**
      * 创建人

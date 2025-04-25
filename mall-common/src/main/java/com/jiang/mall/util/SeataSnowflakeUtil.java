@@ -15,6 +15,8 @@ package com.jiang.mall.util;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -22,37 +24,61 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class SeataSnowflakeUtil {
 
-	// 基础时间戳（2020-01-01 00:00:00）
+    private static final Logger logger = LoggerFactory.getLogger(SeataSnowflakeUtil.class);
+
+    /**
+     * 基础时间戳（2020-01-01 00:00:00）
+     */
     private static final long EPOCH = 1577836800000L;
 
-    // 机器标识位数（可根据集群规模调整）
+    /**
+     * 机器标识位数
+     */
     private static final int MACHINE_BITS = 10;
 
-    // 序列号位数（决定每毫秒最大生成数）
+    /**
+     * 序列号位数（决定每毫秒最大生成数）
+     */
     private static final int SEQUENCE_BITS = 12;
 
-    // 最大机器ID
+    /**
+     * 最大机器ID
+     */
     private static final long MAX_MACHINE_ID = ~(-1L << MACHINE_BITS);
 
-    // 最大序列号
+    /**
+     * 最大序列号
+     */
     private static final long MAX_SEQUENCE = ~(-1L << SEQUENCE_BITS);
 
-    // 时间戳左移位数
+    /**
+     * 时间戳左移位数
+     */
     private static final int TIMESTAMP_SHIFT = MACHINE_BITS + SEQUENCE_BITS;
 
-    // 机器ID左移位数
+    /**
+     * 机器ID左移位数
+     */
     private static final int MACHINE_ID_SHIFT = SEQUENCE_BITS;
 
-    // 最大允许时钟回拨时间（毫秒）
+    /**
+     * 最大允许时钟回拨时间（毫秒）
+     */
     private static final long MAX_BACKWARD_MS = 100L;
 
-    // 缓存最后一次生成时间戳
+    /**
+     * 缓存最后一次生成时间戳
+     */
     private final AtomicLong lastTimestamp = new AtomicLong(-1L);
 
-    // 序列号计数器
+    /**
+     * 序列号计数器
+     */
     private final AtomicLong sequence = new AtomicLong(0);
 
-    // 机器ID
+    /**
+     * 机器ID
+     */
     private final long machineId;
 
     public SeataSnowflakeUtil(String machineCode) {
@@ -74,7 +100,8 @@ public class SeataSnowflakeUtil {
             if (offset <= MAX_BACKWARD_MS) {
                 currentTimestamp = waitUntilTimeRecovers(timestamp);
             } else {
-                throw new RuntimeException("时钟回拨超过允许范围，差值：" + offset + "ms");
+	            logger.error("时钟回拨超过允许范围，差值：{}ms", offset);
+//                throw new RuntimeException("时钟回拨超过允许范围，差值：" + offset + "ms");
             }
         }
 
@@ -116,7 +143,8 @@ public class SeataSnowflakeUtil {
                 Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new RuntimeException("等待时钟同步时被中断", e);
+//                throw new RuntimeException("等待时钟同步时被中断", e);
+                logger.error("等待时钟同步时发生异常", e);
             }
             current = timeGen();
         }
@@ -135,7 +163,7 @@ public class SeataSnowflakeUtil {
 
     @Contract(pure = true)
     private static long bytesToLong(byte @NotNull [] bytes) {
-        if (bytes.length != 8) throw new IllegalArgumentException();
+        if (bytes.length != 8) logger.error("bytesToLong: bytes数组长度必须为8");
         return ((long) bytes[0] << 56)
                 | ((long) (bytes[1] & 0xFF) << 48)
                 | ((long) (bytes[2] & 0xFF) << 40)

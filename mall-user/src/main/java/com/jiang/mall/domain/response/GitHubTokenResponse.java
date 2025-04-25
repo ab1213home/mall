@@ -11,16 +11,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.dto;
+package com.jiang.mall.domain.response;
 
-import com.jiang.mall.domain.entity.VerificationCode;
 import lombok.Data;
 
 @Data
-public class EmailCodeDto {
-	private Boolean state;
-	private VerificationCode verificationCode;
-
-	public EmailCodeDto() {
-	}
+public class GitHubTokenResponse {
+	private String access_token;
+    private String scope;
+    private String token_type;
 }

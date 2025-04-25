@@ -13,28 +13,33 @@
 
 package com.jiang.mall.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 
 public class NetworkUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(NetworkUtils.class);
+
 	/**
 	 * 获取当前机器的主机名。
 	 *
 	 * @return 返回当前机器的主机名。如果无法获取主机名，将抛出运行时异常。
 	 */
 	public static String getHostName() {
-	    InetAddress localHost;
 	    try {
 	        // 尝试获取本地主机的 InetAddress 对象
-	        localHost = InetAddress.getLocalHost();
+	        InetAddress localHost = InetAddress.getLocalHost();
+			return localHost.getHostName();
 	    } catch (UnknownHostException e) {
 	        // 如果获取失败，抛出运行时异常
-	        throw new RuntimeException(e);
+		    logger.error("获取主机名失败", e);
+			return "unknown";
 	    }
-	    // 返回本地主机的主机名
-	    return localHost.getHostName();
 	}
 	/**
 	 * 获取当前公网IP地址的函数。
@@ -43,14 +48,14 @@ public class NetworkUtils {
 	 * @return 返回当前设备的公网IP地址，类型为String。
 	 * @throws RuntimeException 如果在连接或读取过程中发生IO异常。
 	 */
-	public static String getpublicIP() {
+	public static String getPublicIP() {
 		// 定义用于查询公网IP的URL
 	    URL url;
 		// 定义HttpURLConnection对象用于连接和服务端交互
 	    HttpURLConnection connection;
 	    try {
 			// 初始化URL，指定查询当前公网IP的地址
-	        url = new URL("http://ip.42.pl/raw");
+	        url = new URL("https://api64.ipify.org/");
 	        // 打开连接
 			connection = (HttpURLConnection) url.openConnection();
 	        // 设置连接超时时间为10秒
@@ -63,9 +68,11 @@ public class NetworkUtils {
 		    connection.connect();
 	    } catch (SocketException se) {
             // 记录异常详细信息
+		    logger.error("获取公网IP地址失败", se);
             return getLocalIP();
 		} catch (IOException e) {
 			// 捕获并抛出IO异常
+		    logger.error("获取公网IP地址失败", e);
 			return getLocalIP();
 	    }
 
@@ -74,6 +81,7 @@ public class NetworkUtils {
 			return in.readLine();
 		} catch (IOException e) {
 			// 捕获并抛出IO异常
+			logger.error("获取公网IP地址失败", e);
 			return getLocalIP();
 		}
 	}
@@ -88,7 +96,9 @@ public class NetworkUtils {
 	        return InetAddress.getLocalHost().getHostAddress();
 	    } catch (UnknownHostException e) {
 	        // 如果无法获取本地主机地址，则抛出运行时异常
-	        throw new RuntimeException(e);
+		    logger.error("获取本地IP地址失败", e);
+			return "unknown";
+//	        throw new RuntimeException(e);
 	    }
 	}
 
@@ -102,4 +112,5 @@ public class NetworkUtils {
             InetAddress geek = InetAddress.getByName(ipAddress);
 	    return geek.isReachable(10000);
         }
+
 }

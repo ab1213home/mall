@@ -22,10 +22,12 @@ import com.jiang.mall.dao.UserLogMapper;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.domain.enums.UserStatus;
+import com.jiang.mall.domain.vo.EnumVo;
 import com.jiang.mall.domain.vo.UserLogVo;
 import com.jiang.mall.mq.UserLogProducer;
 import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.IpRegionUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,13 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	@Autowired
 	public void setProducer(UserLogProducer producer) {
 		this.producer = producer;
+	}
+
+	private IpRegionUtil ipRegion;
+
+	@Autowired
+	public void setIpRegion(IpRegionUtil ipRegion) {
+		this.ipRegion = ipRegion;
 	}
 
 	/**
@@ -219,13 +228,13 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 			if (userLog.getProperties()!=null){
 				Map<String, Object> map = JSON.parseObject(userLog.getProperties(), new TypeReference<>() {});
 				if (map.get("provider")!=null){
-					userLogVo.setType(map.get("provider").toString()+"登录");
+					userLogVo.setType(new EnumVo(1,map.get("provider").toString()+"登录"));
 				}else {
-					userLogVo.setType("账号密码登录");
+					userLogVo.setType(new EnumVo(0,"账号密码登录"));
 				}
 			}
+			userLogVo.setLocation(ipRegion.getRegionByIp(userLog.getIp()));
 			userLogVos.add(userLogVo);
-//			userLogVo.setUsername(userCache.getUsername());
 		}
 		return userLogVos;
 	}

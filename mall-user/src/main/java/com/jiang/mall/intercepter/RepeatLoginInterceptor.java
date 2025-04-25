@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
+@Deprecated
 public class RepeatLoginInterceptor implements HandlerInterceptor {
 
     private IUserRedisService redisService;

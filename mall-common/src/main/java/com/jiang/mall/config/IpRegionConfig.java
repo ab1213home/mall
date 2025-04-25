@@ -11,13 +11,23 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain;
+package com.jiang.mall.config;
 
-import lombok.Data;
+import com.jiang.mall.util.IpRegionUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Data
-public class GitHubTokenResponse {
-	private String access_token;
-    private String scope;
-    private String token_type;
+@Configuration
+public class IpRegionConfig {
+
+	@Value("${ip2region.db-path}")
+	private String dbPath;
+
+
+	@Bean
+	public IpRegionUtil ipRegion() {
+		return new IpRegionUtil(dbPath);
+	}
+
 }

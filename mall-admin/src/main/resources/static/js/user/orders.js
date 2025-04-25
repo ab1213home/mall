@@ -47,17 +47,17 @@ function queryOrders(pn, pz) {
                             <td id="orderDate` + order.id + `">${order.orderDate}</td>
                             <td id="totalAmount` + order.id + `" class="price-tag">${order.totalAmount}</td>
                         `
-					if (order.status < 2 ){
+					if (order.status.key < 2 ){
 						row=row+`
-							<td id="status` + order.id + `" colspan="2">${order.statusStr}</td>
+							<td id="status` + order.id + `" colspan="2">${order.status.name}</td>
                             <td id="orderList` + order.id + `">
 						`;
 					}else {
 						row=row+`
-                            <td id="status` + order.id + `">${order.statusStr}</td>
+                            <td id="status` + order.id + `">${order.status.name}</td>
                             <td id="paymentMethod` + order.id + `">
                             	<div class="d-flex flex-column align-items-center justify-content-center">\t
-									<div class="fl row text-center mb-2">`+ order.paymentProvider +`</div>
+									<div class="fl row text-center mb-2">`+ order.paymentProvider.name +`</div>
 									<div class="price-tag row text-center mb-2" >`+ paymentAmount +`</div>
 									<div class="num-tag row text-center">`+ paymentDate +`</div>
 								</div>
@@ -87,7 +87,7 @@ function queryOrders(pn, pz) {
 							</a>
 						`;
 					}
-					if (order.status <= 0){
+					if (order.status.key <= 0){
 						row=row+`
 						</td>
 							<td>
@@ -95,7 +95,7 @@ function queryOrders(pn, pz) {
 							</td>
 						</tr>
 						`;
-					}else if (order.status == 1){
+					}else if (order.status.key == 1){
 						row=row+`
 						</td>
 							<td>
@@ -104,7 +104,7 @@ function queryOrders(pn, pz) {
 							</td>
 						</tr>
 						`;
-					}else if (order.status == 2){
+					}else if (order.status.key == 2){
 						row=row+`
 						</td>
 							<td>
@@ -112,7 +112,7 @@ function queryOrders(pn, pz) {
 							</td>
 						</tr>
 						`;
-					}else if (order.status == 3){
+					}else if (order.status.key == 3){
 						row=row+`
 						</td>
 							<td>
@@ -120,7 +120,7 @@ function queryOrders(pn, pz) {
 							</td>
 						</tr>
 						`;
-					}else if (order.status == 4){
+					}else if (order.status.key == 4){
 						row=row+`
 						</td>
 							<td>
@@ -129,7 +129,7 @@ function queryOrders(pn, pz) {
 							</td>
 						</tr>
 						`;
-					}else if (order.status == 5){
+					}else if (order.status.key == 5){
 						row=row+`
 						</td>
 							<td>

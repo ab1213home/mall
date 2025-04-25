@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain;
+package com.jiang.mall.domain.response;
 
 import lombok.Data;
 
