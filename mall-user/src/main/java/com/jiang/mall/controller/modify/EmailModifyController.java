@@ -16,14 +16,21 @@ package com.jiang.mall.controller.modify;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
-import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.dto.NoticeResultDto;
+import com.jiang.mall.domain.enums.NoticeChannel;
+import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.ICaptchaService;
+import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.INoticeService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.jiang.mall.util.SecureUtil.isSha256Hash;
@@ -45,12 +52,12 @@ public class EmailModifyController {
 		this.userService = userService;
 	}
 
-	private IVerificationCodeService verificationCodeService;
+	private INoticeService noticeService;
 
-	@Autowired
-	public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-		this.verificationCodeService = verificationCodeService;
-	}
+    @Autowired
+    public void setNoticeService(INoticeService noticeService) {
+        this.noticeService = noticeService;
+    }
 
 	private II18nService i18nService;
 
@@ -64,13 +71,6 @@ public class EmailModifyController {
 	@Autowired
 	public void setCaptchaService(ICaptchaService captchaService) {
 		this.captchaService = captchaService;
-	}
-
-	private IEmailService emailService;
-
-	@Autowired
-	public void setEmailRedisService(IEmailService emailService) {
-		this.emailService = emailService;
 	}
 
 	@PostMapping("/step1")
@@ -116,7 +116,7 @@ public class EmailModifyController {
             return ResponseResult.failResult("新邮箱不能与旧邮箱相同");
         }
 
-        if (verificationCodeService.inspectByEmail(email)){
+        if (noticeService.inspect(email, NoticeChannel.EMAIL)){
             return ResponseResult.failResult("该邮箱在特定时间内请求过多验证码");
         }
         // 检查邮箱是否已注册
@@ -124,15 +124,34 @@ public class EmailModifyController {
             return ResponseResult.failResult("邮箱已存在");
         }
 
-        flag=emailService.sendChangeEmailEmail(email, user.getUsername(),password, session.getId());
+		Map<String,Object> properties = new HashMap<>();
+        properties.put("email",email);
+        properties.put("username",user.getUsername());
+        properties.put("userId",user.getId());
+        // 发送邮件并处理结果
+        NoticeResultDto res =noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.MODIFY_EMAIL, properties, session.getId(), null);
 
-        if (flag==null){
-            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
-        }else if (flag){
+//        flag=emailService.sendChangeEmailEmail(email, user.getUsername(),password, session.getId());
+		if (res.isSuccess()){
+			return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
+		}else if (res.isError()){
+			return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+		}else {
+			return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
+		}
+    }
+
+	@PostMapping("/step1/refresh")
+    @Permission(PermissionType.GUEST)
+    public ResponseResult<Object> emailStep1Refresh(HttpSession session) {
+        //TODO:重发验证码。时间间隔10分钟
+        NoticeResultDto res =noticeService.refreshNotice(session.getId(), NoticeChannel.EMAIL, NoticePurpose.MODIFY_EMAIL);
+        if (res.isSuccess()){
             return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
-        }
-        else {
+        }else if (res.isError()){
             return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+        }else {
+            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }
     }
 
@@ -154,16 +173,17 @@ public class EmailModifyController {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
 
-		EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
+		 NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
 
-        if (emailCodeDto.getState() == null){
-            // 验证码正确性及有效期检查
+        if (res.isExpired()){
+            // 验证码有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeDto.getState()){
+        }else if (res.isError()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-		Boolean flag = userService.modifyEmail(emailCodeDto.getVerificationCode(), session.getId(), clientIp, fingerprint);
+
+		Boolean flag = userService.modifyEmail(res.getData(), session.getId(), clientIp, fingerprint);
 		// 更新用户邮箱
 		if (flag==null) {
 			//TODO:无状态

@@ -17,10 +17,15 @@ import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.annotation.Register;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.dto.EmailCodeDto;
+import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.entity.User;
+import com.jiang.mall.domain.enums.NoticeChannel;
+import com.jiang.mall.domain.enums.NoticePurpose;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.service.*;
+import com.jiang.mall.service.ICaptchaService;
+import com.jiang.mall.service.II18nService;
+import com.jiang.mall.service.INoticeService;
+import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +34,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 用户控制器
@@ -47,11 +54,11 @@ public class RegisterController {
         this.userService = userService;
     }
 
-    private IVerificationCodeService verificationCodeService;
+    private INoticeService noticeService;
 
     @Autowired
-    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-        this.verificationCodeService = verificationCodeService;
+    public void setNoticeService(INoticeService noticeService) {
+        this.noticeService = noticeService;
     }
 
     private II18nService i18nService;
@@ -59,13 +66,6 @@ public class RegisterController {
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
-    }
-
-    private IEmailService emailService;
-
-    @Autowired
-    public void setEmailService(IEmailService emailService) {
-        this.emailService = emailService;
     }
 
     private ICaptchaService captchaService;
@@ -117,7 +117,7 @@ public class RegisterController {
         }
 
         Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
-		if (flag==null){
+		if (flag == null){
 			// 检查验证码是否过期
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
 		}else if (!flag){
@@ -126,7 +126,7 @@ public class RegisterController {
 		}
 
         // 检查是否在特定时间内请求过多验证码
-        if (verificationCodeService.inspectByEmail(email)){
+        if (noticeService.inspect(email, NoticeChannel.EMAIL)){
             return ResponseResult.failResult(i18nService.getMessage("email.error.overload"));
         }
         // 检查邮箱是否已注册
@@ -138,16 +138,20 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.username.exist"));
         }
 
-        // 发送邮件
-        flag =emailService.sendRegisterEmail(email,username,password,session.getId());
+        Map<String,Object> properties = new HashMap<>();
+        properties.put("email",email);
+        properties.put("username",username);
+        properties.put("password",password);
 
-        if (flag==null){
-            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
-        }else if (flag){
-            return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
+        // 发送邮件并处理结果
+        NoticeResultDto res =noticeService.sendNotice(email, NoticeChannel.EMAIL, NoticePurpose.FORGOT_PASSWORD, properties, session.getId(), null);
+        if (res.isSuccess()){
+            return ResponseResult.okResult(email,i18nService.getMessage("email.register.success"));
+        }else if (res.isError()){
+            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
         }
         else {
-            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
         }
     }
 
@@ -155,7 +159,14 @@ public class RegisterController {
     @Permission(PermissionType.GUEST)
     public ResponseResult<Object> registerStep1Refresh(HttpSession session) {
         //TODO:重发验证码。时间间隔10分钟
-        return ResponseResult.okResult(i18nService.getMessage("email.register.resend"));
+        NoticeResultDto res =noticeService.refreshNotice(session.getId(), NoticeChannel.EMAIL, NoticePurpose.REGISTER);
+        if (res.isSuccess()){
+            return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
+        }else if (res.isError()){
+            return ResponseResult.failResult(i18nService.getMessage("email.register.error"));
+        }else {
+            return ResponseResult.serverErrorResult(i18nService.getMessage("email.register.error.unknown"));
+        }
     }
 
 	/**
@@ -182,17 +193,18 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
 
-        EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
+        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
 
-        if (emailCodeDto.getState() == null){
+        if (res.isExpired()){
             // 验证码有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeDto.getState()){
+        }else if (res.isError()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
+
         // 注册用户
-        Long userId = userService.register(emailCodeDto.getVerificationCode(),session.getId(), clientIp, fingerprint);
+        Long userId = userService.register(res.getData(),session.getId(), clientIp, fingerprint);
         if (userId>0) {
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {

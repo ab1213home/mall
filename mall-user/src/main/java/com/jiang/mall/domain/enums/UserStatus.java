@@ -29,7 +29,8 @@ public enum UserStatus {
 	FAIL_MODIFY_EMAIL( 8, "修改邮箱失败"),
 	SUCCESS_LOCK( 9, "用户自我锁定成功"),
 	SUCCESS_ADMIN_LOCK( 10, "管理员锁定用户成功"),
-	SUCCESS_UNLOCK( 11, "解锁用户成功");
+	SUCCESS_UNLOCK( 11, "解锁用户成功"),
+	MODIFY_2FA(12, "修改双因素认证状态");
 
 	private final Integer value;
 	private final String name;

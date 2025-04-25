@@ -57,15 +57,16 @@ public class TemplateController {
 	@Permission(value = PermissionType.ADMIN, permission = "notice:template:create")
 	public ResponseResult<Object> insertTemplate(@RequestParam("name") String name,
 	                                            @RequestParam("content") String content,
-	                                            @RequestParam("channel") Integer channel,
-												@RequestParam("purpose") Integer purpose,
+	                                            @RequestParam("channel") String channel,
+												@RequestParam("purpose") String purpose,
                                                  HttpSession session
 	                                            ){
 		Template template = new Template();
 		template.setName(name);
 		template.setContent(content);
-		template.setChannel(channel);
-		template.setPurpose(purpose);
+		//TODO: 待优化
+//		template.setChannel(channel);
+//		template.setPurpose(purpose);
 		if (templateService.insertTemplate(template,session.getId())){
 			return ResponseResult.okResult("添加成功");
 		}else {
@@ -78,16 +79,17 @@ public class TemplateController {
 	public ResponseResult<Object> updateTemplate(@RequestParam("id") Long id,
 	                                            @RequestParam("name") String name,
 	                                            @RequestParam("content") String content,
-	                                            @RequestParam("channel") Integer channel,
-												@RequestParam("purpose") Integer purpose,
+	                                            @RequestParam("channel") String channel,
+												@RequestParam("purpose") String purpose,
                                                  HttpSession session
 												) {
 		Template template = new Template();
 		template.setId(id);
 		template.setName(name);
 		template.setContent(content);
-		template.setChannel(channel);
-		template.setPurpose(purpose);
+		//TODO: 待优化
+//		template.setChannel(channel);
+//		template.setPurpose(purpose);
 		if (templateService.updateTemplate(template, session.getId())){
 			return ResponseResult.okResult("修改成功");
 		}else {

@@ -203,8 +203,8 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	}
 
 	//获取登录用户的登录日志50条
-//	@Override
 	@Transactional
+	@Override
 	public List<UserLogVo> getUserLoginLog(@NotNull UserCache userCache) {
 		QueryWrapper<UserLog> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("username", userCache.getUsername()).or().eq("username", userCache.getEmail());

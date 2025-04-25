@@ -25,15 +25,18 @@ import java.util.Objects;
 public enum NoticePurpose {
 
 	DEFAULT(-1, "未关联默认"),
+
 	LOGIN(1, "登录"),
-	MODIFY_PASSWORD(2, "修改密码"),
-	FIND_PASSWORD(3, "找回密码"),
-	MODIFY_PHONE(4, "修改手机号"),
-	MODIFY_EMAIL(5, "修改邮箱"),
-	REGISTER_SUCCESS(6, "注册成功"),
-	PASSWORD_MODIFY_SUCCESS(7, "密码修改成功"),
-	LOGIN_EXCEPTION_WARNING(8, "登录异常警告"),
-	ORDER_STATUS_CHANGE(9, "订单状态变更"),
+	REGISTER(2, "注册"),
+	FORGOT_PASSWORD(3, "忘记密码"),
+
+	MODIFY_PASSWORD(4, "修改密码"),
+	MODIFY_PHONE(5, "修改手机号"),
+	MODIFY_EMAIL(6, "修改邮箱"),
+	MODIFY_2FA(7, "修改双因素认证状态"),
+	LOGIN_WARNING(8, "登录异常警告"),
+
+	ORDER_CHANGE(9, "订单状态变更"),
 	ORDER_CREATE_SUCCESS(10, "订单创建成功"),
 	ORDER_PAY_SUCCESS(11, "订单支付成功"),
 	ORDER_PAY_FAIL(12, "订单支付失败"),
@@ -44,10 +47,12 @@ public enum NoticePurpose {
 	AFTER_SALE_APPLY_SUCCESS(17, "售后申请提交成功"),
 	AFTER_SALE_PROGRESS_UPDATE(18, "售后处理进度更新"),
 	AFTER_SALE_COMPLETE(19, "售后完成通知"),
-	SYSTEM_UPGRADE_NOTICE(20, "系统升级公告"),
-	FUNCTION_DISABLED_NOTICE(21, "功能停用或调整公告"),
+
+	SYSTEM_UPGRADE(20, "系统升级公告"),
+	FUNCTION_DISABLED(21, "功能停用或调整公告"),
 	COMMENT_REPLY(22, "商品评价回复提醒"),
 	USER_MESSAGE_REPLY(23, "用户留言回复提醒"),
+
 	OTHER(24, "其他");
 
 	private final int key;

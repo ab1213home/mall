@@ -18,13 +18,13 @@ import com.jiang.mall.domain.cache.OAuthCache;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.entity.User;
-import com.jiang.mall.domain.entity.VerificationCode;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.vo.UserAdminVo;
 import com.jiang.mall.domain.vo.UserVo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -58,13 +58,13 @@ public interface IUserService extends IService<User> {
 
     Boolean validatePassword(Long userId, String password);
 
-    Boolean modifyEmail(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
+    Boolean modifyEmail(@NotNull Map<String, Object> properties, String sessionId, String clientIp, String fingerprint);
 
-    Long register(VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint);
+    Long register(@NotNull Map<String, Object> properties, String sessionId, String clientIp, String fingerprint);
 
     Boolean register(@NotNull User user, String sessionId);
 
-    Boolean forgot(VerificationCode verificationCode, String password, String clientIp, String fingerprint);
+    Boolean forgot(@NotNull Map<String, Object> properties, String password, String clientIp, String fingerprint);
 
     Boolean lock(String sessionId, String clientIp, String fingerprint);
 

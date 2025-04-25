@@ -15,7 +15,6 @@ package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
-import com.jiang.mall.domain.dto.EmailCodeDto;
 import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.enums.NoticeChannel;
@@ -56,25 +55,11 @@ public class ForgotController {
         this.noticeService = noticeService;
     }
 
-    private IVerificationCodeService verificationCodeService;
-
-    @Autowired
-    public void setVerificationCodeService(IVerificationCodeService verificationCodeService) {
-        this.verificationCodeService = verificationCodeService;
-    }
-
     private II18nService i18nService;
 
     @Autowired
     public void setI18nService(II18nService i18nService) {
         this.i18nService = i18nService;
-    }
-
-    private IEmailService emailService;
-
-    @Autowired
-    public void setEmailRedisService(IEmailService emailService) {
-        this.emailService = emailService;
     }
 
     private ICaptchaService captchaService;
@@ -132,7 +117,7 @@ public class ForgotController {
         properties.put("username",user.getUsername());
         properties.put("userId",user.getId());
         // 发送邮件并处理结果
-        NoticeResultDto res =noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD, properties, session.getId(), null);
+        NoticeResultDto res =noticeService.sendNotice(user.getEmail(), NoticeChannel.EMAIL, NoticePurpose.FORGOT_PASSWORD, properties, session.getId(), null);
         if (res.isSuccess()){
              return ResponseResult.okResult(user.getEmail(),i18nService.getMessage("email.register.success"));
         }else if (res.isError()){
@@ -147,7 +132,7 @@ public class ForgotController {
     @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep1Refresh(HttpSession session) {
         //TODO:重发验证码。时间间隔10分钟
-        NoticeResultDto res =noticeService.refreshNotice(session.getId(), NoticeChannel.EMAIL, NoticePurpose.FIND_PASSWORD);
+        NoticeResultDto res =noticeService.refreshNotice(session.getId(), NoticeChannel.EMAIL, NoticePurpose.FORGOT_PASSWORD);
         if (res.isSuccess()){
             return ResponseResult.okResult(i18nService.getMessage("email.register.success"));
         }else if (res.isError()){
@@ -185,16 +170,16 @@ public class ForgotController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
 
-        EmailCodeDto emailCodeDto = emailService.validateCaptcha(code, session.getId());
+        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
 
-        if (emailCodeDto.getState() == null){
+        if (res.isExpired()){
             // 验证码有效期检查
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
-        }else if (!emailCodeDto.getState()){
+        }else if (res.isError()){
             // 检查用户输入的验证码与发送的验证码是否一致
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
-        Boolean flag = userService.forgot(emailCodeDto.getVerificationCode(), password, clientIp, fingerprint);
+        Boolean flag = userService.forgot(res.getData(), password, clientIp, fingerprint);
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }else if (!flag){

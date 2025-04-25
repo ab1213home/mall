@@ -17,6 +17,7 @@ import com.jiang.mall.domain.dto.NoticeResultDto;
 import com.jiang.mall.domain.enums.NoticeChannel;
 import com.jiang.mall.domain.enums.NoticePurpose;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -29,6 +30,9 @@ public interface INoticeService {
 
 	//验证验证码并且使用他
 	NoticeResultDto validateAccountCaptcha(String code, @NotNull NoticeChannel channel, String sessionId , String token);
+
+	@Transactional
+	void useCode(Long id);
 
 	//检查是否可以发送通知
 	boolean inspect(String receiver, @NotNull NoticeChannel channel);

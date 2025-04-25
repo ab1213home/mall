@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,6 +106,7 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
+	@Transactional
 	public NoticeResultDto sendNotice(String receiver, @NotNull NoticeChannel channel, @NotNull NoticePurpose purpose, Map<String, Object> properties, String sessionId, String token) {
 		if (channel == NoticeChannel.EMAIL){
 			return sendNoticeByEmail(receiver, purpose, properties, sessionId, token);
@@ -281,6 +283,7 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
+	@Transactional
 	public NoticeResultDto sendNotice(String receiver, Long templateId, Map<String, Object> properties) {
 		String template = templateService.getTemplate(templateId);
 		if (template == null){
@@ -291,27 +294,47 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
+	@Transactional
 	public NoticeResultDto validateAccountCaptcha(String code, @NotNull NoticeChannel channel, String sessionId, String token) {
-		CodeCache codeCache = redisService.getCode(sessionId, channel);
-		if (codeCache.getCode().equals(code)){
-			redisService.deleteCode(sessionId, channel);
-			NoticeLog noticeLog = noticeLogService.getNoticeLog(codeCache.getId());
-			Map<String, Object> properties = JSON.parseObject(noticeLog.getProperties(), new TypeReference<>() {});
-			return NoticeResultDto.success(properties);
+		if (redisService.hasCode(sessionId, channel)){
+			CodeCache codeCache = redisService.getCode(sessionId, channel);
+			if (codeCache.getCode().equals(code)){
+				redisService.deleteCode(sessionId, channel);
+				NoticeLog noticeLog = noticeLogService.getNoticeLog(codeCache.getId());
+				Map<String, Object> properties = JSON.parseObject(noticeLog.getProperties(), new TypeReference<>() {});
+				properties.put("id", codeCache.getId());
+				return NoticeResultDto.success(properties);
+			}else {
+				return NoticeResultDto.error();
+			}
 		}else {
-			return NoticeResultDto.error();
+			return NoticeResultDto.expired();
 		}
 	}
 
+	@Transactional
 	@Override
+	public void useCode(Long id){
+		noticeLogService.updateStatus(id, NoticeStatus.USED);
+	}
+
+	@Override
+	@Transactional
 	public boolean inspect(String receiver, @NotNull NoticeChannel noticeChannel) {
 		return noticeLogService.inspectByChannel(receiver, noticeChannel);
 	}
 
+//	Long userId = Long.parseLong(properties.get("userId").toString());
+//        String email = properties.get("email").toString();
+//        String username = properties.get("username").toString();
+//		Long id = Long.parseLong(properties.get("id").toString());
+
 	@Override
+	@Transactional
 	public NoticeResultDto refreshNotice(String sessionId, @NotNull NoticeChannel channel, NoticePurpose purpose) {
 		if (noticeConfig.getNoticeExpirationTime() < 10L){
 			if (redisService.hasCode(sessionId, channel)){
+				//TODO:刷新验证码
 				return NoticeResultDto.success();
 			}else {
 				return NoticeResultDto.error();

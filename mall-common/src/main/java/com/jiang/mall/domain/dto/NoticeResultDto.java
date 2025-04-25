@@ -78,6 +78,14 @@ public class NoticeResultDto {
 		return dto;
 	}
 
+	@Contract(value = "-> new", pure = true)
+	public static @NotNull NoticeResultDto expired() {
+		NoticeResultDto dto = new NoticeResultDto();
+		dto.setResult(NoticeResult.EXPIRED);
+		dto.setMessage("验证码已过期");
+		return dto;
+	}
+
 	public boolean isSuccess() {
 		return this.result == NoticeResult.SUCCESS;
 	}
@@ -92,6 +100,10 @@ public class NoticeResultDto {
 
 	public boolean isOffline() {
 		return this.result == NoticeResult.OFFLINE;
+	}
+
+	public boolean isExpired() {
+		return this.result == NoticeResult.EXPIRED;
 	}
 
 	@Getter
@@ -112,10 +124,15 @@ public class NoticeResultDto {
 		 */
 		OFFLINE("用户不在线"),
 
-		/*
-		 * 登录成功
+		/**
+		 * 过期
 		 */
-		SUCCESS("登录成功");
+		EXPIRED("过期"),
+
+		/*
+		 * 成功
+		 */
+		SUCCESS("成功");
 
 		private final String value;
 

@@ -350,43 +350,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	@Transactional
-	public Boolean modifyEmail(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
-		UserCache userVo = getUserFromRedis(sessionId);
-		User user = userMapper.getUserByIdAndActive(userVo.getId(),true);
+	public Boolean modifyEmail(@NotNull Map<String, Object> properties, String sessionId, String clientIp, String fingerprint) {
+		Long id = Long.parseLong(properties.get("id").toString());
+		UserCache userCache = getUserFromRedis(sessionId);
+		User user = userMapper.getUserByIdAndActive(userCache.getId(),true);
 		Map<String,Object> map = new HashMap<>();
-		map.put("new_email",verificationCode.getEmail());
+		map.put("new_email", properties.get("email").toString());
 		map.put("old_email",user.getEmail());
-		if (userMapper.setEmailById(user.getId(),verificationCode.getEmail())>0){
+		if (userMapper.setEmailById(user.getId(), properties.get("email").toString())>0){
 			// 验证码使用标记
-			emailService.useCode(userVo.getId(), verificationCode);
+			noticeService.useCode(id);
 			// 记录邮箱修改成功日志
-			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint, UserStatus.SUCCESS_MODIFY_EMAIL,map);
-			userVo.setEmail(verificationCode.getEmail());
-			setUserToRedis(userVo);
+			userLogService.defaultLog(properties.get("username").toString(),clientIp,fingerprint, UserStatus.SUCCESS_MODIFY_EMAIL,map);
+			userCache.setEmail(properties.get("email").toString());
+			setUserToRedis(userCache);
 			return true;
 		}else {
 			logger.error("修改{}用户邮箱失败", getUserFromRedis(sessionId).getId());
-			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint, UserStatus.FAIL_MODIFY_EMAIL,map);
+			userLogService.defaultLog(properties.get("username").toString(),clientIp,fingerprint, UserStatus.FAIL_MODIFY_EMAIL,map);
 			return false;
 		}
 	}
 
 	@Override
 	@Transactional
-	public Long register(@NotNull VerificationCode verificationCode, String sessionId, String clientIp, String fingerprint) {
+	public Long register(@NotNull Map<String, Object> properties, String sessionId, String clientIp, String fingerprint) {
+//        String email = properties.get("email").toString();
+//        String username = properties.get("username").toString();
+//		String password = properties.get("password").toString();
+		Long id = Long.parseLong(properties.get("id").toString());
 		User user = new User();
-		user.setUsername(verificationCode.getUsername());
-		user.setPassword(verificationCode.getPassword());
-		user.setEmail(verificationCode.getEmail());
+		user.setUsername(properties.get("username").toString());
+		user.setPassword(properties.get("password").toString());
+		user.setEmail(properties.get("email").toString());
 		user.setActive(true);
 		user.setTotpEnabled(false);
 		Map<String,Object> map = new HashMap<>();
-		map.put("email",user.getEmail());
-		map.put("password",user.getPassword());
+		map.put("email",properties.get("email").toString());
+		map.put("password",properties.get("password").toString());
 		if (userMapper.insert(user) > 0){
 			redisService.setTwoRegister(user.getId(),sessionId);
-			emailService.useCode(user.getId(), verificationCode);
-			userLogService.defaultLog(user.getUsername(),clientIp,fingerprint, UserStatus.SUCCESS_REGISTER,map);
+			noticeService.useCode(id);
+			userLogService.defaultLog(properties.get("username").toString(),clientIp,fingerprint, UserStatus.SUCCESS_REGISTER,map);
 			if (userConfig.getDefaultGroup()!=-1){
 				UserGroupRelation userGroupRelation = new UserGroupRelation();
 				userGroupRelation.setUserId(user.getId());
@@ -417,7 +422,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	/**
 	 * 处理用户忘记密码的情况
 	 *
-	 * @param verificationCode 验证码对象，用于验证用户身份
+	 * @param properties 验证码对象，用于验证用户身份
 	 * @param password 新密码，用户希望设置的新密码
 	 * @param clientIp 客户端IP地址，用于记录用户活动
 	 * @param fingerprint 用户设备指纹，用于增强安全性
@@ -425,9 +430,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	 */
 	@Override
 	@Transactional
-	public Boolean forgot(@NotNull VerificationCode verificationCode, String password, String clientIp, String fingerprint) {
+	public Boolean forgot(@NotNull Map<String, Object> properties, String password, String clientIp, String fingerprint) {
+		Long userId = Long.parseLong(properties.get("userId").toString());
+//        String username = properties.get("username").toString();
+		Long id = Long.parseLong(properties.get("id").toString());
 	    // 根据查询条件尝试获取用户信息。
-	    User user = userMapper.selectById(verificationCode.getUserId());
+	    User user = userMapper.selectById(userId);
 		Map<String,Object> map = new HashMap<>();
 		map.put("new_password",password);
 
@@ -440,12 +448,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        user.setActive(true);
 	        // 通过ID更新用户信息。
 	        if (userMapper.updateById(user) > 0){
-	            // 更新验证码对象的密码信息
-	            verificationCode.setPassword(password);
 	            // 使用验证码，并记录使用信息
-	            emailService.useCode(user.getId(), verificationCode);
+	            noticeService.useCode(id);
 	            // 记录用户成功找回密码的日志
-		        userLogService.defaultLog(user.getUsername(),clientIp,fingerprint, UserStatus.SUCCESS_FORGET_PASSWORD,map);
+		        userLogService.defaultLog(properties.get("username").toString(),clientIp,fingerprint, UserStatus.SUCCESS_FORGET_PASSWORD,map);
 	            // 更新成功，返回true
 	            return true;
 	        }else {
@@ -454,7 +460,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	        }
 	    }else {
 	        // 如果用户不存在，返回false。
-		    userLogService.defaultLog(verificationCode.getUsername(),clientIp,fingerprint, UserStatus.FAIL_FORGET_PASSWORD,map);
+		    userLogService.defaultLog(properties.get("username").toString(),clientIp,fingerprint, UserStatus.FAIL_FORGET_PASSWORD,map);
 	        return false;
 	    }
 	}

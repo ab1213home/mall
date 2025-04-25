@@ -25,6 +25,7 @@ import com.jiang.mall.service.INoticeLogService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -48,6 +49,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public boolean inspectByChannel(String receiver, @NotNull NoticeChannel channel) {
 		if (channel == NoticeChannel.WEB){
 			return true;
@@ -57,8 +59,20 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	    // 一天前的时间
 	    Date yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-		long count = noticeLogMapper.selectCountBySingleChannelAndTimeRange(receiver, channel.getKey(), yesterday, now);
-		long failCount = noticeLogMapper.selectCountBySingleChannelAndTimeRangeAndStatus(receiver, channel.getKey(), NoticeStatus.FAILED.getKey(), yesterday, now);
+		QueryWrapper<NoticeLog> queryWrapper_fail = new QueryWrapper<>();
+		queryWrapper_fail.in("purpose", 1,2,3,4);
+		queryWrapper_fail.between("trigger_time", yesterday, now);
+		queryWrapper_fail.eq("status", NoticeStatus.FAILED.getKey());
+		queryWrapper_fail.eq("receiver", receiver);
+		queryWrapper_fail.eq("channel", channel.getKey());
+		long failCount = noticeLogMapper.selectCount(queryWrapper_fail);
+
+		QueryWrapper<NoticeLog> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("purpose", 1,2,3,4);
+		queryWrapper.between("trigger_time", yesterday, now);
+		queryWrapper.eq("receiver", receiver);
+		queryWrapper.eq("channel", channel.getKey());
+		long count = noticeLogMapper.selectCount(queryWrapper);
 
 		//检查请求数量是否小于等于最小请求数量
 	    if (count <= noticeConfig.getNoticeMinRequestNum()) {
@@ -73,6 +87,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public boolean defaultLog(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setTemplateId(templateId);
@@ -86,6 +101,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public Long defaultLogWithId(Long templateId, String receiver, @NotNull NoticeStatus status, @NotNull NoticeChannel channel, Map<String, Object> properties) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setTemplateId(templateId);
@@ -103,6 +119,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public boolean updateStatus(Long id, @NotNull NoticeStatus status) {
 		NoticeLog noticeLog = new NoticeLog();
 		noticeLog.setId(id);
@@ -111,6 +128,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public void check() {
 		// 获取当前时间
 	    Date now = new Date();
@@ -135,6 +153,7 @@ public class NoticeLogServiceImpl extends ServiceImpl<NoticeLogMapper, NoticeLog
 	}
 
 	@Override
+	@Transactional
 	public NoticeLog getNoticeLog(Long id) {
 		return noticeLogMapper.selectById(id);
 	}
