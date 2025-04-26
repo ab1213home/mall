@@ -15,7 +15,7 @@ function profile() {
 	$("#phone").val(user.phone);
 	$("#firstName").val(user.firstName);
 	$("#lastName").val(user.lastName);
-	$("#birthday").val(user.birthDay);
+	$("#birthday").val(user.birthDate);
 }
 
 $(document).ready(function(){

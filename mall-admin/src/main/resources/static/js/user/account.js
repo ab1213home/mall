@@ -14,14 +14,133 @@
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode');
 
+let oauthObj = {};
+
 function account() {
     $("#email_show").html(user.email);
+}
+
+function getOauthBindList() {
+    const third = $('#third-party-accounts');
+    $.ajax({
+        url: '/oauth/getPaymentList',
+        type: 'GET',
+        dataType: 'json',
+        async:false,
+        success: function (res) {
+            if (res.code == 200) {
+                oauthArr = res.data;
+                if (oauthArr.length == 0) {
+                    third.hide();
+                } else {
+                    third.show();
+                    res.data.forEach(function (item) {
+                        let flag = true;
+                        //遍历oauthObj
+                        for (const key in oauthObj) {
+                            if (oauthObj.hasOwnProperty(key)){
+                                let oauth = oauthObj[key];
+                                if (oauth.providerType.name == item.name) {
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (item.bind != null && flag) {
+                            const div = document.createElement('div');
+                            div.classList.add('d-inline-flex', 'justify-content-center', 'gap-3');
+                            div.innerHTML =
+                                `<a id="` + item.name + `"> 
+                                   <img src="` + item.ico + `" alt="` + item.name + `" class="img-fluid" style="width: 30px; height: 30px;">
+                                </a>`;
+                            third.append(div);
+                            $('#' + item.name ).click(function() {
+                                jumpTo(item.bind)
+                            });
+                        }
+                    });
+                }
+            }
+        },
+        fail: function(xhr, status, error) {
+            show_error('获取第三方登录信息失败，请联系管理员！'+error);
+        }
+    });
+}
+
+/**
+ * 跳转到OAuth登录页面
+ *
+ * 该函数根据传入的OAuth参数和全局变量中的IP、指纹以及URL信息，
+ * 构造一个登录URL，并使页面跳转到该URL
+ *
+ * @param {string} oauth - OAuth基础URL，用于构造完整的登录地址
+ */
+function jumpTo(oauth){
+    // 构造初始登录URL，包含客户端IP和指纹信息
+    // 使页面跳转到构造好的登录URL+ "?clientIp=" + ip + "&fingerprint=" + fingerprint
+    window.location.href = oauth ;
+}
+
+
+function getOauthList() {
+    $.ajax({
+        type:"GET",
+        url:"/oauth/getList",
+        dataType:"json",
+        success:function(res){
+            $('#third-party tbody').empty();
+            if (res.code == 200) {
+                oauthObj = {};
+                res.data.forEach((oauth,index) => {
+                    oauthObj[oauth.id] = oauth;
+                    const row =
+                        `
+						<tr id="oauth`+ oauth.id +`" class="order-row text-center">
+						    <th scope="row">${index + 1}</th>
+							<td>${oauth.providerType.name}</td>
+							<td><img src="`+oauth.avatar+`" alt="avatar">${oauth.description}</td>
+							<td>${oauth.createdAt}</td>
+							<td><span class="badge badge-success">使用中</span></td>
+							<td><button type="button" class="btn btn-danger" onclick="unbindOauth(`+oauth.id+`)">解除绑定</button></td>
+						</tr>
+						`;
+                    $('#third-party tbody').append(row);
+                });
+            }else if (res.code == 404) {
+                const row =
+                    `
+					<tr>
+						<td colspan="11" style="text-align: center">暂无数据</td>
+					</tr>
+					`;
+                $('#third-party tbody').append(row);
+            }
+            getOauthBindList();
+        }
+    })
+}
+
+function unbindOauth(id) {
+    const oauth = oauthObj[id];
+    $.ajax({
+        type:"POST",
+        url:"/oauth/unbind/"+oauth.providerType.name,
+        dataType:"json",
+        success:function(res){
+            if (res.code == 200){
+                delete oauthObj[id];
+                show_success("解除绑定成功");
+            }
+        }
+    })
 }
 
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
 		account();
+        getOauthList();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/account.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}

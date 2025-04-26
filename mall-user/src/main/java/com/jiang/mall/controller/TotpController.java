@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 @Controller
-@RequestMapping("/user/totp")
+@RequestMapping("/totp")
 public class TotpController {
 
 	private IUserService userService;

@@ -21,6 +21,7 @@ import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.PermissionType;
+import com.jiang.mall.domain.vo.OAuthVo;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IOAuthService;
@@ -71,11 +72,20 @@ public class OAuthController {
 		this.i18nService = i18nService;
 	}
 
-	@GetMapping("/getList")
+	@GetMapping("/getPaymentList")
 	@Permission(PermissionType.NONE)
-	public ResponseResult<Object> getList(){
-//		Map<String,Object> map = oAuthService.getList();
-		List<Map<String,String>> map = oAuthService.getList();
+	public ResponseResult<Object> getPaymentList(){
+		List<Map<String,String>> map = oAuthService.getPaymentList();
+		return ResponseResult.okResult(map);
+	}
+
+	@GetMapping("/getList")
+	@Permission(PermissionType.USER)
+	public ResponseResult<Object> getList(HttpSession session){
+		List<OAuthVo> map = oAuthService.getList(session.getId());
+		if (map.isEmpty()){
+			return ResponseResult.notLoggedResult("无绑定信息");
+		}
 		return ResponseResult.okResult(map);
 	}
 

@@ -73,19 +73,19 @@ function getLoginStatusAndUserInfo(){
 				// });
 				//主题
 				const theme_admin = $('.admin');
-				if (res.data.isAdmin) {
+				if (res.data.admin) {
 					theme_admin.css('display', 'block'); // 设置为块级显示
 				} else {
 					theme_admin.css('display', 'none'); // 隐藏元素
 				}
 				const theme_seller = $('.seller');
-				if (res.data.isSeller) {
+				if (res.data.seller) {
 					theme_seller.css('display', 'block'); // 设置为块级显示
 				} else {
 					theme_seller.css('display', 'none'); // 隐藏元素
 				}
 				const theme = $('.admin.seller');
-				if (res.data.isAdmin || res.data.isSeller) {
+				if (res.data.admin || res.data.seller) {
 					theme.css('display', 'block'); // 设置为块级显示
 				} else {
 					theme.css('display', 'none'); // 隐藏元素

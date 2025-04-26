@@ -57,7 +57,7 @@ $(document).ready(function(){
 
 function removeTotp(){
 	$.ajax({
-		url: "/user/totp/disable",
+		url: "/totp/disable",
 		type: "POST",
 		success: function(res){
 			if (res.code == 200){
@@ -80,7 +80,7 @@ function removeTotp(){
 function enableTotpStep2() {
 	const code = $("#totp-input").val();
 	$.ajax({
-		url: "/user/totp/enable/step2",
+		url: "/totp/enable/step2",
 		type: "POST",
 		data: {
 			code: code
@@ -122,14 +122,14 @@ function enableTotpStep1(){
 	const addBtn = $("#add-btn");
 	const qrcodeBox = $("#qrcode-box");
 	const qrCode = $("#qr-code");
-	qrCode.attr("src", "/user/totp/enable/step1");
+	qrCode.attr("src", "/totp/enable/step1");
 	qrcodeBox.show();
 	addBtn.hide();
 }
 
 function getTotpStatus(){
 	$.ajax({
-		url: "/user/totp/status",
+		url: "/totp/status",
 		type: "GET",
 		success: function(res){
 			if (res.code == 200){

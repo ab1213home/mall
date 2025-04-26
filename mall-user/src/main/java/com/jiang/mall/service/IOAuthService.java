@@ -16,6 +16,7 @@ package com.jiang.mall.service;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
+import com.jiang.mall.domain.vo.OAuthVo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public interface IOAuthService {
 
 	OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
 
-	List<Map<String, String>> getList();
+	List<Map<String, String>> getPaymentList();
 
 	boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId);
 
@@ -42,4 +43,6 @@ public interface IOAuthService {
 	boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
 
 	OAuthProvider getProvider(String provider);
+
+	List<OAuthVo> getList(String sessionId);
 }

@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.GeneralConfig;
@@ -29,6 +30,8 @@ import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.response.GitHubTokenResponse;
 import com.jiang.mall.domain.response.GiteeTokenResponse;
+import com.jiang.mall.domain.vo.EnumVo;
+import com.jiang.mall.domain.vo.OAuthVo;
 import com.jiang.mall.service.IOAuthRedisService;
 import com.jiang.mall.service.IOAuthService;
 import com.jiang.mall.service.IUserService;
@@ -117,7 +120,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
-	public List<Map<String, String>> getList() {
+	public List<Map<String, String>> getPaymentList() {
 		List<Map<String,String>> map = new ArrayList<>();
 		if (oAuthConfig.isOAuthGiteeEnabled()){
 			Map<String,String> map_gitee = new HashMap<>();
@@ -232,6 +235,32 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			case "gitee" -> oAuthConfig.isOAuthGiteeEnabled() ? OAuthProvider.GITEE : null;
 			default -> null;
 		};
+	}
+
+	@Override
+	public List<OAuthVo> getList(String sessionId) {
+		UserCache userCache = userService.getUserFromRedis(sessionId);
+		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("user_id", userCache.getId());
+		List<UserOauth> userOauths = userOauthMapper.selectList(queryWrapper);
+		List<OAuthVo> oAuthVos = new ArrayList<>();
+		for (UserOauth userOauth : userOauths) {
+			OAuthVo oAuthVo = new OAuthVo();
+			oAuthVo.setId(userOauth.getId());
+			oAuthVo.setProviderType(new EnumVo(userOauth.getProviderType(), OAuthProvider.fromKey(userOauth.getProviderType()).getName()));
+			JSONObject jsonObject = JSON.parseObject(userOauth.getAnnotations());
+			if (Objects.equals(userOauth.getProviderType(), OAuthProvider.GITHUB.getKey())){
+				oAuthVo.setDescription(jsonObject.getString("login"));
+				oAuthVo.setAvatar(jsonObject.getString("avatar_url"));
+			}else if (Objects.equals(userOauth.getProviderType(), OAuthProvider.GITEE.getKey())){
+				oAuthVo.setDescription(jsonObject.getString("name"));
+				oAuthVo.setAvatar(jsonObject.getString("avatar_url"));
+			}else {
+				oAuthVo.setDescription("");
+				oAuthVo.setAvatar("");
+			}
+		}
+		return oAuthVos;
 	}
 
 	private @Nullable Boolean authLoginToBindGithub(String sessionId) {

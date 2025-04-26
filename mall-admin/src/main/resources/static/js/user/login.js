@@ -179,7 +179,7 @@ $(document).ready(function() {
         $('#password').val(localStorage.getItem('password'));
     }
     $.ajax({
-        url: '/oauth/getList',
+        url: '/oauth/getPaymentList',
         type: 'GET',
         dataType: 'json',
         async:false,
