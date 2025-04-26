@@ -14,7 +14,7 @@
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
-		isAdminUser();
+		// isAdminUser();
 		queryBirthday();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/index.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
@@ -24,15 +24,15 @@ $(document).ready(function(){
     });
 })
 function queryBirthday() {
-	$.ajax({
-		type:"GET",
-		url:"/user/isLogin",
-		data:{},
-		// async:false,	//设置同步请求
-		dataType:"json",
-		success:function(res){
-			if(res.code == 200){
-				const birthday = res.data.birthDate;
+	// $.ajax({
+	// 	type:"GET",
+	// 	url:"/user/isLogin",
+	// 	data:{},
+	// 	// async:false,	//设置同步请求
+	// 	dataType:"json",
+	// 	success:function(res){
+	// 		if(res.code == 200){
+				const birthday = user.birthDate;
 				const days = getNextBirthdayInterval(birthday);
 				if (days == 0){
 					show_info( "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
@@ -45,9 +45,9 @@ function queryBirthday() {
 					$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+days+" 天。");
 				}
 
-			}
-		}
-	});
+	// 		}
+	// 	}
+	// });
 }
 
 function getNextBirthdayInterval(birthDateString) {

@@ -23,7 +23,8 @@ $(document).ready(function(){
         show_warning( message);
     }
     if (keyword!=null){
-        document.getElementById('keyword').textContent = keyword;
+        // document.getElementById('keyword').textContent = keyword;
+        $("#keyword").text(keyword);
         const data = {
             name: keyword,
         };
@@ -56,6 +57,17 @@ $(document).ready(function(){
         queryCategory();
         queryBanner();
     }
+    // $(".category").on("mouseleave",function(){
+    //     $(".cg_div").hide();
+    // });
+    // $(".category").on("mouseover",function(){
+    //     $(".cg_div").hide();
+    //     $(".category_detail").hide();
+    //     $("div[cgId='" + $(this).attr("cgId") +"'] .cg_div").show();
+    // });
+    $("#search_btn").click(function(){
+        search();
+    });
 })
 
 /**

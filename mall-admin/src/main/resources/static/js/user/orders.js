@@ -12,7 +12,6 @@
  */
 
 let orderArr = {};
-let currentPageNum_order = 1;
 let num_order = 0;
 
 function queryOrders(pn, pz) {

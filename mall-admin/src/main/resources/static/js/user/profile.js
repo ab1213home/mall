@@ -11,10 +11,17 @@
  * See the Mulan PSL v2 for more details.
  */
 
+function profile() {
+	$("#phone").text(user.phone);
+	$("#firstName").text(user.firstName);
+	$("#lastName").text(user.lastName);
+	$("#birthday").text(user.birthday);
+}
+
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
-		isAdminUser();
+		profile();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/profile.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
@@ -71,7 +78,8 @@ function changeInfo() {
     	success: function (data) {
       		if (data.code === 200) {
         		show_success('用户信息已成功更新！');
-				window.location.href = '/user/index.html';
+				// window.location.href = '/user/index.html';
+				profile();
       		} else {
         		show_error('用户信息更新失败：'+data.message);
       		}

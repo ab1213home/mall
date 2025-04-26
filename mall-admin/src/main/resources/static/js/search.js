@@ -11,15 +11,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-$(document).ready(function(){
-	isAdminUser();
-	getLoginStatusAndUserInfo()
-})
-document.addEventListener('DOMContentLoaded', function() {
-    var editButton = document.getElementById('edit');
-
-    editButton.addEventListener('click', function(e) {
-        e.preventDefault(); // 阻止默认行为
-        window.location.href = '/user/modify/info.html';
-    });
-});
+function search_product(){
+	// let keyword = document.getElementById("search").value;
+    const keyword = $("#search").val();
+	window.location.href = "/index.html?keyword=" +  + encodeURIComponent(keyword);
+}

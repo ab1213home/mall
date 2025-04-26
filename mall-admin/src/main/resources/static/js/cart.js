@@ -18,14 +18,13 @@ let num_cart = 0;
 $(document).ready(function(){
     // 检查登录状态
     let res = checkLoginStatus();
-    getFooterInfo();
 
     if (res) {
         // 已登录：获取购物车数据
+		getFooterInfo();
         getCartNum();
         queryCart(1, 15);
         bindPreNextPage();
-		// $("#sela").prop("checked", false);
     } else {
         // 未登录：跳转到登录页
         window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
@@ -44,15 +43,11 @@ $(document).ready(function(){
     });
 
 	$('#search_btn').click(function(){
-		search_item();
+		search_product();
 	});
 });
 
 
-function search_item(){
-	let keyword = document.getElementById("search").value;
-	window.location.href = "/index.html?keyword=" + keyword;
-}
 function getCartNum(){
 	$.ajax({
 		type:"GET",

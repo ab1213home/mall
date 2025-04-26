@@ -16,7 +16,6 @@ let num_address = 0;
 $(document).ready(function(){
     let res = getLoginStatusAndUserInfo();
 	if (res){
-        isAdminUser();
         getAddressNum();
 	    queryAddress(1,10);
 	}else{

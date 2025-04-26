@@ -14,23 +14,14 @@
 const urlParams = new URLSearchParams(window.location.search);
 const model = urlParams.get('model');
 
-function clearPasswordModal() {
-	$('#oldPassword').val('');
-	$('#newPassword').val('');
-	$('#confirmPassword').val('');
-}
-
-function clearEmailModal() {
-	$('#passwordStep1').val('');
-	$('#emailStep1').val('');
-	$('#captcha').val('');
-	$('#code').val('');
+function account() {
+    $("#email_show").html(user.email);
 }
 
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
-		isAdminUser();
+		account();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/account.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
@@ -211,6 +202,8 @@ function submitChangeEmailSetupTowForm() {
     	success: function (data) {
      	 	if (data.code == 200) {
 				$('#accountModal').modal('hide');
+                user.email = $("#email").val();
+                account();
          		show_success('用户邮箱已成功更新！');
       		} else {
         		show_error('用户信息更新失败：'+data.message);
@@ -220,4 +213,17 @@ function submitChangeEmailSetupTowForm() {
       		show_error('用户信息更新失败，请联系管理员！' + error);
     	}
   	});
+}
+
+function clearPasswordModal() {
+	$('#oldPassword').val('');
+	$('#newPassword').val('');
+	$('#confirmPassword').val('');
+}
+
+function clearEmailModal() {
+	$('#passwordStep1').val('');
+	$('#emailStep1').val('');
+	$('#captcha').val('');
+	$('#code').val('');
 }

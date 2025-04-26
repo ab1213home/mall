@@ -12,7 +12,7 @@
  */
 
 let imagesArr = [];
-getFaceTemplateList();
+
 function submitRegisterStepOneForm() {
     // 获取表单数据
     const email = $('#email').val();
@@ -108,6 +108,7 @@ $(document).ready(function() {
         event.preventDefault(); // 阻止默认提交行为
         submitRegisterStepThreeForm(); // 自定义提交处理
     });
+    getFaceTemplateList();
 });
 
 function getRandomImages(images, n) {

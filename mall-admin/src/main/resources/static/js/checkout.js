@@ -20,8 +20,8 @@ let num_address = 0;
 
 $(document).ready(function(){
     let res = checkLoginStatus();
-	getFooterInfo();
 	if (res){
+		getFooterInfo();
 		queryCart();
 		getAddressNum();
 		queryAddress(1,10);

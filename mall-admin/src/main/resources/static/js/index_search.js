@@ -66,7 +66,8 @@ function renderCategory(category_arr) {
 }
 
 function search(){
-    let keyword = document.getElementById("keyword").value;
+    // let keyword = document.getElementById("keyword").value;
+    const keyword = $("#keyword").val();
     if(keyword == ""){
 		show_warning("请输入关键字");
 		return;

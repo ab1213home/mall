@@ -14,7 +14,7 @@
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
-		isAdminUser();
+		api();
 	}else{
 		window.location.href = "/user/login.html?url=" + encodeURIComponent("/user/security/api.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
 	}
@@ -22,3 +22,6 @@ $(document).ready(function(){
         logout();
     });
 })
+
+function api() {
+}

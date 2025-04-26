@@ -18,10 +18,6 @@ $(document).ready(function(){
 		getCartNum();
 	}
 	$('#search_btn').click(function(){
-		search_item();
+		search_product();
 	});
 })
-function search_item(){
-	let keyword = document.getElementById("search").value;
-	window.location.href = "/index.html?keyword=" + keyword;
-}
