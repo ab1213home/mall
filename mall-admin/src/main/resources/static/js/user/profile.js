@@ -12,10 +12,10 @@
  */
 
 function profile() {
-	$("#phone").text(user.phone);
-	$("#firstName").text(user.firstName);
-	$("#lastName").text(user.lastName);
-	$("#birthday").text(user.birthday);
+	$("#phone").val(user.phone);
+	$("#firstName").val(user.firstName);
+	$("#lastName").val(user.lastName);
+	$("#birthday").val(user.birthDay);
 }
 
 $(document).ready(function(){

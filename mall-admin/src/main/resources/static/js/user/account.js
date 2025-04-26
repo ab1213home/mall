@@ -12,7 +12,7 @@
  */
 
 const urlParams = new URLSearchParams(window.location.search);
-const model = urlParams.get('model');
+const mode = urlParams.get('mode');
 
 function account() {
     $("#email_show").html(user.email);
@@ -82,21 +82,21 @@ $(document).ready(function(){
         $form.off('submit.modalEvent'); // 移除带命名空间的事件
     });
 
-    if (model!=null){
-        if (model=='password'){
+    if (mode!=null){
+        if (mode=='password'){
             $modalTitle.text('修改密码');
-            $modal.modal('show');
             clearPasswordModal();
             $emailFormStep1.hide();
             $emailFormStep2.hide();
             $passwordForm.show();
-        }else if (model=='email'){
-            $modalTitle.text('修改邮箱');
             $modal.modal('show');
+        }else if (mode=='email'){
+            $modalTitle.text('修改邮箱');
             clearEmailModal();
             $passwordForm.hide();
             $emailFormStep1.show();
             $emailFormStep2.hide();
+            $modal.modal('show');
         }
     }
 })

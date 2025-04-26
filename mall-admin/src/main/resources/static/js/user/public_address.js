@@ -10,6 +10,7 @@
  * NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  */
+
 $(document).ready(function() {
     const $modal = $('#addressModal');
     const $form = $('form');

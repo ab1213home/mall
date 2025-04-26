@@ -187,11 +187,15 @@ $(document).ready(function() {
             if (res.code == 200) {
                 oauthArr = res.data;
                 if (oauthArr.length == 0) {
-                    $socialLogin.style.display = 'none';
-                    $socialLoginDiv.style.display = 'none';
+                    // $socialLogin.style.display = 'none';
+                    // $socialLoginDiv.style.display = 'none';
+                    $socialLoginDiv.css('display', 'none');
+                    $socialLogin.css('display', 'none');
                 } else {
-                    $socialLogin.style.display = 'block';
-                    $socialLoginDiv.style.display = 'block';
+                    // $socialLogin.style.display = 'block';
+                    // $socialLoginDiv.style.display = 'block';
+                    $socialLoginDiv.css('display', 'block');
+                    $socialLogin.show();
                     res.data.forEach(function (item) {
                         if (item.login != null) {
                             const div = document.createElement('div');
@@ -200,7 +204,8 @@ $(document).ready(function() {
                                 `<a id="` + item.name + `"> 
                                    <img src="` + item.ico + `" alt="` + item.name + `" class="img-fluid" style="width: 30px; height: 30px;">
                                 </a>`;
-                            $socialLogin.appendChild(div);
+                            // $socialLogin.appendChild(div);
+                            $socialLogin.append(div);
                             $('#' + item.name ).click(function() {
                                 jumpTo(item.login)
                             });
