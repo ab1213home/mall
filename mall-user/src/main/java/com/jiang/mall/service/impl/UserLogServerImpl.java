@@ -63,11 +63,11 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 		this.producer = producer;
 	}
 
-	private IpRegionUtil ipRegion;
+	private IpRegionUtil ipResolver;
 
 	@Autowired
-	public void setIpRegion(IpRegionUtil ipRegion) {
-		this.ipRegion = ipRegion;
+	public void setIpResolver(IpRegionUtil ipResolver) {
+		this.ipResolver = ipResolver;
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 					userLogVo.setType(new EnumVo(0,"账号密码登录"));
 				}
 			}
-			userLogVo.setLocation(ipRegion.getRegionByIp(userLog.getIp()));
+			userLogVo.setLocation(ipResolver.getRegionByIp(userLog.getIp()));
 			userLogVos.add(userLogVo);
 		}
 		return userLogVos;

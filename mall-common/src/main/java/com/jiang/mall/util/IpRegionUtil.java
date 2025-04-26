@@ -17,11 +17,14 @@ import jakarta.annotation.PreDestroy;
 import org.lionsoul.ip2region.xdb.Searcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -33,21 +36,32 @@ public class IpRegionUtil {
 
     public IpRegionUtil(String dbPath) {
         byte[] vIndex;
-        try {
-            // 获取实际路径
-            URL resource = IpRegionUtil.class.getClassLoader().getResource(dbPath);
-            if (resource == null) {
-	            logger.error("资源文件未找到: {}", dbPath);
-                return;
-            }
-            dbPath = Paths.get(resource.toURI()).toString();
-            // 加载VectorIndex缓存
-            vIndex =Searcher.loadVectorIndexFromFile(dbPath);
+        ClassPathResource db = new ClassPathResource(dbPath);
+        if (db.exists()) {
+            try (InputStream inputStream = db.getInputStream()) {
+                // 创建临时文件
+                File tempFile = File.createTempFile("ip2region", ".xdb");
+                tempFile.deleteOnExit(); // 确保程序退出时删除临时文件
 
-            // 创建带VectorIndex缓存的查询对象
-            searcher = Searcher.newWithVectorIndex(dbPath, vIndex);
-        } catch (Exception e) {
-            logger.error("无法初始化IP数据库 {}", e.getMessage());
+                // 将输入流内容复制到临时文件
+                try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+                    FileCopyUtils.copy(inputStream, outputStream);
+                }
+                String tempFilePath = tempFile.getAbsolutePath();
+                try {
+                    // 加载VectorIndex缓存
+                    vIndex =Searcher.loadVectorIndexFromFile(tempFilePath);
+
+                    // 创建带VectorIndex缓存的查询对象
+                    searcher = Searcher.newWithVectorIndex(tempFilePath, vIndex);
+                } catch (Exception e) {
+                    logger.error("无法初始化IP数据库 {}", e.getMessage());
+                }
+            } catch (IOException e) {
+                logger.error("无法创建临时IP数据库 {}", e.getMessage());
+            }
+        } else {
+            logger.error("IP数据库文件未找到: {}", dbPath);
         }
     }
 

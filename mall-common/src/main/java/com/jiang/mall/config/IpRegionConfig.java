@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IpRegionConfig {
 
-	@Value("${ip2region.db-path}")
+	@Value("${ip2region.db-path:classpath:ip2region.xdb}")
 	private String dbPath;
 
 
 	@Bean
-	public IpRegionUtil ipRegion() {
+	public IpRegionUtil ipResolver() {
 		return new IpRegionUtil(dbPath);
 	}
 

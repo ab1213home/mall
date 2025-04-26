@@ -11,6 +11,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
+let user = {};
+
 const signList = ["我感到难过，不是因为你欺骗了我，而是因为我再也不能相信你了",
 	"一个人知道自己为什么而活，就可以忍受任何一种生活", "哈库拉玛塔塔",
 	"人是苦虫，不打不行", "比比，爱姆sheep", "我于杀戮之中盛放，一如黎明中的花朵",
@@ -64,6 +66,7 @@ function getLoginStatusAndUserInfo(){
 				result = true;
 				// const admin = document.querySelectorAll('.admin');
 				// const seller = document.querySelectorAll('.seller');
+				user = res.data;
 				const adminOrSellerElements = document.querySelectorAll('.admin, .seller');
 				// 遍历这些元素，并根据条件设置 display 属性
 				adminOrSellerElements.forEach(element => {
