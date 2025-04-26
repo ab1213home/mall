@@ -7,8 +7,6 @@
 
 **第一次初始化项目时，由于数据库量过大，可能需要耗时较长（由于有大量地理数据，预计10分钟左右），请耐心等待。**
 
-![第一次初始化项目过程截图](/doc/picture/img01.png)
-
 如果初始化失败，请手动导入数据库脚本(位于/data目录下)，并把修改配置文件application.properties。
 ```properties
 spring.flyway.enabled = false
@@ -110,11 +108,11 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 
 ## 安装教程
 
-1. 一键部署（直接拉起公共镜像部署，**注意：公共镜像可能不是最新版本**）
+1. ~~一键部署（直接拉起公共镜像部署，**注意：公共镜像可能不是最新版本**）~~(暂不提供)
    ```shell
    wget -qO- https://download.jiangrongjun.top/one-touch.sh | bash
    ```
-2. 编译部署（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）
+2. ~~编译部署~~（使用Docker部署，需要自定义数据库参考[部署文档](/doc/DeploymentManual.md)进行修改）(暂不提供)
    ```shell
    wget -qO- https://download.jiangrongjun.top/compile.sh | bash
    ```
@@ -126,8 +124,11 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 1. 操作系统：CentOS Stream 9 x86_64
 2. 内核版本：5.14.0-513.el9.x86_64
 3. MySQL版本：8.0.36
-4. Docker版本：27.3.1
-5. Docker-compose版本：v2.29.7
+4. Redis版本：6.2.16(Docker)
+5. Elasticsearch版本：8.15.0
+6. Kafka版本：3.8.0
+7. Docker版本：27.3.1
+8. Docker-compose版本：v2.29.7
 
 ## 参与贡献
 
