@@ -104,7 +104,7 @@ $(document).ready(function(){
 			viewMode: 1,     // 限制裁剪框不超过图片范围
 			dragMode: 'move', // 拖拽模式为移动图片
 			autoCropArea: 1,  // 初始裁剪区域占满图片
-			preview: '#preview-100x100',
+			preview: '#preview',
 			responsive: true,
 			restore: false,
 		});
@@ -136,7 +136,7 @@ $(document).ready(function(){
 
 		// 显示结果
 		const dataURL = canvas.toDataURL('image/jpeg', 0.9);
-		$('#preview').html(`<img src="${dataURL}" class="img-fluid" alt="text">`);
+		$('#preview').html(`<img src="${dataURL}" class="img-fluid rounded-circle shadow profile-picture" alt="text">`);
 		// $('#preview-100x100').attr('src',dataURL);
 		// $('#preview-50x50').attr('src',dataURL);
 	})

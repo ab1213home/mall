@@ -33,10 +33,10 @@ public class GeneralConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(GeneralConfig.class);
 
-    @Value("${mall.config.location:./}")
+    @Value("${mall.config.location:./config/}")
     private  String configFilePath;
 
-    @Value("${mall.config.mode:single}")
+    @Value("${mall.config.mode:files}")
     private  String configMode;
 
     public @NotNull String getConfigFilePath(String configName) {

@@ -232,6 +232,8 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 				}else {
 					userLogVo.setType(new EnumVo(0,"账号密码登录"));
 				}
+			}else {
+				userLogVo.setType(new EnumVo(0,"账号密码登录"));
 			}
 			userLogVo.setLocation(ipResolver.getRegionByIp(userLog.getIp()));
 			userLogVos.add(userLogVo);
