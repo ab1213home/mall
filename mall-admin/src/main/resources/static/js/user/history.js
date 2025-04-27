@@ -40,7 +40,7 @@ function history(){
                             <td id="location`+ log.id +`">${log.location}</td>
                             <td id="username`+ log.id +`">${log.username}</td>
                             <td id="fingerprint`+ log.id +`">${log.fingerprint}</td>
-                            <td id="type`+ log.id +`">${log.type}</td>
+                            <td id="type`+ log.id +`">${log.type.name}</td>
                             <td id="time`+ log.id +`">${log.triggerTime}</td>
                         </tr>
                         `;

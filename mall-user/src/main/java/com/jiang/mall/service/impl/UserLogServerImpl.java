@@ -223,7 +223,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 		List<UserLog> userLogs = userLogMapper.selectList(queryWrapper);
 		List<UserLogVo> userLogVos = new ArrayList<>();
 		for (UserLog userLog : userLogs) {
-			UserLogVo userLogVo = BeanCopyUtil.copyBean(userLogs, UserLogVo.class);
+			UserLogVo userLogVo = BeanCopyUtil.copyBean(userLog, UserLogVo.class);
 			assert userLogVo != null;
 			if (userLog.getProperties()!=null){
 				Map<String, Object> map = JSON.parseObject(userLog.getProperties(), new TypeReference<>() {});

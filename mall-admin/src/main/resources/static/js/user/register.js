@@ -101,14 +101,14 @@ $(document).ready(function() {
     $('#step4').on('submit', function(event) {
         event.preventDefault(); // 阻止默认提交行为
         if (validateBirthday()) {
-            submitRegisterStepThreeForm(); // 自定义提交处理
+            // submitRegisterStepThreeForm(); // 自定义提交处理
         }
     });
     $('#step3').on('submit', function(event) {
         event.preventDefault(); // 阻止默认提交行为
-        submitRegisterStepThreeForm(); // 自定义提交处理
+        // submitRegisterStepThreeForm(); // 自定义提交处理
     });
-    getFaceTemplateList();
+    // getFaceTemplateList();
 });
 
 function getRandomImages(images, n) {
@@ -175,17 +175,18 @@ function submitRegisterStepTowForm() {
     },
     success: function (data) {
         // 处理成功响应
-        if (data.code === 200) {
-            const step3 = document.querySelectorAll('.step3');
-            const step2 = document.querySelectorAll('.step2');
-            step2.forEach(element => {
-                element.style.display = 'none';
-            });
-            step3.forEach(element => {
-                element.style.display = 'block';
-            });
-            getFaceTemplateList();
-            show_success('用户注册成功');
+        if (data.code == 200) {
+            // const step3 = document.querySelectorAll('.step3');
+            // const step2 = document.querySelectorAll('.step2');
+            // step2.forEach(element => {
+            //     element.style.display = 'none';
+            // });
+            // step3.forEach(element => {
+            //     element.style.display = 'block';
+            // });
+            // getFaceTemplateList();
+            // show_success('用户注册成功');
+            window.location.href = '/user/login.html';
         } else {
             show_error('用户注册失败:'+data.message);
         }
@@ -221,7 +222,7 @@ function submitRegisterStepFourForm() {
     data: data,
     success: function (data) {
         // 处理成功响应
-        if (data.code === 200) {
+        if (data.code == 200) {
             window.location.href = '/user/login.html';
         } else {
             show_error('用户信息补充失败:'+data.message);

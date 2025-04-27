@@ -28,25 +28,23 @@
     <link rel="stylesheet" href="/public/adminlte-4.0.0-dist/css/adminlte.css"><!--end::Required Plugin(AdminLTE)--><!-- apexcharts -->
     <link rel="stylesheet" href="/public/apexcharts-3.50.0-dist/apexcharts.css"><!-- jsvectormap -->
     <link rel="stylesheet" href="/public/jsvectormap-1.5.3-dist/jsvectormap.min.css">
+    <link rel="stylesheet" href="/public/cropper-1.6.1-dist/cropper.min.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
     <style>
     p {
         margin: 10px 0;
     }
-
     form {
         display: flex;
         flex-direction: column;
     }
-
     input[type="text"] {
         margin-bottom: 10px;
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
-
     button {
         padding: 10px 20px;
         border: none;
@@ -54,26 +52,14 @@
         cursor: pointer;
         margin-right: 10px;
     }
-
     .save-btn {
         background-color: #fe7300;
         color: #333;
     }
-
     .editor-btn {
         background-color: #f44336;
         color: white;
     }
-
-    .info-box {
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .method-box,
     .recovery-box {
         border: 1px solid #ddd;
         border-radius: 5px;
@@ -81,38 +67,39 @@
         margin-bottom: 20px;
     }
 
-    .method-item,
     .recovery-item {
         display: flex;
         align-items: center;
         gap: 20px;
     }
-
     .method-item img,
     .recovery-item img {
         width: 30px;
         height: 30px;
     }
-
     .method-item div,
     .recovery-item div {
         flex: 1;
     }
-
-    .remove-btn,
-    .browse-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
     .preview-area {
         display: flex;
         justify-content: space-between;
     }
     .preview-item {
         text-align: center;
+    }
+    .crop-container {
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+            background: #f8f9fa;
+    }
+    #preview {
+        width: 100px;
+        height: 100px;
+        overflow: hidden;
+        margin: 20px auto;
+        border: 2px solid #ddd;
     }
   </style>
 </head> <!--end::Head--> <!--begin::Body-->
@@ -368,33 +355,40 @@
                 </div>
                 <form id="avatarForm">
                     <div class="modal-body col-10 mx-auto my-auto ">
-                        <div class="col-md-6">
-                            <div class="input-group row"  style="text-align: center; height: 30vh;">
-                                <img src="/images/no-image.png" id="imgPreview" alt="头像预览" class="img-thumbnail" style="height: 30vh; width: 30vh;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="preview-area">
-                                <div class="preview-item">
-                                    <p>预览</p>
-                                    <img src="" alt="Preview" id="preview-100x100" style="width: 100px; height: 100px;">
-                                    <p>100 x 100</p>
-                                </div>
-                                <div class="preview-item">
-                                    <img src="" alt="Preview" id="preview-50x50" style="width: 50px; height: 50px;">
-                                    <p>50 x 50</p>
-                                </div>
-                            </div>
+                        <div class="row">
+                            <input type="file" id="uploadInput" accept="image/*" class="d-none">
                         </div>
                         <div class="row">
-                            <span class="fa fa-picture-o form-control-feedback"></span>
-                            <label for="avatar" class="form-label"></label>
-                            <input type="text" id="avatar" name="avatar" class="form-control" placeholder="请输入头像url" required maxlength="255">
-                            <input class="form-control" type="file" id="imgUpload" onchange="uploadFile(`avatar`)" placeholder="请上传头像图片(10M以内)" accept="image/*">
+                            <div class="col-m-6">
+                                <div class="crop-container">
+                                    <img id="cropImage" class="img-fluid" alt="头像" src="">
+                                </div>
+                            </div>
+                            <div class="col-m-6">
+                                <div class="preview-area">
+                                    <div class="preview-item">
+                                        <p>预览</p>
+<!--                                        <img src="" alt="Preview" id="preview-100x100" style="width: 100px; height: 100px;">-->
+                                        <div id="preview"></div>
+                                        <p>100 x 100</p>
+                                    </div>
+<!--                                    <div class="preview-item">-->
+<!--                                        <img src="" alt="Preview" id="preview-50x50" style="width: 50px; height: 50px;">-->
+<!--                                        <p>50 x 50</p>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
                         </div>
+<!--                        <div class="row">-->
+<!--                            <span class="fa fa-picture-o form-control-feedback"></span>-->
+<!--                            <label for="avatar" class="form-label"></label>-->
+<!--                            <input type="text" id="avatar" name="avatar" class="form-control" placeholder="请输入头像url" required maxlength="255">-->
+<!--                            <input class="form-control" type="file" id="imgUpload" onchange="uploadFile(`avatar`)" placeholder="请上传头像图片(10M以内)" accept="image/*">-->
+<!--                        </div>-->
                     </div>
                     <div class="d-flex justify-content-between mt-3 modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="button" id="uploadBtn" class="btn btn-success btn-block btn-flat">上传</button>
                         <button type="submit" id="avatarSubmit" class="btn btn-primary btn-block btn-flat">保存</button>
                     </div>
                 </form>
@@ -439,6 +433,7 @@
     <script src="/public/bootstrap-5.3.3-dist/js/bootstrap.min.js"></script> <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
     <script src="/public/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
+    <script src="/public/cropper-1.6.1-dist/cropper.min.js"></script>
     <script src="/js/user/index_top.js"></script>
     <script src="/js/user/public.js"></script>
     <script src="/js/modal.js"></script>
