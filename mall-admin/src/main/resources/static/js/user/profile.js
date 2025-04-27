@@ -77,6 +77,69 @@ $(document).ready(function(){
     $modal.on('hidden.bs.modal', function() {
         $form.off('submit.modalEvent'); // 移除带命名空间的事件
     });
+
+	let cropper = null;
+
+	// 触发文件选择
+	$('#uploadBtn').click(() => $('#uploadInput').click());
+
+	$('#uploadInput').change(function(e) {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = function(e) {
+			destroyCropper();
+
+			$('#cropImage').attr('src', e.target.result);
+			initCropper();
+		};
+		reader.readAsDataURL(file);
+	});
+
+	function initCropper() {
+		const image = document.getElementById('cropImage');
+		cropper = new Cropper(image, {
+			aspectRatio: 1,  // 正方形
+			viewMode: 1,     // 限制裁剪框不超过图片范围
+			dragMode: 'move', // 拖拽模式为移动图片
+			autoCropArea: 1,  // 初始裁剪区域占满图片
+			preview: '#preview-100x100',
+			responsive: true,
+			restore: false,
+		});
+	}
+
+	function destroyCropper() {
+		if (cropper) {
+			cropper.destroy();
+			cropper = null;
+		}
+	}
+
+	// $('#rotateBtn').click(() => {
+	// 	if (cropper) {
+	// 		cropper.rotate(90); // 每次点击旋转90度
+	// 	}
+	// });
+
+	$('#avatarSubmit').click(function() {
+		if (!cropper) return;
+
+		const canvas = cropper.getCroppedCanvas({
+			width: 200,  // 输出宽度
+			height: 200, // 输出高度
+			fillColor: '#fff', // 填充颜色
+			imageSmoothingEnabled: true,
+			imageSmoothingQuality: 'high'
+		});
+
+		// 显示结果
+		const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+		$('#preview').html(`<img src="${dataURL}" class="img-fluid" alt="text">`);
+		// $('#preview-100x100').attr('src',dataURL);
+		// $('#preview-50x50').attr('src',dataURL);
+	})
 })
 
 // 修改用户信息处理函数
