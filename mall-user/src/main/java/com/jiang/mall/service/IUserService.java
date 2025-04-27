@@ -20,6 +20,7 @@ import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.entity.User;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.vo.UserAdminVo;
+import com.jiang.mall.domain.vo.UserLogVo;
 import com.jiang.mall.domain.vo.UserVo;
 import org.jetbrains.annotations.NotNull;
 
@@ -93,4 +94,6 @@ public interface IUserService extends IService<User> {
     OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
 
     boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider);
+
+	List<UserLogVo> getUserLoginLog(String sessionId);
 }

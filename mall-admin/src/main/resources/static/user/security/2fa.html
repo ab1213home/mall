@@ -31,19 +31,6 @@
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
     <style>
-    .container {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-    }
-
-    h2 {
-        color: #333;
-    }
-
     p {
         margin: 10px 0;
     }
@@ -84,7 +71,6 @@
         color: white;
     }
 
-    .edit-btn,
     .remove-btn {
         background-color: #e0e0e0;
         color: #333;
@@ -124,18 +110,12 @@
         flex: 1;
     }
 
-    .edit-btn,
     .remove-btn,
     .browse-btn {
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
         cursor: pointer;
-    }
-
-    .edit-btn {
-        background-color: orange;
-        color: white;
     }
 
     .remove-btn {
@@ -337,19 +317,19 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
-                    <div class="row container"> <!--begin::Col-->
+                    <div class="row"> <!--begin::Col-->
                         <div class="info-box">
                             <p>双因素认证（Two-Factor Authentication，缩写 2FA）是一种安全的登录验证技术。要求用户登录时除密码外，需要额外的身份验证信息从而提升帐号的安全性。</p>
                         </div>
-                        <h2>双因素认证方式</h2>
+                        <h3 class="mt-2">双因素认证方式</h3>
                         <div class="method-box">
                             <div class="method-item">
                                 <i class="bi bi-person-lock"></i>
                                 <div>
-                                    <h3>TOTP 身份验证应用</h3>
+                                    <h4>TOTP 身份验证应用</h4>
                                     <p>TOTP 身份验证 APP (Authenticator App)</p>
-                                    <button class="add-btn" id="add-btn">添加</button>
-                                    <button class="remove-btn" id="remove-btn" style="display: none;">移除</button>
+                                    <button class="add-btn" id="add-btn" style="float: right;">添加</button>
+                                    <button class="remove-btn" id="remove-btn" style="display: none;float: right;">移除</button>
                                     <div class="qrcode-box" id="qrcode-box" style="display: none;">
                                         <p>你可使用第三方 TOTP 身份验证应用扫描下方二维码。扫描成功后会生成一次性密码（口令），该密码（口令）可在登录时作为身份验证的第二要素。</p>
                                         <p>常见的 TOTP 身份验证应用有: 1Password、Authy、Microsoft Authenticator 等</p>
@@ -367,14 +347,14 @@
                         </div>
                     </div> <!--end::Row--> <!--begin::Row-->
                     <div class="row">
-                        <h2>恢复代码</h2>
+                        <h3>恢复代码</h3>
                         <div class="recovery-box">
                             <div class="recovery-item">
                                 <i class="bi bi-printer"></i>
                                 <div>
-                                    <h3>TOTP 恢复代码</h3>
+                                    <h4>TOTP 恢复代码</h4>
                                     <p>如果你无法访问你的设备并且无法接收双因素身份验证码，则可以使用恢复代码来访问你的账户。</p>
-                                    <button class="browse-btn">浏览</button>
+                                    <button class="browse-btn" style="float: right;">浏览</button>
                                 </div>
                             </div>
                         </div>
@@ -427,7 +407,7 @@
     <script src="/public/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
     <script src="/js/user/index_top.js"></script>
-    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/user/public.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/user/2fa.js"></script>
     <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>

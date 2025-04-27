@@ -31,13 +31,88 @@
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="shortcut icon" href="/favicon.ico"/>
     <style>
-    canvas {
-      display: block;
-      vertical-align: bottom;
+    p {
+        margin: 10px 0;
     }
-    .password-box {
-      background-color: rgba(255, 255, 255, 0);
-      z-index: 1;
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    input[type="text"] {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .save-btn {
+        background-color: #fe7300;
+        color: #333;
+    }
+
+    .editor-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .info-box {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .method-box,
+    .recovery-box {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .method-item,
+    .recovery-item {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .method-item img,
+    .recovery-item img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .method-item div,
+    .recovery-item div {
+        flex: 1;
+    }
+
+    .remove-btn,
+    .browse-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .preview-area {
+        display: flex;
+        justify-content: space-between;
+    }
+    .preview-item {
+        text-align: center;
     }
   </style>
 </head> <!--end::Head--> <!--begin::Body-->
@@ -229,9 +304,10 @@
             </div> <!--end::App Content Header--> <!--begin::App Content-->
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
-                    <div class="row d-flex justify-content-center align-items-center"> <!--begin::Col-->
-                        <div class="card col-6 mx-auto my-auto">
-                            <div class="card-body login-card-body">
+                    <div class="row"> <!--begin::Col-->
+                        <h3 class="mt-2">基本信息</h3>
+<!--                        <div class="card col-6 mx-auto my-auto">-->
+<!--                            <div class="card-body login-card-body">-->
                                 <form id="change-info">
                                     <div class="form-group has-feedback">
                                         <span class="fa fa-phone form-control-feedback"></span>
@@ -258,13 +334,21 @@
                                     </div>
                                     <div class="row d-flex justify-content-end mt-3">
                                         <div class="col-12 text-end">
-                                            <button type="submit" class="btn btn-primary btn-block btn-flat">保存</button>
+                                            <button type="submit" class="save-btn">保存</button>
                                         </div>
                                     </div>
                                 </form>
+<!--                            </div>-->
+<!--                        </div>-->
+                    </div> <!--end::Row--> <!--begin::Row-->
+                    <div class="row">
+                        <h3>更换头像</h3>
+                        <div class="recovery-box">
+                            <div class="recovery-item">
+                                <button class="editor-btn" id="editor-btn" style="float: right;" data-bs-toggle="modal" data-bs-target="#avatarModal">编辑</button>
                             </div>
                         </div>
-                    </div> <!--end::Row--> <!--begin::Row-->
+                    </div>
                 </div> <!--end::Container-->
             </div> <!--end::App Content-->
         </main> <!--end::App Main--> <!--begin::Footer-->
@@ -274,6 +358,49 @@
             <!--end::Copyright-->
         </footer> <!--end::Footer-->
     </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
+    <!-- 头像模态框 -->
+	<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="avatarModalLabel">更换头像</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="avatarForm">
+                    <div class="modal-body col-10 mx-auto my-auto ">
+                        <div class="col-md-6">
+                            <div class="input-group row"  style="text-align: center; height: 30vh;">
+                                <img src="/images/no-image.png" id="imgPreview" alt="头像预览" class="img-thumbnail" style="height: 30vh; width: 30vh;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="preview-area">
+                                <div class="preview-item">
+                                    <p>预览</p>
+                                    <img src="" alt="Preview" id="preview-100x100" style="width: 100px; height: 100px;">
+                                    <p>100 x 100</p>
+                                </div>
+                                <div class="preview-item">
+                                    <img src="" alt="Preview" id="preview-50x50" style="width: 50px; height: 50px;">
+                                    <p>50 x 50</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <span class="fa fa-picture-o form-control-feedback"></span>
+                            <label for="avatar" class="form-label"></label>
+                            <input type="text" id="avatar" name="avatar" class="form-control" placeholder="请输入头像url" required maxlength="255">
+                            <input class="form-control" type="file" id="imgUpload" onchange="uploadFile(`avatar`)" placeholder="请上传头像图片(10M以内)" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="submit" id="avatarSubmit" class="btn btn-primary btn-block btn-flat">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- 提示模态框 -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -313,7 +440,7 @@
     <script src="/public/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
     <script src="/js/user/index_top.js"></script>
-    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/user/public.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/user/profile.js"></script>
     <script>

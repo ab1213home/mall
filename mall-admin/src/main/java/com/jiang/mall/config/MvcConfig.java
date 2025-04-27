@@ -25,11 +25,12 @@ import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Order(Ordered.HIGHEST_PRECEDENCE+10)
 @Configuration
-public class MyMvcConfig implements WebMvcConfigurer {
+public class MvcConfig implements WebMvcConfigurer {
 
     private ApiRequestCounterInterceptor apiRequestCounterInterceptor;
 
@@ -150,5 +151,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
 	public RequestContextFilter requestContextFilter() {
 	    return new RequestContextFilter();
 	}
+
+	@Override
+    public void addViewControllers(@NotNull ViewControllerRegistry registry) {
+        registry.addViewController("/user").setViewName("forward:/user/index.html");
+		registry.addViewController("/admin").setViewName("forward:/admin/index.html");
+		registry.addViewController("/message").setViewName("forward:/message/index.html");
+		registry.addViewController("/shop").setViewName("forward:/shop/index.html");
+    }
 
 }

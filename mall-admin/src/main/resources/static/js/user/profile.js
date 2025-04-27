@@ -18,6 +18,13 @@ function profile() {
 	$("#birthday").val(user.birthDate);
 }
 
+function changeAvatar() {
+
+}
+
+function clearModal() {
+}
+
 $(document).ready(function(){
 	let res = getLoginStatusAndUserInfo();
 	if (res){
@@ -52,6 +59,24 @@ $(document).ready(function(){
             changeInfo(); // 自定义提交处理
         }
   	});
+
+	const $modal = $('#avatarModal');
+    const $form = $('form');
+
+    // 模态框显示事件
+    $modal.on('show.bs.modal', function(event) {
+        // 绑定带命名空间的表单提交事件
+        $form.off('submit.modalEvent').on('submit.modalEvent', function(e) {
+            e.preventDefault();
+            changeAvatar();
+        });
+		clearModal();
+    });
+
+    // 模态框关闭事件
+    $modal.on('hidden.bs.modal', function() {
+        $form.off('submit.modalEvent'); // 移除带命名空间的事件
+    });
 })
 
 // 修改用户信息处理函数
@@ -71,7 +96,7 @@ function changeInfo() {
 
   	// 发送 AJAX 请求
   	$.ajax({
-    	url: '/user/modify/info',
+    	url: '/user/security/info',
     	type: 'POST',
     	data: data,
     	dataType:"json",

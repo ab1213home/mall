@@ -28,7 +28,7 @@ $(document).ready(function(){
 
 function lock_user() {
     $.ajax({
-        url: '/user/modify/self-lock',
+        url: '/user/security/self-lock',
         type: 'POST',
         data: {},
         headers: {

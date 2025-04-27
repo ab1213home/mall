@@ -36,40 +36,19 @@ $(document).ready(function(){
 function index() {
 	const randomIndex = Math.floor(Math.random() * signList.length);
 	$("#randomText").html(signList[randomIndex]);
-	$("#welcome").html("欢迎回来，"+res.data.lastName+" "+res.data.firstName+"！");
-				// if (document.getElementById('randomText')!= null){
-				// 	document.getElementById('randomText').textContent = signList[randomIndex];
-				// }
-				// if (document.getElementById("welcome")!= null){
-				// 	document.getElementById("welcome").textContent="欢迎回来，"+res.data.lastName+" "+res.data.firstName+"！";
-				// }
+	$("#welcome").html("欢迎回来，"+user.lastName+"&nbsp;"+user.firstName+"！");
 }
 
 function queryBirthday() {
-	// $.ajax({
-	// 	type:"GET",
-	// 	url:"/user/isLogin",
-	// 	data:{},
-	// 	// async:false,	//设置同步请求
-	// 	dataType:"json",
-	// 	success:function(res){
-	// 		if(res.code == 200){
-				const birthday = user.birthDate;
-				const days = getNextBirthdayInterval(birthday);
-				if (days == 0){
-					show_info( "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
-					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
-				}if (days == 365){
-					show_info("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
-					$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
-				}
-				else {
-					$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+days+" 天。");
-				}
-
-	// 		}
-	// 	}
-	// });
+	const birthday = user.birthDate;
+	const days = getNextBirthdayInterval(birthday);
+	if (days == 0 || days == 365){
+		show_info( "<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！",);
+		$("#birthday").html("<i class=\"bi bi-cake2\"></i>今天是您的生日，平台祝您生日快乐！");
+	}
+	else {
+		$("#birthday").html("<i class=\"bi bi-calendar2-day\"></i>距离您的下一个生日还有 "+days+" 天。");
+	}
 }
 
 function getNextBirthdayInterval(birthDateString) {

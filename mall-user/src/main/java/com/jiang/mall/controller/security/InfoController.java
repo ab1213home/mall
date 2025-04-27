@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.modify;
+package com.jiang.mall.controller.security;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
@@ -39,8 +39,8 @@ import java.util.Date;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user/modify")
-public class InfoModifyController {
+@RequestMapping("/user/security")
+public class InfoController {
 
 	private IUserService userService;
 
@@ -66,17 +66,33 @@ public class InfoModifyController {
 
     @PostMapping("/info")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> modifyUserInfo(@RequestParam("phone") String phone,
-                                                 @RequestParam("firstName") String firstName,
-                                                 @RequestParam("lastName") String lastName,
-                                                 @RequestParam("birthDate") String birthDate,
-                                                 @RequestParam("avatar") String avatar,
+    public ResponseResult<Object> modifyUserInfo(@RequestParam(value = "phone", required = false) String phone,
+                                                 @RequestParam(value = "firstName", required = false) String firstName,
+                                                 @RequestParam(value = "lastName", required = false) String lastName,
+                                                 @RequestParam(value = "birthDate", required = false) String birthDate,
+                                                 @RequestParam(value = "avatar", required = false) String avatar,
                                                  HttpSession session) {
         // 验证手机号格式是否正确
-        if (!i18nService.isValidPhone(phone)) {
+        if (phone!=null && !i18nService.isValidPhone(phone)) {
             return ResponseResult.failResult(i18nService.getMessage("user.error.phone"));
         }
+		int flag = 0;
 		User user = new User();
+		if (phone != null) {
+			flag++;
+		}
+		if (firstName != null) {
+			flag++;
+		}
+		if (lastName != null) {
+			flag++;
+		}
+		if (birthDate != null) {
+			flag++;
+		}
+		if (avatar != null) {
+			flag++;
+		}
 		user.setPhone(phone);
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
@@ -95,6 +111,9 @@ public class InfoModifyController {
                 return ResponseResult.failResult(i18nService.getMessage("user.error.birthday.format"));
             }
         }
+		if (flag == 0){
+			return ResponseResult.failResult(i18nService.getMessage("user.modify.info.error.empty"));
+		}
 
 		boolean info = userService.modifyInfo(user, session.getId());
 

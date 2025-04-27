@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.modify;
+package com.jiang.mall.controller.security;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.*;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/user/modify")
-public class PasswordModifyController {
+@RequestMapping("/user/security")
+public class PasswordController {
 
 	private IUserService userService;
 

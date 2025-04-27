@@ -240,7 +240,7 @@ function changePassword() {
 
   	// 发送 AJAX 请求
   	$.ajax({
-    	url: '/user/modify/password',
+    	url: '/user/security/password',
     	type: 'POST',
     	data: data,
    	 	headers: {
@@ -272,7 +272,7 @@ function submitChangeEmailSetupOneForm() {
     };
     $.ajax({
         type:"POST",
-        url:"/user/modify/email/step1",
+        url:"/user/security/email/step1",
         data:data,
         dataType:"json",
         success:function(response){
@@ -310,7 +310,7 @@ function submitChangeEmailSetupTowForm() {
 
   	// 发送 AJAX 请求
   	$.ajax({
-  	  	url: '/user/modify/email/step2',
+  	  	url: '/user/security/email/step2',
     	type: 'POST',
     	data: data,
     	dataType:"json",

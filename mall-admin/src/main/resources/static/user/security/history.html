@@ -230,7 +230,7 @@
             <div class="app-content"> <!--begin::Container-->
                 <div class="container-fluid"> <!--begin::Row-->
                     <div class="row"><!--end::Col-->
-                    <p>本页面展示当前帐号最近登录的50条历史记录，一个自然日内相同IP视为一条记录</p>
+                    <p>本页面展示当前帐号最近登录的50条历史记录</p>
                     </div>
                     <div class="row"> <!--begin::Col-->
                         <table class="table table-hover" id="historyTable">
@@ -238,6 +238,7 @@
                                 <tr>
                                     <th scope="col" class="text-center">序号</th>
                                     <th scope="col" class="text-center">IP</th>
+                                    <th scope="col" class="text-center">地区</th>
                                     <th scope="col" class="text-center">登录帐号</th>
                                     <th scope="col" class="text-center">浏览器指纹</th>
                                     <th scope="col" class="text-center">类型</th>
@@ -295,9 +296,9 @@
     <script src="/public/adminlte-4.0.0-dist/js/adminlte.js"></script> <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
     <script src="/public/jquery-3.7.1-dist/jquery-3.7.1.min.js"></script>
     <script src="/js/user/index_top.js"></script>
-    <script src="/js/user/index_sidebar.js"></script>
+    <script src="/js/user/public.js"></script>
     <script src="/js/modal.js"></script>
-    <script src="/js/user/index.js"></script>
+    <script src="/js/user/history.js"></script>
     <script>
         const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
         const Default = {

@@ -11,21 +11,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.vo;
+function isAdminUser() {
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-
-import java.time.LocalDateTime;
-
-@Data
-public class UserLogVo {
-	private Long id;
-	private String ip;
-	private String location;
-	private String username;
-	private String fingerprint;
-	private EnumVo type;
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	private LocalDateTime triggerTime;
 }

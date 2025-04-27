@@ -84,7 +84,7 @@ public class OAuthController {
 	public ResponseResult<Object> getList(HttpSession session){
 		List<OAuthVo> map = oAuthService.getList(session.getId());
 		if (map.isEmpty()){
-			return ResponseResult.notLoggedResult("无绑定信息");
+			return ResponseResult.notFoundResourceResult("无绑定信息");
 		}
 		return ResponseResult.okResult(map);
 	}

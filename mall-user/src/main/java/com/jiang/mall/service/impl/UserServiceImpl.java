@@ -34,6 +34,7 @@ import com.jiang.mall.domain.entity.UserGroupRelation;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.UserStatus;
 import com.jiang.mall.domain.vo.UserAdminVo;
+import com.jiang.mall.domain.vo.UserLogVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
@@ -525,20 +526,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	@Override
 	@Transactional
 	public Boolean modifyInfo(@NotNull User user, String sessionId) {
-	    // 从Redis中获取当前用户信息，并设置其ID到用户对象中
-	    user.setId(getUserFromRedis(sessionId).getId());
-
+		// 从Redis中获取当前用户信息，并设置其ID到用户对象中
+		UserCache userCache = getUserFromRedis(sessionId);
+	    user.setId(userCache.getId());
 	    // 尝试更新用户信息
 	    if (userMapper.updateById(user)>0){
-	        // 如果更新成功，从Redis中获取当前用户信息
-	        UserCache userCache = getUserFromRedis(sessionId);
 
 	        // 更新用户信息
-	        userCache.setFirstName(user.getFirstName());
-	        userCache.setLastName(user.getLastName());
-	        userCache.setPhone(user.getPhone());
-	        userCache.setAvatar(user.getAvatar());
-	        userCache.setBirthDate(user.getBirthDate());
+	        if  (user.getFirstName()!=null){
+	            userCache.setFirstName(user.getFirstName());
+	        }
+			if  (user.getLastName()!=null){
+	            userCache.setLastName(user.getLastName());
+	        }
+			if  (user.getPhone()!=null){
+	            userCache.setPhone(user.getPhone());
+			}
+			if  (user.getAvatar()!=null){
+	            userCache.setAvatar(user.getAvatar());
+			}
+			if  (user.getBirthDate()!=null){
+	            userCache.setBirthDate(user.getBirthDate());
+			}
 
 	        // 更新Redis中的用户信息
 	        setUserToRedis(userCache);
@@ -710,6 +719,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			logger.error("登录失败，sessionId不存在");
 			return false;
 		}
+	}
+
+	@Override
+	@Transactional
+	public List<UserLogVo> getUserLoginLog(String sessionId) {
+		UserCache user = getUserFromRedis(sessionId);
+		return userLogService.getUserLoginLog(user);
 	}
 
 
