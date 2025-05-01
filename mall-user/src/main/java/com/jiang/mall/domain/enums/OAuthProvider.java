@@ -33,7 +33,14 @@ public enum OAuthProvider {
             "https://gitee.com/oauth/token",
             "https://gitee.com/api/v5/user?access_token=%s",
 		    "/images/gitee.png"
-		    );
+		    ),
+	WECHAT( 2,
+            "wechat",
+            "https://open.weixin.qq.com/connect/qrconnect?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_login&state=%s",
+            "https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code",
+            "https://api.weixin.qq.com/sns/userinfo",
+			"/images/wechat.png"
+	);
 
     private final Integer key;
     private final String name;

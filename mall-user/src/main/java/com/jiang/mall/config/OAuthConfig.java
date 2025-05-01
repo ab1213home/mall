@@ -129,6 +129,17 @@ public class OAuthConfig {
         return Boolean.parseBoolean(properties.getProperty(OAuthConfigItems.OAUTH_GITEE_ENABLED.getKey(), OAuthConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
     }
 
+    public boolean isOAuthWechatEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(OAuthConfigItems.OAUTH_WECHAT_ENABLED.getKey(), OAuthConfigItems.OAUTH_WECHAT_ENABLED.getDefaultValue()));
+    }
+
+    public String getWeChatAppId() {
+        return properties.getProperty(OAuthConfigItems.OAUTH_WECHAT_APP_ID.getKey(), OAuthConfigItems.OAUTH_WECHAT_APP_ID.getDefaultValue());
+    }
+
+    public String getWeChatAppSecret() {
+        return properties.getProperty(OAuthConfigItems.OAUTH_WECHAT_APP_SECRET.getKey(), OAuthConfigItems.OAUTH_WECHAT_APP_SECRET.getDefaultValue());
+    }
 
     public void updateGithubClientId(String clientId) {
         properties.setProperty(OAuthConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
@@ -152,6 +163,18 @@ public class OAuthConfig {
 
     public void updateOAuthGiteeEnabled(boolean enabled) {
         properties.setProperty(OAuthConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
+    }
+
+    public void updateOAuthWechatEnabled(boolean enabled) {
+        properties.setProperty(OAuthConfigItems.OAUTH_WECHAT_ENABLED.getKey(), String.valueOf(enabled));
+    }
+
+    public void updateWechatAppId(String id) {
+        properties.setProperty(OAuthConfigItems.OAUTH_WECHAT_APP_ID.getKey(), id);
+    }
+
+    public void updateWechatAppSecret(String secret) {
+        properties.setProperty(OAuthConfigItems.OAUTH_WECHAT_APP_SECRET.getKey(), secret);
     }
 
 	public String getClientId(@NotNull String name) {

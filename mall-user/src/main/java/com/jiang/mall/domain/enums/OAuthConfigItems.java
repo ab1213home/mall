@@ -22,7 +22,11 @@ public enum OAuthConfigItems {
 	OAUTH_GITHUE_CLIENT_SECRET("oauth.github.client-secret", "GitHub客户端密钥", "example"),
 	OAUTH_GITEE_ENABLED("oauth.gitee.enabled", "是否启用Gitee认证", "false"),
 	OAUTH_GITEE_CLIENT_ID("oauth.gitee.client-id", "Gitee客户端ID", "example"),
-	OAUTH_GITEE_CLIENT_SECRET("oauth.gitee.client-secret", "Gitee客户端密钥", "example");
+	OAUTH_GITEE_CLIENT_SECRET("oauth.gitee.client-secret", "Gitee客户端密钥", "example"),
+	//微信
+	OAUTH_WECHAT_ENABLED("oauth.wechat.enabled", "是否启用微信认证", "false"),
+	OAUTH_WECHAT_APP_ID("oauth.wechat.app-id", "微信AppID", "example"),
+	OAUTH_WECHAT_APP_SECRET("oauth.wechat.app-secret", "微信AppSecret", "example");
 
 	private final String key;
 	private final String description;

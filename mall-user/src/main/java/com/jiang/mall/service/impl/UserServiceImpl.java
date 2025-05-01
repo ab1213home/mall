@@ -38,6 +38,7 @@ import com.jiang.mall.domain.vo.UserLogVo;
 import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -677,8 +678,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	@Transactional
-	public OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider) {
-		User user = userMapper.selectById(userId);
+	public OAuthResultDto oauthLogin(Long id, String token, String sessionId, OAuthCache cache, OAuthProvider provider) {
+		User user = userMapper.selectById(id);
 		if (!user.isActive()){
 			return OAuthResultDto.unbound(cache.getUrl());
 		}
@@ -726,6 +727,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 	public List<UserLogVo> getUserLoginLog(String sessionId) {
 		UserCache user = getUserFromRedis(sessionId);
 		return userLogService.getUserLoginLog(user);
+	}
+
+	@Override
+	@Transactional
+	public UserVo oauthLogin(Long id, String sessionId, String token) {
+		User user = userMapper.selectById(id);
+		if (!user.isActive()){
+			return null;
+		}
+			// 登录成功，记录登录记录(微信小程序不考虑二步)
+			Map<String,Object> map = new HashMap<>();
+			map.put("provider", "wechat");
+			userLogService.defaultLog(user.getUsername(), "127.0.0.1", "wxxcx", UserStatus.SUCCESS_LOGIN, map);
+			login(user, token, sessionId);
+			return BeanCopyUtil.copyBean(user, UserVo.class);
+
+	}
+
+	@Override
+	public UserVo login(String username, String password, String sessionId, String token) {
+		//TODO:  计划重构
+		password = SecureUtil.sha256Hex(password, generalConfig.getAesSalt());
+		User user = getUserByUserNameOrEmail(username, password);
+		if (user != null){
+			login(user, token, sessionId);
+			return BeanCopyUtil.copyBean(user, UserVo.class);
+		}
+		return null;
 	}
 
 

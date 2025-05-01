@@ -91,9 +91,13 @@ public interface IUserService extends IService<User> {
 
 	boolean countTryNumber(String username, String clientIp, String fingerprint);
 
-    OAuthResultDto oauthLogin(Long userId, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
+    OAuthResultDto oauthLogin(Long id, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
 
     boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider);
 
 	List<UserLogVo> getUserLoginLog(String sessionId);
+
+    UserVo oauthLogin(Long id, String sessionId, String token);
+
+    UserVo login(String username, String password, String sessionId, String token);
 }

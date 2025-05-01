@@ -81,8 +81,8 @@ public class ProductController {
      */
     @GetMapping("/getList")
     @Permission(PermissionType.NONE)
-    public ResponseResult<Object> getProductList(@RequestParam(required = false) String name,
-                                         @RequestParam(required = false) Long categoryId,
+    public ResponseResult<Object> getProductList(@RequestParam(value = "name", required = false) String name,
+                                         @RequestParam(value = "categoryId", required = false) Long categoryId,
                                          @RequestParam(defaultValue = "1") Integer pageNum,
                                          @RequestParam(defaultValue = "5") Integer pageSize) {
         List<ProductVo> list = productService.getProductList(name, categoryId, pageNum, pageSize);
