@@ -18,7 +18,6 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CheckoutReceiverVo;
 import com.jiang.mall.domain.vo.CheckoutVo;
-import com.jiang.mall.service.IOrderService;
 import com.jiang.mall.service.IWechatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,13 +34,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/wechat/checkout")
 public class WechatCheckoutController {
-
-	private IOrderService orderService;
-
-	@Autowired
-	public void setOrderService(IOrderService orderService) {
-	    this.orderService = orderService;
-	}
 
 	private IWechatService wechatService;
 
@@ -72,7 +64,7 @@ public class WechatCheckoutController {
 				return ResponseResult.failResult("请选择正确的商品数量");
 			}
 		}
-		orderService.setCheckoutList(list_checkoutVo, token);
+		wechatService.setCheckoutList(list_checkoutVo, token);
 	    // 返回操作成功结果
 	    return ResponseResult.okResult();
 	}
@@ -91,7 +83,7 @@ public class WechatCheckoutController {
 	@GetMapping("/getList")
 	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> getList(@RequestHeader("Token")String token) {
-	    List<CheckoutVo> list_checkout = orderService.getCheckoutList(token);
+	    List<CheckoutVo> list_checkout = wechatService.getCheckoutList(token);
 	    if (list_checkout.isEmpty()) {
 	        return ResponseResult.notLoggedResult("请先选择商品");
 	    }

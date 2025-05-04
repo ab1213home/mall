@@ -55,4 +55,8 @@ public interface IOrderService extends IService<Order> {
 	Long getOrderNum(Long userId);
 
 	OrderVo getOrder(Long id, Long userId);
+
+	void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, Long userId);
+
+	List<CheckoutVo> getCheckoutList(Long userId);
 }

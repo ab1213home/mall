@@ -300,51 +300,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	}
 
 	@Override
-	@Transactional
 	public void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, String sessionId) {
-		List<CheckoutCache> checkoutCaches = BeanCopyUtil.copyBeanList(checkoutReceiverVos, CheckoutCache.class);
 		UserCache user = userService.getUserFromRedis(sessionId);
-		if (redisService.hasCheckoutList(user.getId())){
-			List<CheckoutCache> checkoutCaches_redis = redisService.getCheckoutList(user.getId());
-
-			// 将Redis中的列表转换为以prodId为键的Map
-			Map<Long, CheckoutCache> redisMap = checkoutCaches_redis.stream()
-			    .collect(Collectors.toMap(CheckoutCache::getProdId, Function.identity()));
-
-			// 遍历本地列表并合并到Map中
-			for (CheckoutCache item : checkoutCaches) {
-			    Long prodId = item.getProdId();
-			    CheckoutCache existingItem = redisMap.get(prodId);
-			    if (existingItem != null) {
-			        // 累加数量
-			        existingItem.setNum(existingItem.getNum() + item.getNum());
-			    } else {
-			        // 新增条目
-			        redisMap.put(prodId, item);
-			    }
-			}
-
-			// 将合并后的Map转换回列表
-			checkoutCaches_redis = new ArrayList<>(redisMap.values());
-			redisService.setCheckoutList(user.getId(),checkoutCaches_redis);
-		}else{
-			redisService.setCheckoutList(user.getId(), checkoutCaches);
-		}
+		setCheckoutList(checkoutReceiverVos, user.getId());
 	}
 
 	@Override
 	@Transactional
 	public List<CheckoutVo> getCheckoutList(String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		List<CheckoutCache> checkoutCaches = redisService.getCheckoutList(user.getId());
-		List<CheckoutVo> checkoutVoList = new ArrayList<>();
-		for (CheckoutCache checkoutCache : checkoutCaches) {
-			CheckoutVo checkoutVo = new CheckoutVo();
-			checkoutVo.setProduct(productService.getProduct(checkoutCache.getProdId()));
-			checkoutVo.setNum(checkoutCache.getNum());
-			checkoutVoList.add(checkoutVo);
-		}
-		return checkoutVoList;
+		return getCheckoutList(user.getId());
 	}
 
 	@Override
@@ -391,6 +356,50 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			return getOrder(order);
 		}
 		return null;
+	}
+
+	@Override
+	public void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, Long userId) {
+		List<CheckoutCache> checkoutCaches = BeanCopyUtil.copyBeanList(checkoutReceiverVos, CheckoutCache.class);
+		if (redisService.hasCheckoutList(userId)){
+			List<CheckoutCache> checkoutCaches_redis = redisService.getCheckoutList(userId);
+
+			// 将Redis中的列表转换为以prodId为键的Map
+			Map<Long, CheckoutCache> redisMap = checkoutCaches_redis.stream()
+			    .collect(Collectors.toMap(CheckoutCache::getProdId, Function.identity()));
+
+			// 遍历本地列表并合并到Map中
+			for (CheckoutCache item : checkoutCaches) {
+			    Long prodId = item.getProdId();
+			    CheckoutCache existingItem = redisMap.get(prodId);
+			    if (existingItem != null) {
+			        // 累加数量
+			        existingItem.setNum(existingItem.getNum() + item.getNum());
+			    } else {
+			        // 新增条目
+			        redisMap.put(prodId, item);
+			    }
+			}
+
+			// 将合并后的Map转换回列表
+			checkoutCaches_redis = new ArrayList<>(redisMap.values());
+			redisService.setCheckoutList(userId,checkoutCaches_redis);
+		}else{
+			redisService.setCheckoutList(userId, checkoutCaches);
+		}
+	}
+
+	@Override
+	public List<CheckoutVo> getCheckoutList(Long userId) {
+		List<CheckoutCache> checkoutCaches = redisService.getCheckoutList(userId);
+		List<CheckoutVo> checkoutVoList = new ArrayList<>();
+		for (CheckoutCache checkoutCache : checkoutCaches) {
+			CheckoutVo checkoutVo = new CheckoutVo();
+			checkoutVo.setProduct(productService.getProduct(checkoutCache.getProdId()));
+			checkoutVo.setNum(checkoutCache.getNum());
+			checkoutVoList.add(checkoutVo);
+		}
+		return checkoutVoList;
 	}
 
 	private @Nullable OrderVo getOrder(Long id) {

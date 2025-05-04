@@ -459,5 +459,17 @@ public class WechatServiceImpl implements IWechatService {
 		return 0L;
 	}
 
+	@Override
+	public void setCheckoutList(List<CheckoutReceiverVo> listCheckoutVo, String token) {
+		UserCache user = getUserFromRedis(token);
+		orderService.setCheckoutList(listCheckoutVo, user.getId());
+	}
+
+	@Override
+	public List<CheckoutVo> getCheckoutList(String token) {
+		UserCache user = getUserFromRedis(token);
+		return orderService.getCheckoutList(user.getId());
+	}
+
 
 }

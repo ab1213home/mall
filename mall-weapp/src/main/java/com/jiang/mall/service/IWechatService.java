@@ -87,4 +87,8 @@ public interface IWechatService {
 	OrderVo getOrder(Long id, String token);
 
 	Long newOrder(String token, Long addressId, List<CheckoutReceiverVo> listCheckoutVo);
+
+	void setCheckoutList(List<CheckoutReceiverVo> listCheckoutVo, String token);
+
+	List<CheckoutVo> getCheckoutList(String token);
 }
