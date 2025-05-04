@@ -21,10 +21,35 @@ import java.util.Map;
 
 public interface IWechatService {
 
+	/**
+	 * 微信登录方法
+	 * 该方法通过微信提供的code和客户端IP进行登录，返回登录结果和用户信息
+	 *
+	 * @param code 微信返回的临时登录凭证
+	 * @param clientIp 客户端的IP地址
+	 * @return 包含登录结果和用户信息的Map对象
+	 */
 	Map<String, Object> login(String code, String clientIp);
 
+	/**
+	 * 绑定微信用户到系统用户
+	 *
+	 * @param username 用户名
+	 * @param password 密码
+	 * @param token 微信临时登录凭证
+	 * @param clientIp 客户端IP地址
+	 * @return 包含绑定结果和用户信息的映射表
+	 */
 	Map<String, Object> bind(String username, String password, String token, String clientIp);
 
+	/**
+	 * 检查用户登录状态并获取用户信息
+	 *
+	 * @param token 用户登录令牌，用于标识用户会话
+	 * @return 返回一个包含用户登录状态和信息的Map对象
+	 *         如果用户已登录，包含键"state"值为true和用户信息"userInfo"；
+	 *         如果用户未登录，包含键"state"值为false和提示消息"message"
+	 */
 	Map<String, Object> check(String token);
 
 	Long getAddressNum(String token);
