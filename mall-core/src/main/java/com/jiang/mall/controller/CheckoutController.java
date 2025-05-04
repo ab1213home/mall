@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller.order;
+package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
@@ -33,8 +33,8 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/order/checkout")
-public class OrderCheckoutController {
+@RequestMapping("/checkout")
+public class CheckoutController {
 
 	private IOrderService orderService;
 

@@ -39,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-//@Controller
 @RestController
 @RequestMapping("/oauth")
 public class OAuthController {
@@ -187,6 +186,7 @@ public class OAuthController {
             return ResponseResult.failResult(i18nService.getMessage("user.login.error.try"));
         }
 		String token = UUID.fastUUID().toString();
+		//TODO:需要判断是否存在绑定，1对1检查
 		flag = oAuthService.authLoginToBind(oAuthProvider, username, password, clientIp, fingerprint, token, session.getId());
 		if (flag == null) {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
@@ -217,6 +217,7 @@ public class OAuthController {
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
 		String token = UUID.fastUUID().toString();
+		//TODO:需要判断是否存在绑定，1对1检查
 		boolean flag = oAuthService.authLoginToBind(oAuthProvider, code, clientIp, fingerprint, token, session.getId());
 	    // 根据登录结果返回相应信息
 	    if (flag){
@@ -307,17 +308,9 @@ public class OAuthController {
 		}else if (action.equals("bind")){
 			OAuthResultDto result = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), oAuthProvider);
 			if (result.getResult() ==OAuthResultDto.OAuthResult.ERROR) {
-//		        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//		        response.setContentType("application/json;charset=UTF-8");
-//		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Gitee账号信息获取失败"));
-//		        response.getWriter().write(json);
 				response.setContentType("text/html; charset=UTF-8");
 				response.sendRedirect(request.getContextPath() + "/user/index.html");
 			}  else if (result.getResult() == OAuthResultDto.OAuthResult.SUCCESS){
-//				response.setStatus(HttpServletResponse.SC_OK);
-//		        response.setContentType("application/json;charset=UTF-8");
-//		        String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_OK, "Gitee账号绑定成功"));
-//		        response.getWriter().write(json);
 				response.setContentType("text/html; charset=UTF-8");
 				response.sendRedirect(request.getContextPath() + "/user/index.html");
 			}

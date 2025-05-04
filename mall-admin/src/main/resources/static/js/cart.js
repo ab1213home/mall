@@ -243,7 +243,7 @@ function queryCart(pn, pz){
 		}
 	})
 }
-
+// TODO:优化
 function bindPreNextPage(){
 	$("#prePage").on("click", function(){
 		if(currentPageNum_cart <= 1){
@@ -286,7 +286,7 @@ function checkOut(){
 	}
 	$.ajax({
         type: 'POST',
-        url: "/order/checkout",
+        url: "/checkout",
         data: JSON.stringify(cartArr),
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',

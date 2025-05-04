@@ -241,6 +241,23 @@ public class WechatServiceImpl implements IWechatService {
 	            map.put("message","用户名或密码错误");
 	            return map;
 	        }
+			// 判断用户是否已经绑定了微信
+		    QueryWrapper<UserOauth> queryWrapper_user = new QueryWrapper<>();
+			queryWrapper_user.eq("provider_type", OAuthProvider.WECHAT.getKey());
+			queryWrapper_user.eq("provider_user_id",openid);
+			if (userOauthMapper.selectCount(queryWrapper_user)>0L){
+	            // 该微信已经被绑定
+	            map.put("message","该微信已经被绑定");
+	            return map;
+	        }
+			QueryWrapper<UserOauth> queryWrapper_oauth = new QueryWrapper<>();
+			queryWrapper_oauth.eq("user_id",user.getId());
+			queryWrapper_oauth.eq("provider_type",OAuthProvider.WECHAT.getKey());
+			if (userOauthMapper.selectCount(queryWrapper_oauth)>0L){
+	            // 已经绑定了微信
+	            map.put("message","用户已经绑定了微信");
+	            return map;
+	        }
 	        // 生成新的令牌
 	        String token_new = UUID.randomUUID().toString();
 	        // 创建用户OAuth信息对象
@@ -266,7 +283,7 @@ public class WechatServiceImpl implements IWechatService {
 	            return map;
 	        }else {
 	            // 绑定失败，系统错误
-	            map.put("message","绑定失败,系统错误" );
+	            map.put("message","绑定失败,系统错误");
 	            return map;
 	        }
 	    }else{

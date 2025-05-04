@@ -104,7 +104,7 @@ function selectAddress(id){
 function queryCart(){
 	$.ajax({
 		type:"GET",
-		url:"/order/checkout/getList",
+		url:"/checkout/getList",
 		data: {},
 		dataType:"json",
 		success:function(res){

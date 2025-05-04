@@ -184,6 +184,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 	@Override
 	public boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId) {
+		//TODO:1对1严格对应
 		boolean flag = userService.login(sessionId,code,token,clientIp,fingerprint);
 		if (flag){
 			if (oAuthProvider==OAuthProvider.GITEE){
