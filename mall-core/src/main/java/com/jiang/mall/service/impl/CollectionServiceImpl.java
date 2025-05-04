@@ -68,43 +68,69 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 	@Transactional
 	public Boolean insertCollection(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", user.getId());
-		if (collectionMapper.selectOne(queryWrapper) == null) {
-			Collection collection = new Collection(productId, user.getId());
-			return collectionMapper.insert(collection) > 0;
-		}else {
-			return false;
-		}
-	}
-
-	@Override
-	@Transactional
-	public Collection queryByProductIdByUserId(Long productId, String sessionId) {
-		UserCache user = userService.getUserFromRedis(sessionId);
-		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", user.getId());
-		return collectionMapper.selectOne(queryWrapper);
+		return insertCollection(productId, user.getId());
 	}
 
 	@Override
 	@Transactional
 	public Boolean deleteCollection(Long productId, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", user.getId());
-		return collectionMapper.delete(queryWrapper)>0;
+		return deleteCollection(productId, user.getId());
 	}
 
 	@Override
 	@Transactional
 	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
+		return getCollectionList(pageNum, pageSize, user.getId());
+	}
+
+	@Override
+	@Transactional
+	public Long getCollectionNum(String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		return getCollectionNum(user.getId());
+	}
+
+	@Override
+	@Transactional
+	public boolean isCollect(Long productId, String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		return isCollect(productId, user.getId());
+	}
+
+	@Override
+	@Transactional
+	public Boolean insertCollection(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("user_id", user.getId());
+		queryWrapper.eq("prod_id", productId);
+		queryWrapper.eq("user_id", userId);
+		if (collectionMapper.selectCount(queryWrapper) == 0L) {
+			Collection collection = new Collection(productId, userId);
+			return collectionMapper.insert(collection) > 0;
+		}else {
+			return null;
+		}
+	}
+
+	@Override
+	@Transactional
+	public Boolean deleteCollection(Long productId, Long userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("prod_id", productId);
+		queryWrapper.eq("user_id", userId);
+		if (collectionMapper.selectCount(queryWrapper) == 0L) {
+			return null;
+		}else {
+			return collectionMapper.delete(queryWrapper)>0;
+		}
+	}
+
+	@Override
+	@Transactional
+	public List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Long userId) {
+		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("user_id", userId);
 		Page<Collection> page = new Page<>(pageNum, pageSize);
 		List<Collection> collectionList = collectionMapper.selectPage(page, queryWrapper).getRecords();
 		List<CollectionVo> collectionVo = new ArrayList<>();
@@ -122,26 +148,19 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	@Transactional
-	public Long getCollectionNum(String sessionId) {
-		UserCache user = userService.getUserFromRedis(sessionId);
+	public Long getCollectionNum(Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("user_id", user.getId());
+		queryWrapper.eq("user_id", userId);
 		return collectionMapper.selectCount(queryWrapper);
 	}
 
 	@Override
 	@Transactional
-	public Boolean isCollect(Long productId, String sessionId) {
-		UserCache user = userService.getUserFromRedis(sessionId);
+	public boolean isCollect(Long productId, Long userId) {
 		QueryWrapper<Collection> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("prod_id", productId);
-		queryWrapper.eq("user_id", user.getId());
-		return collectionMapper.selectOne(queryWrapper) != null;
+		queryWrapper.eq("user_id", userId);
+		return collectionMapper.selectCount(queryWrapper) > 0L;
 	}
 
-	@Override
-	@Transactional
-	public Boolean deleteById(Long id) {
-		return collectionMapper.deleteById(id)>0;
-	}
 }

@@ -142,11 +142,12 @@ $(document).ready(function() {
 
 
 function deleteCollection(id){
+    const collection = collectionObj[id];
     $.ajax({
         type:"GET",
         url:"/collection/delete",
         data:{
-            id:id
+            prodId:collection.product.id
         },
         dataType:"json",
         success:function(response){

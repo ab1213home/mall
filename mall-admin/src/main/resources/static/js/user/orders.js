@@ -219,7 +219,7 @@ function getOrdersNum() {
 $(document).ready(function() {
     let res = getLoginStatusAndUserInfo();
 	if (res){
-        isAdminUser();
+        // isAdminUser();
         getOrdersNum();
 	    queryOrders(1, 5);
 	}else{

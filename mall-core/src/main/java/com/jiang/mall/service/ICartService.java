@@ -81,4 +81,11 @@ public interface ICartService extends IService<Cart> {
 
 	void checkCartFromRedisToMySQL();
 
+	Long getCartNum(Long userId);
+
+	List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize);
+
+	boolean insertOrUpdateCart(Long productId, Long num, Long userId);
+
+	Boolean deleteCart(Long productId, Long userId);
 }

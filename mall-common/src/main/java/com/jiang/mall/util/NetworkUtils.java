@@ -13,6 +13,8 @@
 
 package com.jiang.mall.util;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,5 +114,71 @@ public class NetworkUtils {
             InetAddress geek = InetAddress.getByName(ipAddress);
 	    return geek.isReachable(10000);
         }
+
+//    public static String getIpAddr(@NotNull HttpServletRequest request) {
+//        String ipAddress = request.getHeader("X-Forwarded-For");
+//
+//        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+//            ipAddress = request.getHeader("Proxy-Client-IP");
+//        }
+//        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+//            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+//        }
+//        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+//            ipAddress = request.getHeader("HTTP_CLIENT_IP");
+//        }
+//        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+//            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+//        }
+//        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+//            ipAddress = request.getRemoteAddr();
+//        }
+//
+//        // 如果通过了多级反向代理的话，X-Forwarded-For的值并不止一个，
+//        // 而是一串IP值，那么取X-Forwarded-For中第一个非unknown的有效IP字符串即可。
+//        if (ipAddress != null && ipAddress.contains(",")) {
+//            ipAddress = ipAddress.split(",")[0];
+//        }
+//
+//        return ipAddress;
+//    }
+
+	/**
+     * 从HttpServletRequest中获取客户端的真实IP地址。
+     *
+     * @param request HttpServletRequest对象
+     * @return 客户端的IP地址
+     */
+	public static String getIpAddr(@NotNull HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+
+        // 如果 X-Forwarded-For 包含多个 IP 地址，取第一个非未知的 IP 地址
+        if (ipAddress != null && ipAddress.contains(",")) {
+            String[] ipAddresses = ipAddress.split(",");
+            for (String ip : ipAddresses) {
+                if (!"unknown".equalsIgnoreCase(ip.trim())) {
+                    ipAddress = ip.trim();
+                    break;
+                }
+            }
+        }
+
+        return ipAddress;
+    }
 
 }

@@ -134,20 +134,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Transactional
 	public List<OrderVo> getOrderList(String sessionId, Integer pageNum, Integer pageSize) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		Page<Order> orderPage = new Page<>(pageNum, pageSize);
-		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
-		queryWrapper_order.select("id") // 指定只需要查询id字段
-		                  .eq("user_id", user.getId()); // 设置查询条件
-		// 将结果转换为Long类型的列表
-		List<Long> orderIdList = orderMapper.selectPage(orderPage, queryWrapper_order).getRecords().stream()
-		                                  .map(Order::getId)
-		                                  .toList();
-		List<OrderVo> orderVoList = new ArrayList<>();
-		for (Long id: orderIdList) {
-			OrderVo orderVo = getOrder(id);
-			orderVoList.add(orderVo);
-		}
-		return orderVoList;
+		return getOrderList(user.getId(), pageNum, pageSize);
 	}
 
 	/**
@@ -159,10 +146,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Transactional
 	public Long getOrderNum(String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
-	    queryWrapper_order.eq("user_id", user.getId());
-	    // 通过用户ID查询该用户的所有订单
-	    return orderMapper.selectCount(queryWrapper_order);
+		return getOrderNum(user.getId());
 	}
 
 	/**
@@ -312,19 +296,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Transactional
 	public OrderVo getOrder(Long id, String sessionId) {
 		UserCache user = userService.getUserFromRedis(sessionId);
-		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
-			OrderCache orderCache = redisService.getOrder(id);
-			if (!orderCache.getUserId().equals(user.getId())){
-				return null;
-			}
-			redisService.refreshOrder(id);
-			return getOrder(orderCache);
-		}
-		Order order = orderMapper.selectById(id);
-		if (order != null && order.getUserId().equals(user.getId())){
-			return getOrder(order);
-		}
-		return null;
+		return getOrder(id, user.getId());
 	}
 
 	@Override
@@ -373,6 +345,52 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			checkoutVoList.add(checkoutVo);
 		}
 		return checkoutVoList;
+	}
+
+	@Override
+	@Transactional
+	public List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize) {
+		Page<Order> orderPage = new Page<>(pageNum, pageSize);
+		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
+		queryWrapper_order.select("id") // 指定只需要查询id字段
+		                  .eq("user_id",userId); // 设置查询条件
+		// 将结果转换为Long类型的列表
+		List<Long> orderIdList = orderMapper.selectPage(orderPage, queryWrapper_order).getRecords().stream()
+		                                  .map(Order::getId)
+		                                  .toList();
+		List<OrderVo> orderVoList = new ArrayList<>();
+		for (Long id: orderIdList) {
+			OrderVo orderVo = getOrder(id);
+			orderVoList.add(orderVo);
+		}
+		return orderVoList;
+	}
+
+	@Override
+	@Transactional
+	public Long getOrderNum(Long userId) {
+		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
+	    queryWrapper_order.eq("user_id", userId);
+	    // 通过用户ID查询该用户的所有订单
+	    return orderMapper.selectCount(queryWrapper_order);
+	}
+
+	@Override
+	@Transactional
+	public OrderVo getOrder(Long id, Long userId) {
+		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
+			OrderCache orderCache = redisService.getOrder(id);
+			if (!orderCache.getUserId().equals(userId)){
+				return null;
+			}
+			redisService.refreshOrder(id);
+			return getOrder(orderCache);
+		}
+		Order order = orderMapper.selectById(id);
+		if (order != null && order.getUserId().equals(userId)){
+			return getOrder(order);
+		}
+		return null;
 	}
 
 	private @Nullable OrderVo getOrder(Long id) {

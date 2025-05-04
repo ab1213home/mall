@@ -189,13 +189,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     @Transactional
     public List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize) {
         UserCache user = userService.getUserFromRedis(sessionId);
-        Page<Cart> cartPage = new Page<>(pageNum, pageSize);
-        if (coreConfig.isCartCacheEnabled()){
-            return getCartListInRedis(user.getId(), pageNum, pageSize);
-        }else{
-            return getCartListInMySQL(user.getId(), cartPage);
-        }
-
+        return getCartList(user.getId(), pageNum, pageSize);
     }
 
     private @NotNull List<CartVo> getCartListInRedis(Long userId, Integer pageNum, Integer pageSize) {
@@ -239,11 +233,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     @Transactional
     public Long getCartNum(String sessionId) {
         UserCache user = userService.getUserFromRedis(sessionId);
-        if (coreConfig.isCartCacheEnabled()){
-            return getCartNumInRedis(user.getId());
-        }else{
-            return getCartNumInMySQL(user.getId());
-        }
+        return getCartNum(user.getId());
     }
 
     private Long getCartNumInMySQL(Long userId) {
@@ -272,13 +262,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     public boolean insertOrUpdateCart(Long productId, Long num, String sessionId) {
         // 从Redis中获取用户信息
         UserCache user = userService.getUserFromRedis(sessionId);
-        // 根据商品ID和用户ID查询购物车记录
-        if (coreConfig.isCartCacheEnabled()){
-            return insertOrUpdateCartToRedis(productId, num, user.getId());
-        }else{
-            //购物车缓存mysql
-            return insertOrUpdateCartToMySQL(productId, num, user.getId());
-        }
+        return insertOrUpdateCart(productId, num, user.getId());
     }
 
     private @NotNull Boolean insertOrUpdateCartToRedis(Long productId, Long num, Long userId) {
@@ -333,13 +317,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
     public Boolean deleteCart(Long productId, String sessionId) {
         // 从Redis中获取用户信息
         UserCache user = userService.getUserFromRedis(sessionId);
-        // 根据商品ID和用户ID查询购物车记录
-        if (coreConfig.isCartCacheEnabled()){
-            return deleteCartInRedis(productId, user.getId());
-        }else{
-            //购物车缓存mysql
-            return deleteCartInMySQL(productId, user.getId());
-        }
+        return deleteCart(productId, user.getId());
     }
 
     private @NotNull Boolean deleteCartInMySQL(Long productId, Long userId) {
@@ -439,6 +417,51 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
+    @Override
+    @Transactional
+    public Long getCartNum(Long userId) {
+        if (coreConfig.isCartCacheEnabled()){
+            return getCartNumInRedis(userId);
+        }else{
+            return getCartNumInMySQL(userId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<CartVo> getCartList(Long userId, Integer pageNum, Integer pageSize) {
+        if (coreConfig.isCartCacheEnabled()){
+            return getCartListInRedis(userId, pageNum, pageSize);
+        }else{
+            Page<Cart> cartPage = new Page<>(pageNum, pageSize);
+            return getCartListInMySQL(userId, cartPage);
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public boolean insertOrUpdateCart(Long productId, Long num, Long userId) {
+        // 根据商品ID和用户ID查询购物车记录
+        if (coreConfig.isCartCacheEnabled()){
+            return insertOrUpdateCartToRedis(productId, num, userId);
+        }else{
+            //购物车缓存mysql
+            return insertOrUpdateCartToMySQL(productId, num, userId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Boolean deleteCart(Long productId, Long userId) {
+        // 根据商品ID和用户ID查询购物车记录
+        if (coreConfig.isCartCacheEnabled()){
+            return deleteCartInRedis(productId, userId);
+        }else{
+            //购物车缓存mysql
+            return deleteCartInMySQL(productId, userId);
+        }
+    }
 
     private void checkCartFromRedisToMySQL(Long userId, Long version) {
         List<CartDto> cartDtos = redisService.getCart(userId);

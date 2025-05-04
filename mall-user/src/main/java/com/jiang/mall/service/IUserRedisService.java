@@ -31,6 +31,8 @@ public interface IUserRedisService {
 	 */
     void setUser(String sessionId, String token ,@NotNull UserCache user);
 
+	void setUser(@NotNull UserCache user);
+
 	/**
 	 * 更新用户信息
 	 * 当用户的缓存存在时，更新Redis中的用户信息
@@ -40,6 +42,8 @@ public interface IUserRedisService {
 	void updateUser(@NotNull UserCache user);
 
 	@Nullable UserCache getUser(Long userId);
+
+	@Nullable UserCache getUser(String userId);
 
 	/**
      * 根据用户token获取用户信息

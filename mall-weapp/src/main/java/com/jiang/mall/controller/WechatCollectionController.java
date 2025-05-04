@@ -13,12 +13,11 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.annotation.Wechat;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.CollectionVo;
-import com.jiang.mall.service.ICollectionService;
-import jakarta.servlet.http.HttpSession;
+import com.jiang.mall.service.IWechatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,20 +32,20 @@ import java.util.List;
  * @since 2024年9月20日
  */
 @RestController
-@RequestMapping("/collection")
-public class CollectionController {
+@RequestMapping("/wechat/collection")
+public class WechatCollectionController {
 
-	private ICollectionService collectionService;
+	private IWechatService wechatService;
 
 	@Autowired
-	public void setCollectionService(ICollectionService collectionService) {
-		this.collectionService = collectionService;
+	public void setWechatService(IWechatService wechatService){
+		this.wechatService = wechatService;
 	}
 
 	@PostMapping("/add")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> insertCollection(@RequestParam("prodId") Long productId,
-	                                               HttpSession session) {
+	                                               @RequestHeader("Token")String token) {
         // 校验商品ID是否为空
         if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
@@ -54,8 +53,7 @@ public class CollectionController {
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-        // 调用服务添加商品
-		Boolean res = collectionService.insertCollection(productId, session.getId());
+        Boolean res = wechatService.insertCollection(productId, token);
         if (res == null) {
 			return ResponseResult.notFoundResourceResult("该商品已经被收藏");
         }else if (res) {
@@ -66,16 +64,16 @@ public class CollectionController {
 	}
 
 	@GetMapping("/delete")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> deleteCollection(@RequestParam("prodId") Long productId,
-                                                    HttpSession session) {
+                                                    @RequestHeader("Token")String token) {
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
         }
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-		Boolean res = collectionService.deleteCollection(productId, session.getId());
+		Boolean res = wechatService.deleteCollection(productId, token);
 		if (res == null) {
 			return ResponseResult.notFoundResourceResult("该收藏不存在");
 		}else if (res) {
@@ -86,11 +84,11 @@ public class CollectionController {
 	}
 
 	@GetMapping("/getList")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> getCollectionList(@RequestParam(defaultValue = "1") Integer pageNum,
                                             @RequestParam(defaultValue = "10") Integer pageSize,
-                                            HttpSession session){
-		List<CollectionVo> collections =collectionService.getCollectionList(pageNum, pageSize, session.getId());
+                                            @RequestHeader("Token")String token){
+		List<CollectionVo> collections = wechatService.getCollectionList(pageNum, pageSize, token);
 		if (collections.isEmpty()) {
 			return ResponseResult.notFoundResourceResult("没有收藏记录");
 		}
@@ -98,21 +96,21 @@ public class CollectionController {
 	}
 
 	@GetMapping("/getNum")
-	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getCollectionNum(HttpSession session) {
-		return ResponseResult.okResult(collectionService.getCollectionNum(session.getId()));
+	@Wechat(PermissionType.USER)
+	public ResponseResult<Object> getCollectionNum(@RequestHeader("Token")String token) {
+		return ResponseResult.okResult(wechatService.getCollectionNum(token));
 	}
 
 	@GetMapping("/isCollected")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> isCollected(@RequestParam("prodId") Long productId,
-	                                  HttpSession session) {
+	                                  @RequestHeader("Token")String token) {
 		if (productId == null|| productId <= 0) {
             return ResponseResult.failResult("非法请求");
         }
 		if (!StringUtils.hasText(productId.toString())){
 			return ResponseResult.failResult("商品ID为空");
 		}
-		return ResponseResult.okResult(collectionService.isCollect(productId, session.getId()));
+		return ResponseResult.okResult(wechatService.isCollect(productId, token));
 	}
 }

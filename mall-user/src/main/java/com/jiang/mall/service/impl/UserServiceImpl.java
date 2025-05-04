@@ -85,7 +85,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		this.i18nService = i18nService;
 	}
 
-	private IUserRedisService  redisService;
+	private IUserRedisService redisService;
 
     @Autowired
     public void setRedisService(IUserRedisService redisService) {
@@ -193,7 +193,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 	}
 
-	private void login(@NotNull User user, String token, String sessionId) {
+	@Override
+	@Transactional
+	public @NotNull UserCache analyze(@NotNull User user){
 		UserCache userCache = BeanCopyUtil.copyBean(user, UserCache.class);
 		assert userCache != null;
 		Set<Long> groupIds = userGroupRelationMapper.getGroupIdByUserId(user.getId());
@@ -229,11 +231,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 		}
 		userCache.setSeller(!shopStaffs.isEmpty());
 		userCache.setPermissions(permissions);
+		return userCache;
+	}
+
+	@Transactional
+	protected void login(@NotNull User user, String token, String sessionId) {
+		UserCache userCache = analyze(user);
 		// 将用户信息存储到Redis中，并设置过期时间
 		redisService.setUser(sessionId, token, userCache);
 		logger.debug("用户{}登录成功", user.getUsername());
 	}
 
+	@Transactional
 	public User getUserByUserNameOrEmail(String username, String password) {
 	    // 根据查询条件尝试获取用户信息
 	    User user_username = userMapper.getUserByUsernameAndIsActive(username,true );
@@ -731,28 +740,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	@Transactional
-	public UserVo oauthLogin(Long id, String sessionId, String token) {
+	public UserCache wechatLogin(Long id, String clientIp) {
 		User user = userMapper.selectById(id);
 		if (!user.isActive()){
 			return null;
 		}
-			// 登录成功，记录登录记录(微信小程序不考虑二步)
-			Map<String,Object> map = new HashMap<>();
-			map.put("provider", "wechat");
-			userLogService.defaultLog(user.getUsername(), "127.0.0.1", "wxxcx", UserStatus.SUCCESS_LOGIN, map);
-			login(user, token, sessionId);
-			return BeanCopyUtil.copyBean(user, UserVo.class);
-
+		// 登录成功，记录登录记录(微信小程序不考虑二步)
+		Map<String,Object> map = new HashMap<>();
+		map.put("provider", "wechat");
+		userLogService.defaultLog(user.getUsername(), clientIp, "wechat", UserStatus.SUCCESS_LOGIN, map);
+		return analyze(user);
 	}
 
 	@Override
-	public UserVo login(String username, String password, String sessionId, String token) {
-		//TODO:  计划重构
+	@Transactional
+	public UserCache wechatLogin(String username, String password, String clientIp) {
 		password = SecureUtil.sha256Hex(password, generalConfig.getAesSalt());
 		User user = getUserByUserNameOrEmail(username, password);
 		if (user != null){
-			login(user, token, sessionId);
-			return BeanCopyUtil.copyBean(user, UserVo.class);
+			return analyze(user);
 		}
 		return null;
 	}

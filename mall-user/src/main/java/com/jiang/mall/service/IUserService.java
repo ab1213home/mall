@@ -53,7 +53,9 @@ public interface IUserService extends IService<User> {
 
     Long getUserNum();
 
-	User getUserByUserNameOrEmail(String username);
+    @NotNull UserCache analyze(@NotNull User user);
+
+    User getUserByUserNameOrEmail(String username);
 
     Boolean logout(String sessionId);
 
@@ -97,7 +99,7 @@ public interface IUserService extends IService<User> {
 
 	List<UserLogVo> getUserLoginLog(String sessionId);
 
-    UserVo oauthLogin(Long id, String sessionId, String token);
+    UserCache wechatLogin(Long id, String clientIp);
 
-    UserVo login(String username, String password, String sessionId, String token);
+    UserCache wechatLogin(String username, String password, String clientIp);
 }

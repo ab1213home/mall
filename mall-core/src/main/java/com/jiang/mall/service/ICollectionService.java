@@ -23,15 +23,21 @@ public interface ICollectionService extends IService<Collection> {
 
 	Boolean insertCollection(Long productId, String sessionId);
 
-	Collection queryByProductIdByUserId(Long productId, String sessionId);
-
 	Boolean deleteCollection(Long productId, String sessionId);
 
 	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, String sessionId);
 
 	Long getCollectionNum(String sessionId);
 
-	Boolean isCollect(Long productId, String sessionId);
+	boolean isCollect(Long productId, String sessionId);
 
-	Boolean deleteById(Long id);
+	Boolean insertCollection(Long productId, Long userId);
+
+	Boolean deleteCollection(Long productId, Long userId);
+
+	List<CollectionVo> getCollectionList(Integer pageNum, Integer pageSize, Long userId);
+
+	Long getCollectionNum(Long userId);
+
+	boolean isCollect(Long productId, Long userId);
 }

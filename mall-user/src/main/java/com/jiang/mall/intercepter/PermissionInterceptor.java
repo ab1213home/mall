@@ -126,7 +126,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
         }
 	}
 
-	private boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, String permission){
+	public boolean checkShopPermission(UserCache user, @NotNull HttpServletRequest request, String permission){
 		Long shopId = parseShopId(request);
 	    if (shopId == null) {
 	        logger.debug("店铺ID参数缺失");
@@ -136,7 +136,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	    return checkPermission(user, "shop_" + shopId + ":" + permission);
 	}
 
-	private boolean checkPermission(@NotNull UserCache user, String permission){
+	public boolean checkPermission(@NotNull UserCache user, String permission){
 		// 检查用户是否具有任何系统权限
 	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
 	        // 检查用户是否具有所需的特定权限
@@ -172,7 +172,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 * @param permission 必需的权限字符串
 	 * @return 如果用户具有所需的权限，则返回true；否则返回false
 	 */
-	private boolean checkSystemPermission(@NotNull UserCache user, String permission){
+	public boolean checkSystemPermission(@NotNull UserCache user, String permission){
 	    return checkPermission(user, "system:" + permission);
 	}
 

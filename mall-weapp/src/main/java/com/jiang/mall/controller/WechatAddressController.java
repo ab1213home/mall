@@ -14,36 +14,30 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.annotation.Wechat;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.AddressVo;
-import com.jiang.mall.service.IAddressService;
 import com.jiang.mall.service.IAdministrativeDivisionService;
 import com.jiang.mall.service.II18nService;
-import jakarta.servlet.http.HttpSession;
+import com.jiang.mall.service.IWechatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 收货地址管理
- * @author jiang
- * @version 1.0
- * @since 2024年9月8日
- */
 @RestController
-@RequestMapping("/address")
-public class AddressController {
+@RequestMapping("/wechat/address")
+public class WechatAddressController {
 
-	private IAddressService addressService;
+	private IWechatService wechatService;
 
 	@Autowired
-	public void setAddressService(IAddressService addressService) {
-		this.addressService = addressService;
+	public void setWechatService(IWechatService wechatService){
+		this.wechatService = wechatService;
 	}
 
 	private IAdministrativeDivisionService divisionService;
@@ -67,21 +61,20 @@ public class AddressController {
 		this.userConfig = userConfig;
 	}
 
-    /**
-     * 获取收货地址列表
-     *
-     * @param pageNum  当前页码，默认为1
-     * @param pageSize 每页大小，默认为10
-     * @param session  HTTP会话，用于判断用户登录状态及获取用户ID
-     * @return 返回收货地址列表或相关错误提示的响应结果
-     */
-    @GetMapping("/getList")
-    @Permission(PermissionType.USER)
+	//我的收货地址
+	@GetMapping("/getNum")
+	@Wechat(PermissionType.USER)
+	public ResponseResult<Object> getAddressNum(@RequestHeader("Token")String token) {
+		return ResponseResult.okResult(wechatService.getAddressNum(token));
+	}
+
+	@GetMapping("/getList")
+    @Wechat(PermissionType.USER)
     public ResponseResult<Object> getAddressList(@RequestParam(defaultValue = "1") Integer pageNum,
                                                  @RequestParam(defaultValue = "10") Integer pageSize,
-                                                 HttpSession session) {
+												 @RequestHeader("Token")String token) {
         // 调用服务方法，根据用户ID和分页参数获取收货地址列表
-        List<AddressVo> address_List = addressService.getAddressList(session.getId(), pageNum, pageSize);
+        List<AddressVo> address_List = wechatService.getAddressList(token, pageNum, pageSize);
 
         // 如果地址列表为空，则返回失败结果并提示暂无收货地址
         if (address_List.isEmpty()) {
@@ -90,19 +83,6 @@ public class AddressController {
         // 如果成功获取到地址列表，则返回成功结果及地址列表数据
         return ResponseResult.okResult(address_List);
     }
-
-	/**
-	 * 根据用户登录状态获取地址数据数量
-	 *
-	 * @param session 用户会话，用于判断用户登录状态并获取用户ID
-	 * @return 返回获取地址数据数量的结果，包括是否成功、失败原因以及数据本身（如果成功）
-	 */
-	@GetMapping("/getNum")
-	@Permission(PermissionType.USER)
-	public ResponseResult<Object> getNum(HttpSession session){
-	    // 返回地址服务中与该用户相关的地址数据数量
-	    return ResponseResult.okResult(addressService.getAddressNum(session.getId()));
-	}
 
 	/**
 	 * 添加地址信息
@@ -114,7 +94,7 @@ public class AddressController {
 	 * @param addressDetail 详细地址，精确到门牌号的地址信息
 	 * @param postalCode 邮政编码，用于邮件配送的邮政编码
 	 * @param isDefault 是否设为默认地址，标识该地址是否是用户的默认配送地址
-	 * @param session 用户会话，用于验证用户登录状态和获取用户ID
+	 * @param token 用户会话，用于验证用户登录状态和获取用户ID
 	 * @return ResponseResult 插入地址操作的结果
 	 */
 	@PostMapping("/add")
@@ -126,7 +106,7 @@ public class AddressController {
 	                                            @RequestParam("addressDetail") String addressDetail,
 												@RequestParam("postalCode") String postalCode,
 	                                            @RequestParam("isDefault") boolean isDefault,
-	                                            HttpSession session){
+	                                            @RequestHeader("Token")String token){
 		if (firstName==null||lastName==null||addressDetail==null||postalCode==null||phone==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -146,7 +126,7 @@ public class AddressController {
 		if (!StringUtils.hasText(postalCode)){
 			return ResponseResult.failResult("请输入邮政编码");
 		}
-		if ((Long)getNum(session).getData()> userConfig.getUserMaxAddress()){
+		if ((Long)getAddressNum(token).getData()> userConfig.getUserMaxAddress()){
 			return ResponseResult.failResult("最多只能添加"+userConfig.getUserMaxAddress()+"个收货地址");
 		}
 		if (divisionService.isTure(areaCode)){
@@ -155,7 +135,7 @@ public class AddressController {
 	    // 创建新的地址对象
 	    Address address = new Address(firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 	    // 尝试插入地址信息
-	    if (addressService.insertAddress(address,isDefault,session.getId())){
+	    if (wechatService.insertAddress(address,isDefault,token)){
 			// 插入地址成功
 			return ResponseResult.okResult("添加成功");
 	    }else{
@@ -175,7 +155,7 @@ public class AddressController {
 	 * @param addressDetail 详细地址
 	 * @param postalCode    邮政编码
 	 * @param isDefault     是否设为默认地址
-	 * @param session       HTTP会话
+	 * @param token       HTTP会话
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
@@ -188,7 +168,7 @@ public class AddressController {
 	                                    @RequestParam("addressDetail") String addressDetail,
 	                                    @RequestParam("postalCode") String postalCode,
 	                                    @RequestParam("isDefault") boolean isDefault,
-	                                    HttpSession session) {
+	                                    @RequestHeader("Token")String token) {
 		if (id==null||id<=0||firstName==null||lastName==null||phone==null||areaCode==null||addressDetail==null||postalCode==null){
 			return ResponseResult.failResult("请输入完整信息");
 		}
@@ -214,7 +194,7 @@ public class AddressController {
 		Address address = new Address(firstName, lastName, phone, "中国", areaCode, addressDetail, postalCode);
 		address.setId(id);
 
-		Boolean update = addressService.updateAddress(address,isDefault,session.getId());
+		Boolean update = wechatService.updateAddress(address,isDefault,token);
 
 		// 尝试更新地址
 		if (update==null){
@@ -230,13 +210,13 @@ public class AddressController {
 	 * 处理删除地址的请求
 	 *
 	 * @param id 地址的唯一标识符
-	 * @param session 用户的会话信息，用于判断用户是否登录及获取用户ID
+	 * @param token 用户的会话信息，用于判断用户是否登录及获取用户ID
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
-	                                    HttpSession session){
+	                                            @RequestHeader("Token")String token){
 		if (id==null||id<=0){
 			return ResponseResult.failResult("地址ID不能为空");
 		}
@@ -244,7 +224,7 @@ public class AddressController {
 			return ResponseResult.failResult("地址ID不能为空");
 		}
 
-		Boolean delete = addressService.deleteAddress(id,session.getId());
+		Boolean delete = wechatService.deleteAddress(id,token);
 
 		if (delete==null){
 			return ResponseResult.failResult("您没有权限删除此地址");
@@ -254,4 +234,5 @@ public class AddressController {
 			return ResponseResult.failResult("删除失败");
 		}
 	}
+
 }

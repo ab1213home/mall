@@ -13,9 +13,8 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.domain.enums.OAuthConfigItems;
+import com.jiang.mall.domain.enums.WeChatConfigItems;
 import jakarta.annotation.PostConstruct;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 @Component
-public class OAuthConfig {
-	
-	private static final Logger logger = LoggerFactory.getLogger(OAuthConfig.class);
+public class WechatConfig {
+
+	private static final Logger logger = LoggerFactory.getLogger(WechatConfig.class);
 
     private GeneralConfig generalConfig;
 
@@ -46,7 +45,7 @@ public class OAuthConfig {
     @PostConstruct
     private void init() {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("oauth");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("wechat");
         loadProperties();
     }
 
@@ -58,7 +57,7 @@ public class OAuthConfig {
         if (configFile.exists()) {
             try (InputStream input = new FileInputStream(configFile)) {
                 properties.load(input);
-                for (OAuthConfigItems item : OAuthConfigItems.values()) {
+                for (WeChatConfigItems item : WeChatConfigItems.values()) {
                     String keyToCheck = item.getKey();
                     if (!properties.containsKey(keyToCheck)) {
                         properties.setProperty(keyToCheck, item.getDefaultValue());
@@ -92,7 +91,7 @@ public class OAuthConfig {
         try {
             File configFile = new File(CONFIG_FILE_PATH);
             if (configFile.createNewFile()) {
-                for (OAuthConfigItems item : OAuthConfigItems.values()) {
+                for (WeChatConfigItems item : WeChatConfigItems.values()) {
                     properties.setProperty(item.getKey(), item.getDefaultValue());
                 }
                 saveProperties();
@@ -102,63 +101,29 @@ public class OAuthConfig {
             logger.error("创建默认配置文件失败！", e);
         }
     }
-	
 
-    public String getGithubClientId() {
-        return properties.getProperty(OAuthConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), OAuthConfigItems.OAUTH_GITHUE_CLIENT_ID.getDefaultValue());
+
+    public boolean isWechatEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(WeChatConfigItems.WECHAT_APP_ENABLED.getKey(), WeChatConfigItems.WECHAT_APP_ENABLED.getDefaultValue()));
     }
 
-    public String getGithubClientSecret() {
-        return properties.getProperty(OAuthConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), OAuthConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getDefaultValue());
+    public String getWeChatAppId() {
+        return properties.getProperty(WeChatConfigItems.WECHAT_APP_ID.getKey(), WeChatConfigItems.WECHAT_APP_ID.getDefaultValue());
     }
 
-    public String getGiteeClientId() {
-        return properties.getProperty(OAuthConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), OAuthConfigItems.OAUTH_GITEE_CLIENT_ID.getDefaultValue());
+    public String getWeChatAppSecret() {
+        return properties.getProperty(WeChatConfigItems.WECHAT_APP_SECRET.getKey(), WeChatConfigItems.WECHAT_APP_SECRET.getDefaultValue());
     }
 
-    public String getGiteeClientSecret() {
-        return properties.getProperty(OAuthConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), OAuthConfigItems.OAUTH_GITEE_CLIENT_SECRET.getDefaultValue());
+    public void updateOAuthWechatEnabled(boolean enabled) {
+        properties.setProperty(WeChatConfigItems.WECHAT_APP_ENABLED.getKey(), String.valueOf(enabled));
     }
 
-
-    public boolean isOAuthGithubEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(OAuthConfigItems.OAUTH_GITHUE_ENABLED.getKey(), OAuthConfigItems.OAUTH_GITHUE_ENABLED.getDefaultValue()));
+    public void updateWechatAppId(String id) {
+        properties.setProperty(WeChatConfigItems.WECHAT_APP_ID.getKey(), id);
     }
 
-    public boolean isOAuthGiteeEnabled() {
-        return Boolean.parseBoolean(properties.getProperty(OAuthConfigItems.OAUTH_GITEE_ENABLED.getKey(), OAuthConfigItems.OAUTH_GITEE_ENABLED.getDefaultValue()));
+    public void updateWechatAppSecret(String secret) {
+        properties.setProperty(WeChatConfigItems.WECHAT_APP_SECRET.getKey(), secret);
     }
-
-    public void updateGithubClientId(String clientId) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITHUE_CLIENT_ID.getKey(), clientId);
-    }
-
-    public void updateGithubClientSecret(String clientSecret) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITHUE_CLIENT_SECRET.getKey(), clientSecret);
-    }
-
-    public void updateGiteeClientId(String clientId) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITEE_CLIENT_ID.getKey(), clientId);
-    }
-
-    public void updateGiteeClientSecret(String clientSecret) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITEE_CLIENT_SECRET.getKey(), clientSecret);
-    }
-
-    public void updateOAuthGithubEnabled(boolean enabled) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITHUE_ENABLED.getKey(), String.valueOf(enabled));
-    }
-
-    public void updateOAuthGiteeEnabled(boolean enabled) {
-        properties.setProperty(OAuthConfigItems.OAUTH_GITEE_ENABLED.getKey(), String.valueOf(enabled));
-    }
-
-	public String getClientId(@NotNull String name) {
-		return switch (name) {
-			case "github" -> getGithubClientId();
-			case "gitee" -> getGiteeClientId();
-			default -> null;
-		};
-	}
-
 }

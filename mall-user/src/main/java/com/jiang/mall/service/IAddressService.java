@@ -14,8 +14,10 @@
 package com.jiang.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.Address;
 import com.jiang.mall.domain.vo.AddressVo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -87,4 +89,14 @@ public interface IAddressService extends IService<Address> {
 	AddressVo getAddress(Long id, Long userId);
 
 	AddressVo getAddress(Long id);
+
+	Long getAddressNum(Long userId);
+
+	List<AddressVo> getAddressList(Long userId,Long defaultAddressId, Integer pageNum, Integer pageSize);
+
+	boolean insertAddress(@NotNull Address address, boolean isDefault, @NotNull UserCache user);
+
+	Boolean updateAddress(@NotNull Address address, boolean isDefault, @NotNull UserCache user);
+
+	Boolean deleteAddress(Long id,@NotNull UserCache user);
 }

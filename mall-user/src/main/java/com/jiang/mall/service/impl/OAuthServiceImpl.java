@@ -30,10 +30,8 @@ import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.response.GitHubTokenResponse;
 import com.jiang.mall.domain.response.GiteeTokenResponse;
-import com.jiang.mall.domain.response.WeixinResponse;
 import com.jiang.mall.domain.vo.EnumVo;
 import com.jiang.mall.domain.vo.OAuthVo;
-import com.jiang.mall.domain.vo.UserVo;
 import com.jiang.mall.service.IOAuthRedisService;
 import com.jiang.mall.service.IOAuthService;
 import com.jiang.mall.service.IUserService;
@@ -263,83 +261,6 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			}
 		}
 		return oAuthVos;
-	}
-
-	@Override
-	public Map<String, Object> authLogin(String code, String sessionId) {
-		Map<String, Object> map = new HashMap<>();
-		if (!oAuthConfig.isOAuthWechatEnabled()){
-			map.put("message","未支持微信小程序登录" );
-			return map;
-		}
-		String url = "https://api.weixin.qq.com/sns/jscode2session" +
-			"?appid=" + oAuthConfig.getWeChatAppId() +
-	        "&secret=" + oAuthConfig.getWeChatAppSecret() +
-	        "&js_code=" + code +
-	        "&grant_type=authorization_code";
-
-	    // 调用微信接口
-		WeixinResponse weixinResponse = WebClient.create()
-				.get()
-				.uri(url)
-				.retrieve()
-				.bodyToMono(WeixinResponse.class)
-				.block();
-		if (weixinResponse==null){
-			map.put("message","微信接口调用失败" );
-			return map;
-		}
-		if (weixinResponse.getErrcode()!=0){
-			map.put("message","微信接口调用失败" );
-			map.put("errcode", weixinResponse.getErrcode());
-			return map;
-		}
-		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("provider_type", OAuthProvider.WECHAT.getKey());
-		queryWrapper.eq("provider_user_id", weixinResponse.getOpenid());
-		UserOauth userOauth = userOauthMapper.selectOne(queryWrapper);
-		if (userOauth==null){
-			map.put("message","未绑定微信" );
-			map.put("openid", weixinResponse.getOpenid());
-			map.put("state", "bind");
-			return map;
-		}else {
-			String token = UUID.randomUUID().toString();
-			map.put("message","登录成功" );
-			map.put("state", "login");
-			map.put("token", token);
-			UserVo userVo = userService.oauthLogin(userOauth.getUserId(),sessionId,token);
-			map.put("userInfo", userVo);
-			return map;
-		}
-	}
-
-	@Override
-	public Map<String, Object> authLoginToBind(String username, String password, String openid, String sessionId) {
-		String token = UUID.randomUUID().toString();
-		UserVo userVo =userService.login(username,password,sessionId,token);
-		Map<String, Object> map = new HashMap<>();
-		if (userVo==null){
-			map.put("message","用户名或密码错误" );
-			return map;
-		}
-		UserOauth userOauth = new UserOauth();
-		userOauth.setUserId(userVo.getId());
-		userOauth.setProviderType(OAuthProvider.GITHUB.getKey());
-		userOauth.setProviderUserId(openid);
-		userOauth.setAnnotations(JSON.toJSONString(openid));
-		userOauth.setHash(SecureUtil.sha256Hex(JSON.toJSONString(openid)));
-		if (userOauthMapper.insert(userOauth)>0){
-				// 登录成功，记录登录记录
-	//			userLogService.oauthLoginLog(userCache.getUsername(), UserStatus.SUCCESS_LOGIN);
-//				return OAuthResultDto.success(cache.getUrl());
-			map.put("token", token);
-			map.put("userInfo", userVo);
-			return map;
-		}else {
-			map.put("message","绑定失败" );
-			return map;
-		}
 	}
 
 	private @Nullable Boolean authLoginToBindGithub(String sessionId) {

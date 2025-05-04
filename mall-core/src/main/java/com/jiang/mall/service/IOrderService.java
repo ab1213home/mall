@@ -49,4 +49,10 @@ public interface IOrderService extends IService<Order> {
 	void setCheckoutList(List<CheckoutReceiverVo> checkoutReceiverVos, String sessionId);
 
 	List<CheckoutVo> getCheckoutList(String sessionId);
+
+	List<OrderVo> getOrderList(Long userId, Integer pageNum, Integer pageSize);
+
+	Long getOrderNum(Long userId);
+
+	OrderVo getOrder(Long id, Long userId);
 }

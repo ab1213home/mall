@@ -16,22 +16,18 @@ package com.jiang.mall.domain.enums;
 import lombok.Getter;
 
 @Getter
-public enum OAuthConfigItems {
-	OAUTH_GITHUE_ENABLED("oauth.github.enabled", "是否启用GitHub认证", "false"),
-	OAUTH_GITHUE_CLIENT_ID("oauth.github.client-id", "GitHub客户端ID", "example"),
-	OAUTH_GITHUE_CLIENT_SECRET("oauth.github.client-secret", "GitHub客户端密钥", "example"),
-	OAUTH_GITEE_ENABLED("oauth.gitee.enabled", "是否启用Gitee认证", "false"),
-	OAUTH_GITEE_CLIENT_ID("oauth.gitee.client-id", "Gitee客户端ID", "example"),
-	OAUTH_GITEE_CLIENT_SECRET("oauth.gitee.client-secret", "Gitee客户端密钥", "example");
+public enum WeChatConfigItems {
+	WECHAT_APP_ENABLED("wechat.app.enabled", "是否启用微信认证", "false"),
+	WECHAT_APP_ID("wechat.app.id", "微信AppID", "example"),
+	WECHAT_APP_SECRET("wechat.app.secret", "微信AppSecret", "example");
 
 	private final String key;
 	private final String description;
 	private final String defaultValue;
 
-	OAuthConfigItems(String key, String description, String defaultValue) {
+	WeChatConfigItems(String key, String description, String defaultValue) {
 		this.key = key;
 		this.description = description;
 		this.defaultValue = defaultValue;
 	}
-
 }

@@ -121,6 +121,16 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		logger.debug("用户{}信息缓存成功", user.getUsername());
 	}
 
+	@Override
+	public void setUser(@NotNull UserCache user) {
+	    // 检查用户ID对应的键是否已存在，如果不存在则存储用户信息，如果存在则更新过期时间
+	    if(!stringRedisTemplate.hasKey(info_prefix+user.getId())){
+	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
+	    }else {
+			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+	    }
+	}
+
 	/**
 	 * 更新用户信息
 	 * 当用户的缓存存在时，更新Redis中的用户信息
@@ -147,7 +157,8 @@ public class UserRedisServiceImpl implements IUserRedisService {
 		return getUser(String.valueOf(userId));
 	}
 
-	private @Nullable UserCache getUser(String userId){
+	@Override
+	public @Nullable UserCache getUser(String userId){
 		if (stringRedisTemplate.hasKey(info_prefix+userId)){
 			// 如果用户详细信息存在，则解析并返回用户信息对象
 			return JSON.parseObject(stringRedisTemplate.opsForValue().get(info_prefix+userId), UserCache.class);
@@ -309,7 +320,13 @@ public class UserRedisServiceImpl implements IUserRedisService {
 
 	        // 刷新用户ID缓存的有效期
 	        stringRedisTemplate.expire(binding_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
+			stringRedisTemplate.expire(info_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
 			logger.debug("用户{}关联信息刷新成功", userId);
+	    }else if (stringRedisTemplate.hasKey(info_prefix+userId)){
+	        // 如果用户ID对应的缓存不存在，则返回null
+//		    logger.debug("用户{}关联信息获取失败，关联缓存不存在，无法刷新用户登录状态", userId);
+	        // 刷新用户ID缓存的有效期
+	        stringRedisTemplate.expire(info_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
 	    }
 	}
 

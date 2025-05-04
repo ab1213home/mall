@@ -532,12 +532,6 @@
 
             <dependency>
                 <groupId>com.jiang</groupId>
-                <artifactId>mall-email</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
                 <artifactId>mall-user</artifactId>
                 <version>${mall.version}</version>
             </dependency>
@@ -620,6 +614,12 @@
                 <version>${mall.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.jiang</groupId>
+                <artifactId>mall-weapp</artifactId>
+                <version>${mall.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -641,6 +641,7 @@
         <module>mall-monitor</module>
 		<module>mall-pay</module>
         <module>mall-product</module>
+        <module>mall-weapp</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->
 <!--        <module>mall-clues</module>-->

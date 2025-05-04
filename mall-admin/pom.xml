@@ -110,6 +110,11 @@
 			<artifactId>mall-notice</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.jiang</groupId>
+            <artifactId>mall-weapp</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -45,8 +45,4 @@ public interface IOAuthService {
 	OAuthProvider getProvider(String provider);
 
 	List<OAuthVo> getList(String sessionId);
-
-	Map<String, Object> authLogin(String code, String sessionId);
-
-	Map<String, Object> authLoginToBind(String username, String password, String openid,String sessionId);
 }
