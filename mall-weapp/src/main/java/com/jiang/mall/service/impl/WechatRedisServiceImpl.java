@@ -91,7 +91,7 @@ public class WechatRedisServiceImpl implements IWechatRedisService {
 		if (userConfig.isUserRedisEncryption()){
 			token = SecureUtil.sha256Hex(token);
 		}
-		stringRedisTemplate.opsForValue().set(prefix + token, user.getId().toString());
+		stringRedisTemplate.opsForValue().set(prefix + token, String.valueOf(user.getId()),userConfig.getSessionTimeout(),TimeUnit.HOURS);
 		redisService.setUser(user);
 	}
 

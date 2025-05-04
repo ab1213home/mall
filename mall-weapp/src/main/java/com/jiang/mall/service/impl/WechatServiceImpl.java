@@ -202,8 +202,10 @@ public class WechatServiceImpl implements IWechatService {
 				//		Map<String,Object> map = new HashMap<>();
 				//		map.put("provider", "wechat");
 				//		userLogService.defaultLog(user.getUsername(), clientIp, "wechat", UserStatus.SUCCESS_LOGIN, map);
+				redisService.setUser(token,user);
 				map.put("token", token_new);
-				map.put("userInfo", user);
+				UserVo userVo = BeanCopyUtil.copyBean(user, UserVo.class);
+				map.put("userInfo", userVo);
 				return map;
 			}else {
 				map.put("message","绑定失败,系统错误" );

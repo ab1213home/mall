@@ -32,7 +32,7 @@ import java.util.List;
  * @since 2024年9月8日
  */
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/wechat/cart")
 public class WechatCartController {
 
     private IWechatService wechatService;

@@ -57,7 +57,7 @@ public class WechatController {
 	}
 
 	//判断token是否有效
-	@PostMapping("/check")
+	@GetMapping("/check")
 	@Wechat(PermissionType.NONE)
 	public ResponseResult<Object> check(@RequestHeader("Token")String token) {
 		Map<String, Object> res = wechatService.check(token);

@@ -13,7 +13,6 @@
 
 package com.jiang.mall.controller;
 
-import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.annotation.Wechat;
 import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
@@ -98,7 +97,7 @@ public class WechatAddressController {
 	 * @return ResponseResult 插入地址操作的结果
 	 */
 	@PostMapping("/add")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> insertAddress(@RequestParam("firstName") String firstName,
 	                                            @RequestParam("lastName") String lastName,
 	                                            @RequestParam("phone") String phone,
@@ -159,7 +158,7 @@ public class WechatAddressController {
 	 * @return 操作结果
 	 */
 	@PostMapping("/update")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> updateAddress(@RequestParam("id") Long id,
 	                                    @RequestParam("firstName") String firstName,
 	                                    @RequestParam("lastName") String lastName,
@@ -214,7 +213,7 @@ public class WechatAddressController {
 	 * @return 删除操作的结果，成功或失败的提示
 	 */
 	@GetMapping("/delete")
-	@Permission(PermissionType.USER)
+	@Wechat(PermissionType.USER)
 	public ResponseResult<Object> deleteAddress(@RequestParam("id") Long id,
 	                                            @RequestHeader("Token")String token){
 		if (id==null||id<=0){
