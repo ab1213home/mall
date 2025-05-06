@@ -14,7 +14,7 @@
 <configuration scan="true" scanPeriod="60 seconds">
     <!-- 日志输出路径 -->
 <!--    <property name="LOG_PATH" value="./logs" />-->
-    <property name="LOG_PATH" value="${mall.logging.location}" defaultValue="./logs" />
+    <springProperty name="LOG_PATH" source="mall.logging.location" defaultValue="./logs"/>
 <!--    <springProfile name="dev">-->
 <!--        <property name="log.path" value="/dev/logs" />-->
 <!--    </springProfile>-->

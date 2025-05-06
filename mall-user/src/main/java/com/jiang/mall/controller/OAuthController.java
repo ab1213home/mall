@@ -74,6 +74,7 @@ public class OAuthController {
 	@GetMapping("/getPaymentList")
 	@Permission(PermissionType.NONE)
 	public ResponseResult<Object> getPaymentList(){
+		//判断是不是对公网域名的请求
 		List<Map<String,String>> map = oAuthService.getPaymentList();
 		return ResponseResult.okResult(map);
 	}
@@ -97,6 +98,7 @@ public class OAuthController {
 	                      @RequestParam("clientIp") String clientIp,
 	                      @RequestParam("fingerprint") String fingerprint
 						  ) throws IOException {
+		//判断是不是对公网域名的请求
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -124,6 +126,7 @@ public class OAuthController {
 	@GetMapping("/bind/{provider}")
 	@Permission(PermissionType.USER)
 	public void authBind(HttpServletResponse response, HttpServletRequest request, @PathVariable("provider") String provider) throws IOException {
+		//判断是不是对公网域名的请求
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -154,6 +157,7 @@ public class OAuthController {
 	                                              @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 	                                              HttpSession session
 	                                              ){
+		//判断是不是对公网域名的请求
 		if (!i18nService.checkString(username,255)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
 		}
@@ -206,6 +210,7 @@ public class OAuthController {
 	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 	                                            HttpSession session
 												){
+		//判断是不是对公网域名的请求
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 		}
@@ -235,6 +240,7 @@ public class OAuthController {
 	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 	                                            HttpSession session
 												){
+		//判断是不是对公网域名的请求
 		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 		}

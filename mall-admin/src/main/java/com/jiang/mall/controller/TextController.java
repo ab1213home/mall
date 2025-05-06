@@ -21,6 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/text")
 public class TextController {
@@ -71,10 +76,51 @@ public class TextController {
     }
 
     @GetMapping("/getIp")
-    @ResponseBody
-    public String getIp(HttpServletRequest request) {
+//    @ResponseBody
+    public ResponseResult<Object> getIp(HttpServletRequest request) {
+        Map<Object, Object> map = new HashMap<>();
         String ipAddress = NetworkUtils.getIpAddr(request);
-
-        return "Client IP address: " + ipAddress;
+        int serverPort = request.getServerPort();
+        map.put("serverPort", serverPort);
+        map.put("serverName", request.getServerName());
+        String portSuffix = (serverPort == 80 || serverPort == 443) ? "" : ":" + serverPort;
+        String url = request.getScheme() + "://" + request.getServerName() + portSuffix;
+        map.put("ipAddress", ipAddress);
+        map.put("url", url);
+        map.put("RequestURI", request.getRequestURI());
+        //输出请求头
+        Enumeration<String> headerNames = request.getHeaderNames();
+        Collections.list(headerNames).forEach(headerName -> {
+            String headerValue = request.getHeader(headerName);
+            map.put(headerName, headerValue);
+        });
+        return ResponseResult.okResult(map);
     }
+
+// {
+//  "code": 200,
+//  "message": "默认成功消息提示",
+//  "data": {
+//    "sec-fetch-mode": "navigate",
+//    "sec-fetch-site": "none",
+//    "accept-language": "zh-CN,zh;q=0.9",
+//    "ipAddress": "0:0:0:0:0:0:0:1",
+//    "sec-fetch-user": "?1",
+//    "url": "http://localhost:8080",
+//    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+//    "sec-ch-ua": "\"Chromium\";v=\"136\", \"Microsoft Edge\";v=\"136\", \"Not.A/Brand\";v=\"99\"",
+//    "sec-ch-ua-mobile": "?0",
+//    "sec-ch-ua-platform": "\"Windows\"",
+//    "host": "localhost:8080",
+//    "upgrade-insecure-requests": "1",
+//    "RequestURI": "/text/getIp",
+//    "connection": "keep-alive",
+//    "cache-control": "max-age=0",
+//    "accept-encoding": "gzip, deflate, br, zstd",
+//    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0",
+//    "sec-fetch-dest": "document"
+//  },
+//  "timestamp": 1746453909169,
+//  "success": true
+//}
 }

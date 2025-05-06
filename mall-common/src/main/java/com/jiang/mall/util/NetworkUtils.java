@@ -153,6 +153,8 @@ public class NetworkUtils {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("Proxy-Client-IP");
+        }else {
+			System.out.println("X-Forwarded-For: " + ipAddress);
         }
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("WL-Proxy-Client-IP");
@@ -166,7 +168,6 @@ public class NetworkUtils {
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getRemoteAddr();
         }
-
         // 如果 X-Forwarded-For 包含多个 IP 地址，取第一个非未知的 IP 地址
         if (ipAddress != null && ipAddress.contains(",")) {
             String[] ipAddresses = ipAddress.split(",");
