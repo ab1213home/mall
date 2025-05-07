@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Properties;
@@ -184,8 +186,29 @@ public class GeneralConfig {
         return DateTimeFormatter.ofPattern(properties.getProperty(GeneralConfigItems.MALL_DATE_FORMAT.getKey(), GeneralConfigItems.MALL_DATE_FORMAT.getDefaultValue()));
     }
 
-    public String getDomain() {
-        return properties.getProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), GeneralConfigItems.MALL_DOMAIN.getDefaultValue());
+    public URI getDomain() {
+        try {
+	        return new URI(properties.getProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), GeneralConfigItems.MALL_DOMAIN.getDefaultValue()));
+		} catch (URISyntaxException e) {
+            logger.error("域名配置无效", e);
+            return null;
+		}
+    }
+
+    public boolean isDomain(String host) {
+        URI domain = getDomain();
+        try {
+            String domainHost = domain.getHost();
+            if (domainHost == null) {
+                return false;
+            }
+            URI hostUri = new URI("https://" + host);
+            String hostName = hostUri.getHost();
+	        return hostName != null && hostName.equalsIgnoreCase(domainHost);
+		} catch (URISyntaxException e) {
+            logger.error("域名配置无效", e);
+            return false;
+		}
     }
 
     public Boolean isDemoMode() {
@@ -249,7 +272,12 @@ public class GeneralConfig {
     }
 
     public void updateDomain(String domain) {
-        properties.setProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), domain);
+        try {
+		    URI domainUri = new URI(domain);
+            properties.setProperty(GeneralConfigItems.MALL_DOMAIN.getKey(), domainUri.toString());
+		} catch (URISyntaxException e) {
+		    logger.error("域名配置无效", e);
+		}
     }
 
     public void updateDemoMode(boolean demoMode) {

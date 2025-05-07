@@ -18,6 +18,8 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,9 +63,16 @@ public class LockController {
      */
     @PostMapping("/self-lock")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> lockUser(@RequestHeader("X-Real-IP") String clientIp,
+    public ResponseResult<Object> lockUser(@RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                           HttpServletRequest request,
 	                                       HttpSession session) {
+		// 验证客户端IP是否有效
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+	    }
         if (!userService.lock(session.getId(), clientIp, fingerprint)){
 			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
         }else {

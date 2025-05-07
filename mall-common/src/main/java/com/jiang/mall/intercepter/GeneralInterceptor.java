@@ -18,6 +18,7 @@ import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.service.II18nService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -25,10 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class GeneralInterceptor{
@@ -63,7 +66,10 @@ public class GeneralInterceptor{
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.checkAdmin.noAdmin"));
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
+            redirectInBrowser(response,"/user/index.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
             redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
@@ -91,7 +97,10 @@ public class GeneralInterceptor{
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/user/index.html", i18nService.getMessage("user.login.error.repeated"));
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("user.login.error.repeated"));
+            redirectInBrowser(response,"/user/index.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
             redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
@@ -120,7 +129,10 @@ public class GeneralInterceptor{
 
         // 如果用户代理信息中的浏览器类型已知，视为普通网页请求，重定向到登录页面
         if (!userAgent.getBrowser().isUnknown()){
-            redirectInBrowser(response,request.getRequestURI(),request.getContextPath() + "/user/login.html", i18nService.getMessage("user.checkUser.noLogin"));
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("user.checkUser.noLogin"));
+            redirectInBrowser(response,"/user/login.html", map);
         }else {
             // 如果用户代理信息中的浏览器类型未知，视为API请求，返回未授权错误
             redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
@@ -132,46 +144,49 @@ public class GeneralInterceptor{
         if (agent == null) redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
         UserAgent userAgent = UserAgentUtil.parse(agent);
         if (!userAgent.getBrowser().isUnknown()){
-            redirectInBrowser(response, request.getRequestURI(),request.getContextPath() + "/index.html", i18nService.getMessage("user.register.error.allowed"));
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("user.register.error.allowed"));
+            redirectInBrowser(response,"/index.html", map);
         }else {
             redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
     /**
-     * 向浏览器发送重定向响应，可选地包含原始请求URL和提示信息
-     * 此方法用于在处理完用户请求后，将用户重定向到另一个页面，并可选地携带提示信息
-     * 它确保了在重定向过程中，所有传递的参数都经过适当的URL编码，以防止URL中的特殊字符造成问题
+     * 在浏览器中重定向
+     * <p>
+     * 此方法用于将用户从当前页面重定向到指定的URL，并可以附加额外的查询参数
+     * 如果提供的重定向URL为空，则默认重定向到主页（"/index.html"）
      *
-     * @param response      HTTP响应对象，用于设置重定向
-     * @param requestUrl    原始请求的URL，如果需要在重定向URL中包含此URL，则不应为null
-     * @param redirectUrl   重定向的目标URL
-     * @param message       要传递给目标页面的提示信息，将被编码后附加到重定向URL
-     * @throws IOException 如果在执行重定向时发生I/O错误
+     * @param response      HTTP响应对象，用于执行重定向操作
+     * @param redirectUrl   目标URL，如果为空，将使用默认值"/index.html"
+     * @param param         一个包含查询参数的键值对映射，这些参数将附加到目标URL
+     * @throws IOException 如果执行重定向时发生I/O错误
      */
-    public void redirectInBrowser(@NotNull HttpServletResponse response, String requestUrl, String redirectUrl, String message) throws IOException {
-        String url = redirectUrl != null ? redirectUrl : "/index.html";
-        // 设置响应的内容类型和字符编码，确保浏览器能够正确解析重定向的URL
-        response.setContentType("text/html; charset=UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-        if (requestUrl != null){
-            // 对请求URI进行编码，确保URL中的特殊字符能够正确传递
-            String urlParam = URLEncoder.encode(requestUrl, StandardCharsets.UTF_8);
-            url += "?url=" + urlParam;
+    public void redirectInBrowser(@NotNull HttpServletResponse response, String redirectUrl, Map<String, String> param) throws IOException {
+        // 设置默认重定向地址
+        if (StringUtils.isBlank(redirectUrl)) {
+            redirectUrl = "/index.html";
         }
-        if (message != null){
-            // 对提示信息进行编码，确保非ASCII字符能够正确传递
-            String messageParam = URLEncoder.encode(message, StandardCharsets.UTF_8);
-            url += "&message=" + messageParam;
+        // 构建基础 URI
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(redirectUrl);
+        // 附加查询参数到URI
+        for (Map.Entry<String, String> entry : param.entrySet()) {
+            builder.queryParam(entry.getKey(), entry.getValue());
         }
-        // 将编码后的重定向URL和提示信息拼接，执行重定向
+
+        // 生成最终的重定向URL
+        String finalRedirectUrl = builder.build().encode(StandardCharsets.UTF_8).toUriString();
+        // 执行重定向前检查响应是否已提交
         if (!response.isCommitted()) {
-            response.sendRedirect(url);
+            response.sendRedirect(finalRedirectUrl);
         } else {
             // 记录日志：无法重定向，响应已提交
-            logger.warn("无法重定向到 {}: 响应已提交。", url);
+            logger.warn("无法执行重定向，响应已提交。目标地址: {}", finalRedirectUrl);
         }
     }
+
 
     /**
      * 重定向到API接口的响应方法。
@@ -188,13 +203,10 @@ public class GeneralInterceptor{
     public void redirectInApi(@NotNull HttpServletResponse response, String message, int status) throws IOException {
         // 设置HTTP响应的状态码
         response.setStatus(status);
-
         // 设置响应的内容类型为JSON，并指定字符编码为UTF-8
         response.setContentType("application/json;charset=UTF-8");
-
         // 将错误信息封装为标准化的JSON格式字符串
         String json = JSON.toJSONString(ResponseResult.failResult(status, message));
-
         // 将生成的JSON字符串写入HTTP响应体
         response.getWriter().write(json);
     }

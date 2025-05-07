@@ -18,6 +18,8 @@ import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -61,12 +63,16 @@ public class PasswordController {
     @Permission(PermissionType.USER)
     public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
-                                                 @RequestHeader("X-Real-IP") String clientIp,
-                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+                                                @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+											    HttpServletRequest request,
                                                  HttpSession session) {
-        if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+        // 验证客户端IP是否有效
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-		}
+	    }
         if (!i18nService.isValidPassword(newPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }

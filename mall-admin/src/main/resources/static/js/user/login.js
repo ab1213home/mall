@@ -26,7 +26,7 @@ let oauthArr = [];
  */
 function jumpTo(oauth){
     // 构造初始登录URL，包含客户端IP和指纹信息
-    let login = oauth + "?clientIp=" + ip + "&fingerprint=" + fingerprint;
+    let login = oauth + "?fingerprint=" + fingerprint;
     // 如果有重定向URL，则将其添加到登录URL中
     if (url != null) {
         login = login + "&url=" + url;

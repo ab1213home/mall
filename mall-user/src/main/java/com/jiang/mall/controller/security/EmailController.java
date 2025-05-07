@@ -24,6 +24,8 @@ import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.INoticeService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -165,15 +167,21 @@ public class EmailController {
 	@PostMapping("/step2")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> emailStep2(@RequestParam("code") String code,
-	                                         @RequestHeader("X-Real-IP") String clientIp,
-	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+	                                         @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+                                             @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+											 HttpServletRequest request,
 	                                         HttpSession session) {
 		// 验证验证码是否为空
 		if (!i18nService.checkString(code)) {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-
-		 NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
+		// 验证客户端IP是否有效
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+	    }
+		NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
 
         if (res.isExpired()){
             // 验证码有效期检查

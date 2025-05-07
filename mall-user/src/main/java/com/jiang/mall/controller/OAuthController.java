@@ -14,18 +14,20 @@
 package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
-import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
 import com.jiang.mall.domain.enums.OAuthProvider;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.OAuthVo;
+import com.jiang.mall.intercepter.GeneralInterceptor;
 import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IOAuthService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -36,6 +38,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,10 +75,29 @@ public class OAuthController {
 		this.i18nService = i18nService;
 	}
 
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+		this.generalConfig = generalConfig;
+	}
+
+	private GeneralInterceptor generalInterceptor;
+
+	@Autowired
+	public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
+		this.generalInterceptor = generalInterceptor;
+	}
+
 	@GetMapping("/getPaymentList")
 	@Permission(PermissionType.NONE)
-	public ResponseResult<Object> getPaymentList(){
-		//判断是不是对公网域名的请求
+	public ResponseResult<Object> getPaymentList(HttpServletRequest request){
+		String host = request.getHeader("Host");
+		String clientIp = NetworkUtils.getIpAddr(request);
+		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+		    return ResponseResult.okResult(new ArrayList<>(), "请使用公网域名访问");
+		}
 		List<Map<String,String>> map = oAuthService.getPaymentList();
 		return ResponseResult.okResult(map);
 	}
@@ -95,27 +118,28 @@ public class OAuthController {
 						  HttpServletRequest request,
 	                      @PathVariable("provider") String provider,
 	                      @RequestParam(value = "url", required = false) String url,
-	                      @RequestParam("clientIp") String clientIp,
+//	                      @RequestParam(value = "clientIp", required = false) String clientIp,
 	                      @RequestParam("fingerprint") String fingerprint
 						  ) throws IOException {
-		//判断是不是对公网域名的请求
-		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
-		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.setContentType("application/json;charset=UTF-8");
-			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, i18nService.getMessage("user.error.ip")));
-			response.getWriter().write(json);
+		// 验证客户端IP是否有效
+		String host = request.getHeader("Host");
+		String clientIp = NetworkUtils.getIpAddr(request);
+		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+			Map<String,String> map = new HashMap<>();
+//            map.put("url",request.getRequestURI());
+            map.put("message","请使用公网域名访问");
+            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			return;
 		}
+		//判断是不是对公网域名的请求
+		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (!i18nService.checkString(fingerprint)){
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.setContentType("application/json;charset=UTF-8");
-			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, i18nService.getMessage("user.error.fingerprint")));
-			response.getWriter().write(json);
+			generalInterceptor.redirectInApi(response,i18nService.getMessage("user.error.fingerprint"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			return;
 		}
 		if (oAuthProvider == null){
-			redirect(request, response,"不支持的OAuth2供应商",null,null,null);
+			generalInterceptor.redirectInApi(response,"不支持的OAuth2供应商", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}else {
 			response.setContentType("text/html; charset=UTF-8");
 			response.setCharacterEncoding("UTF-8");
@@ -126,20 +150,25 @@ public class OAuthController {
 	@GetMapping("/bind/{provider}")
 	@Permission(PermissionType.USER)
 	public void authBind(HttpServletResponse response, HttpServletRequest request, @PathVariable("provider") String provider) throws IOException {
+		// 验证客户端IP是否有效
+		String host = request.getHeader("Host");
+		String clientIp = NetworkUtils.getIpAddr(request);
+		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+			Map<String,String> map = new HashMap<>();
+//            map.put("url",request.getRequestURI());
+            map.put("message","请使用公网域名访问");
+            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
+			return;
+		}
 		//判断是不是对公网域名的请求
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.setContentType("application/json;charset=UTF-8");
-			String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "不支持的OAuth2供应商"));
-			response.getWriter().write(json);
+			generalInterceptor.redirectInApi(response,"不支持的OAuth2供应商",  HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}else {
 			boolean flag = oAuthService.isBind(oAuthProvider, request.getSession().getId());
 			if (flag){
-				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				response.setContentType("application/json;charset=UTF-8");
-				String json = JSON.toJSONString(ResponseResult.failResult(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, oAuthProvider.getName()+"账号已绑定"));
-				response.getWriter().write(json);
+				generalInterceptor.redirectInApi(response,oAuthProvider.getName()+"账号已绑定", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}else {
 				String url = oAuthService.authLogin(oAuthProvider, OAuthAction.BINDING);
 	            response.sendRedirect(url);
@@ -303,6 +332,10 @@ public class OAuthController {
 			if (result.getResult()==OAuthResultDto.OAuthResult.ERROR) {
 				//重定向到登录界面
 				redirect(request, response,oAuthProvider.getName()+"账号信息获取失败",result.getUrl(),null,null);
+				Map<String,String> map = new HashMap<>();
+	//            map.put("url",request.getRequestURI());
+	            map.put("message","请使用公网域名访问");
+	            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			} else if (result.getResult()==OAuthResultDto.OAuthResult.UNBOUND){
 				redirect(request, response,oAuthProvider.getName()+"账号未绑定",result.getUrl(),"binding",oAuthProvider.getName());
 			}else if (result.getResult()==OAuthResultDto.OAuthResult.SECOND_VERIFY) {

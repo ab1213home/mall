@@ -246,7 +246,7 @@ public class PayServiceImpl implements IPayService {
         request.setAppid(wechatpayConfig.getSetting().getAppId());
         request.setMchid(wechatpayConfig.getSetting().getMerchantId());
         request.setDescription(content);
-        request.setNotifyUrl(generalConfig.getDomain() + "/pay/notify/wechatpay");
+        request.setNotifyUrl(generalConfig.getDomain().toString() + "/pay/notify/wechatpay");
         request.setOutTradeNo(String.valueOf(orderId));
         // 调用下单方法，得到应答
         com.wechat.pay.java.service.payments.h5.model.PrepayResponse response = wechatpayConfig.h5PayService.prepay(request);

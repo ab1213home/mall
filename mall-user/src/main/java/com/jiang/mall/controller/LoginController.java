@@ -24,6 +24,7 @@ import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
+import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +82,9 @@ public class LoginController {
     public ResponseResult<Object> login(@RequestParam("username") String username,
                                         @RequestParam("password") String password,
                                         @RequestParam("captcha") String captcha,
-                                        @RequestHeader("X-Real-IP") String clientIp,
+                                        @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+										HttpServletRequest request,
                                         HttpSession session) {
 		if (!i18nService.checkString(username,255)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
@@ -93,9 +95,11 @@ public class LoginController {
 		if (!i18nService.checkString(captcha)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-		if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-		}
+	    }
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
@@ -137,18 +141,20 @@ public class LoginController {
 	 * @param code 验证码，用户输入的验证码以验证其身份
 	 * @param clientIp 客户端IP地址，用于安全检查
 	 * @param fingerprint 客户端指纹，唯一标识客户端的字符串
-	 * @param session HTTP会话，用于存储用户登录状态
+	 * @param request HTTP会话，用于存储用户登录状态
 	 * @return 登录结果，包括是否成功和相应的消息
 	 */
 	@PostMapping("/login/twoVerify")
 	@Permission(PermissionType.GUEST)
 	public ResponseResult<Object> loginTwoVerify(@RequestParam("code") int code,
-	                                         @RequestHeader("X-Real-IP") String clientIp,
-	                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-	                                         HttpSession session) {
+	                                             @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+											     HttpServletRequest request) {
 	    // 验证客户端IP是否有效
-	    if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-	        return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
 	    }
 	    // 验证客户端指纹是否有效
 	    if (!i18nService.checkString(fingerprint)){
@@ -157,7 +163,7 @@ public class LoginController {
 	    // 生成唯一令牌
 	    String token = UUID.fastUUID().toString();
 	    // 调用用户服务进行登录验证
-	    boolean flag = userService.login(session.getId(), code, token, clientIp, fingerprint);
+	    boolean flag = userService.login(request.getSession().getId(), code, token, clientIp, fingerprint);
 	    // 根据登录结果返回相应信息
 	    if (flag){
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
@@ -198,8 +204,6 @@ public class LoginController {
 			assert userCache != null;
 			UserVo userVo = BeanCopyUtil.copyBean(userCache, UserVo.class);
 			assert userVo != null;
-//			userVo.setAdmin(permissionInterceptor.checkAdminUser(userCache.getPermissions()));
-//			userVo.setSeller(permissionInterceptor.checkSellerUser(userCache.getPermissions()));
 			return ResponseResult.okResult(userVo);
 		}else {
 			return ResponseResult.notLoggedResult(i18nService.getMessage("user.checkUser.noLogin"));

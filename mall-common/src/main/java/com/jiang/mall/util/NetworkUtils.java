@@ -153,8 +153,6 @@ public class NetworkUtils {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("Proxy-Client-IP");
-        }else {
-			System.out.println("X-Forwarded-For: " + ipAddress);
         }
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
             ipAddress = request.getHeader("WL-Proxy-Client-IP");
@@ -180,6 +178,101 @@ public class NetworkUtils {
         }
 
         return ipAddress;
+    }
+
+	public static boolean isPublicIP(String ip) {
+        try {
+            InetAddress address = InetAddress.getByName(ip);
+            return isPublic(address);
+        } catch (UnknownHostException e) {
+            return false; // 无效IP视为非公网
+        }
+    }
+
+    private static boolean isPublic(@NotNull InetAddress address) {
+        // 检查环回地址
+        if (address.isLoopbackAddress()) {
+            return false;
+        }
+
+        if (address instanceof Inet4Address) {
+            return isPublicIPv4((Inet4Address) address);
+        } else if (address instanceof Inet6Address) {
+            return isPublicIPv6((Inet6Address) address);
+        }
+        return false; // 未知类型
+    }
+
+    private static boolean isPublicIPv4(@NotNull Inet4Address address) {
+        byte[] bytes = address.getAddress();
+        int b1 = bytes[0] & 0xFF;
+
+        // 10.0.0.0/8
+        if (b1 == 10) return false;
+
+        // 172.16.0.0/12
+        if (b1 == 172) {
+            int b2 = bytes[1] & 0xFF;
+            if (b2 >= 16 && b2 <= 31) return false;
+        }
+
+        // 192.168.0.0/16
+        if (b1 == 192) {
+            int b2 = bytes[1] & 0xFF;
+            if (b2 == 168) return false;
+        }
+
+        // 169.254.0.0/16 (链路本地)
+        if (b1 == 169) {
+            int b2 = bytes[1] & 0xFF;
+            if (b2 == 254) return false;
+        }
+
+        return true;
+    }
+
+    private static boolean isPublicIPv6(Inet6Address address) {
+        // 处理IPv4映射地址（如 ::ffff:192.168.0.1）
+        if (isIPv4MappedAddress(address)) {
+            byte[] ipv4Bytes = extractIPv4Bytes(address);
+            try {
+                Inet4Address ipv4Address = (Inet4Address) Inet4Address.getByAddress(ipv4Bytes);
+                return isPublicIPv4(ipv4Address);
+            } catch (UnknownHostException e) {
+                return false;
+            }
+        }
+
+        // 检查唯一本地地址（fc00::/7）
+        byte[] bytes = address.getAddress();
+        int firstByte = bytes[0] & 0xFF;
+        if ((firstByte & 0xFE) == 0xFC) return false; // fc00::/7
+
+        // 检查链路本地地址（fe80::/10）
+        if (firstByte == 0xFE) {
+            int secondByte = bytes[1] & 0xFF;
+            if ((secondByte & 0xC0) == 0x80) return false; // fe80::/10
+        }
+
+        return true;
+    }
+
+    // 检测是否是IPv4映射地址（::FFFF:IPv4）
+    private static boolean isIPv4MappedAddress(@NotNull Inet6Address address) {
+        byte[] bytes = address.getAddress();
+        // 检查前12字节是否符合 ::ffff:IPv4 格式
+        for (int i = 0; i < 10; i++) {
+            if (bytes[i] != 0) return false;
+        }
+        return (bytes[10] == (byte) 0xFF) && (bytes[11] == (byte) 0xFF);
+    }
+
+    // 提取IPv4映射地址中的IPv4部分
+    private static byte @NotNull [] extractIPv4Bytes(@NotNull Inet6Address address) {
+        byte[] bytes = address.getAddress();
+        byte[] ipv4Bytes = new byte[4];
+        System.arraycopy(bytes, 12, ipv4Bytes, 0, 4);
+        return ipv4Bytes;
     }
 
 }

@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class RegisterLoginInterceptor implements HandlerInterceptor {
@@ -86,7 +88,10 @@ public class RegisterLoginInterceptor implements HandlerInterceptor {
         if (agent == null) generalInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
         UserAgent userAgent = UserAgentUtil.parse(agent);
         if (!userAgent.getBrowser().isUnknown()){
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(),request.getContextPath() + "/user/register.html", i18nService.getMessage("user.register.error.previous"));
+			Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("user.register.error.previous"));
+            generalInterceptor.redirectInBrowser(response,"/user/register.html", map);
         }else {
             generalInterceptor.redirectInApi(response, i18nService.getMessage("user.register.error.previous"), HttpServletResponse.SC_FORBIDDEN);
         }

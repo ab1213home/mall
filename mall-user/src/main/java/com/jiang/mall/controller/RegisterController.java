@@ -26,6 +26,8 @@ import com.jiang.mall.service.ICaptchaService;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.INoticeService;
 import com.jiang.mall.service.IUserService;
+import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -179,12 +181,16 @@ public class RegisterController {
     @PostMapping("/step2")
     @Register
     public ResponseResult<Object> registerStep2(@RequestParam("code")String code,
-                                                @RequestHeader("X-Real-IP") String clientIp,
+                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+											    HttpServletRequest request,
                                                 HttpSession session) {
-        if (!i18nService.isValidIPv4OrIPv6(clientIp)){
+        // 验证客户端IP是否有效
+	    if (clientIp == null){
+			clientIp = NetworkUtils.getIpAddr(request);
+	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-		}
+	    }
         if (!i18nService.checkString(fingerprint)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
         }

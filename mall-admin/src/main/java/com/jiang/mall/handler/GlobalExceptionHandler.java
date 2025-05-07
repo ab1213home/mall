@@ -27,8 +27,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -64,33 +67,13 @@ public class GlobalExceptionHandler {
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/400.html","非法数据异常");
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message","非法数据异常");
+            generalInterceptor.redirectInBrowser(response,"/error/400.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
             generalInterceptor.redirectInApi(response, "非法数据异常", HttpServletResponse.SC_BAD_REQUEST);
-        }
-    }
-
-    @ExceptionHandler(Exception.class)
-    public void handleException(@NotNull Exception e, @NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
-        if (response.isCommitted()) {
-            return;
-        }
-        logger.error("服务器内部错误: {}，请求路径:{}{}", e.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
-        //获取请求的User-Agent头
-        String agent = request.getHeader("User-Agent");
-        // 如果User-Agent头为空，则通过API返回禁止访问的响应
-        if (agent == null) generalInterceptor.redirectInApi(response, i18nService.getMessage("server.error"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-        // 解析User-Agent头
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        // 如果User-Agent头表明这是一个已知的浏览器请求
-        if (!userAgent.getBrowser().isUnknown()){
-            // 通过浏览器重定向到用户首页
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/500.html", i18nService.getMessage("server.error"));
-        }else {
-            // 否则，通过API返回禁止访问的响应
-            generalInterceptor.redirectInApi(response, i18nService.getMessage("server.error"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -107,7 +90,10 @@ public class GlobalExceptionHandler {
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/400.html", "参数类型不匹配异常");
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message","参数类型不匹配异常");
+            generalInterceptor.redirectInBrowser(response,"/error/400.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
             generalInterceptor.redirectInApi(response,"参数类型不匹配异常", HttpServletResponse.SC_BAD_REQUEST);
@@ -127,10 +113,62 @@ public class GlobalExceptionHandler {
         // 如果User-Agent头表明这是一个已知的浏览器请求
         if (!userAgent.getBrowser().isUnknown()){
             // 通过浏览器重定向到用户首页
-            generalInterceptor.redirectInBrowser(response, request.getRequestURI(), request.getContextPath() + "/error/404.html", "接口未找到");
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message","接口未找到");
+            generalInterceptor.redirectInBrowser(response,"/error/404.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
             generalInterceptor.redirectInApi(response,"接口未找到", HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public void handleNoResourceFoundException(@NotNull NoResourceFoundException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        logger.error("资源未找到: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+        //获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) generalInterceptor.redirectInApi(response, "资源未找到", HttpServletResponse.SC_NOT_FOUND);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message","资源未找到");
+            generalInterceptor.redirectInBrowser(response,"/error/404.html", map);
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            generalInterceptor.redirectInApi(response,"资源未找到", HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
+    @ExceptionHandler(Exception.class)
+    public void handleException(@NotNull Exception e, @NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        if (response.isCommitted()) {
+            return;
+        }
+        logger.error("服务器内部错误: {}，请求路径:{}{}", e.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+        //获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) generalInterceptor.redirectInApi(response, i18nService.getMessage("server.error"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",i18nService.getMessage("server.error"));
+            generalInterceptor.redirectInBrowser(response,"/error/500.html", map);
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            generalInterceptor.redirectInApi(response, i18nService.getMessage("server.error"), HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
