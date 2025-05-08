@@ -165,6 +165,7 @@ public class GeneralInterceptor{
      * @throws IOException 如果执行重定向时发生I/O错误
      */
     public void redirectInBrowser(@NotNull HttpServletResponse response, String redirectUrl, Map<String, String> param) throws IOException {
+        response.setContentType("text/html;charset=UTF-8");
         // 设置默认重定向地址
         if (StringUtils.isBlank(redirectUrl)) {
             redirectUrl = "/index.html";

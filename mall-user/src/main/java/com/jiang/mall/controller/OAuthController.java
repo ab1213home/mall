@@ -31,13 +31,10 @@ import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +115,6 @@ public class OAuthController {
 						  HttpServletRequest request,
 	                      @PathVariable("provider") String provider,
 	                      @RequestParam(value = "url", required = false) String url,
-//	                      @RequestParam(value = "clientIp", required = false) String clientIp,
 	                      @RequestParam("fingerprint") String fingerprint
 						  ) throws IOException {
 		// 验证客户端IP是否有效
@@ -127,7 +123,6 @@ public class OAuthController {
 		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
 		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
 			Map<String,String> map = new HashMap<>();
-//            map.put("url",request.getRequestURI());
             map.put("message","请使用公网域名访问");
             generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			return;
@@ -315,13 +310,17 @@ public class OAuthController {
                         ) throws IOException {
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
-			redirect(request, response,"不支持的OAuth2供应商",null,null,null);
+			Map<String,String> map = new HashMap<>();
+			map.put("message","不支持的OAuth2供应商");
+			generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			return;
 		}
 		// 解析state参数（格式：action:login:随机字符串）
 	    String[] stateParts = state.split(":");
 	    if (stateParts.length != 3 || !stateParts[0].equals("action")) {
-			redirect(request, response,"state参数解析错误",null,null,null);
+			Map<String,String> map = new HashMap<>();
+			map.put("message","state参数解析错误");
+			generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			return;
 	    }
 	    String action = stateParts[1];
@@ -331,53 +330,46 @@ public class OAuthController {
 			OAuthResultDto result = oAuthService.callback(OAuthAction.LOGIN, code, random, token, request.getSession().getId(), oAuthProvider);
 			if (result.getResult()==OAuthResultDto.OAuthResult.ERROR) {
 				//重定向到登录界面
-				redirect(request, response,oAuthProvider.getName()+"账号信息获取失败",result.getUrl(),null,null);
 				Map<String,String> map = new HashMap<>();
-	//            map.put("url",request.getRequestURI());
-	            map.put("message","请使用公网域名访问");
+				if (result.getUrl() != null){
+					map.put("url",result.getUrl());
+				}
+	            map.put("message",oAuthProvider.getName()+"账号信息获取失败");
 	            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			} else if (result.getResult()==OAuthResultDto.OAuthResult.UNBOUND){
-				redirect(request, response,oAuthProvider.getName()+"账号未绑定",result.getUrl(),"binding",oAuthProvider.getName());
+				Map<String,String> map = new HashMap<>();
+	            map.put("message",oAuthProvider.getName()+"账号未绑定");
+				if (result.getUrl() != null){
+					map.put("url",result.getUrl());
+				}
+				map.put("model","binding");
+				map.put("binding-type",oAuthProvider.getName());
+	            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			}else if (result.getResult()==OAuthResultDto.OAuthResult.SECOND_VERIFY) {
-				redirect(request, response,"账号需要双因素认证(2FA)",result.getUrl(),"oauth",null);
+				Map<String,String> map = new HashMap<>();
+	            map.put("message","账号需要双因素认证(2FA)");
+				map.put("model","oauth");
+				if (result.getUrl() != null){
+					map.put("url",result.getUrl());
+				}
+	            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			} else if (result.getResult()==OAuthResultDto.OAuthResult.SUCCESS){
-				response.setContentType("text/html; charset=UTF-8");
-				response.sendRedirect(request.getContextPath() + ( result.getUrl() == null ? "/index.html" : result.getUrl() ) );
+	            generalInterceptor.redirectInBrowser(response,result.getUrl() == null ? "/index.html" : result.getUrl() , new HashMap<>());
 			}
 		}else if (action.equals("bind")){
 			OAuthResultDto result = oAuthService.callback(OAuthAction.BINDING, code, random, null, request.getSession().getId(), oAuthProvider);
 			if (result.getResult() ==OAuthResultDto.OAuthResult.ERROR) {
-				response.setContentType("text/html; charset=UTF-8");
-				response.sendRedirect(request.getContextPath() + "/user/index.html");
+				Map<String,String> map = new HashMap<>();
+	            map.put("message","绑定失败");
+	            generalInterceptor.redirectInBrowser(response,"/user/index.html", map);
 			}  else if (result.getResult() == OAuthResultDto.OAuthResult.SUCCESS){
-				response.setContentType("text/html; charset=UTF-8");
-				response.sendRedirect(request.getContextPath() + "/user/index.html");
+                generalInterceptor.redirectInBrowser(response,"/user/index.html", new HashMap<>());
 			}
 		}else {
-			redirect(request, response, "未知参数", null, null,null);
+			Map<String,String> map = new HashMap<>();
+            map.put("message","未知参数");
+            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 		}
     }
-
-	private void redirect(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, String message, String url ,String model, String bindingType) throws IOException {
-		// 设置内容类型，包含charset信息
-		response.setContentType("text/html; charset=UTF-8");
-		// 定义基础URL
-		String baseUrl = request.getContextPath() + "/user/login.html";
-		// 使用StringBuilder高效地构建URL
-		StringBuilder urlBuilder = new StringBuilder(baseUrl);
-		urlBuilder.append("?message=").append(URLEncoder.encode(message, StandardCharsets.UTF_8));
-		// 添加额外的查询参数
-		if (model != null) {
-		    urlBuilder.append("&model=").append(model);
-		    if ("binding".equals(model) && bindingType != null) {
-		        urlBuilder.append("&binding-type=").append(bindingType);
-		    }
-		}
-		if (url != null) {
-		    urlBuilder.append("&url=").append(url);
-		}
-		// 执行重定向
-		response.sendRedirect(urlBuilder.toString());
-	}
 
 }

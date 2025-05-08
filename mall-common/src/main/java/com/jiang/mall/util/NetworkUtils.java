@@ -13,6 +13,7 @@
 
 package com.jiang.mall.util;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -179,6 +180,31 @@ public class NetworkUtils {
 
         return ipAddress;
     }
+
+	public static @NotNull URL getHost(@NotNull HttpServletRequest request) throws MalformedURLException {
+	    // 如果有代理头信息
+	    String protoHeader = request.getHeader("X-Forwarded-Proto");
+	    String hostHeader = request.getHeader("X-Forwarded-Host");
+
+	    if (StringUtils.isNotBlank(protoHeader) && StringUtils.isNotBlank(hostHeader)) {
+	        // 使用标准 split 方法
+	        String[] protoArray = protoHeader.split(",");
+	        String[] hostArray = hostHeader.split(",");
+
+	        String proto = protoArray.length > 0 ? protoArray[0].trim() : "http";
+	        String host = hostArray.length > 0 ? hostArray[0].trim() : "localhost";
+
+	        return new URL(proto + "://" + host);
+	    } else {
+	        // 没有代理头则回退到请求的主机和协议
+	        String serverName = request.getServerName();
+	        int serverPort = request.getServerPort();
+	        String scheme = request.getScheme();
+	        String host = serverPort == 80 || serverPort == 443 ? serverName : serverName + ":" + serverPort;
+	        return new URL(scheme + "://" + host);
+	    }
+	}
+
 
 	public static boolean isPublicIP(String ip) {
         try {

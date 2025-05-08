@@ -13,8 +13,10 @@
 
 package com.jiang.mall.service.impl;
 
+import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.service.ISeoService;
+import com.jiang.mall.util.NetworkUtils;
 import com.redfin.sitemapgenerator.ChangeFreq;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +42,13 @@ public class SeoServiceImpl implements ISeoService {
 		this.productMapper = productMapper;
 	}
 
+	private GeneralConfig generalConfig;
+
+	@Autowired
+	public void setGeneralConfig(GeneralConfig generalConfig) {
+		this.generalConfig = generalConfig;
+	}
+
 	/**
      * 生成网站地图的XML内容
      *
@@ -50,11 +60,9 @@ public class SeoServiceImpl implements ISeoService {
 	@Override
 	public String createSiteMapXmlContent(@NotNull HttpServletRequest request) throws IOException, ParseException {
 		// 构造域名，包括方案（http或https）、服务器名称和端口
-		int serverPort = request.getServerPort();
-        String portSuffix = (serverPort == 80 || serverPort == 443) ? "" : ":" + serverPort;
-        String domain = request.getScheme() + "://" + request.getServerName() + portSuffix;
+		URL domain = NetworkUtils.getHost(request);
         // 定义日期时间格式化器，用于格式化最后修改日期
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dateTimeFormatter =generalConfig.getDateFormatPattern();
 
         // 初始化WebSitemapGenerator对象，开始构造网站地图
         WebSitemapGenerator wsg = new WebSitemapGenerator(domain);

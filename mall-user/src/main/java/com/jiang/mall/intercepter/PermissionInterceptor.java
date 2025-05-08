@@ -18,6 +18,7 @@ import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -186,15 +187,30 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 * @return 返回刷新后的用户缓存对象，如果用户未登录，则返回null
 	 */
 	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
-	    // 双渠道获取用户信息
+	    // 三渠道获取用户信息
 	    String token = request.getHeader("Token");
 	    UserCache user;
-//		logger.debug("尝试获取用户信息: {}", token);
+		// 从请求中获取Cookie
+        Cookie[] cookies = request.getCookies();
+		String cookieToken = null;
+		boolean isCookie = false;
+        if (cookies != null) {
+			for (Cookie cookie : cookies) {
+	            if ("token".equals(cookie.getName())) {
+	                cookieToken = cookie.getValue();
+					isCookie = true;
+	                break;
+	            }
+	        }
+        }
+
 	    if (i18nService.checkString(token)) {
 	        user = redisService.getUserByToken(token);
-	    } else {
-	        String sessionId = request.getSession().getId();
-	        user = redisService.getUserBySessionId(sessionId);
+	    } else if (isCookie) {
+			user = redisService.getUserByToken(cookieToken);
+	    } else{
+			String sessionId = request.getSession().getId();
+			user = redisService.getUserBySessionId(sessionId);
 	    }
 
 	    // 登录状态检查

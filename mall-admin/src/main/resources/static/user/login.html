@@ -190,10 +190,6 @@
     <script src="/public/fingerprintjs-4.5.1-dist/fp.min.js"></script>
     <script type="application/javascript">
         let fingerprint = "";
-        let ip = "127.0.0.1";
-        function getIP(json) {
-            ip = json.ip;
-        }
         async function getFingerprint() {
             // 加载FingerprintJS库，这是一个异步操作，需要使用await等待加载完成
             const fpPromise = await FingerprintJS.load();
@@ -206,7 +202,6 @@
             fingerprint=await getFingerprint();
         })();
     </script>
-    <script type="application/javascript" src="https://api64.ipify.org?format=jsonp&callback=getIP"></script>
     <script src="/js/user/login.js"></script>
 </body>
 </html>

@@ -72,7 +72,6 @@ function submitLoginForm() {
         data: data,
         headers: {
             'X-Real-FINGERPRINT':fingerprint,
-            'X-Real-IP':ip,
         },
         beforeSend: function() {
         // 在发送请求之前，显示加载
@@ -266,7 +265,6 @@ function submitTwoVerifyForm() {
         data: data,
         headers: {
             'X-Real-FINGERPRINT':fingerprint,
-            'X-Real-IP':ip,
         },
         beforeSend: function() {
         // 在发送请求之前，显示加载

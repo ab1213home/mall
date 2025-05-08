@@ -15,6 +15,7 @@ package com.jiang.mall.controller;
 
 import cn.hutool.core.lang.UUID;
 import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
@@ -25,7 +26,9 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.BeanCopyUtil;
 import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -68,13 +71,20 @@ public class LoginController {
 		this.permissionInterceptor = permissionInterceptor;
 	}
 
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
+	}
+
 	/**
      * 处理用户登录请求
      *
      * @param username 用户名
      * @param password 密码(前端加密)
      * @param captcha 验证码
-     * @param session HttpSession，用于存储会话信息
+//     * @param session HttpSession，用于存储会话信息
      * @return ResponseResult 登录结果
      */
     @PostMapping("/login")
@@ -82,10 +92,9 @@ public class LoginController {
     public ResponseResult<Object> login(@RequestParam("username") String username,
                                         @RequestParam("password") String password,
                                         @RequestParam("captcha") String captcha,
-                                        @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                         @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 										HttpServletRequest request,
-                                        HttpSession session) {
+										HttpServletResponse response) {
 		if (!i18nService.checkString(username,255)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.username"));
 		}
@@ -95,16 +104,12 @@ public class LoginController {
 		if (!i18nService.checkString(captcha)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
+		String clientIp = NetworkUtils.getIpAddr(request);
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
 
-		Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
+		Boolean flag = captchaService.validateCaptcha(request.getSession().getId(), captcha);
 		if (flag==null){
 			// 检查验证码是否过期
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
@@ -121,7 +126,7 @@ public class LoginController {
 		String token = UUID.fastUUID().toString();
 
         // 调用userService的login方法进行用户登录验证
-        flag = userService.login(username, password, token, clientIp, fingerprint, session.getId());
+        flag = userService.login(username, password, token, clientIp, fingerprint, request.getSession().getId());
 
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
         if (flag == null) {
@@ -130,6 +135,12 @@ public class LoginController {
             // 登录失败，返回相应错误信息
             return ResponseResult.okResult("false","需要双因素认证(2FA)");
         }else {
+			Cookie cookie = new Cookie("token", token);
+	        cookie.setPath("/");                  // 设置Cookie作用路径
+	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+	        cookie.setHttpOnly(true);             // 防止XSS攻击
+	        // cookie.setSecure(true);            // HTTPS环境下启用
+	        response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
     }
@@ -139,7 +150,7 @@ public class LoginController {
 	 * 该方法首先验证客户端IP和指纹的有效性，然后生成一个令牌，并调用用户服务完成登录过程
 	 *
 	 * @param code 验证码，用户输入的验证码以验证其身份
-	 * @param clientIp 客户端IP地址，用于安全检查
+//	 * @param clientIp 客户端IP地址，用于安全检查
 	 * @param fingerprint 客户端指纹，唯一标识客户端的字符串
 	 * @param request HTTP会话，用于存储用户登录状态
 	 * @return 登录结果，包括是否成功和相应的消息
@@ -147,15 +158,10 @@ public class LoginController {
 	@PostMapping("/login/twoVerify")
 	@Permission(PermissionType.GUEST)
 	public ResponseResult<Object> loginTwoVerify(@RequestParam("code") int code,
-	                                             @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                                  @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-											     HttpServletRequest request) {
-	    // 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
+												 HttpServletRequest request,
+											     HttpServletResponse response) {
+		String clientIp = NetworkUtils.getIpAddr(request);
 	    // 验证客户端指纹是否有效
 	    if (!i18nService.checkString(fingerprint)){
 	        return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
@@ -166,6 +172,12 @@ public class LoginController {
 	    boolean flag = userService.login(request.getSession().getId(), code, token, clientIp, fingerprint);
 	    // 根据登录结果返回相应信息
 	    if (flag){
+			Cookie cookie = new Cookie("token", token);
+	        cookie.setPath("/");                  // 设置Cookie作用路径
+	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+	        cookie.setHttpOnly(true);             // 防止XSS攻击
+	        // cookie.setSecure(true);            // HTTPS环境下启用
+	        response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 	    }else {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));

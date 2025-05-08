@@ -12,6 +12,8 @@
 spring.flyway.enabled = false
 ```
 
+**如果使用代理(如Nginx或Apache)请添加代理头信息X-Forwarded-Host和X-Forwarded-Proto。**
+
 **docker部署支持本地文件上传需要修改路径为"/home/upload/"，正常使用可以自定义，但需要有对应权限。**
 
 ## 开发工具

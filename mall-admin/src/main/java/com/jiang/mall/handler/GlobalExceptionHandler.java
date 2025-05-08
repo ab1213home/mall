@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -77,13 +78,15 @@ public class GlobalExceptionHandler {
         }
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public void handleMethodArgumentTypeMismatchException(@NotNull MethodArgumentTypeMismatchException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
-        logger.error("参数类型不匹配: {}，请求路径:{}{}", ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public void handleMissingParams(@NotNull MissingServletRequestParameterException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        String paramName = ex.getParameterName();
+        String message = String.format("缺少必要参数: %s", paramName);
+        logger.error("{}: {}，请求路径:{}{}", message, ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
         //获取请求的User-Agent头
         String agent = request.getHeader("User-Agent");
         // 如果User-Agent头为空，则通过API返回禁止访问的响应
-        if (agent == null) generalInterceptor.redirectInApi(response, "参数类型不匹配异常", HttpServletResponse.SC_BAD_REQUEST);
+        if (agent == null) generalInterceptor.redirectInApi(response, message, HttpServletResponse.SC_BAD_REQUEST);
 
         // 解析User-Agent头
         UserAgent userAgent = UserAgentUtil.parse(agent);
@@ -92,11 +95,36 @@ public class GlobalExceptionHandler {
             // 通过浏览器重定向到用户首页
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
-            map.put("message","参数类型不匹配异常");
+            map.put("message",message);
             generalInterceptor.redirectInBrowser(response,"/error/400.html", map);
         }else {
             // 否则，通过API返回禁止访问的响应
-            generalInterceptor.redirectInApi(response,"参数类型不匹配异常", HttpServletResponse.SC_BAD_REQUEST);
+            generalInterceptor.redirectInApi(response,message, HttpServletResponse.SC_BAD_REQUEST);
+        }
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public void handleMethodArgumentTypeMismatchException(@NotNull MethodArgumentTypeMismatchException ex,@NotNull HttpServletResponse response , @NotNull HttpServletRequest request) throws IOException {
+        String paramName = ex.getName();
+        String message = String.format("参数类型不匹配异常: %s", paramName);
+        logger.error("{}: {}，请求路径:{}{}",message, ex.getMessage(), request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
+        //获取请求的User-Agent头
+        String agent = request.getHeader("User-Agent");
+        // 如果User-Agent头为空，则通过API返回禁止访问的响应
+        if (agent == null) generalInterceptor.redirectInApi(response, message, HttpServletResponse.SC_BAD_REQUEST);
+
+        // 解析User-Agent头
+        UserAgent userAgent = UserAgentUtil.parse(agent);
+        // 如果User-Agent头表明这是一个已知的浏览器请求
+        if (!userAgent.getBrowser().isUnknown()){
+            // 通过浏览器重定向到用户首页
+            Map<String,String> map = new HashMap<>();
+            map.put("url",request.getRequestURI());
+            map.put("message",message);
+            generalInterceptor.redirectInBrowser(response,"/error/400.html", map);
+        }else {
+            // 否则，通过API返回禁止访问的响应
+            generalInterceptor.redirectInApi(response,message, HttpServletResponse.SC_BAD_REQUEST);
         }
     }
 

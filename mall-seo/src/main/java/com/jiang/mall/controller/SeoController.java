@@ -16,6 +16,7 @@ package com.jiang.mall.controller;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.ISeoService;
+import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URL;
 import java.text.ParseException;
 
 /**
@@ -57,10 +59,10 @@ public class SeoController {
     @Permission(PermissionType.NONE)
     public void robots(HttpServletResponse response, HttpServletRequest request) throws IOException{
         // 构建 sitemap.xml 的完整 URL，以便搜索引擎能够发现它-
-        int serverPort = request.getServerPort();
-        String portSuffix = (serverPort == 80 || serverPort == 443) ? "" : ":" + serverPort;
-        String sitemapUrl = request.getScheme() + "://" + request.getServerName() + portSuffix + "/sitemap.xml";
-
+        URL host = NetworkUtils.getHost(request);
+        String sitemapUrl = host + "/sitemap.xml";
+        response.setContentType(MediaType.TEXT_PLAIN_VALUE);
+        response.setHeader("Content-Type", "text/plain; charset=utf-8");
         // 获取响应的输出流，用于向客户端发送文本数据
         Writer writer = response.getWriter();
         // 获取系统属性中的行分隔符，确保生成的文本符合操作系统规范
@@ -76,7 +78,7 @@ public class SeoController {
         // 建议搜索引擎爬虫的爬取间隔时间为 5 秒，以减少服务器负担
         writer.append("Crawl-delay: 5").append(lineSeparator);
         // 告知搜索引擎该站点的 sitemap.xml 文件的 URL，有助于提高爬取效率
-        writer.append("Sitemap: ").append(sitemapUrl);
+        writer.append("Sitemap:").append(sitemapUrl);
     }
 
     /**
@@ -92,6 +94,7 @@ public class SeoController {
     public void sitemap(HttpServletResponse response, HttpServletRequest request) throws IOException, ParseException {
         // 设置响应内容类型为 XML
         response.setContentType(MediaType.APPLICATION_XML_VALUE);
+        response.setHeader("Content-Type", "application/xml; charset=utf-8");
 
         // 获取响应的 Writer 对象，用于写入 XML 内容
         Writer writer = response.getWriter();
