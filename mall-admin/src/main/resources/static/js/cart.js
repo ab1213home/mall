@@ -24,7 +24,8 @@ $(document).ready(function(){
         queryCart(1, 15);
     } else {
         // 未登录：跳转到登录页
-        window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
+		console.log('未登录')
+        // window.location.href = "/user/login.html?url=" + encodeURIComponent("/cart.html") + "&message=" + encodeURIComponent("您未登录，请先登录");
     }
 
     // 绑定全选按钮事件（使用jQuery简化代码）

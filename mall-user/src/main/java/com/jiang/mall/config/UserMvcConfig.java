@@ -26,17 +26,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class UserMvcConfig implements WebMvcConfigurer {
 
-    private UserInterceptor userInterceptor;
+    private RepeatLoginHtmlInterceptor repeatLoginInterceptor;
 
     @Autowired
-    public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
-        this.userInterceptor = userInterceptor;
-    }
-
-    private RepeatLoginInterceptor repeatLoginInterceptor;
-
-    @Autowired
-    public void setRepeatUserLoginInterceptor(RepeatLoginInterceptor repeatLoginInterceptor) {
+    public void setRepeatLoginInterceptor(RepeatLoginHtmlInterceptor repeatLoginInterceptor) {
         this.repeatLoginInterceptor = repeatLoginInterceptor;
     }
 
@@ -74,6 +67,13 @@ public class UserMvcConfig implements WebMvcConfigurer {
     public void setOAuthInterceptor(OAuthInterceptor oAuthInterceptor) {
         this.oAuthInterceptor = oAuthInterceptor;
     }
+    
+    private UserHtmlInterceptor userHtmlInterceptor;
+    
+    @Autowired
+    public void setUserHtmlInterceptor(UserHtmlInterceptor userHtmlInterceptor) {
+        this.userHtmlInterceptor = userHtmlInterceptor;
+    }
 
     /**
      * 重写addInterceptors方法，用于添加拦截器
@@ -85,47 +85,34 @@ public class UserMvcConfig implements WebMvcConfigurer {
         // 防止重复登录
         registry.addInterceptor(repeatLoginInterceptor)
                 .addPathPatterns("/user/login.html")
-//                .addPathPatterns("/user/login")
-//                .addPathPatterns("/user/register/step1")
-//                .addPathPatterns("/user/register/step2")
-//                .addPathPatterns("/user/register/step3")
                 .addPathPatterns("/user/register.html")
                 .addPathPatterns("/user/forgot.html")
-//                .addPathPatterns("/user/forgot/step1")
-//                .addPathPatterns("/user/forgot/step2")
                 .addPathPatterns("/user/login.html?*")
                 .addPathPatterns("/user/register.html?*")
                 .addPathPatterns("/user/forgot.html?*");
         // 用户登录拦截器
-//        registry.addInterceptor(userInterceptor)
-////                .addPathPatterns("/user/")
-//                .addPathPatterns("/user/**.html")
-//                .addPathPatterns("/user/**.html?*")
-//                .addPathPatterns("/user/**/**.html")
-//                .addPathPatterns("/user/**/**.html?*")
-////                .addPathPatterns("/user/**")
-////                .addPathPatterns("/address/**")
-////                .addPathPatterns("/cart/**")
-////                .addPathPatterns("/collection/**")
-////                .addPathPatterns("/order/**")
-////                .addPathPatterns("/**/admin/**")
-////                .addPathPatterns("/admin/**")
-//                .addPathPatterns("/admin/**.html")
-//                .addPathPatterns("/admin/**.html?*")
-//                .addPathPatterns("/admin/**/**.html")
-//                .addPathPatterns("/admin/**/**.html?*")
-//                .excludePathPatterns("/user/login.html")
-////                .excludePathPatterns("/user/login")
-//                .excludePathPatterns("/user/register.html")
-////                .excludePathPatterns("/user/registerStep1")
-////                .excludePathPatterns("/user/registerStep2")
-////                .excludePathPatterns("/user/registerStep3")
-//                .excludePathPatterns("/user/forgot.html")
-////                .excludePathPatterns("/user/forgotStep1")
-////                .excludePathPatterns("/user/forgotStep2")
-//                .excludePathPatterns("/user/login.html?*")
-//                .excludePathPatterns("/user/register.html?*")
-//                .excludePathPatterns("/user/forgot.html?*");
+        registry.addInterceptor(userHtmlInterceptor)
+                .addPathPatterns("/user")
+                .addPathPatterns("/user/**.html")
+                .addPathPatterns("/user/**.html?*")
+                .addPathPatterns("/user/**/**.html")
+                .addPathPatterns("/user/**/**.html?*")
+                .addPathPatterns("/cart.html")
+                .addPathPatterns("/cart.html?*")
+                .addPathPatterns("/checkout.html")
+                .addPathPatterns("/checkout.html?*")
+                .addPathPatterns("/pay.html")
+                .addPathPatterns("/pay.html?*")
+                .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/admin/**.html?*")
+                .addPathPatterns("/admin/**/**.html")
+                .addPathPatterns("/admin/**/**.html?*")
+                .excludePathPatterns("/user/login.html")
+                .excludePathPatterns("/user/login.html?*")
+                .excludePathPatterns("/user/register.html")
+                .excludePathPatterns("/user/register.html?*")
+                .excludePathPatterns("/user/forgot.html")
+                .excludePathPatterns("/user/forgot.html?*");
 //        // 系统管理员登录拦截器
 //        registry.addInterceptor(adminInterceptor)
 ////                .addPathPatterns("/**/admin/**")

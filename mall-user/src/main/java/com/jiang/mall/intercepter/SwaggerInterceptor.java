@@ -14,6 +14,7 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.enums.ReturnType;
 import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -62,11 +63,11 @@ public class SwaggerInterceptor implements HandlerInterceptor {
                 return true;
             }else {
                 // 重定向到用户首页
-                generalInterceptor.redirectToUserIndexBecauseNotAdmin(permission.returnType(), request, response);
+                generalInterceptor.redirectToUserIndexBecauseNotAdmin(ReturnType.HTML, request, response);
                 return false;
             }
         } else {
-            generalInterceptor.redirectToLogin(permission.returnType(), request, response);
+            generalInterceptor.redirectToLogin(ReturnType.HTML, request, response);
             return false;
         }
 	}
