@@ -455,8 +455,7 @@ public class WechatServiceImpl implements IWechatService {
 	@Override
 	public Long newOrder(String token, Long addressId, List<CheckoutReceiverVo> listCheckoutVo) {
 		UserCache user = getUserFromRedis(token);
-//		return orderService.
-		return 0L;
+		return orderService.newOrder(user.getId(), addressId, listCheckoutVo);
 	}
 
 	@Override

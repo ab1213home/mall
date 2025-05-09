@@ -141,7 +141,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         redisService.setCart(userId,listCartDto);
     }
 
-    private void deleteCartByOrderInMySQL(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
+    @Transactional
+    protected void deleteCartByOrderInMySQL(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
         if (listCheckoutVo.isEmpty()) {
             return;
         }
@@ -464,6 +465,25 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }else{
             //购物车缓存mysql
             return deleteCartInMySQL(productId, userId);
+        }
+    }
+
+    /**
+	 * 根据订单删除购物车记录
+	 * <p>
+	 * 此方法的目的是在用户完成订单购买后，根据订单信息删除相应的购物车记录
+	 * 它接收一个购物车ID列表、一个用户ID和一个结账列表作为参数，以确保只有属于当前用户的购物车项目被删除
+	 *
+	 * @param userId     用户ID
+	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
+	 */
+    @Override
+    @Transactional
+    public void deleteCartByOrder(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
+        if (coreConfig.isCartCacheEnabled()){
+            deleteCartByOrderInRedis(userId, listCheckoutVo);
+        }else{
+            deleteCartByOrderInMySQL(userId, listCheckoutVo);
         }
     }
 

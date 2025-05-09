@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Cart;
 import com.jiang.mall.domain.vo.CartVo;
 import com.jiang.mall.domain.vo.CheckoutReceiverVo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -40,6 +41,8 @@ public interface ICartService extends IService<Cart> {
 	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
 	 */
 	void deleteCartByOrder(String sessionId, List<CheckoutReceiverVo> listCheckoutVo);
+
+
 
 	List<CartVo> getCartList(String sessionId, Integer pageNum, Integer pageSize);
 
@@ -88,4 +91,15 @@ public interface ICartService extends IService<Cart> {
 	boolean insertOrUpdateCart(Long productId, Long num, Long userId);
 
 	Boolean deleteCart(Long productId, Long userId);
+
+	/**
+	 * 根据订单删除购物车记录
+	 * <p>
+	 * 此方法的目的是在用户完成订单购买后，根据订单信息删除相应的购物车记录
+	 * 它接收一个购物车ID列表、一个用户ID和一个结账列表作为参数，以确保只有属于当前用户的购物车项目被删除
+	 *
+	 * @param userId     用户ID
+	 * @param listCheckoutVo 结账列表，可能包含与购物车ID相关的信息
+	 */
+	void deleteCartByOrder(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo);
 }

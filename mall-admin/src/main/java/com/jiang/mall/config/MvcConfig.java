@@ -13,7 +13,9 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.*;
+import com.jiang.mall.intercepter.ApiInterceptor;
+import com.jiang.mall.intercepter.ApiRequestCounterInterceptor;
+import com.jiang.mall.intercepter.SwaggerInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -46,25 +48,12 @@ public class MvcConfig implements WebMvcConfigurer {
         this.swaggerInterceptor = swaggerInterceptor;
     }
 
-    private UserInterceptor userInterceptor;
-    @Autowired
-    public void setUserLoginInterceptor(UserInterceptor userInterceptor) {
-        this.userInterceptor = userInterceptor;
-    }
-
     private ApiInterceptor apiInterceptor;
 
     @Autowired
     public void setApiLoginInterceptor(ApiInterceptor apiInterceptor) {
         this.apiInterceptor = apiInterceptor;
     }
-
-	private HtmlInterceptor htmlInterceptor;
-
-	@Autowired
-	public void setHtmlInterceptor(HtmlInterceptor htmlInterceptor) {
-		this.htmlInterceptor = htmlInterceptor;
-	}
 
     /**
      * 重写addInterceptors方法，用于添加拦截器
@@ -73,35 +62,12 @@ public class MvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        // 用户登录拦截器
-//        registry.addInterceptor(userInterceptor)
-////                .addPathPatterns("/cart")
-//                .addPathPatterns("/cart.html")
-////                .addPathPatterns("/orders")
-//                .addPathPatterns("/orders.html")
-//                .addPathPatterns("/tradeSnap.html")
-////                .addPathPatterns("/checkout")
-//                .addPathPatterns("/checkout.html")
-////                .addPathPatterns("/collections")
-//                .addPathPatterns("/collections.html");
-        // 系统管理员登录拦截器
-//        registry.addInterceptor(adminLoginInterceptor)
-//                .addPathPatterns("/**/admin/**")
-//                .addPathPatterns("/admin/**")
-//                .addPathPatterns("/admin/**.html")
-//                .addPathPatterns("/admin/**.html?*")
-//                .addPathPatterns("/admin/**/**.html")
-//                .addPathPatterns("/admin/**/**.html?*");
         // 请求次数统计拦截器
         registry.addInterceptor(apiRequestCounterInterceptor)
 		        .addPathPatterns("/**")
                 .excludePathPatterns("/api/count");
 		// API登录拦截器
-		registry.addInterceptor(apiInterceptor)
-                .addPathPatterns("/api/**");
-		// HTML拦截器
-//		registry.addInterceptor(htmlInterceptor)
-//				.addPathPatterns("/**");
+		registry.addInterceptor(apiInterceptor).addPathPatterns("/api/**");
 		// Swagger权限拦截器
 		registry.addInterceptor(swaggerInterceptor).addPathPatterns("/swagger-ui/**");
     }

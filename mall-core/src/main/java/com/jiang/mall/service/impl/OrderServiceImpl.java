@@ -222,74 +222,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	@Override
 	@Transactional
 	public Long newOrder(String sessionId, Long addressId, List<CheckoutReceiverVo> listCheckoutVo) {
-		// 根据地址ID获取地址信息，以验证地址是否属于当前用户
-	    Address address = addressService.getById(addressId);
 		UserCache user = userService.getUserFromRedis(sessionId);
-	    if (!address.getUserId().equals(user.getId())) {
-	        return null;
-	    }
-		// 创建订单对象并设置基本信息
-	    Order order = new Order();
-		order.setId(idGenerator.nextId());
-	    order.setUserId(user.getId());
-	    order.setAddressId(addressId);
-	    order.setOrderDate(new Date());
-		order.setStatus(OrderStatus.WAIT_PAYMENT.getKey());
-	    order.setTotalAmount(new BigDecimal("0.0"));
-		List<OrderList> newOrderList = new ArrayList<>();
-	    // 计算订单总金额
-	    for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
-			if (checkoutVo.getProdId() == null) {
-				logger.error("结算信息中产品信息为空，无法创建订单");
-				return -1L;
-			}
-			if (checkoutVo.getNum() <= 0) {
-				logger.error("结算信息中商品数量小于等于0，无法创建订单");
-				return -1L;
-			}
-			// 创建订单详情对象并设置基本信息
-		    OrderList orderList = new OrderList();
-			// 获取产品和类别信息
-		    ProductVo product = productService.getProduct(checkoutVo.getProdId());
-			if (product == null) {
-				logger.error("产品信息不存在，无法创建订单");
-				return -1L;
-			}
-
-			Long productSnapshotId = productService.getSnapshotId(product);
-			if (productSnapshotId == -1L){
-				logger.error("产品快照信息不存在，无法创建订单");
-				return -1L;
-			}
-			orderList.setOrderId(order.getId());
-			orderList.setProdId(productSnapshotId);
-			orderList.setNum(checkoutVo.getNum());
-			BigDecimal amount = product.getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
-			// 计算订单总金额
-		    order.setTotalAmount(add(order.getTotalAmount(),amount));
-			newOrderList.add(orderList);
-	    }
-	    // 插入订单信息
-		int insert = orderMapper.insert(order);
-
-	    if (insert > 0) {
-			// 插入订单详情信息
-		    List<BatchResult> batchResults = orderListMapper.insert(newOrderList);
-		    if (BatchUtil.getTotalAffectedRows(batchResults) == newOrderList.size()){
-				//删除redis中的缓存
-			    redisService.deleteCheckoutList(user.getId());
-				// 根据订单删除购物车中的商品
-				cartService.deleteCartByOrder(sessionId, listCheckoutVo);
-		        return order.getId();
-			}else{
-				logger.warn("订单列表插入失败，无法创建订单{}",insert);
-				orderMapper.deleteById(order.getId());
-				return -1L;
-			}
-	    }else{
-			logger.warn("订单插入失败，无法创建订单");
-			return -1L;
-		}
+		return newOrder(user.getId(), addressId, listCheckoutVo);
 	}
 
 	@Override
@@ -400,6 +334,78 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 			checkoutVoList.add(checkoutVo);
 		}
 		return checkoutVoList;
+	}
+
+	@Override
+	@Transactional
+	public Long newOrder(Long userId, Long addressId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
+		// 根据地址ID获取地址信息，以验证地址是否属于当前用户
+	    Address address = addressService.getById(addressId);
+		if (!address.getUserId().equals(userId)) {
+	        return null;
+	    }
+		// 创建订单对象并设置基本信息
+	    Order order = new Order();
+		order.setId(idGenerator.nextId());
+	    order.setUserId(userId);
+	    order.setAddressId(addressId);
+	    order.setOrderDate(new Date());
+		order.setStatus(OrderStatus.WAIT_PAYMENT.getKey());
+	    order.setTotalAmount(new BigDecimal("0.0"));
+		List<OrderList> newOrderList = new ArrayList<>();
+	    // 计算订单总金额
+	    for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
+			if (checkoutVo.getProdId() == null) {
+				logger.error("结算信息中产品信息为空，无法创建订单");
+				return -1L;
+			}
+			if (checkoutVo.getNum() <= 0) {
+				logger.error("结算信息中商品数量小于等于0，无法创建订单");
+				return -1L;
+			}
+			// 创建订单详情对象并设置基本信息
+		    OrderList orderList = new OrderList();
+			// 获取产品和类别信息
+		    ProductVo product = productService.getProduct(checkoutVo.getProdId());
+			if (product == null) {
+				logger.error("产品信息不存在，无法创建订单");
+				return -1L;
+			}
+
+			Long productSnapshotId = productService.getSnapshotId(product);
+			if (productSnapshotId == -1L){
+				logger.error("产品快照信息不存在，无法创建订单");
+				return -1L;
+			}
+			orderList.setOrderId(order.getId());
+			orderList.setProdId(productSnapshotId);
+			orderList.setNum(checkoutVo.getNum());
+			BigDecimal amount = product.getPrice().multiply(BigDecimal.valueOf(checkoutVo.getNum()));
+			// 计算订单总金额
+		    order.setTotalAmount(add(order.getTotalAmount(),amount));
+			newOrderList.add(orderList);
+	    }
+	    // 插入订单信息
+		int insert = orderMapper.insert(order);
+
+	    if (insert > 0) {
+			// 插入订单详情信息
+		    List<BatchResult> batchResults = orderListMapper.insert(newOrderList);
+		    if (BatchUtil.getTotalAffectedRows(batchResults) == newOrderList.size()){
+				//删除redis中的缓存
+			    redisService.deleteCheckoutList(userId);
+				// 根据订单删除购物车中的商品
+				cartService.deleteCartByOrder(userId, listCheckoutVo);
+		        return order.getId();
+			}else{
+				logger.warn("订单列表插入失败，无法创建订单{}",insert);
+				orderMapper.deleteById(order.getId());
+				return -1L;
+			}
+	    }else{
+			logger.warn("订单插入失败，无法创建订单");
+			return -1L;
+		}
 	}
 
 	private @Nullable OrderVo getOrder(Long id) {

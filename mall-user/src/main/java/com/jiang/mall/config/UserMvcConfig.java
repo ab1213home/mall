@@ -101,6 +101,8 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/cart.html?*")
                 .addPathPatterns("/checkout.html")
                 .addPathPatterns("/checkout.html?*")
+                .addPathPatterns("/tradeSnap.html")
+                .addPathPatterns("/tradeSnap.html?*")
                 .addPathPatterns("/pay.html")
                 .addPathPatterns("/pay.html?*")
                 .addPathPatterns("/admin/**.html")
