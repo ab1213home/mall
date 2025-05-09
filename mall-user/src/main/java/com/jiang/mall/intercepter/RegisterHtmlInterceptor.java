@@ -14,6 +14,7 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.config.UserConfig;
+import com.jiang.mall.domain.enums.ReturnType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -22,8 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-@Deprecated
-public class RegisterAllowedInterceptor implements HandlerInterceptor {
+public class RegisterHtmlInterceptor implements HandlerInterceptor {
 
     private UserConfig userConfig;
 
@@ -56,7 +56,7 @@ public class RegisterAllowedInterceptor implements HandlerInterceptor {
         // 检查是否允许注册
         if (!userConfig.isRegisterEnabled()){
             //重定向到首页
-            generalInterceptor.redirectToIndex(request,response);
+            generalInterceptor.redirectToIndex(ReturnType.HTML,request,response);
             return false;
         }
         // 允许其他请求继续执行

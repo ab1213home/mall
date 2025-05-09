@@ -139,7 +139,9 @@ public class LoginController {
 	        cookie.setPath("/");                  // 设置Cookie作用路径
 	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
 	        cookie.setHttpOnly(true);             // 防止XSS攻击
-	        // cookie.setSecure(true);            // HTTPS环境下启用
+	        if (request.isSecure()) {
+	            cookie.setSecure(true);
+	        }
 	        response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
@@ -175,7 +177,9 @@ public class LoginController {
 	        cookie.setPath("/");                  // 设置Cookie作用路径
 	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
 	        cookie.setHttpOnly(true);             // 防止XSS攻击
-	        // cookie.setSecure(true);            // HTTPS环境下启用
+	        if (request.isSecure()) {
+	            cookie.setSecure(true);
+	        }
 	        response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 	    }else {
@@ -192,9 +196,11 @@ public class LoginController {
      */
     @GetMapping("/logout")
 	@Permission(PermissionType.USER)
-    public ResponseResult<Object> logout(HttpSession session){
+    public ResponseResult<Object> logout(HttpSession session,HttpServletResponse response){
         // 检查会话中是否存在用户并移除
 	    userService.logout(session.getId());
+		//删除Cookie
+	    response.addCookie(new Cookie("token",null));
         // 返回登出成功的结果
         return ResponseResult.okResult();
     }
@@ -209,8 +215,8 @@ public class LoginController {
      */
     @GetMapping("/isLogin")
     @Permission(PermissionType.NONE)
-    public ResponseResult<Object> isLogin(HttpServletRequest request){
-	    UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request);
+    public ResponseResult<Object> isLogin(HttpServletRequest request,HttpServletResponse response){
+	    UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request, response);
 		if (permissionInterceptor.checkLogin(userCache)){
 			assert userCache != null;
 			UserVo userVo = BeanCopyUtil.copyBean(userCache, UserVo.class);

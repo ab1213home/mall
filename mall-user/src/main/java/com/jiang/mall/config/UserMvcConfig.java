@@ -40,11 +40,11 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.registerLoginInterceptor = registerLoginInterceptor;
     }
 
-    private RegisterAllowedInterceptor registerAllowedInterceptor;
+    private RegisterHtmlInterceptor registerHtmlInterceptor;
 
     @Autowired
-    public void setRegisterAllowedInterceptor(RegisterAllowedInterceptor registerAllowedInterceptor) {
-        this.registerAllowedInterceptor = registerAllowedInterceptor;
+    public void setRegisterAllowedInterceptor(RegisterHtmlInterceptor registerHtmlInterceptor) {
+        this.registerHtmlInterceptor = registerHtmlInterceptor;
     }
 
     private RegisterInterceptor registerInterceptor;
@@ -123,15 +123,12 @@ public class UserMvcConfig implements WebMvcConfigurer {
 //                .addPathPatterns("/admin/**/**.html")
 //                .addPathPatterns("/admin/**/**.html?*");
         //是否允许注册
-        registry.addInterceptor(registerAllowedInterceptor)
-//                .addPathPatterns("/user/register/step1")
-//                .addPathPatterns("/user/register/step2")
-//                .addPathPatterns("/user/register/step3")
-                .addPathPatterns("/user/register.html");
+        registry.addInterceptor(registerHtmlInterceptor)
+                .addPathPatterns("/user/register.html")
+                .addPathPatterns("/user/register.html?*");
         // 注册第三步拦截器
         registry.addInterceptor(registerLoginInterceptor)
                 .addPathPatterns("/user/register/step3");
-
         registry.addInterceptor(registerInterceptor).addPathPatterns("/**");
         registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
         registry.addInterceptor(oAuthInterceptor).addPathPatterns("/**");

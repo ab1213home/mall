@@ -13,8 +13,6 @@
 
 package com.jiang.mall.intercepter;
 
-import cn.hutool.http.useragent.UserAgent;
-import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.ReturnType;
@@ -45,7 +43,10 @@ public class GeneralInterceptor{
     }
 
     private static final Logger logger = LoggerFactory.getLogger(GeneralInterceptor.class);
-
+//            String acceptHeader = request.getHeader("Accept");
+//            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
+//            String requestedWith = request.getHeader("X-Requested-With");
+//            boolean isAjax = "XMLHttpRequest".equals(requestedWith);
     /**
      * 根据用户代理重定向到用户首页
      * 此方法通过检查HTTP请求的User-Agent头来决定是通过API还是浏览器进行重定向
@@ -59,23 +60,16 @@ public class GeneralInterceptor{
      */
     public void redirectToUserIndexBecauseNotAdmin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
-            // 获取请求的User-Agent头
-            String agent = request.getHeader("User-Agent");
-            // 如果User-Agent头为空，则通过API返回禁止访问的响应
-            if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
-
-            // 解析User-Agent头
-            UserAgent userAgent = UserAgentUtil.parse(agent);
-            // 如果User-Agent头表明这是一个已知的浏览器请求
-            if (!userAgent.getBrowser().isUnknown()){
+            String acceptHeader = request.getHeader("Accept");
+            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
+            if (isJsonExpected){
+                redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+            }else {
                 // 通过浏览器重定向到用户首页
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
                 redirectInBrowser(response,"/user/index.html", map);
-            }else {
-                // 否则，通过API返回禁止访问的响应
-                redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
             }
         }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
@@ -101,23 +95,16 @@ public class GeneralInterceptor{
      */
     public void redirectToUserIndexBecauseRepeated(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
-            // 获取请求的User-Agent头
-            String agent = request.getHeader("User-Agent");
-            // 如果User-Agent头为空，则通过API返回禁止访问的响应
-            if (agent == null) redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
-
-            // 解析User-Agent头
-            UserAgent userAgent = UserAgentUtil.parse(agent);
-            // 如果User-Agent头表明这是一个已知的浏览器请求
-            if (!userAgent.getBrowser().isUnknown()){
+            String acceptHeader = request.getHeader("Accept");
+            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
+            if (isJsonExpected){
+                redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+            }else {
                 // 通过浏览器重定向到用户首页
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.login.error.repeated"));
                 redirectInBrowser(response,"/user/index.html", map);
-            }else {
-                // 否则，通过API返回禁止访问的响应
-                redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
             }
         }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
@@ -132,7 +119,6 @@ public class GeneralInterceptor{
 
     /**
      * 将未登录的用户重定向到登录页面或返回未授权错误
-     * 此方法根据用户代理（User-Agent）决定是重定向到浏览器登录页面还是返回API未授权响应
      *
      * @param returnType 返回类型，用于确定重定向方式
      * @param request    HTTP请求对象，用于获取用户代理信息和请求路径
@@ -141,28 +127,21 @@ public class GeneralInterceptor{
      */
     public void redirectToLogin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
-            // 获取用户代理信息
-            String agent = request.getHeader("User-Agent");
-            // 记录用户代理信息，用于调试
-            logger.debug("agent:{}",agent);
-
-            // 如果用户代理信息为空，视为API请求，返回未授权错误
-            if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
-
-            // 解析用户代理信息
-            UserAgent userAgent = UserAgentUtil.parse(agent);
-
-            // 如果用户代理信息中的浏览器类型已知，视为普通网页请求，重定向到登录页面
-            if (!userAgent.getBrowser().isUnknown()){
+            // 根据请求头判断是否期望JSON响应
+            String acceptHeader = request.getHeader("Accept");
+            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
+            if (isJsonExpected){
+                // 如果期望JSON响应，通过API方式重定向，并返回未授权错误
+                redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
+            }else {
+                // 如果不期望JSON响应，通过浏览器重定向到登录页面，并携带当前请求路径和提示信息
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.checkUser.noLogin"));
                 redirectInBrowser(response,"/user/login.html", map);
-            }else {
-                // 如果用户代理信息中的浏览器类型未知，视为API请求，返回未授权错误
-                redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
             }
         }else if (returnType == ReturnType.HTML){
+            // 如果返回类型为HTML，通过浏览器重定向到登录页面，并携带当前请求路径和提示信息
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.checkUser.noLogin"));
@@ -173,11 +152,20 @@ public class GeneralInterceptor{
         }
     }
 
-    public void redirectToIndex(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        String agent = request.getHeader("User-Agent");
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        if (!userAgent.getBrowser().isUnknown()){
+
+    public void redirectToIndex(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        if  (returnType == ReturnType.AUTO){
+            String acceptHeader = request.getHeader("Accept");
+            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
+            if (isJsonExpected){
+                redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
+            }else {
+                Map<String,String> map = new HashMap<>();
+                map.put("url",request.getRequestURI());
+                map.put("message",i18nService.getMessage("user.register.error.allowed"));
+                redirectInBrowser(response,"/index.html", map);
+            }
+        }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.register.error.allowed"));

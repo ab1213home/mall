@@ -17,7 +17,6 @@ import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.enums.PermissionType;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping
 public class UserCommonController {
-
-    private IUserService userService;
-
-    @Autowired
-    public void setUserService(IUserService userService) {
-        this.userService = userService;
-    }
 
     private GeneralConfig generalConfig;
 

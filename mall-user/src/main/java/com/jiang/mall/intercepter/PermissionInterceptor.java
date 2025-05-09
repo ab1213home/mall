@@ -14,6 +14,7 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.annotation.Permission;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.service.II18nService;
@@ -60,6 +61,13 @@ public class PermissionInterceptor implements HandlerInterceptor {
 		this.generalInterceptor = generalInterceptor;
 	}
 
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
+	}
+
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         // 仅处理HandlerMethod类型的处理器
@@ -75,7 +83,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 				return true;
 			}else {
 				// 登录校验
-		        UserCache user = checkAndRefreshUserLogin(request);
+		        UserCache user = checkAndRefreshUserLogin(request, response);
 				if (checkLogin(user)){
 					// 登录校验成功
 					assert user != null;
@@ -184,44 +192,65 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 * 对于已登录的用户，方法会刷新其会话状态，确保用户登录状态的活跃
 	 *
 	 * @param request  HTTP请求对象，用于获取请求头和会话信息
+	 * @param response HTTP响应对象，用于重定向
 	 * @return 返回刷新后的用户缓存对象，如果用户未登录，则返回null
 	 */
-	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
-	    // 三渠道获取用户信息
-	    String token = request.getHeader("Token");
-	    UserCache user;
-		// 从请求中获取Cookie
-        Cookie[] cookies = request.getCookies();
-		String cookieToken = null;
-		boolean isCookie = false;
-        if (cookies != null) {
-			for (Cookie cookie : cookies) {
+	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request,@NotNull HttpServletResponse response) {
+	    // 获取Header中的Token
+	    String headerToken = request.getHeader("Token");
+	    // 获取Cookie中的Token
+	    Cookie[] cookies = request.getCookies();
+	    String cookieToken = null;
+	    boolean hasCookieToken = false;
+	    if (cookies != null) {
+	        for (Cookie cookie : cookies) {
 	            if ("token".equals(cookie.getName())) {
 	                cookieToken = cookie.getValue();
-					isCookie = true;
+	                hasCookieToken = true;
 	                break;
 	            }
 	        }
-        }
-
-	    if (i18nService.checkString(token)) {
-	        user = redisService.getUserByToken(token);
-	    } else if (isCookie) {
-			user = redisService.getUserByToken(cookieToken);
-	    } else{
-			String sessionId = request.getSession().getId();
-			user = redisService.getUserBySessionId(sessionId);
 	    }
 
-	    // 登录状态检查
+	    // 验证Token的有效性
+	    boolean isHeaderTokenValid = i18nService.checkString(headerToken);
+	    boolean isCookieTokenValid = hasCookieToken && i18nService.checkString(cookieToken);
+
+	    // 检查有效Token的一致性
+	    if (isHeaderTokenValid && isCookieTokenValid && !headerToken.equals(cookieToken)) {
+	        return null; // Token不一致，需重新登录
+	    }
+
+	    // 根据优先级获取用户信息
+	    UserCache user;
+	    if (isHeaderTokenValid) {
+	        user = redisService.getUserByToken(headerToken);
+	    } else if (isCookieTokenValid) {
+	        user = redisService.getUserByToken(cookieToken);
+	    } else {
+	        String sessionId = request.getSession().getId();
+	        user = redisService.getUserBySessionId(sessionId);
+	    }
+
+	    // 检查登录状态
 	    if (!checkLogin(user)) {
 	        return null;
 	    }
 
-	    // 刷新会话状态
-	    if (i18nService.checkString(token)) {
-	        redisService.refreshSessionId(token, request.getSession().getId());
+	    // 刷新会话和登录状态
+	    String activeToken = isHeaderTokenValid ? headerToken : (isCookieTokenValid ? cookieToken : null);
+	    if (activeToken != null) {
+			Cookie cookie = new Cookie("token", activeToken);
+	        cookie.setPath("/");
+	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 3600)); // 小时转秒
+	        cookie.setHttpOnly(true);
+	        if (request.isSecure()) {
+	            cookie.setSecure(true);
+	        }
+	        response.addCookie(cookie);
+	        redisService.refreshSessionId(activeToken, request.getSession().getId());
 	    }
+		//TODO:定期更换Token？
 	    redisService.refreshUserLoginStatus(user.getId());
 
 	    return user;

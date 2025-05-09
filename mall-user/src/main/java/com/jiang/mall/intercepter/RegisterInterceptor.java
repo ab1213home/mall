@@ -15,6 +15,7 @@ package com.jiang.mall.intercepter;
 
 import com.jiang.mall.annotation.Register;
 import com.jiang.mall.config.UserConfig;
+import com.jiang.mall.domain.enums.ReturnType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +66,7 @@ public class RegisterInterceptor implements HandlerInterceptor {
 		    Register register = AnnotationUtils.findAnnotation(method, Register.class);
 			if (register != null && !userConfig.isRegisterEnabled()) {
 				//重定向到首页
-	            generalInterceptor.redirectToIndex(request,response);
+	            generalInterceptor.redirectToIndex(ReturnType.JSON, request,response);
 	            return false;
             }
         }
