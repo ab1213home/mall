@@ -26,7 +26,7 @@ public interface IOAuthService {
 
 	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action);
 
-	OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider);
+	OAuthResultDto callback(OAuthAction action, String code, String random, String token, String clientIp, String sessionId, OAuthProvider oAuthProvider);
 
 	List<Map<String, String>> getPaymentList();
 
@@ -38,7 +38,7 @@ public interface IOAuthService {
 
 	boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
 
-	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String clientIp, String fingerprint, String sessionId);
+	String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String fingerprint, String sessionId);
 
 	boolean authLogin(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId);
 

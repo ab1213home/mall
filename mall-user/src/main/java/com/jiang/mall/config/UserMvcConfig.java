@@ -68,6 +68,13 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.permissionInterceptor = permissionInterceptor;
     }
 
+    private OAuthInterceptor oAuthInterceptor;
+
+    @Autowired
+    public void setOAuthInterceptor(OAuthInterceptor oAuthInterceptor) {
+        this.oAuthInterceptor = oAuthInterceptor;
+    }
+
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -140,5 +147,6 @@ public class UserMvcConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(registerInterceptor).addPathPatterns("/**");
         registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(oAuthInterceptor).addPathPatterns("/**");
     }
 }

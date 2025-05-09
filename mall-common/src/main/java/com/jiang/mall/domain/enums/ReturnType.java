@@ -11,12 +11,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.domain.cache;
+package com.jiang.mall.domain.enums;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
-public class OAuthCache {
-	private String url;
-	private String fingerprint;
+@Getter
+public enum ReturnType {
+	AUTO,
+	JSON,
+	HTML;
 }

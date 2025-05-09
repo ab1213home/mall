@@ -687,7 +687,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 	@Override
 	@Transactional
-	public OAuthResultDto oauthLogin(Long id, String token, String sessionId, OAuthCache cache, OAuthProvider provider) {
+	public OAuthResultDto oauthLogin(Long id, String token, String sessionId, String clientIp, OAuthCache cache, OAuthProvider provider) {
 		User user = userMapper.selectById(id);
 		if (!user.isActive()){
 			return OAuthResultDto.unbound(cache.getUrl());
@@ -699,7 +699,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 			// 登录成功，记录登录记录
 			Map<String,Object> map = new HashMap<>();
 			map.put("provider", provider.getName());
-			userLogService.defaultLog(user.getUsername(), cache.getClientIp(), cache.getFingerprint(), UserStatus.SUCCESS_LOGIN, map);
+			userLogService.defaultLog(user.getUsername(), clientIp, cache.getFingerprint(), UserStatus.SUCCESS_LOGIN, map);
 			login(user, token, sessionId);
 			return OAuthResultDto.success(cache.getUrl());
 		}

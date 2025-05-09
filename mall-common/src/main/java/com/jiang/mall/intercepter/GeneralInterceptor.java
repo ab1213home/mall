@@ -17,6 +17,7 @@ import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.ReturnType;
 import com.jiang.mall.service.II18nService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,21 +52,32 @@ public class GeneralInterceptor{
      * 如果User-Agent头表明这是一个已知的浏览器请求，则通过浏览器重定向到用户首页
      * 否则，通过API返回禁止访问的响应
      *
-     * @param request  HTTP请求对象，用于获取请求头和上下文路径
-     * @param response HTTP响应对象，用于发送重定向或错误响应
+     * @param returnType 返回类型，用于确定重定向方式
+     * @param request    HTTP请求对象，用于获取请求头和上下文路径
+     * @param response   HTTP响应对象，用于发送重定向或错误响应
      * @throws IOException 如果在重定向过程中发生I/O错误
      */
-    public void redirectToUserIndexBecauseNotAdmin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        // 获取请求的User-Agent头
-        String agent = request.getHeader("User-Agent");
-        // 如果User-Agent头为空，则通过API返回禁止访问的响应
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+    public void redirectToUserIndexBecauseNotAdmin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        if (returnType == ReturnType.AUTO){
+            // 获取请求的User-Agent头
+            String agent = request.getHeader("User-Agent");
+            // 如果User-Agent头为空，则通过API返回禁止访问的响应
+            if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
 
-        // 解析User-Agent头
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        // 如果User-Agent头表明这是一个已知的浏览器请求
-        if (!userAgent.getBrowser().isUnknown()){
-            // 通过浏览器重定向到用户首页
+            // 解析User-Agent头
+            UserAgent userAgent = UserAgentUtil.parse(agent);
+            // 如果User-Agent头表明这是一个已知的浏览器请求
+            if (!userAgent.getBrowser().isUnknown()){
+                // 通过浏览器重定向到用户首页
+                Map<String,String> map = new HashMap<>();
+                map.put("url",request.getRequestURI());
+                map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
+                redirectInBrowser(response,"/user/index.html", map);
+            }else {
+                // 否则，通过API返回禁止访问的响应
+                redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
+            }
+        }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
@@ -82,21 +94,32 @@ public class GeneralInterceptor{
      * 如果User-Agent头表明这是一个已知的浏览器请求，则通过浏览器重定向到用户首页
      * 否则，通过API返回重复访问的响应
      *
-     * @param request  HTTP请求对象，用于获取请求头和上下文路径
-     * @param response HTTP响应对象，用于发送重定向或错误响应
+     * @param returnType 返回类型，用于确定重定向方式
+     * @param request    HTTP请求对象，用于获取请求头和上下文路径
+     * @param response   HTTP响应对象，用于发送重定向或错误响应
      * @throws IOException 如果在重定向过程中发生I/O错误
      */
-    public void redirectToUserIndexBecauseRepeated(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        // 获取请求的User-Agent头
-        String agent = request.getHeader("User-Agent");
-        // 如果User-Agent头为空，则通过API返回禁止访问的响应
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+    public void redirectToUserIndexBecauseRepeated(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        if (returnType == ReturnType.AUTO){
+            // 获取请求的User-Agent头
+            String agent = request.getHeader("User-Agent");
+            // 如果User-Agent头为空，则通过API返回禁止访问的响应
+            if (agent == null) redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
 
-        // 解析User-Agent头
-        UserAgent userAgent = UserAgentUtil.parse(agent);
-        // 如果User-Agent头表明这是一个已知的浏览器请求
-        if (!userAgent.getBrowser().isUnknown()){
-            // 通过浏览器重定向到用户首页
+            // 解析User-Agent头
+            UserAgent userAgent = UserAgentUtil.parse(agent);
+            // 如果User-Agent头表明这是一个已知的浏览器请求
+            if (!userAgent.getBrowser().isUnknown()){
+                // 通过浏览器重定向到用户首页
+                Map<String,String> map = new HashMap<>();
+                map.put("url",request.getRequestURI());
+                map.put("message",i18nService.getMessage("user.login.error.repeated"));
+                redirectInBrowser(response,"/user/index.html", map);
+            }else {
+                // 否则，通过API返回禁止访问的响应
+                redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
+            }
+        }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.login.error.repeated"));
@@ -111,30 +134,41 @@ public class GeneralInterceptor{
      * 将未登录的用户重定向到登录页面或返回未授权错误
      * 此方法根据用户代理（User-Agent）决定是重定向到浏览器登录页面还是返回API未授权响应
      *
-     * @param request  HTTP请求对象，用于获取用户代理信息和请求路径
-     * @param response HTTP响应对象，用于发送重定向或错误响应
+     * @param returnType 返回类型，用于确定重定向方式
+     * @param request    HTTP请求对象，用于获取用户代理信息和请求路径
+     * @param response   HTTP响应对象，用于发送重定向或错误响应
      * @throws IOException 如果在执行重定向过程中发生输入/输出错误
      */
-    public void redirectToLogin(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
-        // 获取用户代理信息
-        String agent = request.getHeader("User-Agent");
-        // 记录用户代理信息，用于调试
-        logger.debug("agent:{}",agent);
+    public void redirectToLogin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        if (returnType == ReturnType.AUTO){
+            // 获取用户代理信息
+            String agent = request.getHeader("User-Agent");
+            // 记录用户代理信息，用于调试
+            logger.debug("agent:{}",agent);
 
-        // 如果用户代理信息为空，视为API请求，返回未授权错误
-        if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
+            // 如果用户代理信息为空，视为API请求，返回未授权错误
+            if (agent == null) redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
 
-        // 解析用户代理信息
-        UserAgent userAgent = UserAgentUtil.parse(agent);
+            // 解析用户代理信息
+            UserAgent userAgent = UserAgentUtil.parse(agent);
 
-        // 如果用户代理信息中的浏览器类型已知，视为普通网页请求，重定向到登录页面
-        if (!userAgent.getBrowser().isUnknown()){
+            // 如果用户代理信息中的浏览器类型已知，视为普通网页请求，重定向到登录页面
+            if (!userAgent.getBrowser().isUnknown()){
+                Map<String,String> map = new HashMap<>();
+                map.put("url",request.getRequestURI());
+                map.put("message",i18nService.getMessage("user.checkUser.noLogin"));
+                redirectInBrowser(response,"/user/login.html", map);
+            }else {
+                // 如果用户代理信息中的浏览器类型未知，视为API请求，返回未授权错误
+                redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        }else if (returnType == ReturnType.HTML){
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.checkUser.noLogin"));
             redirectInBrowser(response,"/user/login.html", map);
         }else {
-            // 如果用户代理信息中的浏览器类型未知，视为API请求，返回未授权错误
+            // 如果返回类型未知，视为API请求，返回未授权错误
             redirectInApi(response, i18nService.getMessage("user.checkUser.noLogin"), HttpServletResponse.SC_UNAUTHORIZED);
         }
     }

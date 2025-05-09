@@ -70,7 +70,7 @@ public class UserInterceptor implements HandlerInterceptor {
                 redisService.refreshUserLoginStatus(user.getId());
                 return true;
             }else {
-                generalInterceptor.redirectToLogin(request, response);
+                generalInterceptor.redirectToLogin(permission.returnType(), request, response);
                 return false;
             }
         }else {
@@ -79,7 +79,7 @@ public class UserInterceptor implements HandlerInterceptor {
                 redisService.refreshUserLoginStatus(user.getId());
                 return true;
             }else {
-                generalInterceptor.redirectToLogin(request, response);
+                generalInterceptor.redirectToLogin(permission.returnType(), request, response);
                 return false;
             }
         }

@@ -80,7 +80,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 					// 登录校验成功
 					assert user != null;
 					if (permission.value() == PermissionType.GUEST){
-						generalInterceptor.redirectToUserIndexBecauseRepeated(request, response);
+						generalInterceptor.redirectToUserIndexBecauseRepeated(permission.returnType(),request, response);
 						return false;
 					}else if (permission.value() == PermissionType.USER){
 						return true;
@@ -89,7 +89,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 							return true;
 						}else {
 							// 重定向到用户首页
-							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(permission.returnType(),request, response);
 							return false;
 						}
 					} else if (permission.value() == PermissionType.ADMIN){
@@ -97,7 +97,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 							return true;
 						}else {
 							// 重定向到用户首页
-							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(permission.returnType(), request, response);
 							return false;
 						}
 					} else if (permission.value() == PermissionType.SYSTEM){
@@ -105,7 +105,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 							return true;
 						}else {
 							// 重定向到用户首页
-							generalInterceptor.redirectToUserIndexBecauseNotAdmin(request, response);
+							generalInterceptor.redirectToUserIndexBecauseNotAdmin(permission.returnType(), request, response);
 							return false;
 						}
 					}else {
@@ -117,7 +117,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 					if (permission.value() == PermissionType.GUEST){
 						return true;
 					}else {
-						generalInterceptor.redirectToLogin(request, response);
+						generalInterceptor.redirectToLogin(permission.returnType(),request, response);
 						return false;
 					}
 				}

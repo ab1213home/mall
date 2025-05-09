@@ -150,7 +150,6 @@ public class LoginController {
 	 * 该方法首先验证客户端IP和指纹的有效性，然后生成一个令牌，并调用用户服务完成登录过程
 	 *
 	 * @param code 验证码，用户输入的验证码以验证其身份
-//	 * @param clientIp 客户端IP地址，用于安全检查
 	 * @param fingerprint 客户端指纹，唯一标识客户端的字符串
 	 * @param request HTTP会话，用于存储用户登录状态
 	 * @return 登录结果，包括是否成功和相应的消息

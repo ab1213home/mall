@@ -39,7 +39,7 @@ public class OpenApiConfig {
 		Info info = new Info()
 				.title("Jiang Mall")
 				.version("2.0.1")
-				.description("Jiang Mall's Description of API.")
+				.description("Jiang Mall's Description of JSON.")
 				.termsOfService("https://github.com/ab1213home/mall.git")
 				.contact(contact)
 				.license(license);

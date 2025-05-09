@@ -58,6 +58,10 @@ public class OAuthResultDto {
 		ERROR("错误"),
 	    UNBOUND("未绑定系统账号"),
 	    SECOND_VERIFY("账号需要双因素认证(2FA)"),
+		//第三方账号认证成功但是已被系统用户绑定
+		BINDED("第三方账号已被系统用户绑定"),
+		//用户已经绑定其他第三方账号
+		BINDED_OTHER("用户已经绑定其他第三方账号"),
 	    SUCCESS("登录成功");
 
 		private final String value;

@@ -69,7 +69,7 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
             if (!checkLogin(user)){
                 return true;
             }else {
-                generalInterceptor.redirectToUserIndexBecauseRepeated(request, response);
+                generalInterceptor.redirectToUserIndexBecauseRepeated(permission.returnType(), request, response);
                 return false;
             }
         } else {
@@ -77,7 +77,7 @@ public class RepeatLoginInterceptor implements HandlerInterceptor {
             if (!checkLogin(user)){
                 return true;
             }else {
-                generalInterceptor.redirectToUserIndexBecauseRepeated(request, response);
+                generalInterceptor.redirectToUserIndexBecauseRepeated(permission.returnType(), request, response);
                 return false;
             }
         }

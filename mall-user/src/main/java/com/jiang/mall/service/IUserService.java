@@ -93,7 +93,7 @@ public interface IUserService extends IService<User> {
 
 	boolean countTryNumber(String username, String clientIp, String fingerprint);
 
-    OAuthResultDto oauthLogin(Long id, String token, String sessionId, OAuthCache cache, OAuthProvider provider);
+    OAuthResultDto oauthLogin(Long id, String token, String sessionId,String clientIp, OAuthCache cache, OAuthProvider provider);
 
     boolean oauthLogin(String sessionId, int code, String token, String clientIp, String fingerprint, OAuthProvider provider);
 

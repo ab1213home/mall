@@ -186,13 +186,9 @@ $(document).ready(function() {
             if (res.code == 200) {
                 oauthArr = res.data;
                 if (oauthArr.length == 0) {
-                    // $socialLogin.style.display = 'none';
-                    // $socialLoginDiv.style.display = 'none';
                     $socialLoginDiv.css('display', 'none');
                     $socialLogin.css('display', 'none');
                 } else {
-                    // $socialLogin.style.display = 'block';
-                    // $socialLoginDiv.style.display = 'block';
                     $socialLoginDiv.css('display', 'block');
                     $socialLogin.show();
                     res.data.forEach(function (item) {
@@ -211,6 +207,9 @@ $(document).ready(function() {
                         }
                     });
                 }
+            }else {
+                $socialLoginDiv.css('display', 'none');
+                $socialLogin.css('display', 'none');
             }
         },
         fail: function(xhr, status, error) {

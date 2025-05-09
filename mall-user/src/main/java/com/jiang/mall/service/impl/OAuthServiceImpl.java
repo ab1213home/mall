@@ -37,7 +37,6 @@ import com.jiang.mall.service.IOAuthService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,16 +105,13 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 
 	@Override
-	public OAuthResultDto callback(OAuthAction action, String code, String random, String token, String sessionId, OAuthProvider oAuthProvider) {
+	@Transactional
+	public OAuthResultDto callback(OAuthAction action, String code, String random, String token, String clientIp, String sessionId, OAuthProvider oAuthProvider) {
 		OAuthCache cache = redisService.getAuthCsrf(random);
-//		if (redisService.validateAuthCsrf(random)){
-//			return callback(action, code,token, sessionId,oAuthProvider);
-//		}
-//		return OAuthResult.ERROR;
 		if (cache==null){
 			return OAuthResultDto.error();
 		}else{
-			return callback(action, oAuthProvider, code, cache ,token, sessionId);
+			return callback(action, oAuthProvider, code, cache ,token, sessionId , clientIp);
 		}
 	}
 
@@ -147,9 +143,14 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	@Transactional
 	public boolean isBind(@NotNull OAuthProvider oAuthProvider, String sessionId) {
 		UserCache userCache = userService.getUserFromRedis(sessionId);
+		return isBind(oAuthProvider, userCache.getId());
+	}
+
+	@Transactional
+	public boolean isBind(@NotNull OAuthProvider oAuthProvider, Long userId) {
 		QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("provider_type", oAuthProvider.getKey());
-		queryWrapper.eq("user_id", userCache.getId());
+		queryWrapper.eq("user_id", userId);
 		return userOauthMapper.selectCount(queryWrapper) > 0;
 	}
 
@@ -164,6 +165,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
+	@Transactional
 	public Boolean authLoginToBind(OAuthProvider oAuthProvider, String username, String password, String clientIp, String fingerprint, String token, String sessionId) {
 		Boolean flag = userService.login(username, password, token, clientIp, fingerprint, sessionId);
 		//flag==null账号密码错误，flag==false账号密码正确，但是需要二次登录，flag==true账号密码正确且无需二次登录，即登录成功
@@ -183,8 +185,8 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
+	@Transactional
 	public boolean authLoginToBind(OAuthProvider oAuthProvider, int code, String clientIp, String fingerprint, String token, String sessionId) {
-		//TODO:1对1严格对应
 		boolean flag = userService.login(sessionId,code,token,clientIp,fingerprint);
 		if (flag){
 			if (oAuthProvider==OAuthProvider.GITEE){
@@ -210,10 +212,9 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 	}
 
 	@Override
-	public String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String clientIp, String fingerprint, String sessionId) {
+	public String authLogin(@NotNull OAuthProvider provider, @NotNull OAuthAction action, String url, String fingerprint, String sessionId) {
 		OAuthCache oAuthCache = new OAuthCache();
 		oAuthCache.setUrl(url);
-		oAuthCache.setClientIp(clientIp);
 		oAuthCache.setFingerprint(fingerprint);
 		String random = UUID.randomUUID().toString();
 		redisService.setAuthCsrf(random, oAuthCache);
@@ -260,14 +261,27 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 				oAuthVo.setDescription("");
 				oAuthVo.setAvatar("");
 			}
+			oAuthVos.add(oAuthVo);
 		}
 		return oAuthVos;
 	}
 
-	private @Nullable Boolean authLoginToBindGithub(String sessionId) {
+	@Transactional
+	protected Boolean authLoginToBindGithub(String sessionId) {
 		if (redisService.validateGithubUser(sessionId)){
 			GithubUserDto user = redisService.getGithubUser(sessionId);
 			UserCache userCache = userService.getUserFromRedis(sessionId);
+			if (isBind(OAuthProvider.GITHUB, user.getId())){
+				//用户已经绑定其他第三方账号
+				return false;
+			}
+			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("provider_type", OAuthProvider.GITHUB.getKey());
+			queryWrapper.eq("provider_user_id", user.getId());
+			if (userOauthMapper.selectCount(queryWrapper) > 0) {
+				//第三方账号已被其他系统用户绑定
+				return false;
+			}
 			UserOauth userOauth = new UserOauth();
 			userOauth.setUserId(userCache.getId());
 			userOauth.setProviderType(OAuthProvider.GITHUB.getKey());
@@ -285,10 +299,22 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		}
 	}
 
-	private @Nullable Boolean authLoginToBindGitee(String sessionId) {
+	@Transactional
+	protected Boolean authLoginToBindGitee(String sessionId) {
 		if (redisService.validateGiteeUser(sessionId)) {
 			GiteeUserDto user = redisService.getGiteeUser(sessionId);
 			UserCache userCache = userService.getUserFromRedis(sessionId);
+			if (isBind(OAuthProvider.GITEE, user.getId())){
+				//用户已经绑定其他第三方账号
+				return false;
+			}
+			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("provider_type", OAuthProvider.GITEE.getKey());
+			queryWrapper.eq("provider_user_id", user.getId());
+			if (userOauthMapper.selectCount(queryWrapper) > 0) {
+				//第三方账号已被其他系统用户绑定
+				return false;
+			}
 			UserOauth userOauth = new UserOauth();
 			userOauth.setUserId(userCache.getId());
 			userOauth.setProviderType(OAuthProvider.GITEE.getKey());
@@ -305,18 +331,21 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			return null;
 		}
 	}
-	private OAuthResultDto callback(OAuthAction action, OAuthProvider oAuthProvider, String code, OAuthCache cache, String token, String sessionId) {
+
+	@Transactional
+	protected OAuthResultDto callback(OAuthAction action, OAuthProvider oAuthProvider, String code, OAuthCache cache, String token, String sessionId, String clientIp) {
 		if (oAuthProvider==OAuthProvider.GITEE){
-			return callbackGitee(code,token,sessionId,action,cache);
+			return callbackGitee(code,token,sessionId,action,cache,clientIp);
 		}else if (oAuthProvider==OAuthProvider.GITHUB){
-			return callbackGithub(code,token,sessionId,action,cache);
+			return callbackGithub(code,token,sessionId,action,cache,clientIp);
 		}
 		return OAuthResultDto.error(cache.getUrl());
 	}
 
-	private OAuthResultDto callbackGithub(String code, String token, String sessionId, OAuthAction action, OAuthCache cache) {
+	@Transactional
+	protected OAuthResultDto callbackGithub(String code, String token, String sessionId, OAuthAction action, OAuthCache cache, String clientIp) {
 		// 获取Access Token
-        GitHubTokenResponse tokenResponse = WebClient.create()
+        GitHubTokenResponse tokenResponse = webClient
             .post()
             .uri(OAuthProvider.GITHUB.getToken())
             .header("Accept", "application/json") // GitHub需要明确指定返回JSON
@@ -359,9 +388,20 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			if (!userOauth.getHash().equals(hash)){
 				userOauthMapper.setAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
-			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache,OAuthProvider.GITHUB);
+			return userService.oauthLogin(userOauth.getUserId(), token, sessionId,clientIp , cache, OAuthProvider.GITHUB);
 		}else if (action == OAuthAction.BINDING){
 			UserCache userCache = userService.getUserFromRedis(sessionId);
+			if (isBind(OAuthProvider.GITHUB, userCache.getId())){
+				//用户已经绑定其他第三方账号
+				return OAuthResultDto.error(cache.getUrl());
+			}
+			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("provider_type", OAuthProvider.GITHUB.getKey());
+			queryWrapper.eq("provider_user_id", user.getId());
+			if (userOauthMapper.selectCount(queryWrapper)>0){
+				//第三方账号已被其他系统用户绑定
+				return OAuthResultDto.error(cache.getUrl());
+			}
 			UserOauth userOauth = new UserOauth();
 			userOauth.setUserId(userCache.getId());
 			userOauth.setProviderType(OAuthProvider.GITHUB.getKey());
@@ -379,7 +419,8 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		return OAuthResultDto.error(cache.getUrl());
 	}
 
-	private OAuthResultDto callbackGitee(String code, String token, String sessionId, OAuthAction action, OAuthCache cache) {
+	@Transactional
+	protected OAuthResultDto callbackGitee(String code, String token, String sessionId, OAuthAction action, OAuthCache cache, String clientIp) {
 		 // 获取Access Token
         GiteeTokenResponse tokenResponse = webClient
 		    .post()
@@ -399,7 +440,8 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			return OAuthResultDto.error(cache.getUrl());
 		}
         // 获取用户信息
-        GiteeUserDto user = webClient.get()
+        GiteeUserDto user = webClient
+		    .get()
             .uri(String.format(OAuthProvider.GITEE.getUser(),tokenResponse.getAccess_token()))
             .header("User-Agent", generalConfig.getName())
             .retrieve()
@@ -422,9 +464,20 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 			if (!userOauth.getHash().equals(hash)){
 				userOauthMapper.setAnnotations(userOauth.getId(), hash ,JSON.toJSONString(user));
 			}
-			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, cache, OAuthProvider.GITEE);
+			return userService.oauthLogin(userOauth.getUserId(), token, sessionId, clientIp , cache, OAuthProvider.GITEE);
 		}else if (action == OAuthAction.BINDING){
 			UserCache userCache = userService.getUserFromRedis(sessionId);
+			if (isBind(OAuthProvider.GITEE, userCache.getId())){
+				//用户已经绑定其他第三方账号
+				return OAuthResultDto.error(cache.getUrl());
+			}
+			QueryWrapper<UserOauth> queryWrapper = new QueryWrapper<>();
+			queryWrapper.eq("provider_type", OAuthProvider.GITEE.getKey());
+			queryWrapper.eq("provider_user_id", user.getId());
+			if (userOauthMapper.selectCount(queryWrapper)>0){
+				//第三方账号已被其他系统用户绑定
+				return OAuthResultDto.error(cache.getUrl());
+			}
 			UserOauth userOauth = new UserOauth();
 			userOauth.setUserId(userCache.getId());
 			userOauth.setProviderType(OAuthProvider.GITEE.getKey());
