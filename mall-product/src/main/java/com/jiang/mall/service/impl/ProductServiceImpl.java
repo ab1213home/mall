@@ -411,26 +411,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    if (product != null) {
 	        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
 //		    assert esProduct != null;
-		     try {
+		    try {
+		        // 转换为 EsProduct 实体
+//		        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
 		        if (esProduct == null) {
 		            logger.error("商品转换失败，无法生成ES实体: {}", productId);
 		            return;
 		        }
 
-		        // 构建 Index 请求
-		        IndexRequest<EsProduct> request = IndexRequest.of(b -> b
-		            .index("products")         // 索引名称
-		            .id(productId.toString())   // 使用商品ID作为文档ID
-		            .document(esProduct)        // 设置文档内容
-		        );
-
-		        // 执行请求
+		        // 构建并执行请求
+		        IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
 		        esClient.index(request);
 
 		        logger.info("商品已同步至Elasticsearch: {}", productId);
-		    } catch (Exception e) {
+			} catch (Exception e) {
 		        logger.error("同步商品到Elasticsearch失败，商品ID: {}", productId, e);
-		    }
+			}
 	    }
 	}
 
