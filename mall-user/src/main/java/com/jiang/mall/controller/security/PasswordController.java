@@ -20,7 +20,6 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,16 +62,12 @@ public class PasswordController {
     @Permission(PermissionType.USER)
     public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
-                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+//                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-											    HttpServletRequest request,
-                                                 HttpSession session) {
+											    HttpServletRequest request
+                                                ) {
         // 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
+	    String clientIp = NetworkUtils.getIpAddr(request);
         if (!i18nService.isValidPassword(newPassword)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
@@ -84,7 +79,7 @@ public class PasswordController {
             return ResponseResult.failResult(i18nService.getMessage("user.modify.password.error.identical"));
         }
         // 尝试修改密码，如果失败则返回错误响应
-	    Boolean flag= userService.modifyPassword(oldPassword, newPassword,session.getId(),clientIp, fingerprint);
+	    Boolean flag= userService.modifyPassword(oldPassword, newPassword,request.getSession().getId(),clientIp, fingerprint);
         if (flag==null){
             return ResponseResult.serverErrorResult(i18nService.getMessage("user.modify.password.error"));
         }else if (!flag){

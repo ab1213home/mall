@@ -161,27 +161,22 @@ public class EmailController {
 	 * 修改用户邮箱
 	 *
 	 * @param code    验证码
-	 * @param session HTTP会话，用于获取用户登录信息
+	 * @param request HTTP会话，用于获取用户登录信息
 	 * @return 返回修改结果
 	 */
 	@PostMapping("/step2")
 	@Permission(PermissionType.USER)
 	public ResponseResult<Object> emailStep2(@RequestParam("code") String code,
-	                                         @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+//	                                         @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                              @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-											 HttpServletRequest request,
-	                                         HttpSession session) {
+											 HttpServletRequest request
+	                                         ) {
 		// 验证验证码是否为空
 		if (!i18nService.checkString(code)) {
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-		// 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
-		NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
+		String clientIp = NetworkUtils.getIpAddr(request);
+		NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, request.getSession().getId(), null);
 
         if (res.isExpired()){
             // 验证码有效期检查
@@ -191,7 +186,7 @@ public class EmailController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.error"));
         }
 
-		Boolean flag = userService.modifyEmail(res.getData(), session.getId(), clientIp, fingerprint);
+		Boolean flag = userService.modifyEmail(res.getData(), request.getSession().getId(), clientIp, fingerprint);
 		// 更新用户邮箱
 		if (flag==null) {
 			//TODO:无状态

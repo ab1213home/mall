@@ -149,26 +149,21 @@ public class ForgotController {
      *
      * @param code 验证码，用于验证用户身份
      * @param password 新密码，用户希望设置的新密码
-     * @param session HTTP会话，用于检查用户登录状态
+     * @param request HTTP会话，用于检查用户登录状态
      * @return 返回密码重置结果的响应对象
      */
     @PostMapping("/step2")
     @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
-                                              @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
-                                                @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-											    HttpServletRequest request,
-                                              HttpSession session) {
+//                                              @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+                                              @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                              HttpServletRequest request
+                                              ) {
         if (!i18nService.checkString(code)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
-        // 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
+        String clientIp = NetworkUtils.getIpAddr(request);
         if (!i18nService.checkString(fingerprint)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
         }
@@ -176,7 +171,7 @@ public class ForgotController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.newPassword"));
         }
 
-        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
+        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, request.getSession().getId(), null);
 
         if (res.isExpired()){
             // 验证码有效期检查

@@ -175,22 +175,17 @@ public class RegisterController {
      * 处理用户注册第二步的请求
      *
      * @param code 验证码
-     * @param session HTTP会话
+     * @param request HTTP会话
      * @return 注册结果
      */
     @PostMapping("/step2")
     @Register
     public ResponseResult<Object> registerStep2(@RequestParam("code")String code,
-                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+//                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-											    HttpServletRequest request,
-                                                HttpSession session) {
-        // 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
+											    HttpServletRequest request
+                                                ) {
+        String clientIp = NetworkUtils.getIpAddr(request);
         if (!i18nService.checkString(fingerprint)){
             return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
         }
@@ -199,7 +194,7 @@ public class RegisterController {
             return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
         }
 
-        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, session.getId(), null);
+        NoticeResultDto res =noticeService.validateAccountCaptcha(code, NoticeChannel.EMAIL, request.getSession().getId(), null);
 
         if (res.isExpired()){
             // 验证码有效期检查
@@ -210,7 +205,7 @@ public class RegisterController {
         }
 
         // 注册用户
-        Long userId = userService.register(res.getData(),session.getId(), clientIp, fingerprint);
+        Long userId = userService.register(res.getData(),request.getSession().getId(), clientIp, fingerprint);
         if (userId>0) {
             return ResponseResult.okResult(i18nService.getMessage("user.register.success"));
         }else {

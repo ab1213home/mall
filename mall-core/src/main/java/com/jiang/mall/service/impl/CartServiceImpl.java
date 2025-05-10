@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -119,18 +118,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
-    private void deleteCartByOrderInRedis(Long userId, List<CheckoutReceiverVo> listCheckoutVo) {
-        //Redis不存在该商品该用户的购物车记录，判断是冷数据还是空数据
-        Long version_redis = null;
-        //尝试获取版本号
-        if (redisService.hasVersion(userId)){
-            version_redis = redisService.getVersion(userId);
-        }
-        //获取数据库用户最新版本号
-        Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-        if (version_redis == null || version_redis < version_mysql){
-            checkCartFromMySQLToRedis(userId, version_mysql);
-        }
+    private void deleteCartByOrderInRedis(Long userId, @NotNull List<CheckoutReceiverVo> listCheckoutVo) {
         List<CartDto> listCartDto = new ArrayList<>();
         for (CheckoutReceiverVo checkoutVo : listCheckoutVo) {
             CartDto cartDto = new CartDto();
@@ -138,6 +126,25 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             cartDto.setNum(-checkoutVo.getNum());
             listCartDto.add(cartDto);
         }
+        // 获取版本号
+        Long version_redis = redisService.getVersion(userId);
+        Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
+
+        // 处理空数据或未同步数据的情况
+        if (version_mysql == null && version_redis == null) {
+            // 空数据，直接设置购物车记录
+            logger.debug("购物车为空，直接设置购物车记录");
+            redisService.setCart(userId,listCartDto);
+        } else if (version_mysql == null) {
+            // 未同步数据，从 Redis 同步到 MySQL
+            logger.debug("未同步数据，从 Redis 同步到 MySQL");
+            checkCartFromRedisToMySQL(userId, version_redis);
+        } else if (version_redis == null || version_redis <= version_mysql) {
+            // 冷数据，从 MySQL 同步到 Redis
+            logger.debug("冷数据，从 MySQL 同步到 Redis");
+            checkCartFromMySQLToRedis(userId, version_mysql);
+        }
+
         redisService.setCart(userId,listCartDto);
     }
 
@@ -272,29 +279,27 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             //Redis存在该商品该用户的购物车记录，则更新购物车记录
             return redisService.setCart(userId, productId, num);
         }else{
-            //Redis不存在该商品该用户的购物车记录，判断是冷数据还是空数据
-            Long version_redis = null;
-            //尝试获取版本号
-            if (redisService.hasVersion(userId)){
-                version_redis = redisService.getVersion(userId);
-            }
-            //获取数据库用户最新版本号
+            // 获取版本号
+            Long version_redis = redisService.getVersion(userId);
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_mysql == null){
-                //空数据
-//                checkCartFromRedisToMySQL(userId, version_redis);
+
+            // 处理空数据或未同步数据的情况
+            if (version_mysql == null && version_redis == null) {
+                // 空数据，直接设置购物车记录
+                logger.debug("购物车为空，直接设置购物车记录");
                 return redisService.setCart(userId, productId, num);
-            }else if (version_redis == null || version_redis <= version_mysql){
-                //数据库版本号大于redis版本号
-                //以数据库为基准
-                //冷数据
+            } else if (version_mysql == null) {
+                // 未同步数据，从 Redis 同步到 MySQL
+                logger.debug("未同步数据，从 Redis 同步到 MySQL");
+                checkCartFromRedisToMySQL(userId, version_redis);
+            } else if (version_redis == null || version_redis <= version_mysql) {
+                // 冷数据，从 MySQL 同步到 Redis
+                logger.debug("冷数据，从 MySQL 同步到 Redis");
                 checkCartFromMySQLToRedis(userId, version_mysql);
-                return redisService.setCart(userId, productId, num);
-            }else {
-                //redis版本号大于等于数据库版本号
-                //则以redis为基准
-                return redisService.setCart(userId, productId, num);
             }
+
+            // 执行最终的购物车记录更新操作
+            return redisService.setCart(userId, productId, num);
         }
     }
 
@@ -332,28 +337,25 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
             //Redis存在该商品该用户的购物车记录，则更新购物车记录
             return redisService.deleteCart(userId, productId);
         }else{
-            //Redis不存在该商品该用户的购物车记录，判断是冷数据还是空数据
-            Long version_redis = null;
-            //尝试获取版本号
-            if (redisService.hasVersion(userId)){
-                version_redis = redisService.getVersion(userId);
-            }
-            //获取数据库用户最新版本号
+            // 获取版本号
+            Long version_redis = redisService.getVersion(userId);
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_mysql == null){
-                //空数据
+
+            if (version_mysql == null && version_redis == null) {
+                // 空数据，直接返回 true
+                logger.debug("用户{}购物车删除成功，购物车为空", userId);
                 return true;
-            }else if (version_redis == null || version_redis <= version_mysql){
-                //数据库版本号大于redis版本号
-                //以数据库为基准
-                //冷数据
-                checkCartFromMySQLToRedis(userId ,version_mysql);
-                return redisService.deleteCart(userId, productId);
-            }else {
-                //redis版本号大于等于数据库版本号
-                //则以redis为基准
-                return redisService.deleteCart(userId, productId);
+            } else if (version_mysql == null) {
+                // 未同步数据，从 Redis 同步到 MySQL
+                logger.debug("用户{}购物车删除成功，未同步数据", userId);
+                checkCartFromRedisToMySQL(userId, version_redis);
+            } else if (version_redis == null || version_redis <= version_mysql) {
+                // 冷数据，从 MySQL 同步到 Redis
+                logger.debug("用户{}购物车删除成功，冷数据", userId);
+                checkCartFromMySQLToRedis(userId, version_mysql);
             }
+            // 执行删除操作
+            return redisService.deleteCart(userId, productId);
         }
     }
 
@@ -372,15 +374,15 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         List<Long> listUserId = cartRedisMapper.getUserIdList();
         for (Long userId : listUserId) {
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            Long version_redis = null;
-            if (redisService.hasVersion(userId)){
-                version_redis = redisService.getVersion(userId);
-            }
-            if (version_redis == null || version_redis <= version_mysql){
+            Long version_redis = redisService.getVersion(userId);
+
+            // 假设 version_mysql 不为 null
+            if (version_redis == null || version_redis <= version_mysql) {
+                logger.debug("用户 {} 购物车 Redis 版本号({}) 小于数据库版本号({})，开始正向同步", userId, version_redis, version_mysql);
                 checkCartFromMySQLToRedis(userId, version_mysql);
-            }else {
-                //redis版本号大于数据库版本号
-                logger.info("Redis版本号大于MySQL数据库版本号，{}用户购物车缓存已同步", userId);
+            } else {
+                logger.debug("用户 {} 购物车 Redis 版本号({}) 大于数据库版本号({})，开始反向同步", userId, version_redis, version_mysql);
+                checkCartFromRedisToMySQL(userId, version_redis);
             }
         }
     }
@@ -390,7 +392,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         queryWrapper.eq("user_id", userId);
         queryWrapper.eq("version", version);
         CartRedis cartRedis = cartRedisMapper.selectOne(queryWrapper);
-        if (!Objects.equals(cartRedis.getContent(), "")){
+        if (cartRedis.getContent()!= null){
             List<CartDto> cartDtos = JSON.parseArray(cartRedis.getContent(), CartDto.class);
             redisService.initCart(userId, cartDtos, version);
         }else{
@@ -398,26 +400,29 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         }
     }
 
-
-
     @Override
     @Transactional
     public void checkCartFromRedisToMySQL() {
         List<Long> listUserId = redisService.getChangeList();
         for (Long userId : listUserId) {
+            // 获取版本号
             Long version_redis = redisService.getVersion(userId);
             Long version_mysql = cartRedisMapper.getVersionByUserId(userId);
-            if (version_mysql == null) {
-                // 处理 version_mysql 为 null 的情况
-                logger.warn("用户 {} 的数据库版本号为 null，需要重新同步购物车数据", userId);
+
+            if (version_redis == null && version_mysql == null) {
+                // 处理空数据
+                logger.debug("用户 {} 的 Redis 和数据库版本号均为 null，无需进行同步（空数据）", userId);
+            }else if (version_redis == null) {
+                // 处理冷数据
+                logger.debug("用户 {} 的 Redis 版本号为 null，需要重新从数据库同步购物车数据（冷数据）", userId);
+                checkCartFromMySQLToRedis(userId, version_mysql);
+            }else if (version_mysql == null || version_redis > version_mysql) {
+                logger.debug("用户 {} 购物车 Redis 版本号({}) 大于数据库版本号({})，开始同步",
+                    userId, version_redis, version_mysql);
                 checkCartFromRedisToMySQL(userId, version_redis);
-            } else if (version_redis != null && version_redis > version_mysql) {
-                // 如果 version_redis 不为 null 且大于 version_mysql，则进行同步
-                logger.debug("用户 {} 购物车 Redis 版本号大于数据库版本号，开始同步", userId);
-                checkCartFromRedisToMySQL(userId, version_redis);
-            } else {
-                // redis 版本号小于等于数据库版本号
-                logger.error("用户 {} 购物车 Redis 版本号小于等于数据库版本号，无需同步", userId);
+            }else {
+                logger.debug("用户 {} 购物车 Redis 版本号({}) 小于等于数据库版本号({})，无需同步",
+                userId, version_redis, version_mysql);
             }
         }
     }
@@ -493,8 +498,6 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements IC
         if(!cartDtos.isEmpty()){
             String content = JSON.toJSONString(cartDtos);
             cartRedis.setContent(content);
-        }else{
-            cartRedis.setContent("");
         }
         cartRedis.setUserId(userId);
         cartRedis.setVersion(version);

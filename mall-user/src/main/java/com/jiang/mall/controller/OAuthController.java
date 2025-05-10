@@ -111,23 +111,23 @@ public class OAuthController {
 	}
 
 	@GetMapping("/login/{provider}")
-	@OAuth(PermissionType.GUEST)
+	@OAuth(type=PermissionType.GUEST,returnType = ReturnType.HTML)
 	public void authLogin(HttpServletResponse response,
 						  HttpServletRequest request,
 	                      @PathVariable("provider") String provider,
 	                      @RequestParam(value = "url", required = false) String url,
 	                      @RequestParam("fingerprint") String fingerprint
 						  ) throws IOException {
-		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
-		String clientIp = NetworkUtils.getIpAddr(request);
-		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			Map<String,String> map = new HashMap<>();
-            map.put("message","请使用公网域名访问");
-            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
-			return;
-		}
+//		// 验证客户端IP是否有效
+//		String host = request.getHeader("Host");
+//		String clientIp = NetworkUtils.getIpAddr(request);
+//		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			Map<String,String> map = new HashMap<>();
+//            map.put("message","请使用公网域名访问");
+//            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
+//			return;
+//		}
 		//判断是不是对公网域名的请求
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (!i18nService.checkString(fingerprint)){
@@ -145,18 +145,18 @@ public class OAuthController {
     }
 
 	@GetMapping("/bind/{provider}")
-	@OAuth(PermissionType.USER)
+	@OAuth(type=PermissionType.USER,returnType = ReturnType.JSON)
 	public void authBind(HttpServletResponse response, HttpServletRequest request, @PathVariable("provider") String provider) throws IOException {
-		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
-		String clientIp = NetworkUtils.getIpAddr(request);
-		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			Map<String,String> map = new HashMap<>();
-            map.put("message","请使用公网域名访问");
-            generalInterceptor.redirectInBrowser(response,"/user/security/account.html", map);
-			return;
-		}
+//		// 验证客户端IP是否有效
+//		String host = request.getHeader("Host");
+//		String clientIp = NetworkUtils.getIpAddr(request);
+//		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			Map<String,String> map = new HashMap<>();
+//            map.put("message","请使用公网域名访问");
+//            generalInterceptor.redirectInBrowser(response,"/user/security/account.html", map);
+//			return;
+//		}
 		//判断是不是对公网域名的请求
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
@@ -173,7 +173,7 @@ public class OAuthController {
 	}
 
 	@PostMapping("/loginToBind/{provider}")
-	@OAuth(PermissionType.GUEST)
+	@OAuth(type=PermissionType.GUEST,returnType = ReturnType.JSON)
 	public ResponseResult<Object> authLoginToBind(@RequestParam("username") String username,
 	                                              @RequestParam("password") String password,
 	                                              @RequestParam("captcha") String captcha,
@@ -192,13 +192,13 @@ public class OAuthController {
 		if (!i18nService.checkString(captcha)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha"));
 		}
-		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
+//		// 验证客户端IP是否有效
+//		String host = request.getHeader("Host");
 		String clientIp = NetworkUtils.getIpAddr(request);
-		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			return ResponseResult.notLoggedResult("请使用公网域名访问");
-		}
+//		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			return ResponseResult.notLoggedResult("请使用公网域名访问");
+//		}
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
@@ -232,7 +232,7 @@ public class OAuthController {
 	}
 
 	@PostMapping("/loginToBind/{provider}/twoVerify")
-	@OAuth(PermissionType.GUEST)
+	@OAuth(type=PermissionType.GUEST,returnType = ReturnType.JSON)
 	public ResponseResult<Object> authLoginToBindTwoVerify(@RequestParam("code") int code,
 												@PathVariable("provider") String provider,
 	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
@@ -241,12 +241,12 @@ public class OAuthController {
 												){
 		//判断是不是对公网域名的请求
 		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
+//		String host = request.getHeader("Host");
 		String clientIp = NetworkUtils.getIpAddr(request);
 		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			return ResponseResult.notLoggedResult("请使用公网域名访问");
-		}
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			return ResponseResult.notLoggedResult("请使用公网域名访问");
+//		}
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
@@ -266,7 +266,7 @@ public class OAuthController {
 	}
 
 	@PostMapping("/login/{provider}/twoVerify")
-	@OAuth(PermissionType.GUEST)
+	@OAuth(type=PermissionType.GUEST,returnType = ReturnType.JSON)
 	public ResponseResult<Object> authLoginTwoVerify(@RequestParam("code") int code,
 												@PathVariable("provider") String provider,
 	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
@@ -274,12 +274,12 @@ public class OAuthController {
                                                      HttpServletRequest request
 												){
 		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
+//		String host = request.getHeader("Host");
 		String clientIp = NetworkUtils.getIpAddr(request);
 		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			return ResponseResult.notLoggedResult("请使用公网域名访问");
-		}
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			return ResponseResult.notLoggedResult("请使用公网域名访问");
+//		}
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
@@ -313,7 +313,7 @@ public class OAuthController {
 	}
 
     @GetMapping("/callback/{provider}")
-    @OAuth(PermissionType.NONE)
+    @OAuth(type=PermissionType.GUEST,returnType = ReturnType.HTML)
     public void callback(@RequestParam("code") String code,
                          @RequestParam("state") String state,
                          HttpServletRequest request,
@@ -321,15 +321,15 @@ public class OAuthController {
                          @PathVariable("provider") String provider
                         ) throws IOException {
 		// 验证客户端IP是否有效
-		String host = request.getHeader("Host");
+//		String host = request.getHeader("Host");
 		String clientIp = NetworkUtils.getIpAddr(request);
 		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
-		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
-			Map<String,String> map = new HashMap<>();
-            map.put("message","请使用公网域名访问");
-            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
-			return;
-		}
+//		if (!generalConfig.isDomain(host) || !NetworkUtils.isPublicIP(clientIp)) {
+//			Map<String,String> map = new HashMap<>();
+//            map.put("message","请使用公网域名访问");
+//            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
+//			return;
+//		}
 		OAuthProvider oAuthProvider = oAuthService.getProvider(provider);
 		if (oAuthProvider == null){
 			Map<String,String> map = new HashMap<>();

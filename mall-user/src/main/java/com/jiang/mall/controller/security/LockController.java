@@ -20,7 +20,6 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -55,7 +54,7 @@ public class LockController {
      * 处理用户锁定请求的函数
      * 主要功能是基于当前会话判断用户是否已登录，然后尝试锁定该用户
      *
-     * @param session 当前的HTTP会话，用于检查用户登录状态
+     * @param request 当前的HTTP会话，用于检查用户登录状态
      * @return 根据用户锁定操作的结果返回不同的响应结果
      *         如果用户未登录，返回表示未登录的响应结果
      *         如果用户锁定成功，返回表示成功的响应结果
@@ -63,17 +62,13 @@ public class LockController {
      */
     @PostMapping("/self-lock")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> lockUser(@RequestHeader(value = "X-Real-IP", required = false) String clientIp,
+    public ResponseResult<Object> lockUser(
+//			@RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-                                           HttpServletRequest request,
-	                                       HttpSession session) {
-		// 验证客户端IP是否有效
-	    if (clientIp == null){
-			clientIp = NetworkUtils.getIpAddr(request);
-	    }else if (!i18nService.isValidIPv4OrIPv6(clientIp)){
-			return ResponseResult.failResult(i18nService.getMessage("user.error.ip"));
-	    }
-        if (!userService.lock(session.getId(), clientIp, fingerprint)){
+                                           HttpServletRequest request
+	                                       ) {
+		String clientIp = NetworkUtils.getIpAddr(request);
+        if (!userService.lock(request.getSession().getId(), clientIp, fingerprint)){
 			return ResponseResult.serverErrorResult(i18nService.getMessage("user.lock.error"));
         }else {
 			return ResponseResult.okResult(i18nService.getMessage("user.lock.success"));
