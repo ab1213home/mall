@@ -16,6 +16,8 @@ package com.jiang.mall.service;
 import com.jiang.mall.domain.cache.CategoryTreeCache;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * 提供了一系列操作Redis缓存中轮播图（Banner）信息的方法
  * 主要功能包括设置、获取、检查和删除Redis中的轮播图信息
@@ -36,4 +38,6 @@ public interface ICategoryRedisService {
     Boolean hasCategory(Long id);
 
     void deleteCategory(Long id);
+
+    void deleteCategory(List<Long> ids);
 }

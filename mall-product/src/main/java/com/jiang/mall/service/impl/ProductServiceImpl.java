@@ -25,6 +25,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jiang.mall.config.ProductConfig;
@@ -54,7 +55,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -135,17 +140,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    if (pageSize == null || pageSize < 1) pageSize = 10;
 		try {
 			// 获取分类及其子分类的 ID 列表
-			List<Long> categoryIds = new ArrayList<>();
-			if (categoryId != null) {
-				categoryIds = categoryService.getCategoryIds(categoryId);
-			}
+			List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
 
 			// 构建布尔查询
 			BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
 			if (name != null && !name.trim().isEmpty()) {
 				boolQueryBuilder.must(
 						query -> query.match(m -> m
-								.field("name")
+								.field("title")
 								.query(name)
 						)
 				);
@@ -156,7 +158,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			            .toList();
 				 boolQueryBuilder.filter(
 			            query -> query.terms(t -> t
-			                .field("categoryId")
+			                .field("category_id")
 			                .terms(ts -> ts.value(fieldValue))
 			            )
 			     );
@@ -190,20 +192,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 					.map(Hit::source)
 					.toList();
 
-			if (hits.isEmpty()) {
-				return Collections.emptyList();
-			}
-
-			// 提取商品 ID 列表
-			List<Long> productIds = hits.stream()
-					.map(EsProduct::getId)
-					.toList();
-
 			List<ProductVo> productVos = new ArrayList<>();
 
 	        // 将产品实体列表转换为产品VO列表
-	        for (Long id : productIds) {
-				ProductVo product = getProduct(id);
+	        for (EsProduct esProduct : hits) {
+				ProductVo product = getProduct(esProduct.getId());
 	            productVos.add(product);
 	        }
 
@@ -211,7 +204,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        return productVos;
 		}catch (Exception e) {
 			logger.error("Elasticsearch 查询商品列表失败: {}", e.getMessage(), e);
-            // 可选：降级到数据库查询
+            // 降级到数据库查询
             return fallbackGetProductList(name, categoryId, pageNum, pageSize);
 		}
     }
@@ -305,8 +298,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     @Transactional
-    public Boolean insertProduct(Product product) {
-        return productMapper.insert(product)==1;
+    public Boolean insertProduct(@NotNull Product product) {
+		if (!categoryService.hasCategory(product.getCategoryId())){
+			return false;
+		}
+        if (productMapper.insert(product) == 1){
+			if  (productConfig.isProductCacheEnabled()){
+
+			}
+			return true;
+        }else{
+			return false;
+		}
     }
 
 
@@ -383,7 +386,42 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
 	@Override
 	public void checkProduct() {
-
+//		try {
+//			esClient.indices().delete(d -> d.index("products"));
+//		} catch (IOException e) {
+//			logger.error("删除索引失败: {}", e.getMessage());
+//		}
+//		try {
+//			// 创建新索引并指定映射
+//			esClient.indices().create(c -> c
+//			    .index("products")
+//			    .mappings(m -> m
+//			        .properties("title", p -> p.text(t -> t.analyzer("ik_max_word")))
+//			        .properties("category_id", p -> p.long_(l -> l))
+//			        .properties("price", p -> p.double_(d -> d))
+//			    )
+//			);
+//		} catch (IOException e) {
+//			logger.error("创建索引失败: {}", e.getMessage());
+//		}
+		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("status", 1);
+		List<Product> products = productMapper.selectList(queryWrapper);
+		for (Product product : products) {
+			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
+			try {
+				assert esProduct != null;
+				IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
+		        esClient.index(request);
+			} catch (IOException e) {
+				logger.error("同步商品到ES失败: {}", e.getMessage());
+			}
+			if (productConfig.isProductCacheEnabled()){
+				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
+				assert productCache != null;
+				redisService.setProduct(productCache);
+			}
+		}
 	}
 
 

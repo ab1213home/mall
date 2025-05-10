@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -88,5 +89,10 @@ public class CategoryRedisServiceImpl implements ICategoryRedisService {
 	@Override
 	public void deleteCategory(Long id) {
         stringRedisTemplate.delete(prefix+ id);
+	}
+
+	@Override
+	public void deleteCategory(@NotNull List<Long> ids) {
+		stringRedisTemplate.delete(ids.stream().map(id -> prefix + id).toList());
 	}
 }

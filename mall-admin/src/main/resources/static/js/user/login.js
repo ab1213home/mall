@@ -13,7 +13,7 @@
 
 const urlParams = new URLSearchParams(window.location.search);
 const url = urlParams.get('url');
-const model = localStorage.getItem('model');
+const model = urlParams.get('model');
 let oauthArr = [];
 
 /**
@@ -157,11 +157,32 @@ $('#remember').change(function() {
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const message = urlParams.get('message');
+
+    $('#step1').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitLoginForm();
+    });
+    $('#step2').on('submit', function(event) {
+        event.preventDefault(); // 阻止默认提交行为
+        submitTwoVerifyForm(); // 自定义提交处理
+    });
+    // 自动跳转到下一个输入框
+    // $('.input-group input').on('keyup', function(e){
+    //     if (e.which >= 48 && e.which <= 57) { // 数字键
+    //         const next = $(this).next('.form-control');
+    //         if (next.length > 0) {
+    //             next.focus();
+    //         } else {
+    //             // 如果是最后一个输入框，则提交表单或执行其他操作
+    //         }
+    //     }
+    // });
+
     const $socialLogin = $('#socialLogin');
     const $socialLoginDiv = $('#socialLoginDiv');
 
     // OAuth模式处理
-    if (model !== null && model === 'oauth') {
+    if (model !== null && model === 'binding') {
         $('.step1').hide();
         $('.step2').show();
         return; // 提前返回避免执行后续逻辑
@@ -216,25 +237,7 @@ $(document).ready(function() {
             show_error('获取第三方登录信息失败，请联系管理员！'+error);
         }
     });
-    $('#step1').on('submit', function(event) {
-        event.preventDefault(); // 阻止默认提交行为
-        submitLoginForm();
-    });
-    $('#step2').on('submit', function(event) {
-        event.preventDefault(); // 阻止默认提交行为
-        submitTwoVerifyForm(); // 自定义提交处理
-    });
-    // 自动跳转到下一个输入框
-    // $('.input-group input').on('keyup', function(e){
-    //     if (e.which >= 48 && e.which <= 57) { // 数字键
-    //         const next = $(this).next('.form-control');
-    //         if (next.length > 0) {
-    //             next.focus();
-    //         } else {
-    //             // 如果是最后一个输入框，则提交表单或执行其他操作
-    //         }
-    //     }
-    // });
+
 });
 
 function submitTwoVerifyForm() {

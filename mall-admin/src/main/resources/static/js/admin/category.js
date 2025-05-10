@@ -201,10 +201,12 @@ function insertCategory() {
     let sort = $('#sort').val();
     let name = $('#name').val();
     let parent = $('#parentcategoryId').val();
+    //TODO:需要重写，优化父分类选择器
     const data= {
         sort: sort,
         name: name,
         parent: parent,
+        level: 1
     };
     $.ajax({
         type: "POST",

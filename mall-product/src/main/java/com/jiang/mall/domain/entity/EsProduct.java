@@ -45,8 +45,8 @@ public class EsProduct {
     @JsonProperty("price")
     private BigDecimal price;
 
-    @JsonProperty("stock")
-    private Integer stock;
+//    @JsonProperty("stock")
+//    private Integer stock;
 
     public EsProduct() {
     }

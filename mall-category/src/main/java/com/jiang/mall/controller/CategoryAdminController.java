@@ -97,34 +97,39 @@ public class CategoryAdminController {
      * <p>
      * 通过POST请求接收前端传来的分类代码和名称，验证用户是否登录并有管理员权限后，插入数据库
      *
-     * @param code 分类的代码
      * @param name 分类的名称
-     * @param session 当前的会话，用于验证用户登录状态
      * @return 插入操作的结果或错误信息
      */
     @PostMapping("/add")
     @Permission(value = PermissionType.ADMIN, permission = "category:create")
-    public ResponseResult<Object> insertCategory(@RequestParam("code")String code,
+    public ResponseResult<Object> insertCategory(
                                          @RequestParam("name")String name,
                                          @RequestParam("parent")Long parent,
                                          @RequestParam("level") Integer level,
-                                         @RequestParam("sort") Integer sort,
-                                         HttpSession session) {
-        if (code == null || name == null) {
-            return ResponseResult.failResult("参数错误");
-        }
-        if (!StringUtils.hasText(code)){
-            return ResponseResult.failResult("请输入分类代码");
-        }
+                                         @RequestParam("sort") Integer sort
+                                         ) {
+//        if (code == null || name == null) {
+//            return ResponseResult.failResult("参数错误");
+//        }
+//        if (!StringUtils.hasText(code)){
+//            return ResponseResult.failResult("请输入分类代码");
+//        }
         if (!StringUtils.hasText(name)){
             return ResponseResult.failResult("请输入分类名称");
         }
         // 创建Category对象，使用传入的代码和名称进行初始化
         Category category = new Category();
+        category.setName(name);
+        category.setParentId(parent);
+        category.setLevel(level);
+        category.setSort(sort);
         // 调用服务层方法尝试插入分类信息，根据插入结果返回相应响应
-        if (categoryService.insertCategory(category)) {
+        Boolean flag = categoryService.insertCategory(category);
+        if (flag == null){
+            return ResponseResult.serverErrorResult("添加失败，父分类不存在");
+        }else if (flag){
             return ResponseResult.okResult();
-        } else {
+        }else {
             return ResponseResult.serverErrorResult("添加失败");
         }
     }

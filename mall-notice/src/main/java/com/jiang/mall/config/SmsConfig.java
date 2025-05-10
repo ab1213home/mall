@@ -48,7 +48,7 @@ public class SmsConfig {
     @PostConstruct
     private void init() throws Exception {
         // 确保配置注入后初始化路径和加载属性
-        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("phone");
+        CONFIG_FILE_PATH = generalConfig.getConfigFilePath("sms");
         loadProperties();
         if (isSendSmaEnabled()){
             logger.info("短信配置已启用");

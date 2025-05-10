@@ -167,6 +167,7 @@ public class ProductAdminController {
         if (productService.queryCode(product.getCode())) {
             return ResponseResult.failResult("产品编码已存在");
         }
+
         // 调用服务层方法插入产品信息
         if (productService.insertProduct(product)) {
             return ResponseResult.okResult();

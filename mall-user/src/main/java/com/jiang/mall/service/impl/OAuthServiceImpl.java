@@ -249,6 +249,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 		for (UserOauth userOauth : userOauths) {
 			OAuthVo oAuthVo = new OAuthVo();
 			oAuthVo.setId(userOauth.getId());
+			oAuthVo.setCreatedAt(userOauth.getCreatedAt());
 			oAuthVo.setProviderType(new EnumVo(userOauth.getProviderType(), OAuthProvider.fromKey(userOauth.getProviderType()).getName()));
 			JSONObject jsonObject = JSON.parseObject(userOauth.getAnnotations());
 			if (Objects.equals(userOauth.getProviderType(), OAuthProvider.GITHUB.getKey())){
