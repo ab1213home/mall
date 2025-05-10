@@ -55,14 +55,13 @@ public class PasswordController {
      *
      * @param oldPassword 旧密码
      * @param newPassword 新密码
-     * @param session HTTP会话，用于判断用户是否登录及存储用户信息
+     * @param request HTTP会话，用于判断用户是否登录及存储用户信息
      * @return ResponseResult 修改密码结果的响应对象
      */
     @PostMapping("/password")
     @Permission(PermissionType.USER)
     public ResponseResult<Object> modifyPassword(@RequestParam("oldPassword") String oldPassword,
                                                  @RequestParam("newPassword") String newPassword,
-//                                                 @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                                 @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
 											    HttpServletRequest request
                                                 ) {

@@ -156,7 +156,6 @@ public class ForgotController {
     @Permission(PermissionType.GUEST)
     public ResponseResult<Object> forgotStep2(@RequestParam("code") String code,
                                               @RequestParam("password") String password,
-//                                              @RequestHeader(value = "X-Real-IP", required = false) String clientIp,
                                               @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
                                               HttpServletRequest request
                                               ) {

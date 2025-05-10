@@ -17,6 +17,7 @@ import cn.hutool.core.lang.UUID;
 import com.jiang.mall.annotation.OAuth;
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.config.UserConfig;
 import com.jiang.mall.domain.ResponseResult;
 import com.jiang.mall.domain.dto.OAuthResultDto;
 import com.jiang.mall.domain.enums.OAuthAction;
@@ -30,6 +31,7 @@ import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IOAuthService;
 import com.jiang.mall.service.IUserService;
 import com.jiang.mall.util.NetworkUtils;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -85,6 +87,13 @@ public class OAuthController {
 	@Autowired
 	public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
 		this.generalInterceptor = generalInterceptor;
+	}
+
+	private UserConfig userConfig;
+
+	@Autowired
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 
 	@GetMapping("/getPaymentList")
@@ -179,8 +188,8 @@ public class OAuthController {
 	                                              @RequestParam("captcha") String captcha,
 												  @PathVariable("provider") String provider,
 	                                              @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-	                                              HttpSession session,
-                                                  HttpServletRequest request
+                                                  HttpServletRequest request,
+                                                  HttpServletResponse response
 	                                              ){
 		//判断是不是对公网域名的请求
 		if (!i18nService.checkString(username,255)){
@@ -202,7 +211,7 @@ public class OAuthController {
 		if (!i18nService.checkString(fingerprint)){
 			return ResponseResult.failResult(i18nService.getMessage("user.error.fingerprint"));
 		}
-		Boolean flag = captchaService.validateCaptcha(session.getId(), captcha);
+		Boolean flag = captchaService.validateCaptcha(request.getSession().getId(), captcha);
 		if (flag==null){
 			// 检查验证码是否过期
 			return ResponseResult.failResult(i18nService.getMessage("user.error.captcha.expired"));
@@ -220,13 +229,21 @@ public class OAuthController {
         }
 		String token = UUID.fastUUID().toString();
 		//TODO:需要判断是否存在绑定，1对1检查
-		flag = oAuthService.authLoginToBind(oAuthProvider, username, password, clientIp, fingerprint, token, session.getId());
+		flag = oAuthService.authLoginToBind(oAuthProvider, username, password, clientIp, fingerprint, token, request.getSession().getId());
 		if (flag == null) {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.error"));
         } else if (!flag){
             // 登录失败，返回相应错误信息
             return ResponseResult.okResult("false","需要双因素认证(2FA)");
         }else {
+			Cookie cookie = new Cookie("token", token);
+			cookie.setPath("/");                  // 设置Cookie作用路径
+			cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+			cookie.setHttpOnly(true);             // 防止XSS攻击
+			if (request.isSecure()) {
+				cookie.setSecure(true);
+			}
+			response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
         }
 	}
@@ -234,13 +251,12 @@ public class OAuthController {
 	@PostMapping("/loginToBind/{provider}/twoVerify")
 	@OAuth(type=PermissionType.GUEST,returnType = ReturnType.JSON)
 	public ResponseResult<Object> authLoginToBindTwoVerify(@RequestParam("code") int code,
-												@PathVariable("provider") String provider,
-	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-	                                            HttpSession session,
-                                                           HttpServletRequest request
-												){
+	                                                       @PathVariable("provider") String provider,
+	                                                       @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
+                                                           HttpServletRequest request,
+                                                           HttpServletResponse response
+															){
 		//判断是不是对公网域名的请求
-		// 验证客户端IP是否有效
 //		String host = request.getHeader("Host");
 		String clientIp = NetworkUtils.getIpAddr(request);
 		//如果host不是有效的公网域名或者clientIp不是公网IP，则返回错误提示。
@@ -256,9 +272,17 @@ public class OAuthController {
 		}
 		String token = UUID.fastUUID().toString();
 		//TODO:需要判断是否存在绑定，1对1检查
-		boolean flag = oAuthService.authLoginToBind(oAuthProvider, code, clientIp, fingerprint, token, session.getId());
+		boolean flag = oAuthService.authLoginToBind(oAuthProvider, code, clientIp, fingerprint, token, request.getSession().getId());
 	    // 根据登录结果返回相应信息
 	    if (flag){
+			Cookie cookie = new Cookie("token", token);
+			cookie.setPath("/");                  // 设置Cookie作用路径
+		    cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+		    cookie.setHttpOnly(true);             // 防止XSS攻击
+		    if (request.isSecure()) {
+				cookie.setSecure(true);
+			}
+			response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 	    }else {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));
@@ -270,8 +294,8 @@ public class OAuthController {
 	public ResponseResult<Object> authLoginTwoVerify(@RequestParam("code") int code,
 												@PathVariable("provider") String provider,
 	                                            @RequestHeader("X-Real-FINGERPRINT") String fingerprint,
-	                                            HttpSession session,
-                                                     HttpServletRequest request
+	                                                 HttpServletRequest request,
+                                                     HttpServletResponse response
 												){
 		// 验证客户端IP是否有效
 //		String host = request.getHeader("Host");
@@ -288,9 +312,17 @@ public class OAuthController {
 			return ResponseResult.failResult("不支持的OAuth2供应商");
 		}
 		String token = UUID.fastUUID().toString();
-		boolean flag = oAuthService.authLogin(oAuthProvider, code, clientIp, fingerprint, token, session.getId());
+		boolean flag = oAuthService.authLogin(oAuthProvider, code, clientIp, fingerprint, token, request.getSession().getId());
 	    // 根据登录结果返回相应信息
 	    if (flag){
+			Cookie cookie = new Cookie("token", token);
+			cookie.setPath("/");                  // 设置Cookie作用路径
+		    cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+		    cookie.setHttpOnly(true);             // 防止XSS攻击
+		    if (request.isSecure()) {
+				cookie.setSecure(true);
+			}
+			response.addCookie(cookie);
 	        return ResponseResult.okResult(token,i18nService.getMessage("user.login.success"));
 	    }else {
 	        return ResponseResult.failResult(i18nService.getMessage("user.login.twoverify.error"));
@@ -313,7 +345,7 @@ public class OAuthController {
 	}
 
     @GetMapping("/callback/{provider}")
-    @OAuth(type=PermissionType.GUEST,returnType = ReturnType.HTML)
+    @OAuth(type=PermissionType.NONE,returnType = ReturnType.HTML)
     public void callback(@RequestParam("code") String code,
                          @RequestParam("state") String state,
                          HttpServletRequest request,
@@ -376,6 +408,14 @@ public class OAuthController {
 				}
 	            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
 			} else if (result.getResult()==OAuthResultDto.OAuthResult.SUCCESS){
+				Cookie cookie = new Cookie("token", token);
+		        cookie.setPath("/");                  // 设置Cookie作用路径
+		        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+		        cookie.setHttpOnly(true);             // 防止XSS攻击
+		        if (request.isSecure()) {
+		            cookie.setSecure(true);
+		        }
+		        response.addCookie(cookie);
 	            generalInterceptor.redirectInBrowser(response,result.getUrl() == null ? "/index.html" : result.getUrl() , new HashMap<>());
 			}
 		}else if (action.equals("bind")){

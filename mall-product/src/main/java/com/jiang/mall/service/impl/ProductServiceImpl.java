@@ -13,6 +13,16 @@
 
 package com.jiang.mall.service.impl;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.DeleteRequest;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -30,6 +40,7 @@ import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.event.ProductChangedEvent;
 import com.jiang.mall.service.ICategoryService;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IProductRedisService;
 import com.jiang.mall.service.IProductService;
 import com.jiang.mall.util.BeanCopyUtil;
@@ -38,16 +49,12 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -97,11 +104,18 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.productSnapshotMapper = productSnapshotMapper;
 	}
 
-    private ElasticsearchOperations elasticsearchOperations;
+    private ElasticsearchClient esClient;
 
 	@Autowired
-	public void setElasticsearchOperations(ElasticsearchOperations elasticsearchOperations) {
-		this.elasticsearchOperations = elasticsearchOperations;
+	public void setElasticsearchOperations(ElasticsearchClient esClient) {
+		this.esClient = esClient;
+	}
+
+	private II18nService ii18nService;
+
+	@Autowired
+	public void setIi18nService(II18nService ii18nService) {
+		this.ii18nService = ii18nService;
 	}
 
     /**
@@ -116,15 +130,110 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     @Transactional
     public List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
-        // 创建分页对象，指定页码和页面大小
-        Page<Product> productPage = new Page<>(pageNum, pageSize);
+		// 参数校验
+	    if (pageNum == null || pageNum < 1) pageNum = 1;
+	    if (pageSize == null || pageSize < 1) pageSize = 10;
+		try {
+			// 获取分类及其子分类的 ID 列表
+			List<Long> categoryIds = new ArrayList<>();
+			if (categoryId != null) {
+				categoryIds = categoryService.getCategoryIds(categoryId);
+			}
 
-        // 获取指定类别及其所有子类别的ID列表
-        List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
+			// 构建布尔查询
+			BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
+			if (name != null && !name.trim().isEmpty()) {
+				boolQueryBuilder.must(
+						query -> query.match(m -> m
+								.field("name")
+								.query(name)
+						)
+				);
+			}
+			if (!categoryIds.isEmpty()) {
+			     List<FieldValue> fieldValue = categoryIds.stream()
+			            .map(FieldValue::of)
+			            .toList();
+				 boolQueryBuilder.filter(
+			            query -> query.terms(t -> t
+			                .field("categoryId")
+			                .terms(ts -> ts.value(fieldValue))
+			            )
+			     );
+			}
+
+
+			// 构建分页参数
+			int from = (pageNum - 1) * pageSize;
+
+			// 构造搜索请求
+			int finalPageSize = pageSize;
+			SearchRequest request = SearchRequest.of(b -> b
+					.index("products")
+					.query(boolQueryBuilder.build()._toQuery())
+					.from(from)
+					.size(finalPageSize)
+					.trackTotalHits(t -> t.enabled(true))
+					.sort(s -> s
+						.field(f -> f
+						    .field("id.keyword")
+						    .order(SortOrder.Asc)
+						)
+					)
+			);
+
+			// 执行搜索
+			SearchResponse<EsProduct> response = esClient.search(request, EsProduct.class);
+
+			// 提取结果
+			List<EsProduct> hits = response.hits().hits().stream()
+					.map(Hit::source)
+					.toList();
+
+			if (hits.isEmpty()) {
+				return Collections.emptyList();
+			}
+
+			// 提取商品 ID 列表
+			List<Long> productIds = hits.stream()
+					.map(EsProduct::getId)
+					.toList();
+
+			List<ProductVo> productVos = new ArrayList<>();
+
+	        // 将产品实体列表转换为产品VO列表
+	        for (Long id : productIds) {
+				ProductVo product = getProduct(id);
+	            productVos.add(product);
+	        }
+
+	        // 返回产品VO列表
+	        return productVos;
+		}catch (Exception e) {
+			logger.error("Elasticsearch 查询商品列表失败: {}", e.getMessage(), e);
+            // 可选：降级到数据库查询
+            return fallbackGetProductList(name, categoryId, pageNum, pageSize);
+		}
+    }
+
+	@Transactional
+	protected List<ProductVo> fallbackGetProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
+		// 创建分页对象，指定页码和页面大小
+        Page<Product> productPage = new Page<>(pageNum, pageSize);
 
         // 创建查询构造器，用于模糊查询产品名称和精确查询类别ID
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(name != null, Product::getTitle, name).in(categoryId != null, Product::getCategoryId, categoryIds);
+		if (name != null && !name.trim().isEmpty()) {
+	        queryWrapper.like(Product::getTitle, name);
+	    }
+		if (categoryId != null) {
+			// 获取指定类别及其所有子类别的ID列表
+	        List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
+	        if (!categoryIds.isEmpty()) {
+	            queryWrapper.in(Product::getCategoryId, categoryIds);
+	        }
+	    }
+		queryWrapper.select(Product::getId);
 
         // 执行分页查询，获取产品列表
         List<Product> products = productMapper.selectPage(productPage, queryWrapper).getRecords();
@@ -134,19 +243,15 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 将产品实体列表转换为产品VO列表
         for (Product product : products) {
             // 遍历产品VO列表，设置每个产品的类别名称
-            ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
-			assert productVo != null;
-            // 根据类别ID查询类别名称，并设置到产品VO中
-            CategoryVo category = categoryService.getCategory(product.getCategoryId());
-	        productVo.setCategory(category);
+            ProductVo productVo = getProduct(product.getId());
             productVos.add(productVo);
         }
 
         // 返回产品VO列表
         return productVos;
-    }
+	}
 
-    /**
+	/**
      * 根据ID获取产品信息
      * <p>
      * 此方法通过调用数据库查询接口，获取特定产品的详细信息，并返回一个ProductVo对象
@@ -305,13 +410,41 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    Product product = baseMapper.selectById(productId);
 	    if (product != null) {
 	        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
-		    assert esProduct != null;
-		    elasticsearchOperations.save(esProduct);
+//		    assert esProduct != null;
+		     try {
+		        if (esProduct == null) {
+		            logger.error("商品转换失败，无法生成ES实体: {}", productId);
+		            return;
+		        }
+
+		        // 构建 Index 请求
+		        IndexRequest<EsProduct> request = IndexRequest.of(b -> b
+		            .index("products")         // 索引名称
+		            .id(productId.toString())   // 使用商品ID作为文档ID
+		            .document(esProduct)        // 设置文档内容
+		        );
+
+		        // 执行请求
+		        esClient.index(request);
+
+		        logger.info("商品已同步至Elasticsearch: {}", productId);
+		    } catch (Exception e) {
+		        logger.error("同步商品到Elasticsearch失败，商品ID: {}", productId, e);
+		    }
 	    }
 	}
 
 	private void deleteProductFromEs(@NotNull Long productId) {
-	    elasticsearchOperations.delete(productId.toString(), EsProduct.class);
+	    try {
+	        DeleteRequest request = DeleteRequest.of(b -> b
+	            .index("products")
+	            .id(productId.toString())
+	        );
+	        esClient.delete(request);
+	        logger.info("商品已从Elasticsearch中删除: {}", productId);
+	    } catch (Exception e) {
+	        logger.error("删除商品在Elasticsearch中失败，商品ID: {}", productId, e);
+	    }
 	}
 
 	private void refreshCache(Long productId) {
@@ -389,6 +522,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    }
 	}
 
+	@Deprecated
 	private @NotNull String getHash(@NotNull ProductVo product) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", product.getId());

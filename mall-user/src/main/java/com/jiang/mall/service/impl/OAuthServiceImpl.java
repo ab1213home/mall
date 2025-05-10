@@ -421,7 +421,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
 
 	@Transactional
 	protected OAuthResultDto callbackGitee(String code, String token, String sessionId, OAuthAction action, OAuthCache cache, String clientIp) {
-		 // 获取Access Token
+		// 获取Access Token
         GiteeTokenResponse tokenResponse = webClient
 		    .post()
             .uri(OAuthProvider.GITEE.getToken())
@@ -431,7 +431,7 @@ public class OAuthServiceImpl extends ServiceImpl<UserOauthMapper, UserOauth>  i
                 .with("client_id", oAuthConfig.getGiteeClientId())
 		        .with("client_secret", oAuthConfig.getGiteeClientSecret())
                 .with("code", code)
-                .with("redirect_uri", generalConfig.getDomain() + OAuthProvider.GITHUB.getCallback()))
+                .with("redirect_uri", generalConfig.getDomain() + OAuthProvider.GITEE.getCallback()))
             .retrieve()
             .bodyToMono(GiteeTokenResponse.class)
             .block();

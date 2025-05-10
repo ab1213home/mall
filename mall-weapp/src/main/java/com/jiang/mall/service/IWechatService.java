@@ -91,4 +91,6 @@ public interface IWechatService {
 	void setCheckoutList(List<CheckoutReceiverVo> listCheckoutVo, String token);
 
 	List<CheckoutVo> getCheckoutList(String token);
+
+	void logout(String token);
 }

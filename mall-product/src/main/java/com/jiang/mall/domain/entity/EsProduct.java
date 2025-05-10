@@ -13,52 +13,55 @@
 
 package com.jiang.mall.domain.entity;
 
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
 
+/**
+ * Elasticsearch 商品实体类（用于 ES 8.x 新版客户端）
+ */
 @Data
-@Document(indexName = "products")
+@JsonInclude(JsonInclude.Include.NON_NULL) // 可选：避免序列化 null 字段
 public class EsProduct {
 
-    @Id
+    @JsonProperty("id")
     private Long id;
 
-    /**
-     * 商品编码，不可重复
-     */
-    @Field(name = "code", type = FieldType.Keyword)
+    @JsonProperty("code")
     private String code;
 
-    /**
-     * 商品标题
-     */
-    @Field(type = FieldType.Text)
+    @JsonProperty("title")
     private String title;
 
-    /**
-     * 商品分类ID
-     */
-    @Field(name = "category_id", type = FieldType.Long)
+    @JsonProperty("category_id")
     private Long categoryId;
 
-    /**
-     * 商品描述
-     */
-    @Field(type = FieldType.Text)
+    @JsonProperty("description")
     private String description;
 
-	@Field(type = FieldType.Double)
+    @JsonProperty("price")
     private BigDecimal price;
 
-    @Field(type = FieldType.Integer)
+    @JsonProperty("stock")
     private Integer stock;
 
-	public EsProduct() {
+    public EsProduct() {
+    }
 
-	}
+    /**
+     * 构建用于保存到 Elasticsearch 的 IndexRequest
+     *
+     * @param indexName Elasticsearch 索引名称（如 "products"）
+     * @return 返回一个配置好的 IndexRequest<EsProduct> 对象
+     */
+    public IndexRequest<EsProduct> toIndexRequest(String indexName) {
+        return IndexRequest.of(b -> b
+            .index(indexName)
+            .id(id.toString()) // 文档 ID 必须是字符串
+            .document(this)
+        );
+    }
 }

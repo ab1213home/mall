@@ -15,6 +15,7 @@ package com.jiang.mall.intercepter;
 
 import com.jiang.mall.annotation.OAuth;
 import com.jiang.mall.config.GeneralConfig;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.ReturnType;
 import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,13 @@ public class OAuthInterceptor implements HandlerInterceptor {
 		this.generalInterceptor = generalInterceptor;
 	}
 
+	private PermissionInterceptor permissionInterceptor;
+
+	@Autowired
+	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+		this.permissionInterceptor = permissionInterceptor;
+	}
+
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         // 仅处理HandlerMethod类型的处理器
@@ -70,9 +78,16 @@ public class OAuthInterceptor implements HandlerInterceptor {
 					if (oauth.returnType()== ReturnType.AUTO){
 						generalInterceptor.redirectInApi(response,"请使用公网域名访问",HttpServletResponse.SC_FORBIDDEN );
 					}else if (oauth.returnType()== ReturnType.HTML){
-						Map<String,String> map = new HashMap<>();
-			            map.put("message","请使用公网域名访问");
-			            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
+						UserCache userCache = permissionInterceptor.checkAndRefreshUserLogin(request,response);
+						if (permissionInterceptor.checkLogin(userCache)){
+							Map<String,String> map = new HashMap<>();
+				            map.put("message","请使用公网域名访问");
+				            generalInterceptor.redirectInBrowser(response,"/user/security/account.html", map);
+						}else {
+							Map<String,String> map = new HashMap<>();
+				            map.put("message","请使用公网域名访问");
+				            generalInterceptor.redirectInBrowser(response,"/user/login.html", map);
+						}
 					}else {
 						generalInterceptor.redirectInApi(response,"请使用公网域名访问", HttpServletResponse.SC_FORBIDDEN );
 					}

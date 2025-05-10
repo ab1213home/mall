@@ -470,5 +470,10 @@ public class WechatServiceImpl implements IWechatService {
 		return orderService.getCheckoutList(user.getId());
 	}
 
+	@Override
+	public void logout(String token) {
+		redisService.deleteUser(token);
+	}
+
 
 }

@@ -96,4 +96,12 @@ public class WechatController {
 	    // 返回Token检查结果，封装在ResponseResult对象中
 	    return ResponseResult.okResult(res);
 	}
+
+
+	@GetMapping("/logout")
+	@Wechat(PermissionType.USER)
+	public ResponseResult<Object> logout(@RequestHeader("Token")String token) {
+		wechatService.logout(token);
+		return ResponseResult.okResult();
+	}
 }
