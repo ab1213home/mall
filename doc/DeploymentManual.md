@@ -27,6 +27,8 @@
 
 - Redis 6.2.16（项目需要Redis至少有**8**个库，项目只对Redis 6.2.16有进行测试，**其他版本未进行测试，不保证兼容性**）
 
+- Elasticsearch 8.15.0（**需要ik中文分词插件**）
+
 ### 安装基础工具（若无）
 
 以下命令适用于 **Debian/Ubuntu** 系统。  
@@ -46,14 +48,14 @@
    sudo apt-get install maven
    ```
 4. 安装Redis
-   ```shell
-   sudo apt-get install -y redis-server
-   ```
+
+   略
 5. 安装MySQL
-   ```shell
-   sudo apt-get install mysql-server
-   ```
-   
+
+   略
+6. 安装Elasticsearch
+
+   略
 ## 克隆项目
 1. 下载源码
     ```shell

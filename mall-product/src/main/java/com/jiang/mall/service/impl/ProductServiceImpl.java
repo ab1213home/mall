@@ -14,13 +14,11 @@
 package com.jiang.mall.service.impl;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.fastjson2.JSON;
@@ -54,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -143,12 +142,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
 
 			// 构建布尔查询
-			BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
-			if (name != null && !name.trim().isEmpty()) {
-				boolQueryBuilder.must(
+			BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
+			if (StringUtils.hasText(name)) {
+				boolBuilder.must(
 						query -> query.match(m -> m
 								.field("title")
 								.query(name)
+								.fuzziness("1")
+								.analyzer("ik_max_word") // 指定中文分词器
 						)
 				);
 			}
@@ -156,7 +157,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			     List<FieldValue> fieldValue = categoryIds.stream()
 			            .map(FieldValue::of)
 			            .toList();
-				 boolQueryBuilder.filter(
+				 boolBuilder.filter(
 			            query -> query.terms(t -> t
 			                .field("category_id")
 			                .terms(ts -> ts.value(fieldValue))
@@ -164,28 +165,37 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			     );
 			}
 
-
-			// 构建分页参数
-			int from = (pageNum - 1) * pageSize;
-
 			// 构造搜索请求
 			int finalPageSize = pageSize;
-			SearchRequest request = SearchRequest.of(b -> b
-					.index("products")
-					.query(boolQueryBuilder.build()._toQuery())
-					.from(from)
-					.size(finalPageSize)
-					.trackTotalHits(t -> t.enabled(true))
-					.sort(s -> s
-						.field(f -> f
-						    .field("id.keyword")
-						    .order(SortOrder.Asc)
-						)
-					)
-			);
+			// 构建分页参数（防止负数）
+			int from = (pageNum - 1) * pageSize;
+			from = Math.max(from, 0);
 
-			// 执行搜索
-			SearchResponse<EsProduct> response = esClient.search(request, EsProduct.class);
+			// 执行查询
+			int finalFrom = from;
+			SearchResponse<EsProduct> response = esClient.search(s -> s
+			    .index("products")
+			    .query(q -> q.bool(boolBuilder.build()))
+			    .from(finalFrom)
+			    .size(finalPageSize),
+			    EsProduct.class
+			);
+//			SearchRequest request = SearchRequest.of(b -> b
+//					.index("products")
+//					.query(boolBuilder.build()._toQuery())
+//					.from(from)
+//					.size(finalPageSize)
+//					.trackTotalHits(t -> t.enabled(true))
+//					.sort(s -> s
+//						.field(f -> f
+//						    .field("id.keyword")
+//						    .order(SortOrder.Asc)
+//						)
+//					)
+//			);
+//
+//			// 执行搜索
+//			SearchResponse<EsProduct> response = esClient.search(request, EsProduct.class);
 
 			// 提取结果
 			List<EsProduct> hits = response.hits().hits().stream()
@@ -386,24 +396,27 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
 	@Override
 	public void checkProduct() {
-//		try {
-//			esClient.indices().delete(d -> d.index("products"));
-//		} catch (IOException e) {
-//			logger.error("删除索引失败: {}", e.getMessage());
-//		}
-//		try {
-//			// 创建新索引并指定映射
-//			esClient.indices().create(c -> c
-//			    .index("products")
-//			    .mappings(m -> m
-//			        .properties("title", p -> p.text(t -> t.analyzer("ik_max_word")))
-//			        .properties("category_id", p -> p.long_(l -> l))
-//			        .properties("price", p -> p.double_(d -> d))
-//			    )
-//			);
-//		} catch (IOException e) {
-//			logger.error("创建索引失败: {}", e.getMessage());
-//		}
+		try {
+			esClient.indices().delete(d -> d.index("products"));
+		} catch (IOException e) {
+			logger.error("删除索引失败: {}", e.getMessage());
+		}
+		try {
+			// 创建新索引并指定映射
+			esClient.indices().create(c -> c
+			    .index("products")
+			    .mappings(m -> m
+			         .properties("id", p -> p.long_(l -> l))
+			         .properties("title", p -> p.text(t -> t.analyzer("ik_max_word")))
+			         .properties("category_id", p -> p.long_(l -> l))
+			         .properties("price", p -> p.double_(d -> d))
+					 .properties("description", p -> p.text(t -> t.analyzer("ik_max_word")))
+					 .properties("code", p -> p.text(t -> t))
+			    )
+			);
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("创建索引失败: {}", e.getMessage());
+		}
 		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("status", 1);
 		List<Product> products = productMapper.selectList(queryWrapper);
