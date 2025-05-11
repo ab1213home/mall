@@ -315,17 +315,6 @@
                 <artifactId>elasticsearch-rest-client</artifactId>
                 <version>${elasticsearch.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>7.17.28</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>transport</artifactId>
-                <version>7.17.28</version>
-            </dependency>
-
 
             <!-- 高性能的JSON库 -->
             <dependency>
@@ -620,12 +609,6 @@
 
             <dependency>
                 <groupId>com.jiang</groupId>
-                <artifactId>mall-product</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jiang</groupId>
                 <artifactId>mall-notice</artifactId>
                 <version>${mall.version}</version>
             </dependency>
@@ -662,7 +645,6 @@
         <module>mall-address</module>
         <module>mall-monitor</module>
 		<module>mall-pay</module>
-        <module>mall-product</module>
         <module>mall-weapp</module>
 <!--		<module>mall-order</module>-->
 <!--		<module>mall-finance</module>-->

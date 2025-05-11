@@ -13,7 +13,8 @@
 
 package com.jiang.mall.config;
 
-import com.jiang.mall.intercepter.*;
+import com.jiang.mall.intercepter.CheckoutInterceptor;
+import com.jiang.mall.intercepter.SnapshotInterceptor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class MyMvcConfig implements WebMvcConfigurer {
+public class CoreMvcConfig implements WebMvcConfigurer {
 
 
     private CheckoutInterceptor checkoutInterceptor;
@@ -29,6 +30,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
     @Autowired
     public void setCheckoutInterceptor(CheckoutInterceptor checkoutInterceptor) {
         this.checkoutInterceptor = checkoutInterceptor;
+    }
+
+    private SnapshotInterceptor snapshotInterceptor;
+
+    @Autowired
+    public void setSnapshotInterceptor(SnapshotInterceptor snapshotInterceptor) {
+        this.snapshotInterceptor = snapshotInterceptor;
     }
 
     /**
@@ -41,5 +49,8 @@ public class MyMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(checkoutInterceptor)
                 .addPathPatterns("/checkout.html")
                 .addPathPatterns("/checkout.html?*");
+        registry.addInterceptor(snapshotInterceptor)
+                .addPathPatterns("/snapshot.html")
+                .addPathPatterns("/snapshot.html?*");
     }
 }

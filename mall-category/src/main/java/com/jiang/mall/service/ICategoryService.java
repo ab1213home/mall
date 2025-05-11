@@ -17,7 +17,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.jiang.mall.domain.entity.Category;
 import com.jiang.mall.domain.vo.CategoryVo;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -53,6 +52,5 @@ public interface ICategoryService extends IService<Category> {
 
 	CategoryVo getCategory(Long id);
 
-	@Transactional
 	boolean hasCategory(Long id);
 }

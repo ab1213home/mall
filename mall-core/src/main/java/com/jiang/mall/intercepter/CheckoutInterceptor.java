@@ -14,14 +14,17 @@
 package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.domain.enums.ReturnType;
 import com.jiang.mall.service.IOrderRedisService;
-import com.jiang.mall.service.IUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class CheckoutInterceptor implements HandlerInterceptor {
@@ -33,11 +36,18 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 		this.redisService = redisService;
 	}
 
-	private IUserService userService;
+	private GeneralInterceptor generalInterceptor;
 
 	@Autowired
-	public void setUserService(IUserService userService) {
-		this.userService = userService;
+	public void setGeneralInterceptor(GeneralInterceptor generalInterceptor) {
+		this.generalInterceptor = generalInterceptor;
+	}
+
+	private UserHtmlInterceptor userHtmlInterceptor;
+
+	@Autowired
+	public void setUserHtmlInterceptor(UserHtmlInterceptor userHtmlInterceptor) {
+		this.userHtmlInterceptor = userHtmlInterceptor;
 	}
 
 	/**
@@ -53,12 +63,21 @@ public class CheckoutInterceptor implements HandlerInterceptor {
 	 */
 	@Override
 	public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object o) throws Exception {
-		UserCache userCache = userService.getUserFromRedis(request.getSession().getId());
+		UserCache userCache = userHtmlInterceptor.checkAndRefreshUserLogin(request);
+		if (!userHtmlInterceptor.checkLogin(userCache)) {
+			generalInterceptor.redirectToLogin(ReturnType.HTML, request, response);
+			return false;
+		}
+		assert userCache != null;
 		if (!redisService.hasCheckoutList(userCache.getId())) {
-	        response.sendRedirect(request.getContextPath() + "/cart.html");
+			Map<String, String> map = new HashMap<>();
+			map.put("message", "请先选择商品");
+			generalInterceptor.redirectInBrowser(response, "/cart.html", map);
 	        return false;
 	    }else if(redisService.getCheckoutList(userCache.getId()).isEmpty()){
-	    	response.sendRedirect(request.getContextPath() + "/cart.html");
+	    	Map<String, String> map = new HashMap<>();
+			map.put("message", "请先选择商品");
+			generalInterceptor.redirectInBrowser(response, "/cart.html", map);
 	        return false;
 	    }
 	    // 如果所有检查都通过，则继续后续处理

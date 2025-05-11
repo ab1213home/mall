@@ -40,6 +40,6 @@ public class WechatMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        registry.addInterceptor(wechatInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(wechatInterceptor).addPathPatterns("/wechat/**");
     }
 }

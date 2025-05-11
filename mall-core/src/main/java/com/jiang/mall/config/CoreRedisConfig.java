@@ -57,6 +57,18 @@ public class CoreRedisConfig {
 	@Value("${redis.database.search:9}")
 	private int search;
 
+	/**
+	 * 商品信息
+	 * <p>
+	 * - 缓存内容：商品详情、库存、价格等。
+	 * <p>
+	 * - 缓存理由：商品信息是高频读取的数据，缓存可以减轻数据库压力。
+	 * <p>
+	 * - 缓存策略：当商品信息更新时，主动更新缓存。
+	 */
+	@Value("${redis.database.product:0}")
+	private int product;
+
 	private GeneralRedisConfig generalRedisConfig;
 
 	@Autowired
@@ -68,6 +80,12 @@ public class CoreRedisConfig {
     public LettuceConnectionFactory cartConnectionFactory() {
         return generalRedisConfig.redisConnectionFactory(cart);
     }
+
+	@Bean
+    public LettuceConnectionFactory productConnectionFactory() {
+        return generalRedisConfig.redisConnectionFactory(product);
+    }
+
 
 	@Bean
     public LettuceConnectionFactory orderConnectionFactory() {
@@ -106,6 +124,13 @@ public class CoreRedisConfig {
 	public StringRedisTemplate SearchRedisTemplate() {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(searchConnectionFactory());
+        return template;
+    }
+
+	@Bean(name = "ProductRedisTemplate")
+    public StringRedisTemplate ProductRedisTemplate() {
+        StringRedisTemplate template = new StringRedisTemplate();
+        template.setConnectionFactory(productConnectionFactory());
         return template;
     }
 

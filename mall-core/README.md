@@ -1,7 +1,7 @@
-# Jiang Mall Product Module
+# Jiang Mall Core Module
 
 ## 介绍
-商品模块
+核心模块
 
 ## 开发工具
 IntelliJ IDEA 2024.2.3 (Ultimate Edition)

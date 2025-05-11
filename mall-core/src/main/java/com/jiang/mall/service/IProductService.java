@@ -18,6 +18,7 @@ import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -30,7 +31,9 @@ import java.util.List;
  */
 public interface IProductService extends IService<Product> {
 
-    List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize);
+	boolean hasProduct(Long id);
+
+//	boolean hasSnapshot(Long id, Long userId);
 
     ProductVo getProduct(Long id);
 
@@ -50,8 +53,11 @@ public interface IProductService extends IService<Product> {
 
 	void checkProduct();
 
+	ProductSnapshotVo getSnapshot(Long id, String sessionId);
+
 	ProductSnapshotVo getSnapshot(Long id);
 
 	Long getSnapshotId(ProductVo product);
 
+	List<ProductVo> getProductList(String name, Long categoryId, List<Integer> status, BigDecimal minPrice, BigDecimal maxPrice, String detail, String code, Integer pageNum, Integer pageSize);
 }

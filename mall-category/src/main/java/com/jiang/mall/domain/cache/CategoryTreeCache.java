@@ -34,6 +34,7 @@ public class CategoryTreeCache {
 	/**
 	 * 分类级别
 	 */
+	@Deprecated
 	private Integer level;
 	/**
 	 * 排序

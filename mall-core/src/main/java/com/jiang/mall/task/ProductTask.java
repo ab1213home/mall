@@ -13,7 +13,7 @@
 
 package com.jiang.mall.task;
 
-import com.jiang.mall.config.ProductConfig;
+import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.service.IProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +41,11 @@ public class ProductTask {
 		this.productService = productService;
 	}
 
-	private ProductConfig productConfig;
+	private CoreConfig coreConfig;
 
 	@Autowired
-	public void setCoreConfig(ProductConfig productConfig) {
-		this.productConfig = productConfig;
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ProductTask.class);
@@ -54,12 +54,12 @@ public class ProductTask {
 
 	@Scheduled(fixedRate = 1000, initialDelay = 0)
     public void checkProductTask() {
-		if (productConfig.isProductCacheEnabled()){
+		if (coreConfig.isProductCacheEnabled()){
 			timer = timer + 1;
 			if (timer == 0){
 				logger.info("商品数据缓存预热");
 				productService.checkProduct();
-			}else if (timer>= productConfig.getProductSyncTime()){
+			}else if (timer>= coreConfig.getProductSyncTime()){
 				timer = 0;
 				productService.checkProduct();
 				logger.info("商品数据缓存同步");

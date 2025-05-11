@@ -408,6 +408,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		}
 	}
 
+	@Override
+	public boolean hasSnapshot(Long id, Long userId) {
+		//获取订单Id
+		QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
+		queryWrapper_orderList.eq("prod_id", id);
+		queryWrapper_orderList.select("order_id");
+		//按订单ID分组
+		queryWrapper_orderList.groupBy("order_id");
+		List<Long> orderIds = orderListMapper.selectObjs(queryWrapper_orderList);
+		if(orderIds.isEmpty()){
+			return false;
+		}
+//		List<Long> orderIds = orderLists.stream()
+//						.map(OrderList::getOrderId)
+//						.toList();
+		QueryWrapper<Order> queryWrapper_order = new QueryWrapper<>();
+		queryWrapper_order.in("id", orderIds);
+		queryWrapper_order.eq("user_id", userId);
+		return orderMapper.selectCount(queryWrapper_order)>0;
+	}
+
 	private @Nullable OrderVo getOrder(Long id) {
 		if (coreConfig.isOrderCacheEnabled() && redisService.hasOrder(id)){
 			OrderCache orderCache = redisService.getOrder(id);

@@ -102,11 +102,6 @@
 
         <dependency>
             <groupId>com.jiang</groupId>
-			<artifactId>mall-product</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jiang</groupId>
 			<artifactId>mall-notice</artifactId>
         </dependency>
 

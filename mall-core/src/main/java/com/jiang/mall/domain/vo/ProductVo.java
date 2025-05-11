@@ -13,9 +13,14 @@
 
 package com.jiang.mall.domain.vo;
 
+import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.util.SecureUtil;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 商品视图对象
@@ -71,5 +76,22 @@ public class ProductVo {
      * 商品描述
      */
     private String description;
+
+    public ProductVo(){
+
+    }
+
+    public @NotNull String getHash() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("id", this.id);
+		map.put("code", this.code);
+		map.put("title", this.title);
+		map.put("price", this.price);
+		map.put("img", this.img);
+		map.put("description", this.description);
+		map.put("category", JSON.toJSONString(this.category));
+		map.put("properties", this.properties);
+		return SecureUtil.sha256Hex(JSON.toJSONString(map));
+	}
 }
 

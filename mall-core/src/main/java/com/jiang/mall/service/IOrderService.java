@@ -61,4 +61,8 @@ public interface IOrderService extends IService<Order> {
 	List<CheckoutVo> getCheckoutList(Long userId);
 
 	Long newOrder(Long userId, Long addressId, List<CheckoutReceiverVo> listCheckoutVo);
+
+	boolean hasSnapshot(Long id, Long userId);
+
+//	boolean hasCategory(Long id);
 }

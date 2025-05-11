@@ -45,6 +45,10 @@ public class EsProduct {
     @JsonProperty("price")
     private BigDecimal price;
 
+    //状态
+    @JsonProperty("status")
+    private Integer status;
+
 //    @JsonProperty("stock")
 //    private Integer stock;
 

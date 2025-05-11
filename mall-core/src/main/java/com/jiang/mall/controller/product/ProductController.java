@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.product;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
@@ -19,6 +19,7 @@ import com.jiang.mall.domain.enums.PermissionType;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
 import com.jiang.mall.service.IProductService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -48,7 +50,7 @@ public class ProductController {
 
     @GetMapping("/snapshot/getInfo")
     @Permission(PermissionType.USER)
-    public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id) {
+    public ResponseResult<Object> getSnapshot(@RequestParam("id") Long id, HttpSession session) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
         }
@@ -56,7 +58,7 @@ public class ProductController {
             return ResponseResult.failResult("请输入商品ID");
         }
         // 根据产品ID获取产品信息
-        ProductSnapshotVo snapshot = productService.getSnapshot(id);
+        ProductSnapshotVo snapshot = productService.getSnapshot(id,session.getId());
 
         if (snapshot == null) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
@@ -82,10 +84,15 @@ public class ProductController {
     @GetMapping("/getList")
     @Permission(PermissionType.NONE)
     public ResponseResult<Object> getProductList(@RequestParam(value = "name", required = false) String name,
-                                         @RequestParam(value = "categoryId", required = false) Long categoryId,
-                                         @RequestParam(defaultValue = "1") Integer pageNum,
-                                         @RequestParam(defaultValue = "5") Integer pageSize) {
-        List<ProductVo> list = productService.getProductList(name, categoryId, pageNum, pageSize);
+                                                 @RequestParam(value = "categoryId", required = false) Long categoryId,
+                                                 @RequestParam(value = "minPrice", required = false)BigDecimal minPrice,
+                                                 @RequestParam(value = "maxPrice", required = false)BigDecimal maxPrice,
+                                                 @RequestParam(value = "detail", required = false)String detail,
+                                                 @RequestParam(value = "code", required = false)String code,
+                                                 @RequestParam(defaultValue = "1") Integer pageNum,
+                                                 @RequestParam(defaultValue = "5") Integer pageSize
+                                                 ) {
+        List<ProductVo> list = productService.getProductList(name, categoryId,List.of(1),minPrice, maxPrice, detail, code, pageNum, pageSize);
         if (list.isEmpty()) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
         }

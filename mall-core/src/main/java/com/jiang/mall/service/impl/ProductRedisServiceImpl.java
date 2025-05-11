@@ -14,8 +14,8 @@
 package com.jiang.mall.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.config.GeneralConfig;
-import com.jiang.mall.config.ProductConfig;
 import com.jiang.mall.domain.cache.ProductCache;
 import com.jiang.mall.domain.cache.ProductSnapshotCache;
 import com.jiang.mall.service.IProductRedisService;
@@ -44,12 +44,12 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 	public void setGeneralConfig(GeneralConfig generalConfig) {
 	    this.generalConfig = generalConfig;
 	}
-
-	private ProductConfig productConfig;
-
+	
+	private CoreConfig coreConfig;
+	
 	@Autowired
-	public void setCoreConfig(ProductConfig productConfig) {
-	    this.productConfig = productConfig;
+	public void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
 	}
 
 	String prefix = "product:";
@@ -63,7 +63,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void setProduct(@NotNull ProductCache product) {
-			stringRedisTemplate.opsForValue().set(prefix+product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.SECONDS);
+			stringRedisTemplate.opsForValue().set(prefix+product.getId(), JSON.toJSONString(product), coreConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void refreshProduct(Long id) {
-		stringRedisTemplate.expire(prefix+id, productConfig.getProductCacheTime(), TimeUnit.SECONDS);
+		stringRedisTemplate.expire(prefix+id, coreConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void setSnapshotCache(@NotNull ProductSnapshotCache product) {
-		stringRedisTemplate.opsForValue().set(snapshot_prefix +product.getId(), JSON.toJSONString(product), productConfig.getProductCacheTime(), TimeUnit.SECONDS);
+		stringRedisTemplate.opsForValue().set(snapshot_prefix +product.getId(), JSON.toJSONString(product), coreConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class ProductRedisServiceImpl implements IProductRedisService {
 
 	@Override
 	public void refreshSnapshot(Long id) {
-		stringRedisTemplate.expire(snapshot_prefix +id, productConfig.getProductCacheTime(), TimeUnit.SECONDS);
+		stringRedisTemplate.expire(snapshot_prefix +id, coreConfig.getProductCacheTime(), TimeUnit.SECONDS);
 	}
 
 	@Override

@@ -11,7 +11,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-package com.jiang.mall.controller;
+package com.jiang.mall.controller.product;
 
 import com.jiang.mall.annotation.Permission;
 import com.jiang.mall.domain.ResponseResult;
@@ -47,6 +47,7 @@ public class ProductAdminController {
     }
 
     @GetMapping("/getSnapshotInfo")
+    @Permission(type = PermissionType.ADMIN, permission = "product:list")
     public ResponseResult<Object> getSnapshotInfo(@RequestParam("id") Long id) {
         if (id == null|| id < 0) {
             return ResponseResult.failResult("参数错误");
@@ -80,12 +81,32 @@ public class ProductAdminController {
      * @return 返回包含产品列表的响应结果，具体结构由productService定义
      */
     @GetMapping("/getList")
-    @Permission(value = PermissionType.ADMIN, permission = "product:list")
+    @Permission(type = PermissionType.ADMIN, permission = "product:list")
     public ResponseResult<Object> getProductList(@RequestParam(required = false) String name,
-                                         @RequestParam(required = false) Long categoryId,
-                                         @RequestParam(defaultValue = "1") Integer pageNum,
-                                         @RequestParam(defaultValue = "5") Integer pageSize) {
-        List<ProductVo> list = productService.getProductList(name, categoryId, pageNum, pageSize);
+                                                @RequestParam(value = "categoryId", required = false) Long categoryId,
+                                                 @RequestParam(required = false)List<Integer> status,
+                                                 @RequestParam(value = "minPrice", required = false)BigDecimal minPrice,
+                                                 @RequestParam(value = "maxPrice", required = false)BigDecimal maxPrice,
+                                                 @RequestParam(value = "detail", required = false)String detail,
+                                                 @RequestParam(value = "code", required = false)String code,
+                                                 @RequestParam(defaultValue = "1") Integer pageNum,
+                                                @RequestParam(defaultValue = "5") Integer pageSize
+    ) {
+        if (status == null || status.isEmpty()){
+            status = List.of(1,2,3,4);
+        }
+        // 参数有效性校验
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            return ResponseResult.failResult("最低价格不能为负数");
+        }
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            return ResponseResult.failResult("最高价格不能为负数");
+        }
+        if (minPrice != null && maxPrice != null
+             && minPrice.compareTo(maxPrice) > 0) {
+            return ResponseResult.failResult("价格区间无效");
+        }
+        List<ProductVo> list = productService.getProductList(name, categoryId,status, minPrice, maxPrice, detail, code, pageNum, pageSize);
         if (list.isEmpty()) {
             return ResponseResult.notFoundResourceResult("没有找到相关数据");
         }
@@ -99,7 +120,7 @@ public class ProductAdminController {
      * @return 返回产品信息或者错误信息
      */
     @GetMapping("/getProduct")
-//    @Permission(type = PermissionType.SYSTEM, value = "product:list")
+    @Permission(type = PermissionType.SYSTEM, permission = "product:list")
     public ResponseResult<Object> getProduct(@RequestParam("productId") Long productId) {
         if (productId == null|| productId < 0) {
             return ResponseResult.failResult("参数错误");
@@ -133,6 +154,7 @@ public class ProductAdminController {
      * @return 操作结果
      */
     @PostMapping("/add")
+    @Permission(type = PermissionType.SYSTEM, permission = "product:list")
     public ResponseResult<Object> insertProduct(@RequestParam("code") String code,
                                         @RequestParam("title") String title,
                                         @RequestParam("categoryId") Long categoryId,
@@ -192,6 +214,7 @@ public class ProductAdminController {
      * @return              返回操作结果的响应对象
      */
     @PostMapping("/update")
+    @Permission(type = PermissionType.ADMIN, permission = "product:list")
     public ResponseResult<Object> updateProduct(@RequestParam("id") Long id,
                                         @RequestParam("code") String code,
                                         @RequestParam("title") String title,
@@ -252,6 +275,7 @@ public class ProductAdminController {
      * @return 删除操作的结果
      */
     @GetMapping("/delete")
+    @Permission(type = PermissionType.SYSTEM, permission = "product:list")
     public ResponseResult<Object> deleteProduct(@RequestParam("id") Long id,
                                        HttpSession session) {
         if (id==null||id<=0){
@@ -280,7 +304,7 @@ public class ProductAdminController {
 
     @GetMapping("/getNum")
     @Permission(value = PermissionType.ADMIN, permission = "product:list")
-    public ResponseResult<Object> getProductNum(HttpSession session) {
+    public ResponseResult<Object> getProductNum() {
         return ResponseResult.okResult(productService.getProductNum());
     }
 

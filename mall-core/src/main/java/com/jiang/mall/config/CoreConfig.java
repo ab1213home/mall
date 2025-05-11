@@ -14,7 +14,9 @@
 package com.jiang.mall.config;
 
 import com.jiang.mall.domain.enums.CoreConfigItems;
+import com.jiang.mall.domain.vo.ProductSettingVo;
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +139,30 @@ public class CoreConfig {
     public Long getOrderSyncTime() {
         return Long.parseLong(properties.getProperty(CoreConfigItems.ORDER_SYNC_TIME.getKey(),CoreConfigItems.ORDER_SYNC_TIME.getDefaultValue()));
     }
+    
+    public boolean isProductCacheEnabled() {
+        return Boolean.parseBoolean(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_ENABLED.getKey(), CoreConfigItems.PRODUCT_CACHE_ENABLED.getDefaultValue()));
+    }
+
+    public Long getProductCacheTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), CoreConfigItems.PRODUCT_CACHE_TIME.getDefaultValue()));
+    }
+
+    public Long getProductSyncTime() {
+        return Long.parseLong(properties.getProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(), CoreConfigItems.PRODUCT_SYNC_TIME.getDefaultValue()));
+    }
+
+    public void updateProductCache(Boolean cache) {
+        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_ENABLED.getKey(), String.valueOf(cache));
+    }
+
+    public void updateProductCacheTime(Long time) {
+        properties.setProperty(CoreConfigItems.PRODUCT_CACHE_TIME.getKey(), String.valueOf(time));
+    }
+
+    public void updateProductSyncTime(Long time) {
+        properties.setProperty(CoreConfigItems.PRODUCT_SYNC_TIME.getKey(), String.valueOf(time));
+    }
 
     public void updateOrderCache(Boolean cache) {
         properties.setProperty(CoreConfigItems.ORDER_CACHE_ENABLED.getKey(), String.valueOf(cache));
@@ -148,6 +174,22 @@ public class CoreConfig {
 
     public void updateOrderSyncTime(Long time) {
         properties.setProperty(CoreConfigItems.ORDER_SYNC_TIME.getKey(), String.valueOf(time));
+    }
+
+    public ProductSettingVo getSetting() {
+        ProductSettingVo settingVo = new ProductSettingVo();
+        settingVo.setEnabled(isProductCacheEnabled());
+        settingVo.setCacheTime(getProductCacheTime());
+        settingVo.setSyncTime(getProductSyncTime());
+        return settingVo;
+    }
+
+    public void updateSetting(@NotNull ProductSettingVo settingVo) {
+        updateProductCache(settingVo.isEnabled());
+        updateProductCacheTime(settingVo.getCacheTime());
+        updateProductSyncTime(settingVo.getSyncTime());
+        saveProperties();
+        loadProperties();
     }
 
 }

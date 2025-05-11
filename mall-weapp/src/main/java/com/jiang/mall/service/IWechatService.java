@@ -93,4 +93,6 @@ public interface IWechatService {
 	List<CheckoutVo> getCheckoutList(String token);
 
 	void logout(String token);
+
+	ProductSnapshotVo getSnapshot(Long id, String token);
 }

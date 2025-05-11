@@ -110,6 +110,13 @@ public class WechatServiceImpl implements IWechatService {
 	    this.orderService = orderService;
 	}
 
+	private IProductService productService;
+
+	@Autowired
+	public void setProductService(IProductService productService) {
+		this.productService = productService;
+	}
+
 	/**
 	 * 微信登录方法
 	 * 该方法通过微信提供的code和客户端IP进行登录，返回登录结果和用户信息
@@ -475,5 +482,14 @@ public class WechatServiceImpl implements IWechatService {
 		redisService.deleteUser(token);
 	}
 
+	@Override
+	public ProductSnapshotVo getSnapshot(Long id, String token) {
+		UserCache user = getUserFromRedis(token);
+		if (orderService.hasSnapshot(id, user.getId())){
+			return productService.getSnapshot(id);
+		}else{
+			return null;
+		}
+	}
 
 }

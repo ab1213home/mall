@@ -34,7 +34,7 @@ public class UserRedisConfig {
 	@Value("${redis.database.user:1}")
 	private int user;
 
-	@Value("${redis.database.oauth:11}")
+	@Value("${redis.database.oauth:2}")
 	private int oauth;
 
 	private GeneralRedisConfig generalRedisConfig;

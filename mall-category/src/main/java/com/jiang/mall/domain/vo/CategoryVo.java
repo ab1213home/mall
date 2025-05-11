@@ -44,6 +44,7 @@ public class CategoryVo {
     /**
      * 分类层级（1-一级分类 2-二级分类）
      */
+    @Deprecated
     private Integer level;
 
     /**

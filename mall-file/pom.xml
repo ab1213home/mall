@@ -91,11 +91,6 @@
             <artifactId>mall-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.jiang</groupId>
-            <artifactId>mall-product</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>

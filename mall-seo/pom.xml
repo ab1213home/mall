@@ -49,14 +49,9 @@
              <artifactId>sitemapgen4j</artifactId>
          </dependency>
 
-		<dependency>
-			<groupId>com.jiang</groupId>
-			<artifactId>mall-product</artifactId>
-		</dependency>
-
         <dependency>
             <groupId>com.jiang</groupId>
-            <artifactId>mall-common</artifactId>
+            <artifactId>mall-core</artifactId>
         </dependency>
 
     </dependencies>

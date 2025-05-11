@@ -156,6 +156,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 				redisService.setCategory(categoryTreeCache);
 			}else if (categoryConfig.isCategoryCacheEnabled()){
 				//TODO:分类缓存过期？？？
+				logger.warn("分类缓存过期");
 				checkCategory();
 			}
 			return true;
@@ -196,6 +197,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 				redisService.deleteCategory(ids);
 			}else if (categoryConfig.isCategoryCacheEnabled()){
 				//TODO:分类缓存过期？？？
+				logger.warn("分类缓存过期");
 				checkCategory();
 			}
 			return true;

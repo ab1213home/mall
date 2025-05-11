@@ -30,7 +30,6 @@ public class FileMvcConfig implements WebMvcConfigurer {
         this.uploadInterceptor = uploadInterceptor;
     }
 
-
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -38,10 +37,6 @@ public class FileMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NotNull InterceptorRegistry registry) {
-        registry.addInterceptor(uploadInterceptor)
-                .addPathPatterns("/common/uploadFile?*")
-                .addPathPatterns("/common/uploadFile")
-                .addPathPatterns("/common/uploadFaces?*")
-                .addPathPatterns("/common/uploadFaces");
+        registry.addInterceptor(uploadInterceptor).addPathPatterns("/file/upload/**");
     }
 }

@@ -17,6 +17,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeRelation;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -26,39 +27,34 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.jiang.mall.config.ProductConfig;
+import com.jiang.mall.config.CoreConfig;
 import com.jiang.mall.dao.ProductMapper;
 import com.jiang.mall.dao.ProductSnapshotMapper;
 import com.jiang.mall.domain.cache.ProductCache;
 import com.jiang.mall.domain.cache.ProductSnapshotCache;
+import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.entity.EsProduct;
 import com.jiang.mall.domain.entity.Product;
 import com.jiang.mall.domain.entity.ProductSnapshot;
 import com.jiang.mall.domain.vo.CategoryVo;
 import com.jiang.mall.domain.vo.ProductSnapshotVo;
 import com.jiang.mall.domain.vo.ProductVo;
-import com.jiang.mall.event.ProductChangedEvent;
-import com.jiang.mall.service.ICategoryService;
-import com.jiang.mall.service.II18nService;
-import com.jiang.mall.service.IProductRedisService;
-import com.jiang.mall.service.IProductService;
+import com.jiang.mall.service.*;
 import com.jiang.mall.util.BeanCopyUtil;
-import com.jiang.mall.util.SecureUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -87,11 +83,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.redisService = redisService;
 	}
 
-	private ProductConfig productConfig;
+	private CoreConfig coreConfig;
 
 	@Autowired
-	public void setProductConfig(ProductConfig productConfig) {
-		this.productConfig = productConfig;
+	private void setCoreConfig(CoreConfig coreConfig) {
+		this.coreConfig = coreConfig;
 	}
 
 	private ICategoryService categoryService;
@@ -122,105 +118,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		this.ii18nService = ii18nService;
 	}
 
-    /**
-     * 根据名称、类别ID、页码和页面大小获取产品列表
-     *
-     * @param name       产品名称
-     * @param categoryId 产品类别ID
-     * @param pageNum    页码
-     * @param pageSize   页面大小
-     * @return 返回产品列表（ProductVo类型）
-     */
-    @Override
-    @Transactional
-    public List<ProductVo> getProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
-		// 参数校验
-	    if (pageNum == null || pageNum < 1) pageNum = 1;
-	    if (pageSize == null || pageSize < 1) pageSize = 10;
-		try {
-			// 获取分类及其子分类的 ID 列表
-			List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
+	private IUserService userService;
 
-			// 构建布尔查询
-			BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
-			if (StringUtils.hasText(name)) {
-				boolBuilder.must(
-						query -> query.match(m -> m
-								.field("title")
-								.query(name)
-								.fuzziness("1")
-								.analyzer("ik_max_word") // 指定中文分词器
-						)
-				);
-			}
-			if (!categoryIds.isEmpty()) {
-			     List<FieldValue> fieldValue = categoryIds.stream()
-			            .map(FieldValue::of)
-			            .toList();
-				 boolBuilder.filter(
-			            query -> query.terms(t -> t
-			                .field("category_id")
-			                .terms(ts -> ts.value(fieldValue))
-			            )
-			     );
-			}
+	@Autowired
+	public void setUserService(IUserService userService) {
+		this.userService = userService;
+	}
 
-			// 构造搜索请求
-			int finalPageSize = pageSize;
-			// 构建分页参数（防止负数）
-			int from = (pageNum - 1) * pageSize;
-			from = Math.max(from, 0);
+	private IOrderService orderService;
 
-			// 执行查询
-			int finalFrom = from;
-			SearchResponse<EsProduct> response = esClient.search(s -> s
-			    .index("products")
-			    .query(q -> q.bool(boolBuilder.build()))
-			    .from(finalFrom)
-			    .size(finalPageSize),
-			    EsProduct.class
-			);
-//			SearchRequest request = SearchRequest.of(b -> b
-//					.index("products")
-//					.query(boolBuilder.build()._toQuery())
-//					.from(from)
-//					.size(finalPageSize)
-//					.trackTotalHits(t -> t.enabled(true))
-//					.sort(s -> s
-//						.field(f -> f
-//						    .field("id.keyword")
-//						    .order(SortOrder.Asc)
-//						)
-//					)
-//			);
-//
-//			// 执行搜索
-//			SearchResponse<EsProduct> response = esClient.search(request, EsProduct.class);
-
-			// 提取结果
-			List<EsProduct> hits = response.hits().hits().stream()
-					.map(Hit::source)
-					.toList();
-
-			List<ProductVo> productVos = new ArrayList<>();
-
-	        // 将产品实体列表转换为产品VO列表
-	        for (EsProduct esProduct : hits) {
-				ProductVo product = getProduct(esProduct.getId());
-	            productVos.add(product);
-	        }
-
-	        // 返回产品VO列表
-	        return productVos;
-		}catch (Exception e) {
-			logger.error("Elasticsearch 查询商品列表失败: {}", e.getMessage(), e);
-            // 降级到数据库查询
-            return fallbackGetProductList(name, categoryId, pageNum, pageSize);
-		}
-    }
+	@Autowired
+	public void setOrderService(@Lazy IOrderService orderService) {
+		this.orderService = orderService;
+	}
 
 	@Transactional
-	protected List<ProductVo> fallbackGetProductList(String name, Long categoryId, Integer pageNum, Integer pageSize) {
+	protected List<ProductVo> fallbackGetProductList(String name, Long categoryId, Integer pageNum, Integer pageSize, List<Integer> status) {
 		// 创建分页对象，指定页码和页面大小
         Page<Product> productPage = new Page<>(pageNum, pageSize);
 
@@ -236,6 +149,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	            queryWrapper.in(Product::getCategoryId, categoryIds);
 	        }
 	    }
+		queryWrapper.in(Product::getStatus, status);
 		queryWrapper.select(Product::getId);
 
         // 执行分页查询，获取产品列表
@@ -254,6 +168,22 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         return productVos;
 	}
 
+	@Override
+	public boolean hasProduct(Long id) {
+		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
+			redisService.refreshProduct(id);
+			return true;
+		}
+		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("id", id);
+        return productMapper.selectCount(queryWrapper)>0;
+	}
+
+//	@Override
+//	public boolean hasSnapshot(Long id, Long userId) {
+//		return false;
+//	}
+
 	/**
      * 根据ID获取产品信息
      * <p>
@@ -267,7 +197,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     @Transactional
     public ProductVo getProduct(Long id) {
-		if (productConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
+		if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
 			ProductCache productCache = redisService.getProduct(id);
 			ProductVo product = BeanCopyUtil.copyBean(productCache, ProductVo.class);
 			assert product != null;
@@ -282,7 +212,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (product != null) {
             // 将查询到的Product对象转换为ProductVo对象
             ProductVo productVo = BeanCopyUtil.copyBean(product, ProductVo.class);
-			if (productConfig.isProductCacheEnabled()){
+			if (coreConfig.isProductCacheEnabled()){
 				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
 				assert productCache != null;
 				redisService.setProduct(productCache);
@@ -310,11 +240,21 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Transactional
     public Boolean insertProduct(@NotNull Product product) {
 		if (!categoryService.hasCategory(product.getCategoryId())){
-			return false;
+			return null;
 		}
         if (productMapper.insert(product) == 1){
-			if  (productConfig.isProductCacheEnabled()){
-
+			if  (coreConfig.isProductCacheEnabled() && product.getStatus()==1){
+				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
+				assert productCache != null;
+				redisService.setProduct(productCache);
+			}
+			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
+			try {
+				assert esProduct != null;
+				IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
+		        esClient.index(request);
+			} catch (IOException e) {
+				logger.error("Elasticsearch 插入商品失败: {}", e.getMessage(), e);
 			}
 			return true;
         }else{
@@ -334,8 +274,32 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      */
     @Override
     @Transactional
-    public Boolean updateProduct(Product product) {
-        return productMapper.updateById(product)==1;
+    public Boolean updateProduct(@NotNull Product product) {
+		if (!categoryService.hasCategory(product.getCategoryId())){
+			return null;
+		}
+        if (productMapper.updateById(product)==1){
+			if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(product.getId()) && product.getStatus()==1){
+				ProductCache productCache = redisService.getProduct(product.getId());
+				assert productCache != null;
+				redisService.setProduct(productCache);
+			}
+			try {
+				EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
+				assert esProduct != null;
+				esClient.update(u -> u
+				        .index("products")
+				        .id(esProduct.getId().toString())
+				        .upsert(esProduct),
+				    EsProduct.class
+				);
+			} catch (IOException e) {
+				logger.error("Elasticsearch 更新商品失败: {}", e.getMessage(), e);
+			}
+	        return true;
+        }else{
+			return false;
+		}
     }
 
     /**
@@ -352,7 +316,25 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     @Transactional
     public Boolean deleteProduct(Long id) {
-        return productMapper.deleteById(id) == 1;
+        if (productMapper.deleteById(id) == 1){
+			if (coreConfig.isProductCacheEnabled() && redisService.hasProduct(id)){
+				redisService.deleteProduct(id);
+			}
+			try {
+		        DeleteRequest request = DeleteRequest.of(b -> b
+		            .index("products")
+		            .id(id.toString())
+		        );
+		        esClient.delete(request);
+		    } catch (Exception e) {
+		        logger.error("删除商品在Elasticsearch中失败，商品ID: {}", id, e);
+		    }
+			//TODO:删除用户购物车收藏的商品
+
+	        return true;
+        }else{
+			return false;
+		}
     }
 
     /**
@@ -397,7 +379,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	@Override
 	public void checkProduct() {
 		try {
-			esClient.indices().delete(d -> d.index("products"));
+			if (!esClient.indices().exists(ex -> ex.index("products")).value()) {
+				esClient.indices().delete(d -> d.index("products"));
+			}
 		} catch (IOException e) {
 			logger.error("删除索引失败: {}", e.getMessage());
 		}
@@ -412,13 +396,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			         .properties("price", p -> p.double_(d -> d))
 					 .properties("description", p -> p.text(t -> t.analyzer("ik_max_word")))
 					 .properties("code", p -> p.text(t -> t))
+					 .properties("status", p -> p.integer(i -> i))
 			    )
 			);
 		} catch (ElasticsearchException | IOException e) {
 			logger.error("创建索引失败: {}", e.getMessage());
 		}
 		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("status", 1);
 		List<Product> products = productMapper.selectList(queryWrapper);
 		for (Product product : products) {
 			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
@@ -429,7 +413,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			} catch (IOException e) {
 				logger.error("同步商品到ES失败: {}", e.getMessage());
 			}
-			if (productConfig.isProductCacheEnabled()){
+			if (coreConfig.isProductCacheEnabled()){
 				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
 				assert productCache != null;
 				redisService.setProduct(productCache);
@@ -437,77 +421,21 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 		}
 	}
 
-
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void handleProductChangedEvent(ProductChangedEvent event) {
-	    try {
-	        switch (event.getChangeType()) {
-	            case CREATE:
-	            case UPDATE:
-	                syncProductToEs(event.getProductId());
-	                break;
-	            case DELETE:
-	                deleteProductFromEs(event.getProductId());
-	                break;
-	        }
-	        refreshCache(event.getProductId());
-	    } catch (Exception e) {
-	        log.error("处理商品变更事件失败: {}");
-	        // 可添加重试逻辑
-	    }
-	}
-
-	private void syncProductToEs(Long productId) {
-	    Product product = baseMapper.selectById(productId);
-	    if (product != null) {
-	        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
-//		    assert esProduct != null;
-		    try {
-		        // 转换为 EsProduct 实体
-//		        EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
-		        if (esProduct == null) {
-		            logger.error("商品转换失败，无法生成ES实体: {}", productId);
-		            return;
-		        }
-
-		        // 构建并执行请求
-		        IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
-		        esClient.index(request);
-
-		        logger.info("商品已同步至Elasticsearch: {}", productId);
-			} catch (Exception e) {
-		        logger.error("同步商品到Elasticsearch失败，商品ID: {}", productId, e);
-			}
-	    }
-	}
-
-	private void deleteProductFromEs(@NotNull Long productId) {
-	    try {
-	        DeleteRequest request = DeleteRequest.of(b -> b
-	            .index("products")
-	            .id(productId.toString())
-	        );
-	        esClient.delete(request);
-	        logger.info("商品已从Elasticsearch中删除: {}", productId);
-	    } catch (Exception e) {
-	        logger.error("删除商品在Elasticsearch中失败，商品ID: {}", productId, e);
-	    }
-	}
-
-	private void refreshCache(Long productId) {
-//	    String cacheKey = CACHE_PREFIX + productId;
-//	    redisTemplate.delete(cacheKey);
-//	    Product product = baseMapper.selectById(productId);
-//	    if (product != null) {
-//	        redisTemplate.opsForValue().set(cacheKey, product, 30, TimeUnit.MINUTES);
-//	    }
-	}
-
 	@Override
 	@Transactional
+	public ProductSnapshotVo getSnapshot(Long id, String sessionId) {
+		UserCache user = userService.getUserFromRedis(sessionId);
+		if (orderService.hasSnapshot(id, user.getId())){
+			return getSnapshot(id);
+		}else{
+			return null;
+		}
+	}
+
+	@Transactional
+	@Override
 	public ProductSnapshotVo getSnapshot(Long id) {
-		//TODO:使用拦截器判断是否合法
-		if (productConfig.isProductCacheEnabled() && redisService.hasSnapshotCache(id)){
+		if (coreConfig.isProductCacheEnabled() && redisService.hasSnapshotCache(id)){
 			ProductSnapshotCache productCache = redisService.getSnapshotCache(id);
 			ProductSnapshotVo product = BeanCopyUtil.copyBean(productCache, ProductSnapshotVo.class);
 			assert product != null;
@@ -521,7 +449,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 如果数据库中存在该产品
         if (product != null) {
             ProductSnapshotVo productVo = BeanCopyUtil.copyBean(product, ProductSnapshotVo.class);
-			if (productConfig.isProductCacheEnabled()){
+			if (coreConfig.isProductCacheEnabled()){
 				ProductSnapshotCache productCache = BeanCopyUtil.copyBean(product, ProductSnapshotCache.class);
 				assert productCache != null;
 				redisService.setSnapshotCache(productCache);
@@ -537,8 +465,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
 	@Override
 	@Transactional
-	public Long getSnapshotId(ProductVo product) {
-	    String hash = getHash(product);
+	public Long getSnapshotId(@NotNull ProductVo product) {
+	    String hash = product.getHash();
 	    Long id = productSnapshotMapper.getIdByHash(hash);
 	    if (id != null) {
 	        return id;
@@ -569,18 +497,174 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	    }
 	}
 
-	@Deprecated
-	private @NotNull String getHash(@NotNull ProductVo product) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("id", product.getId());
-		map.put("code", product.getCode());
-		map.put("title", product.getTitle());
-		map.put("price", product.getPrice());
-		map.put("img", product.getImg());
-		map.put("description", product.getDescription());
-		map.put("category", JSON.toJSONString(product.getCategory()));
-		map.put("properties", product.getProperties());
-		return SecureUtil.sha256Hex(JSON.toJSONString(map));
+	/**
+	 * 根据多个条件获取产品列表
+	 *
+	 * @param name 产品名称
+	 * @param categoryId 分类ID
+	 * @param status 产品状态列表
+	 * @param minPrice 最低价格
+	 * @param maxPrice 最高价格
+	 * @param detail 产品详情描述
+	 * @param code 产品编码
+	 * @param pageNum 当前页码
+	 * @param pageSize 每页大小
+	 * @return 产品列表
+	 */
+	@Override
+	@Transactional
+	public List<ProductVo> getProductList(String name, Long categoryId, List<Integer> status, BigDecimal minPrice, BigDecimal maxPrice, String detail, String code, Integer pageNum, Integer pageSize) {
+	    // 参数校验
+	    if (pageNum == null || pageNum < 1) pageNum = 1;
+	    if (pageSize == null || pageSize < 1) pageSize = 10;
+	    try {
+	        // 获取分类及其子分类的 ID 列表
+	        List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
+
+	        // 构建布尔查询
+	        // should子句（查询）必须出现在匹配的文档中。然而，与must不同，查询的分数将被忽略。
+	        // filter子句（查询）应出现在匹配的文档中。
+	        // must子句（查询）必须出现在匹配的文档中，并将有助于核心
+	        // mustNot子句（查询）不得出现在匹配的文档中。因为忽略了评分，所以所有文档的评分都为0。
+
+	        BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
+	        // 根据产品名称查询
+	        if (StringUtils.hasText(name)) {
+	            boolBuilder.must(
+	                    query -> query.match(m -> m
+	                            .field("title")
+	                            .query(name)
+	                            .analyzer("ik_max_word") // 指定中文分词器
+	                    )
+	            );
+	        }
+
+	        // 根据分类ID查询
+	        if (!categoryIds.isEmpty()) {
+	             List<FieldValue> fieldValue = categoryIds.stream()
+	                    .map(FieldValue::of)
+	                    .toList();
+	            boolBuilder.should(
+	                    query -> query.terms(t -> t
+	                        .field("category_id")
+	                        .terms(ts -> ts.value(fieldValue))
+	                    )
+	             );
+	        }
+
+	        // 根据产品状态查询
+	        if (status != null && !status.isEmpty()){
+	            List<FieldValue> fieldValue = status.stream()
+	                    .map(FieldValue::of)
+	                    .toList();
+	            boolBuilder.should(
+	                    query -> query.terms(t -> t
+	                        .field("status")
+	                        .terms(ts -> ts.value(fieldValue))
+	                    )
+	            );
+	        }
+
+	        // 根据产品编码查询
+	        if (StringUtils.hasText(code)){
+	            boolBuilder.must(
+	                    query -> query.match(m -> m
+	                        .field("code")
+	                        .query(code)
+	                        .analyzer("ik_max_word") // 指定中文分词器
+	                    )
+	            );
+	        }
+
+	        // 全文搜索description
+	        if (StringUtils.hasText(detail)) {
+	            boolBuilder.must(
+	                    query -> query.match(m -> m
+	                        .field("description")
+	                        .query(detail)
+	                        .analyzer("ik_max_word") // 指定中文分词器
+	                    )
+	            );
+	        }
+
+	        // 价格区间过滤
+	        if (minPrice != null && maxPrice != null) {
+	            // 在查询中使用
+	            double minVal = minPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	            double maxVal = maxPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	            boolBuilder.filter(
+	                    query -> query.range(
+	                            range -> range.number(n -> n
+	                                .field("price")
+	                                .gte(minVal)
+	                                .lte(maxVal)
+	                                .boost(1.5F)
+	                                .relation(RangeRelation.Contains)
+	                            )
+	                    )
+	            );
+	        }else if (minPrice != null) {
+	            // 在查询中使用
+	            double minVal = minPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	            boolBuilder.filter(
+	                    query -> query.range(
+	                            range -> range.number(n -> n
+	                                .field("price")
+	                                .gte(minVal)
+	                                .boost(1.0F)
+	                                .relation(RangeRelation.Contains)
+	                            )
+	                    )
+	            );
+	        }else if (maxPrice != null) {
+				// 在查询中使用
+	            double maxVal = maxPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
+	            boolBuilder.filter(
+	                    query -> query.range(
+	                            range -> range.number(n -> n
+	                                .field("price")
+	                                .lte(maxVal)
+	                                .boost(1.0F)
+	                                .relation(RangeRelation.Contains)
+	                            )
+	                    )
+	            );
+	        }
+
+	        // 构造搜索请求
+	        int finalPageSize = pageSize;
+	        // 构建分页参数（防止负数）
+	        int from = (pageNum - 1) * pageSize;
+	        int finalFrom = Math.max(from, 0);
+
+	        SearchResponse<EsProduct> response = esClient.search(s -> s
+	            .index("products")
+	            .query(q -> q.bool(boolBuilder.build()))
+	            .from(finalFrom)
+	            .size(finalPageSize),
+	            EsProduct.class
+	        );
+
+	        // 提取结果
+	        List<EsProduct> hits = response.hits().hits().stream()
+	                .map(Hit::source)
+	                .toList();
+
+	        List<ProductVo> productVos = new ArrayList<>();
+
+	        // 将产品实体列表转换为产品VO列表
+	        for (EsProduct esProduct : hits) {
+	            ProductVo product = getProduct(esProduct.getId());
+	            productVos.add(product);
+	        }
+
+	        // 返回产品VO列表
+	        return productVos;
+	    }catch (Exception e) {
+	        logger.error("Elasticsearch 查询商品列表失败: {}", e.getMessage(), e);
+	        // 降级到数据库查询
+	        return fallbackGetProductList(name, categoryId, pageNum, pageSize, status);
+	    }
 	}
 
 }

@@ -24,7 +24,11 @@ public enum CoreConfigItems {
 	//订单
 	ORDER_CACHE_ENABLED("order.cache.enabled", "是否启用缓存", "true"),
 	ORDER_SYNC_TIME("order.sync.time", "同步时间(秒)", "9000"),
-	ORDER_CACHE_TIME("order.cache.time", "缓存时间(秒)", "604800");
+	ORDER_CACHE_TIME("order.cache.time", "缓存时间(秒)", "604800"),
+	//商品
+	PRODUCT_CACHE_ENABLED("product.cache.enabled", "是否启用缓存", "true"),
+	PRODUCT_SYNC_TIME("product.sync.time", "同步时间(秒)", "600"),
+	PRODUCT_CACHE_TIME("product.cache.time", "缓存时间(秒)", "7200");
 
 	private final String key;
 	private final String description;
