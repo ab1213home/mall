@@ -50,7 +50,7 @@ public class CoreMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/checkout.html")
                 .addPathPatterns("/checkout.html?*");
         registry.addInterceptor(snapshotInterceptor)
-                .addPathPatterns("/snapshot.html")
-                .addPathPatterns("/snapshot.html?*");
+                .addPathPatterns("/tradeSnap.html")
+                .addPathPatterns("/tradeSnap.html?*");
     }
 }

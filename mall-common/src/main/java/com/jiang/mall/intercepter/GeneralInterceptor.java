@@ -47,31 +47,33 @@ public class GeneralInterceptor{
 //            boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
 //            String requestedWith = request.getHeader("X-Requested-With");
 //            boolean isAjax = "XMLHttpRequest".equals(requestedWith);
+
     /**
-     * 根据用户代理重定向到用户首页
-     * 此方法通过检查HTTP请求的User-Agent头来决定是通过API还是浏览器进行重定向
-     * 如果User-Agent头表明这是一个已知的浏览器请求，则通过浏览器重定向到用户首页
-     * 否则，通过API返回禁止访问的响应
+     * 当用户不是管理员时，重定向到用户首页
+     * 此方法根据请求类型（自动、HTML或API）决定重定向的方式
      *
-     * @param returnType 返回类型，用于确定重定向方式
-     * @param request    HTTP请求对象，用于获取请求头和上下文路径
-     * @param response   HTTP响应对象，用于发送重定向或错误响应
-     * @throws IOException 如果在重定向过程中发生I/O错误
+     * @param returnType 返回类型，决定重定向的行为
+     * @param request HTTP请求对象，用于获取请求头信息
+     * @param response HTTP响应对象，用于执行重定向
+     * @throws IOException 当重定向过程中发生I/O错误
      */
     public void redirectToUserIndexBecauseNotAdmin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
+            // 检查Accept请求头，判断是否期望JSON响应
             String acceptHeader = request.getHeader("Accept");
             boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
             if (isJsonExpected){
+                // 如果是API请求且期望JSON响应，则返回禁止访问的JSON信息
                 redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);
             }else {
-                // 通过浏览器重定向到用户首页
+                // 否则，通过浏览器重定向到用户首页
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
                 redirectInBrowser(response,"/user/index.html", map);
             }
         }else if (returnType == ReturnType.HTML){
+            // 如果是HTML类型请求，则通过浏览器重定向到用户首页
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.checkAdmin.noAdmin"));
@@ -83,30 +85,31 @@ public class GeneralInterceptor{
     }
 
     /**
-     * 根据用户代理重定向到用户首页
-     * 此方法通过检查HTTP请求的User-Agent头来决定是通过API还是浏览器进行重定向
-     * 如果User-Agent头表明这是一个已知的浏览器请求，则通过浏览器重定向到用户首页
-     * 否则，通过API返回重复访问的响应
+     * 当用户重复登录时，根据返回类型重定向到用户首页
+     * 此方法根据Accept头判断客户端期望的响应类型，并进行相应的重定向处理
      *
-     * @param returnType 返回类型，用于确定重定向方式
-     * @param request    HTTP请求对象，用于获取请求头和上下文路径
-     * @param response   HTTP响应对象，用于发送重定向或错误响应
-     * @throws IOException 如果在重定向过程中发生I/O错误
+     * @param returnType 返回类型，决定响应的方式
+     * @param request HTTP请求对象，用于获取请求头信息
+     * @param response HTTP响应对象，用于发送重定向响应
+     * @throws IOException 当响应发送过程中发生I/O错误
      */
     public void redirectToUserIndexBecauseRepeated(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
+            // 获取Accept头，判断客户端是否期望JSON响应
             String acceptHeader = request.getHeader("Accept");
             boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
             if (isJsonExpected){
+                // 如果是API请求且期望JSON响应，则通过API方式重定向，并返回禁止访问的状态码
                 redirectInApi(response, i18nService.getMessage("user.login.error.repeated"), HttpServletResponse.SC_FORBIDDEN);
             }else {
-                // 通过浏览器重定向到用户首页
+                // 否则，通过浏览器重定向到用户首页
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.login.error.repeated"));
                 redirectInBrowser(response,"/user/index.html", map);
             }
         }else if (returnType == ReturnType.HTML){
+            // 如果返回类型是HTML，则通过浏览器重定向到用户首页
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.login.error.repeated"));
@@ -118,12 +121,13 @@ public class GeneralInterceptor{
     }
 
     /**
-     * 将未登录的用户重定向到登录页面或返回未授权错误
+     * 根据用户登录状态重定向到登录页面或返回未授权错误
+     * 此方法根据returnType参数决定重定向的方式，同时考虑请求头来判断是否期望JSON响应
      *
-     * @param returnType 返回类型，用于确定重定向方式
-     * @param request    HTTP请求对象，用于获取用户代理信息和请求路径
-     * @param response   HTTP响应对象，用于发送重定向或错误响应
-     * @throws IOException 如果在执行重定向过程中发生输入/输出错误
+     * @param returnType 返回类型，决定重定向或返回错误信息的方式
+     * @param request HTTP请求对象，用于获取请求头和请求URI
+     * @param response HTTP响应对象，用于发送重定向或错误信息
+     * @throws IOException 当重定向或返回错误信息时可能抛出的异常
      */
     public void redirectToLogin(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
         if (returnType == ReturnType.AUTO){
@@ -152,25 +156,39 @@ public class GeneralInterceptor{
         }
     }
 
-
+    /**
+     * 根据返回类型重定向到索引页面或返回错误信息
+     * 此方法用于处理用户注册后根据不同的返回类型将用户重定向到不同的页面或返回不同的错误信息
+     *
+     * @param returnType 返回类型，决定是自动重定向、返回HTML还是返回JSON
+     * @param request HTTP请求对象，用于获取请求头信息和请求URI
+     * @param response HTTP响应对象，用于重定向或返回错误信息
+     * @throws IOException 当重定向或返回错误信息时可能抛出的IO异常
+     */
     public void redirectToIndex(ReturnType returnType, @NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws IOException {
+        // 根据返回类型处理不同的情况
         if  (returnType == ReturnType.AUTO){
+            // 获取请求头中的Accept字段，判断是否期望返回JSON格式的数据
             String acceptHeader = request.getHeader("Accept");
             boolean isJsonExpected = acceptHeader != null && acceptHeader.contains("application/json");
             if (isJsonExpected){
+                // 如果是API请求且期望返回JSON，则返回JSON格式的错误信息
                 redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
             }else {
+                // 如果不是API请求或不期望返回JSON，则重定向到索引页面，并传递错误信息
                 Map<String,String> map = new HashMap<>();
                 map.put("url",request.getRequestURI());
                 map.put("message",i18nService.getMessage("user.register.error.allowed"));
                 redirectInBrowser(response,"/index.html", map);
             }
         }else if (returnType == ReturnType.HTML){
+            // 如果返回类型是HTML，则重定向到索引页面，并传递错误信息
             Map<String,String> map = new HashMap<>();
             map.put("url",request.getRequestURI());
             map.put("message",i18nService.getMessage("user.register.error.allowed"));
             redirectInBrowser(response,"/index.html", map);
         }else {
+            // 如果返回类型是API，则返回JSON格式的错误信息
             redirectInApi(response, i18nService.getMessage("user.register.error.allowed"), HttpServletResponse.SC_FORBIDDEN);
         }
     }
@@ -209,7 +227,6 @@ public class GeneralInterceptor{
             logger.warn("无法执行重定向，响应已提交。目标地址: {}", finalRedirectUrl);
         }
     }
-
 
     /**
      * 重定向到API接口的响应方法。

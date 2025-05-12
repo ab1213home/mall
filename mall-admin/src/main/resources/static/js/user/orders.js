@@ -99,7 +99,7 @@ function queryOrders(pn, pz) {
 						</td>
 							<td>
 								<button type="button" class="btn btn-sm btn-success" onclick="">去支付</button>
-								<button type="button" class="btn btn-sm btn-primary" onclick="">取消订单</button>
+								<button type="button" class="btn btn-sm btn-primary mt-2" onclick="">取消订单</button>
 							</td>
 						</tr>
 						`;
@@ -124,7 +124,7 @@ function queryOrders(pn, pz) {
 						</td>
 							<td>
 								<button type="button" class="btn btn-sm btn-primary" onclick="">去评价</button>
-								<button type="button" class="btn btn-sm btn-primary" onclick="">去退货</button>
+								<button type="button" class="btn btn-sm btn-primary mt-2" onclick="">去退货</button>
 							</td>
 						</tr>
 						`;

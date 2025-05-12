@@ -14,6 +14,8 @@
 package com.jiang.mall.domain.vo;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jiang.mall.util.SecureUtil;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -81,6 +83,8 @@ public class ProductVo {
 
     }
 
+	@JsonIgnore
+	@JSONField(serialize = false)
     public @NotNull String getHash() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", this.id);

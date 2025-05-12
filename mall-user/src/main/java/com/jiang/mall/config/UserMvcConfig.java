@@ -75,6 +75,13 @@ public class UserMvcConfig implements WebMvcConfigurer {
         this.userHtmlInterceptor = userHtmlInterceptor;
     }
 
+    private AdminHtmlInterceptor adminHtmlInterceptor;
+
+    @Autowired
+    public void setAdminHtmlInterceptor(AdminHtmlInterceptor adminHtmlInterceptor) {
+        this.adminHtmlInterceptor = adminHtmlInterceptor;
+    }
+
     /**
      * 重写addInterceptors方法，用于添加拦截器
      *
@@ -116,15 +123,13 @@ public class UserMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/user/register.html?*")
                 .excludePathPatterns("/user/forgot.html")
                 .excludePathPatterns("/user/forgot.html?*");
-//        // 系统管理员登录拦截器
-//        registry.addInterceptor(adminInterceptor)
-////                .addPathPatterns("/**/admin/**")
-////                .addPathPatterns("/admin/**")
-//                .addPathPatterns("/admin/**.html")
-////                .addPathPatterns("/user/isAdminUser")
-//                .addPathPatterns("/admin/**.html?*")
-//                .addPathPatterns("/admin/**/**.html")
-//                .addPathPatterns("/admin/**/**.html?*");
+        // 系统管理员登录拦截器
+        registry.addInterceptor(adminHtmlInterceptor)
+                .addPathPatterns("/admin")
+                .addPathPatterns("/admin/**.html")
+                .addPathPatterns("/admin/**.html?*")
+                .addPathPatterns("/admin/**/**.html")
+                .addPathPatterns("/admin/**/**.html?*");
         //是否允许注册
         registry.addInterceptor(registerHtmlInterceptor)
                 .addPathPatterns("/user/register.html")

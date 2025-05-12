@@ -14,6 +14,7 @@
 package com.jiang.mall.service.impl;
 
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -284,6 +285,16 @@ public class I18nServiceImpl implements II18nService {
 	@Override
 	public void generateQRCode(String content, int width, int height, OutputStream outputStream) {
 		QrCodeUtil.generate(content, width, height, "png", outputStream);
+	}
+
+	@Override
+	public String chineseToPinyin(String chinese) {
+		return Pinyin.toPinyin(chinese, " ");
+	}
+
+	@Override
+	public String convertToPinyin(String chinese, String separator) {
+		return Pinyin.toPinyin(chinese, separator);
 	}
 
 }

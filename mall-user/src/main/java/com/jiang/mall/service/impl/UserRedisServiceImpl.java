@@ -103,21 +103,21 @@ public class UserRedisServiceImpl implements IUserRedisService {
 			logger.debug("用户{}在另一个地方登录，自动注销之前的登录状态", user.getUsername());
 			deleteUser(user.getId());
 		}
-	    stringRedisTemplate.opsForValue().set(binding_prefix+user.getId(), JSON.toJSONString(userBindingCache), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(binding_prefix+user.getId(), JSON.toJSONString(userBindingCache), userConfig.getUserCacheTime(), TimeUnit.HOURS);
 
 	    // 检查用户ID对应的键是否已存在，如果不存在则存储用户信息，如果存在则更新过期时间
 	    if(!stringRedisTemplate.hasKey(info_prefix+user.getId())){
 			logger.debug("用户缓存不存在，创建用户缓存");
-	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
+	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getUserCacheTime() * 3, TimeUnit.HOURS);
 	    }else {
 			logger.debug("用户缓存已存在，更新用户缓存");
-			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getUserCacheTime() * 7, TimeUnit.HOURS);
 	    }
 
 	    // 存储用户令牌与用户ID的映射关系，并设置过期时间
-	    stringRedisTemplate.opsForValue().set(token_prefix+token, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(token_prefix+token, String.valueOf(user.getId()), userConfig.getUserCacheTime(), TimeUnit.HOURS);
 	    // 存储会话ID与用户ID的映射关系，并设置过期时间
-	    stringRedisTemplate.opsForValue().set(sessionId_prefix+sessionId, String.valueOf(user.getId()), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	    stringRedisTemplate.opsForValue().set(sessionId_prefix+sessionId, String.valueOf(user.getId()), userConfig.getUserCacheTime(), TimeUnit.HOURS);
 		logger.debug("用户{}信息缓存成功", user.getUsername());
 	}
 
@@ -125,9 +125,9 @@ public class UserRedisServiceImpl implements IUserRedisService {
 	public void setUser(@NotNull UserCache user) {
 	    // 检查用户ID对应的键是否已存在，如果不存在则存储用户信息，如果存在则更新过期时间
 	    if(!stringRedisTemplate.hasKey(info_prefix+user.getId())){
-	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 3, TimeUnit.HOURS);
+	        stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getUserCacheTime() * 3, TimeUnit.HOURS);
 	    }else {
-			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getSessionTimeout() * 7, TimeUnit.HOURS);
+			stringRedisTemplate.opsForValue().set(info_prefix+user.getId(), JSON.toJSONString(user), userConfig.getUserCacheTime() * 7, TimeUnit.HOURS);
 	    }
 	}
 
@@ -308,25 +308,25 @@ public class UserRedisServiceImpl implements IUserRedisService {
 
 	        // 检查并刷新会话ID缓存的有效期
 	        if (stringRedisTemplate.hasKey(sessionId_prefix+ userBindingCache.getSessionId())){
-	            stringRedisTemplate.expire(sessionId_prefix+ userBindingCache.getSessionId(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	            stringRedisTemplate.expire(sessionId_prefix+ userBindingCache.getSessionId(), userConfig.getUserCacheTime(), TimeUnit.HOURS);
 				logger.debug("用户{}会话ID刷新成功", userId);
 	        }
 
 	        // 检查并刷新令牌缓存的有效期
 	        if (stringRedisTemplate.hasKey(token_prefix+ userBindingCache.getToken())){
-	            stringRedisTemplate.expire(token_prefix+ userBindingCache.getToken(), userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	            stringRedisTemplate.expire(token_prefix+ userBindingCache.getToken(), userConfig.getUserCacheTime(), TimeUnit.HOURS);
 				logger.debug("用户{}令牌刷新成功", userId);
 	        }
 
 	        // 刷新用户ID缓存的有效期
-	        stringRedisTemplate.expire(binding_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
-			stringRedisTemplate.expire(info_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        stringRedisTemplate.expire(binding_prefix+userId, userConfig.getUserCacheTime(), TimeUnit.HOURS);
+			stringRedisTemplate.expire(info_prefix+userId, userConfig.getUserCacheTime(), TimeUnit.HOURS);
 			logger.debug("用户{}关联信息刷新成功", userId);
 	    }else if (stringRedisTemplate.hasKey(info_prefix+userId)){
 	        // 如果用户ID对应的缓存不存在，则返回null
 //		    logger.debug("用户{}关联信息获取失败，关联缓存不存在，无法刷新用户登录状态", userId);
 	        // 刷新用户ID缓存的有效期
-	        stringRedisTemplate.expire(info_prefix+userId, userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        stringRedisTemplate.expire(info_prefix+userId, userConfig.getUserCacheTime(), TimeUnit.HOURS);
 	    }
 	}
 

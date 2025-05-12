@@ -136,7 +136,7 @@ public class LoginController {
         }else {
 			Cookie cookie = new Cookie("token", token);
 	        cookie.setPath("/");                  // 设置Cookie作用路径
-	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+	        cookie.setMaxAge((int) (userConfig.getUserCacheTime() * 60 * 60));   // 有效期（单位：秒）
 	        cookie.setHttpOnly(true);             // 防止XSS攻击
 	        if (request.isSecure()) {
 	            cookie.setSecure(true);
@@ -174,7 +174,7 @@ public class LoginController {
 	    if (flag){
 			Cookie cookie = new Cookie("token", token);
 	        cookie.setPath("/");                  // 设置Cookie作用路径
-	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 60 * 60));   // 有效期（单位：秒）
+	        cookie.setMaxAge((int) (userConfig.getUserCacheTime() * 60 * 60));   // 有效期（单位：秒）
 	        cookie.setHttpOnly(true);             // 防止XSS攻击
 	        if (request.isSecure()) {
 	            cookie.setSecure(true);

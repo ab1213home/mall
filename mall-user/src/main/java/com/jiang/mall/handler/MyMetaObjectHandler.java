@@ -15,10 +15,13 @@ package com.jiang.mall.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.jiang.mall.domain.cache.UserCache;
+import com.jiang.mall.service.II18nService;
 import com.jiang.mall.service.IUserRedisService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.ibatis.reflection.MetaObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -37,76 +40,12 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.redisService=redisService;
     }
 
-//    private HttpServletRequest request;
-//
-//	@Autowired
-//	public void setRequest(HttpServletRequest request) {
-//		this.request = request;
-//	}
+    private II18nService i18nService;
 
-//    /**
-//     * 插入数据填充方法
-//     * 该方法在插入数据前自动填充创建者、创建时间和更新时间的字段
-//     * 主要用于确保数据库中这些字段的一致性和可追踪性
-//     *
-//     * @param metaObject 元数据对象，代表了要插入的数据实体
-//     */
-//    @Override
-//    public void insertFill(@NotNull MetaObject metaObject) {
-//        //如果存在triggerTime，则表示元数据对象是日志对象
-//        if (metaObject.hasGetter("triggerTime")) {
-//            this.setFieldValByName("triggerTime", LocalDateTime.now(), metaObject);
-//            if(redisService.getUserBySessionId(request.getSession().getId())!=null){
-//                // 从会话中获取当前用户的ID
-//                UserCache user = redisService.getUserBySessionId(request.getSession().getId());
-//                // 设置触发者ID为当前用户的ID
-//                this.setFieldValByName("triggerPerson", user.getId(), metaObject);
-//            }else{
-//                // 设置触发者ID为系统的ID
-//                this.setFieldValByName("triggerPerson", -1L, metaObject);
-//            }
-//        }else {
-//            if(redisService.getUserBySessionId(request.getSession().getId())!=null){
-//                // 从会话中获取当前用户的ID
-//                UserCache user = redisService.getUserBySessionId(request.getSession().getId());
-//                // 设置创建者ID为当前用户的ID
-//                this.setFieldValByName("creator", user.getId(), metaObject);
-//                // 设置更新者ID为当前用户的ID
-//                this.setFieldValByName("updater", user.getId(), metaObject);
-//            }else{
-//                // 设置创建者ID为未知的ID
-//                this.setFieldValByName("creator", 0L, metaObject);
-//                // 设置更新者ID为未知的ID
-//                this.setFieldValByName("updater", 0L, metaObject);
-//            }
-//            // 设置创建时间为当前时间
-//            this.setFieldValByName("createdAt", LocalDateTime.now(), metaObject);
-//            // 设置更新时间为当前时间
-//            this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
-//        }
-//    }
-//
-//    /**
-//     * 更新填充字段
-//     *
-//     * @param metaObject 元对象，用于操作对象的元数据
-//     * 方法体内部通过调用setFieldValByName方法，更新字段"updatedAt"的值为当前的LocalDateTime时间
-//     * 该方法在更新数据时自动填充更新时间字段，确保数据库中这些字段的一致性和可追踪性
-//     */
-//    @Override
-//    public void updateFill(MetaObject metaObject) {
-//        // 设置更新时间为当前时间
-//        this.setFieldValByName("updatedAt", LocalDateTime.now(), metaObject);
-//        if(redisService.getUserBySessionId(request.getSession().getId())!=null){
-//            // 从会话中获取当前用户的ID
-//            UserCache user = redisService.getUserBySessionId(request.getSession().getId());
-//            // 设置更新者ID为当前用户的ID
-//            this.setFieldValByName("updater", user.getId(), metaObject);
-//        }else{
-//            // 设置更新者ID为未知的ID
-//            this.setFieldValByName("updater", 0L, metaObject);
-//        }
-//    }
+    @Autowired
+    public void setI18nService(II18nService i18nService) {
+        this.i18nService = i18nService;
+    }
 
     @Override
     public void insertFill(@NotNull MetaObject metaObject) {
@@ -115,12 +54,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-            String sessionId = request.getSession().getId();
-            user = redisService.getUserBySessionId(sessionId);
+            user = getUser(request);
         }
-
         if (metaObject.hasGetter("triggerTime")) {
-            this.setFieldValByName("triggerTime", LocalDateTime.now(), metaObject);
+            //判断triggerTime字段是否为null
+            if (metaObject.getValue("triggerTime") == null) {
+                this.setFieldValByName("triggerTime", LocalDateTime.now(), metaObject);
+            }
             if (user != null) {
                 this.setFieldValByName("triggerPerson", user.getId(), metaObject);
             } else {
@@ -143,12 +83,50 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-            String sessionId = request.getSession().getId();
-            user = redisService.getUserBySessionId(sessionId);
+            user = getUser(request);
         }
 
         Long userId = (user != null) ? user.getId() : 0L;
         this.setFieldValByName("updater", userId, metaObject);
+    }
+
+    private @Nullable UserCache getUser(@NotNull HttpServletRequest request) {
+        // 获取Header中的Token
+	    String headerToken = request.getHeader("Token");
+	    // 获取Cookie中的Token
+	    Cookie[] cookies = request.getCookies();
+	    String cookieToken = null;
+	    boolean hasCookieToken = false;
+	    if (cookies != null) {
+	        for (Cookie cookie : cookies) {
+	            if ("token".equals(cookie.getName())) {
+	                cookieToken = cookie.getValue();
+	                hasCookieToken = true;
+	                break;
+	            }
+	        }
+	    }
+
+	    // 验证Token的有效性
+	    boolean isHeaderTokenValid = i18nService.checkString(headerToken);
+	    boolean isCookieTokenValid = hasCookieToken && i18nService.checkString(cookieToken);
+
+	    // 检查有效Token的一致性
+	    if (isHeaderTokenValid && isCookieTokenValid && !headerToken.equals(cookieToken)) {
+	        return null; // Token不一致，需重新登录
+	    }
+
+	    // 根据优先级获取用户信息
+	    UserCache user;
+	    if (isHeaderTokenValid) {
+	        user = redisService.getUserByToken(headerToken);
+	    } else if (isCookieTokenValid) {
+	        user = redisService.getUserByToken(cookieToken);
+	    } else {
+	        String sessionId = request.getSession().getId();
+	        user = redisService.getUserBySessionId(sessionId);
+	    }
+        return user;
     }
 
 }

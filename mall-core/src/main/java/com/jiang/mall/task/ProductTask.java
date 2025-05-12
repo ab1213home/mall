@@ -58,7 +58,7 @@ public class ProductTask {
 			timer = timer + 1;
 			if (timer == 0){
 				logger.info("商品数据缓存预热");
-				productService.checkProduct();
+				productService.initProduct();
 			}else if (timer>= coreConfig.getProductSyncTime()){
 				timer = 0;
 				productService.checkProduct();

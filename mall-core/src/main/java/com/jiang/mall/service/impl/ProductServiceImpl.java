@@ -17,6 +17,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.RangeRelation;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
@@ -131,6 +132,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	public void setOrderService(@Lazy IOrderService orderService) {
 		this.orderService = orderService;
 	}
+
+	private final String prefix = "products";
 
 	@Transactional
 	protected List<ProductVo> fallbackGetProductList(String name, Long categoryId, Integer pageNum, Integer pageSize, List<Integer> status) {
@@ -251,7 +254,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
 			try {
 				assert esProduct != null;
-				IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
+				IndexRequest<EsProduct> request = esProduct.toIndexRequest(prefix);
 		        esClient.index(request);
 			} catch (IOException e) {
 				logger.error("Elasticsearch 插入商品失败: {}", e.getMessage(), e);
@@ -288,7 +291,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 				EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
 				assert esProduct != null;
 				esClient.update(u -> u
-				        .index("products")
+				        .index(prefix)
 				        .id(esProduct.getId().toString())
 				        .upsert(esProduct),
 				    EsProduct.class
@@ -322,7 +325,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 			}
 			try {
 		        DeleteRequest request = DeleteRequest.of(b -> b
-		            .index("products")
+		            .index(prefix)
 		            .id(id.toString())
 		        );
 		        esClient.delete(request);
@@ -378,47 +381,23 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
 	@Override
 	public void checkProduct() {
-		try {
-			if (!esClient.indices().exists(ex -> ex.index("products")).value()) {
-				esClient.indices().delete(d -> d.index("products"));
-			}
-		} catch (IOException e) {
-			logger.error("删除索引失败: {}", e.getMessage());
-		}
-		try {
-			// 创建新索引并指定映射
-			esClient.indices().create(c -> c
-			    .index("products")
-			    .mappings(m -> m
-			         .properties("id", p -> p.long_(l -> l))
-			         .properties("title", p -> p.text(t -> t.analyzer("ik_max_word")))
-			         .properties("category_id", p -> p.long_(l -> l))
-			         .properties("price", p -> p.double_(d -> d))
-					 .properties("description", p -> p.text(t -> t.analyzer("ik_max_word")))
-					 .properties("code", p -> p.text(t -> t))
-					 .properties("status", p -> p.integer(i -> i))
-			    )
-			);
-		} catch (ElasticsearchException | IOException e) {
-			logger.error("创建索引失败: {}", e.getMessage());
-		}
-		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
-		List<Product> products = productMapper.selectList(queryWrapper);
-		for (Product product : products) {
-			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
-			try {
-				assert esProduct != null;
-				IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
-		        esClient.index(request);
-			} catch (IOException e) {
-				logger.error("同步商品到ES失败: {}", e.getMessage());
-			}
-			if (coreConfig.isProductCacheEnabled()){
-				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
-				assert productCache != null;
-				redisService.setProduct(productCache);
-			}
-		}
+//		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+//		List<Product> products = productMapper.selectList(queryWrapper);
+//		for (Product product : products) {
+//			EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
+//			try {
+//				assert esProduct != null;
+//				IndexRequest<EsProduct> request = esProduct.toIndexRequest("products");
+//		        esClient.index(request);
+//			} catch (IOException e) {
+//				logger.error("同步商品到ES失败: {}", e.getMessage());
+//			}
+//			if (coreConfig.isProductCacheEnabled() && product.getStatus()==1){
+//				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
+//				assert productCache != null;
+//				redisService.setProduct(productCache);
+//			}
+//		}
 	}
 
 	@Override
@@ -521,12 +500,24 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        // 获取分类及其子分类的 ID 列表
 	        List<Long> categoryIds = categoryService.getCategoryIds(categoryId);
 
-	        // 构建布尔查询
-	        // should子句（查询）必须出现在匹配的文档中。然而，与must不同，查询的分数将被忽略。
-	        // filter子句（查询）应出现在匹配的文档中。
-	        // must子句（查询）必须出现在匹配的文档中，并将有助于核心
-	        // mustNot子句（查询）不得出现在匹配的文档中。因为忽略了评分，所以所有文档的评分都为0。
+//			Must
+//			作用: 文档必须满足所有 must 子句中的条件才能被视为匹配。
+//			评分影响: 对文档的相关性评分有正面影响。匹配得越好，得分越高。
+//			适用场景: 当你需要确保返回的结果严格符合某些条件，并且这些条件对结果的排序（即相关性评分）很重要时使用。
+//			Filter
+//			作用: 类似于 must，但是过滤器不会影响文档的相关性评分。它只是用来缩小结果集。
+//			评分影响: 不影响文档的评分。Elasticsearch 可以缓存过滤器的结果，从而提高性能。
+//			适用场景: 适用于根据某些条件来筛选结果，但这些条件并不影响文档的相关性评分的情况。例如，按日期范围、状态等进行过滤。
+//			Should
+//			作用: 文档可以匹配任意一个或多个 should 子句中的条件。如果没有任何 must 或 filter 条件存在，则至少需要满足一个 should 条件。可以通过设置 minimum_should_match 参数来控制至少需要匹配多少个 should 条件。
+//			评分影响: 如果文档满足了 should 子句中的条件，这将影响其相关性得分。匹配更多 should 条件的文档可能会得到更高的分数。
+//			适用场景: 增加灵活性，允许文档只要满足一系列条件中的任何一个即可。这对于构建更复杂、更灵活的查询特别有用。
+//			Must Not
+//			作用: 文档不能匹配 must_not 子句中的任何条件。用于排除那些不符合特定条件的文档。
+//			评分影响: 不影响文档的评分。
+//			适用场景: 当你想要从结果集中排除一些不符合特定条件的文档时使用。
 
+			// 构建布尔查询
 	        BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 	        // 根据产品名称查询
 	        if (StringUtils.hasText(name)) {
@@ -534,6 +525,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	                    query -> query.match(m -> m
 	                            .field("title")
 	                            .query(name)
+			                    .boost(2.0F)
 	                            .analyzer("ik_max_word") // 指定中文分词器
 	                    )
 	            );
@@ -544,7 +536,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	             List<FieldValue> fieldValue = categoryIds.stream()
 	                    .map(FieldValue::of)
 	                    .toList();
-	            boolBuilder.should(
+	            boolBuilder.filter(
 	                    query -> query.terms(t -> t
 	                        .field("category_id")
 	                        .terms(ts -> ts.value(fieldValue))
@@ -557,7 +549,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	            List<FieldValue> fieldValue = status.stream()
 	                    .map(FieldValue::of)
 	                    .toList();
-	            boolBuilder.should(
+	            boolBuilder.filter(
 	                    query -> query.terms(t -> t
 	                        .field("status")
 	                        .terms(ts -> ts.value(fieldValue))
@@ -571,6 +563,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	                    query -> query.match(m -> m
 	                        .field("code")
 	                        .query(code)
+			                .boost(1.5F)
 	                        .analyzer("ik_max_word") // 指定中文分词器
 	                    )
 	            );
@@ -582,6 +575,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	                    query -> query.match(m -> m
 	                        .field("description")
 	                        .query(detail)
+			                .operator(Operator.Or)
+			                .boost(1.0F)
 	                        .analyzer("ik_max_word") // 指定中文分词器
 	                    )
 	            );
@@ -592,7 +587,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	            // 在查询中使用
 	            double minVal = minPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
 	            double maxVal = maxPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
-	            boolBuilder.filter(
+	            boolBuilder.must(
 	                    query -> query.range(
 	                            range -> range.number(n -> n
 	                                .field("price")
@@ -606,7 +601,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        }else if (minPrice != null) {
 	            // 在查询中使用
 	            double minVal = minPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
-	            boolBuilder.filter(
+	            boolBuilder.must(
 	                    query -> query.range(
 	                            range -> range.number(n -> n
 	                                .field("price")
@@ -619,7 +614,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        }else if (maxPrice != null) {
 				// 在查询中使用
 	            double maxVal = maxPrice.setScale(2, RoundingMode.HALF_UP).doubleValue();
-	            boolBuilder.filter(
+	            boolBuilder.must(
 	                    query -> query.range(
 	                            range -> range.number(n -> n
 	                                .field("price")
@@ -638,7 +633,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        int finalFrom = Math.max(from, 0);
 
 	        SearchResponse<EsProduct> response = esClient.search(s -> s
-	            .index("products")
+	            .index(prefix)
 	            .query(q -> q.bool(boolBuilder.build()))
 	            .from(finalFrom)
 	            .size(finalPageSize),
@@ -665,6 +660,52 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 	        // 降级到数据库查询
 	        return fallbackGetProductList(name, categoryId, pageNum, pageSize, status);
 	    }
+	}
+
+	@Override
+	@Transactional
+	public void initProduct() {
+		try {
+			if (esClient.indices().exists(ex -> ex.index(prefix)).value()) {
+				esClient.indices().delete(d -> d.index(prefix));
+			}
+		} catch (IOException e) {
+			logger.error("删除索引失败: {}", e.getMessage());
+		}
+		try {
+			// 创建新索引并指定映射
+			esClient.indices().create(c -> c
+			    .index(prefix)
+			    .mappings(m -> m
+			         .properties("id", p -> p.long_(l -> l))
+			         .properties("title", p -> p.text(t -> t.analyzer("ik_max_word")))
+			         .properties("category_id", p -> p.long_(l -> l))
+			         .properties("price", p -> p.double_(d -> d))
+					 .properties("description", p -> p.text(t -> t.analyzer("ik_max_word")))
+					 .properties("code", p -> p.text(t -> t))
+					 .properties("status", p -> p.integer(i -> i))
+			    )
+			);
+		} catch (ElasticsearchException | IOException e) {
+			logger.error("创建索引失败: {}", e.getMessage());
+		}
+		QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
+		List<Product> products = productMapper.selectList(queryWrapper);
+		for (Product product : products) {
+			try {
+				EsProduct esProduct = BeanCopyUtil.copyBean(product, EsProduct.class);
+				assert esProduct != null;
+				IndexRequest<EsProduct> request = esProduct.toIndexRequest(prefix);
+		        esClient.index(request);
+			} catch (IOException e) {
+				logger.error("同步商品到ES失败: {}", e.getMessage());
+			}
+			if (coreConfig.isProductCacheEnabled() && product.getStatus()==1){
+				ProductCache productCache = BeanCopyUtil.copyBean(product, ProductCache.class);
+				assert productCache != null;
+				redisService.setProduct(productCache);
+			}
+		}
 	}
 
 }

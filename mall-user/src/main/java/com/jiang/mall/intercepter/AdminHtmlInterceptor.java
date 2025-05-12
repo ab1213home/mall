@@ -59,14 +59,43 @@ public class AdminHtmlInterceptor implements HandlerInterceptor {
 		this.userHtmlInterceptor = userHtmlInterceptor;
 	}
 
+	private PermissionInterceptor permissionInterceptor;
+
+	@Autowired
+	public void setPermissionInterceptor(PermissionInterceptor permissionInterceptor) {
+		this.permissionInterceptor = permissionInterceptor;
+	}
+
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         // 仅处理对静态资源html访问控制，在VNC中，静态资源访问路径为/static/**，所以此处判断是否是静态资源访问
 		logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
 		UserCache user = userHtmlInterceptor.checkAndRefreshUserLogin(request);
 		if (checkLogin(user)){
-			// 重定向到用户首页
-			return true;
+			assert user != null;
+			// 解析路径/admin/index.html、/admin/file/index.html
+			String path = request.getRequestURI();
+			String[] paths = path.split("/");
+			//获取长度
+			int len = paths.length;
+			String permission = null;
+			//获取模块、控制器
+			if (len == 4){
+				//admin/file/index.html
+				String module = paths[2];
+				//去除.html
+				String controller = paths[3].substring(0, paths[3].lastIndexOf("."));
+				permission = module + ":" + controller + ":html";
+			}else if (len == 3){
+				String module = paths[2].substring(0, paths[2].lastIndexOf("."));
+				permission = module + ":html";
+			}
+			if (permissionInterceptor.hasPermission(user, permission)){
+				return true;
+			}else{
+				generalInterceptor.redirectToUserIndexBecauseNotAdmin(ReturnType.HTML, request, response);
+				return false;
+			}
 		}else{
 			generalInterceptor.redirectToLogin(ReturnType.HTML, request, response);
 			return false;

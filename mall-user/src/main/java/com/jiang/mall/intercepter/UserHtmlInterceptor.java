@@ -56,7 +56,6 @@ public class UserHtmlInterceptor implements HandlerInterceptor {
 
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
-        // 仅处理对静态资源html访问控制，在VNC中，静态资源访问路径为/static/**，所以此处判断是否是静态资源访问
 		logger.debug("请求路径:{}{}", request.getRequestURI(), request.getQueryString() == null ? "" : "?" + request.getQueryString());
 		UserCache user = checkAndRefreshUserLogin(request);
 		if (checkLogin(user)){
@@ -69,35 +68,35 @@ public class UserHtmlInterceptor implements HandlerInterceptor {
 
 	/**
 	 * 检查并刷新用户登录状态
-	 * 该方法首先尝试通过请求头中的Authorization令牌或SessionId来获取用户信息，
-	 * 然后检查用户是否已登录如果未登录，则重定向到登录页面
-	 * 对于已登录的用户，方法会刷新其会话状态，确保用户登录状态的活跃
+	 * 该方法首先尝试从请求的Cookies中获取用户的token，如果获取失败，则尝试通过Session ID获取用户信息
+	 * 在获取到用户信息后，会检查用户是否处于登录状态如果用户未登录或用户信息无效，则返回null
+	 * 对于登录状态的用户，会根据情况刷新会话状态，以维持用户的登录状态
 	 *
-	 * @param request  HTTP请求对象，用于获取请求头和会话信息
-	 * @return 返回刷新后的用户缓存对象，如果用户未登录，则返回null
+	 * @param request 不为空的HTTP请求对象，用于获取Cookies和Session信息
+	 * @return 可能为空的UserCache对象，表示当前登录的用户信息如果用户未登录或信息无效，则返回null
 	 */
 	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
 	    // 两渠道获取用户信息
 	    UserCache user;
-		// 从请求中获取Cookie
-        Cookie[] cookies = request.getCookies();
-		String token = null;
-		boolean isCookie = false;
-        if (cookies != null) {
-			for (Cookie cookie : cookies) {
+	    // 从请求中获取Cookie
+	    Cookie[] cookies = request.getCookies();
+	    String token = null;
+	    boolean isCookie = false;
+	    if (cookies != null) {
+	        for (Cookie cookie : cookies) {
 	            if ("token".equals(cookie.getName())) {
 	                token = cookie.getValue();
-					isCookie = true;
+	                isCookie = true;
 	                break;
 	            }
 	        }
-        }
+	    }
 
 	    if (isCookie) {
-			user = redisService.getUserByToken(token);
+	        user = redisService.getUserByToken(token);
 	    } else {
-			String sessionId = request.getSession().getId();
-			user = redisService.getUserBySessionId(sessionId);
+	        String sessionId = request.getSession().getId();
+	        user = redisService.getUserBySessionId(sessionId);
 	    }
 
 	    // 登录状态检查
@@ -113,6 +112,7 @@ public class UserHtmlInterceptor implements HandlerInterceptor {
 
 	    return user;
 	}
+
 
 	/**
      * 检查用户登录状态

@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
@@ -101,7 +101,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 							return false;
 						}
 					} else if (permission.value() == PermissionType.ADMIN){
-						if (checkPermission(user, permission.permission())){
+						if (hasPermission(user, permission.permission())){
 							return true;
 						}else {
 							// 重定向到用户首页
@@ -142,25 +142,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	        return false;
 	    }
 		// 检查用户是否具有任何系统权限
-	    return checkPermission(user, "shop_" + shopId + ":" + permission);
-	}
-
-	public boolean checkPermission(@NotNull UserCache user, String permission){
-		// 检查用户是否具有任何系统权限
-	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-	        // 检查用户是否具有所需的特定权限
-	        if (user.getPermissions().contains(permission)) {
-	            return true;
-	        } else {
-	            // 当用户没有所需权限时，记录调试信息
-	            logger.debug("用户{}无权限访问{}", user.getUsername(),permission);
-	            return false;
-	        }
-	    }else {
-	        // 当用户没有任何系统权限时，记录调试信息
-	        logger.debug("用户{}无任何权限", user.getUsername());
-	        return false;
-	    }
+	    return hasPermission(user, "shop_" + shopId + ":" + permission);
 	}
 
 	// 安全解析店铺ID
@@ -182,7 +164,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	 * @return 如果用户具有所需的权限，则返回true；否则返回false
 	 */
 	public boolean checkSystemPermission(@NotNull UserCache user, String permission){
-	    return checkPermission(user, "system:" + permission);
+	    return hasPermission(user, "system:" + permission);
 	}
 
 	/**
@@ -242,7 +224,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
 	    if (activeToken != null) {
 			Cookie cookie = new Cookie("token", activeToken);
 	        cookie.setPath("/");
-	        cookie.setMaxAge((int) (userConfig.getSessionTimeout() * 3600)); // 小时转秒
+	        cookie.setMaxAge((int) (userConfig.getUserCacheTime() * 3600)); // 小时转秒
 	        cookie.setHttpOnly(true);
 	        if (request.isSecure()) {
 	            cookie.setSecure(true);
@@ -271,5 +253,51 @@ public class PermissionInterceptor implements HandlerInterceptor {
             // 如果用户对象不为空，进一步检查用户ID是否为空
             return user.getId() != null;
         }
+    }
+
+	public boolean hasPermission(@NotNull UserCache user, String permission) {
+		Set<String> permissions = user.getPermissions();
+		// 检查权限集合和权限字符串是否为空
+        if (permissions == null || permission == null || permissions.isEmpty()) {
+            return false;
+        }
+
+        // 直接命中
+        if (permissions.contains(permission)) {
+            return true;
+        }
+
+        // 通配符检查
+        for (String perm : permissions) {
+            if (matchWildcard(perm, permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean matchWildcard(@NotNull String pattern, String target) {
+        if (!pattern.contains(":") || !target.contains(":")) {
+            return false;
+        }
+
+        String[] patternParts = pattern.split(":");
+        String[] targetParts = target.split(":");
+
+        if (patternParts.length != 2 || targetParts.length != 2) {
+            return false;
+        }
+
+        String patternModule = patternParts[0];
+        String patternAction = patternParts[1];
+
+        String targetModule = targetParts[0];
+        String targetAction = targetParts[1];
+
+        boolean moduleMatch = patternModule.equals("*") || patternModule.equals(targetModule);
+        boolean actionMatch = patternAction.equals("*") || patternAction.equals(targetAction);
+
+        return moduleMatch && actionMatch;
     }
 }

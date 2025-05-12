@@ -60,4 +60,6 @@ public interface IProductService extends IService<Product> {
 	Long getSnapshotId(ProductVo product);
 
 	List<ProductVo> getProductList(String name, Long categoryId, List<Integer> status, BigDecimal minPrice, BigDecimal maxPrice, String detail, String code, Integer pageNum, Integer pageSize);
+
+	void initProduct();
 }

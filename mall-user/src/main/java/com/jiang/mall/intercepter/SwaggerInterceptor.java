@@ -15,29 +15,19 @@ package com.jiang.mall.intercepter;
 
 import com.jiang.mall.domain.cache.UserCache;
 import com.jiang.mall.domain.enums.ReturnType;
-import com.jiang.mall.service.IUserRedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class SwaggerInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(SwaggerInterceptor.class);
-
-    private IUserRedisService redisService;
-
-    @Autowired
-    public void setRedisService(IUserRedisService redisService) {
-        this.redisService = redisService;
-    }
 
 	private GeneralInterceptor generalInterceptor;
 
@@ -53,10 +43,17 @@ public class SwaggerInterceptor implements HandlerInterceptor {
 		this.permissionInterceptor = permissionInterceptor;
 	}
 
+	private UserHtmlInterceptor userHtmlInterceptor;
+
+	@Autowired
+	public void setUserHtmlInterceptor(UserHtmlInterceptor userHtmlInterceptor) {
+		this.userHtmlInterceptor = userHtmlInterceptor;
+	}
+
 	@Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
-        UserCache user = checkAndRefreshUserLogin(request);
-        if (permissionInterceptor.checkLogin(user)){
+        UserCache user = userHtmlInterceptor.checkAndRefreshUserLogin(request);
+        if (userHtmlInterceptor.checkLogin(user)){
             assert user != null;
             // 登录校验成功
             if (checkPermission(user)){
@@ -72,32 +69,7 @@ public class SwaggerInterceptor implements HandlerInterceptor {
         }
 	}
 
-	public @Nullable UserCache checkAndRefreshUserLogin(@NotNull HttpServletRequest request){
-		String sessionId = request.getSession().getId();
-		UserCache user = redisService.getUserBySessionId(sessionId);
-	    // 登录状态检查
-	    if (!permissionInterceptor.checkLogin(user)) {
-	        return null;
-	    }
-	    redisService.refreshUserLoginStatus(user.getId());
-	    return user;
-	}
-
     private boolean checkPermission(@NotNull UserCache user){
-		// 检查用户是否具有任何系统权限
-	    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-	        // 检查用户是否具有所需的特定权限
-	        if (user.getPermissions().contains("system:swagger")) {
-	            return true;
-	        } else {
-	            // 当用户没有所需权限时，记录调试信息
-	            logger.debug("用户{}无权限访问{}", user.getUsername(), "system:swagger");
-	            return false;
-	        }
-	    }else {
-	        // 当用户没有任何系统权限时，记录调试信息
-	        logger.debug("用户{}无任何权限", user.getUsername());
-	        return false;
-	    }
+		return permissionInterceptor.hasPermission(user, "system:swagger");
 	}
 }

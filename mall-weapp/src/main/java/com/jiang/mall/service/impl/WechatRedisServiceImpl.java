@@ -93,7 +93,7 @@ public class WechatRedisServiceImpl implements IWechatRedisService {
 		if (userConfig.isUserRedisEncryption()){
 			token = SecureUtil.sha256Hex(token);
 		}
-		stringRedisTemplate.opsForValue().set(prefix + token, String.valueOf(user.getId()),userConfig.getSessionTimeout(),TimeUnit.HOURS);
+		stringRedisTemplate.opsForValue().set(prefix + token, String.valueOf(user.getId()),userConfig.getUserCacheTime(),TimeUnit.HOURS);
 		redisService.setUser(user);
 	}
 
@@ -157,7 +157,7 @@ public class WechatRedisServiceImpl implements IWechatRedisService {
 	        // 确保获取到的用户ID不为空
 	        assert id != null;
 	        // 更新Redis中token的过期时间，延长用户的会话有效期
-	        stringRedisTemplate.expire(prefix + token, time + userConfig.getSessionTimeout(), TimeUnit.HOURS);
+	        stringRedisTemplate.expire(prefix + token, time + userConfig.getUserCacheTime(), TimeUnit.HOURS);
 	        // 调用Redis服务的相应方法，刷新用户登录状态
 	        redisService.refreshUserLoginStatus(Long.valueOf(id));
 	    }

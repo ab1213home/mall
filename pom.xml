@@ -633,11 +633,10 @@
         <module>mall-common</module>
 		<module>mall-file</module>
 		<module>mall-user</module>
-<!--		<module>mall-email</module>-->
         <module>mall-seo</module>
         <module>mall-captcha</module>
         <module>mall-category</module>
-        <module>mall-shop</module>
+<!--        <module>mall-shop</module>-->
         <module>mall-notice</module>
 <!--        <module>mall-websocket</module>-->
         <module>mall-banner</module>

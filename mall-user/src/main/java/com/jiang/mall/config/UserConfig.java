@@ -133,8 +133,8 @@ public class UserConfig {
         return Long.parseLong(properties.getProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), UserConfigItems.USER_DEFAULT_GROUP.getDefaultValue()));
     }
 
-    public long getSessionTimeout() {
-        return Long.parseLong(properties.getProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), UserConfigItems.USER_SESSION_TIMEOUT.getDefaultValue()));
+    public long getUserCacheTime() {
+        return Long.parseLong(properties.getProperty(UserConfigItems.USER_CACHE_TIME.getKey(), UserConfigItems.USER_CACHE_TIME.getDefaultValue()));
     }
 
     public boolean isRegisterEnabled() {
@@ -143,6 +143,19 @@ public class UserConfig {
 
     public boolean isUserRedisEncryption() {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
+    }
+
+    public boolean isUserLogCommitStrategyBatch() {
+        String strategy = properties.getProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
+        if (!strategy.equals("SIMPLE") && !strategy.equals("BATCH")){
+            properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
+            return false;
+        }
+        return strategy.equals("BATCH");
+    }
+
+    public int getUserLogBatchFlushSize() {
+        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getDefaultValue()));
     }
 
     public void updateUserMaxTry(int num) {
@@ -161,14 +174,24 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_DEFAULT_GROUP.getKey(), String.valueOf(group));
     }
 
-    public void updateSessionTimeout(long timeout) {
-        properties.setProperty(UserConfigItems.USER_SESSION_TIMEOUT.getKey(), String.valueOf(timeout));
+    public void updateUserCacheTime(long timeout) {
+        properties.setProperty(UserConfigItems.USER_CACHE_TIME.getKey(), String.valueOf(timeout));
     }
 
     public void updateUserRedisEncryption(boolean encryption) {
         properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
+    public void updateUserLogCommitStrategy(@NotNull String strategy) {
+        if (!strategy.equals("BATCH") && !strategy.equals("SIMPLE")){
+            return;
+        }
+        properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), strategy);
+    }
+
+    public void updateUserLogBatchFlushSize(int size) {
+        properties.setProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), String.valueOf(size));
+    }
 
     public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();
@@ -176,7 +199,7 @@ public class UserConfig {
         settingVo.setMaxAddressNum(getUserMaxAddress());
         settingVo.setDefaultGroup(getDefaultGroup());
         settingVo.setAllowRegistration(isRegisterEnabled());
-        settingVo.setSessionTimeout(getSessionTimeout());
+        settingVo.setSessionTimeout(getUserCacheTime());
         return settingVo;
     }
 
@@ -185,7 +208,7 @@ public class UserConfig {
         updateUserMaxAddress(settingVo.getMaxAddressNum());
         updateDefaultGroup(settingVo.getDefaultGroup());
         updateRegisterEnabled(settingVo.isAllowRegistration());
-        updateSessionTimeout(settingVo.getSessionTimeout());
+        updateUserCacheTime(settingVo.getSessionTimeout());
         saveProperties();
         loadProperties();
     }

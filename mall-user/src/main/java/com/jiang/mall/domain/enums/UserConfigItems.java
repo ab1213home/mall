@@ -20,9 +20,11 @@ public enum UserConfigItems {
 	USER_MAX_TRY("user.max.try", "最大尝试登录次数", "5"),
 	USER_MAX_ADDRESS("user.max.address", "最大收货地址数量", "50"),
 	USER_DEFAULT_GROUP("user.default.group", "默认用户组", "1"),
-	USER_SESSION_TIMEOUT("user.cache.time", "用户会话保持时间(小时)", "24"),
+	USER_CACHE_TIME("user.cache.time", "用户会话保持时间(小时)", "24"),
 	USER_REGISTER_ENABLED("user.register.enabled", "是否允许注册", "true"),
-	USER_REDIS_ENCRYPTION("user.redis.encryption", "用户redis缓存是否加密(SHA-256)", "false");
+	USER_REDIS_ENCRYPTION("user.redis.encryption", "用户redis缓存键是否加密(SHA-256)", "false"),
+	USER_LOG_COMMIT_STRATEGY("user.log.commit.strategy", "用户日志提交策略:BATCH(批处理)SIMPLE(简单模式)", "SIMPLE"),
+	USER_LOG_BATCH_FLUSH_SIZE("user.log.batch.flush.size", "用户日志批处理提交大小(SIMPLE模式不生效)", "500");
 
 	private final String key;
 	private final String description;

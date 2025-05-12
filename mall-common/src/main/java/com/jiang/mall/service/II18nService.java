@@ -91,4 +91,9 @@ public interface II18nService {
 
 	//生成二维码到响应
 	void generateQRCode(String content, int width, int height, OutputStream outputStream);
+
+	//中文转拼音
+	String chineseToPinyin(String chinese);
+
+	String convertToPinyin(String chinese, String separator);
 }
