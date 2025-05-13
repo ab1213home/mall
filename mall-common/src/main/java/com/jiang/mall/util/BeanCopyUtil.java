@@ -42,7 +42,6 @@ public class BeanCopyUtil {
      */
      public static <V> @Nullable V copyBean(Object source, Class<V> clazz) {
          if (source == null) {
-             // source为null
              logger.warn("源对象不能为null");
              return null;
          }
@@ -52,7 +51,7 @@ public class BeanCopyUtil {
          } catch (Exception e) {
              // 异常处理：打印堆栈跟踪，可进行定制化异常处理逻辑
              logger.error("在Bean复制期间发生错误：", e);
-             throw new RuntimeException(e);
+             return null;
          }
      }
 

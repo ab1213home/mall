@@ -105,8 +105,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	private SeataSnowflakeUtil idGenerator;
 
 	@Autowired
-    public void setIdGenerator(SeataSnowflakeUtil idGenerator) {
-        this.idGenerator = idGenerator;
+    public void setIdGenerator(SeataSnowflakeUtil orderIdGenerator) {
+        this.idGenerator = orderIdGenerator;
     }
 
 	private CoreConfig coreConfig;

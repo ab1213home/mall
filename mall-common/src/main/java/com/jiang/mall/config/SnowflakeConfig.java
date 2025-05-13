@@ -28,9 +28,22 @@ public class SnowflakeConfig {
 		this.generalConfig = generalConfig;
 	}
 
+	//订单ID算法
 	@Bean
-    public SeataSnowflakeUtil idGenerator() {
-        return new SeataSnowflakeUtil(generalConfig.getMachineCode());
-    }
+	public SeataSnowflakeUtil orderIdGenerator() {
+		return new SeataSnowflakeUtil(generalConfig.getMachineCode(),0L);
+	}
+
+	//用户日志ID算法
+	@Bean
+	public SeataSnowflakeUtil userLogIdGenerator() {
+		return new SeataSnowflakeUtil(generalConfig.getMachineCode(),1L);
+	}
+
+	//通知日志ID算法
+	@Bean
+	public SeataSnowflakeUtil noticeLogIdGenerator() {
+		return new SeataSnowflakeUtil(generalConfig.getMachineCode(),2L);
+	}
 
 }

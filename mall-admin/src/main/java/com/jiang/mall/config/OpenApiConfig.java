@@ -31,11 +31,11 @@ public class OpenApiConfig {
 				.name("Jiang Rongjun")
 				.email("jiangrongjun2004@163.com")
 				.url("https://github.com/ab1213home")
-				.extensions(new HashMap<String, Object>());;
+				.extensions(new HashMap<>());;
 		License license = new License()
 				.name("Mulan PSL v2")
 				.url("https://license.coscl.org.cn/MulanPSL2")
-				.extensions(new HashMap<String, Object>());;
+				.extensions(new HashMap<>());;
 		Info info = new Info()
 				.title("Jiang Mall")
 				.version("2.0.1")

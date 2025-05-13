@@ -17,7 +17,6 @@ import com.alibaba.fastjson2.JSON;
 import com.jiang.mall.dao.UserLogMapper;
 import com.jiang.mall.domain.entity.UserLog;
 import com.jiang.mall.util.BatchUtil;
-import jakarta.annotation.PostConstruct;
 import org.apache.ibatis.executor.BatchResult;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -51,24 +50,19 @@ public class UserLogConsumer {
 		this.userLogMapper = userLogMapper;
 	}
 
-	@PostConstruct
-	private void init() {
-
-	}
-
-	@KafkaListener(topics = "user-log-text", groupId = "mall", concurrency = "3")
+	@KafkaListener(topics = "user-log", groupId = "mall", concurrency = "3")
     public void consumeUserLogs(@NotNull List<String> records,Acknowledgment ack) {
 		List<UserLog> logs = records.stream()
-                .map(record -> {
-                    try {
-                        return JSON.parseObject(record, UserLog.class);
-                    } catch (Exception e) {
-						logger.error("解析用户日志失败: {}", record, e);
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .toList();
+			.map(record -> {
+                try {
+                    return JSON.parseObject(record, UserLog.class);
+                } catch (Exception e) {
+					logger.error("解析用户日志失败: {}", record, e);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
 		lock.lock();
 		try {
 			userLogBuffer.addAll(logs);

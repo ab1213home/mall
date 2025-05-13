@@ -33,7 +33,7 @@ public class UserLogProducer {
 
     public void sendUserLog(UserLog log) {
         String message = JSON.toJSONString(log);
-	    kafkaTemplate.send("user-log-text", message);
+	    kafkaTemplate.send("user-log", message);
     }
 
 }
