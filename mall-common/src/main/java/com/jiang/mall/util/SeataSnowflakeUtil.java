@@ -90,6 +90,7 @@ public class SeataSnowflakeUtil {
         this.machineId = machineIdCandidate & MAX_MACHINE_ID;
     }
 
+    //TODO:添加服务ID2位码
     public synchronized long nextId() {
         long currentTimestamp = timeGen();
         long timestamp = lastTimestamp.get();

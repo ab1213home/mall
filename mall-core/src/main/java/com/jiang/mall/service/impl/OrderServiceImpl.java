@@ -391,6 +391,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 	    if (insert > 0) {
 			// 插入订单详情信息
 		    List<BatchResult> batchResults = orderListMapper.insert(newOrderList);
+			//确保每个批次的操作都在一个事务中执行，这样可以保证要么全部成功，要么全部回滚。
 		    if (BatchUtil.getTotalAffectedRows(batchResults) == newOrderList.size()){
 				//删除redis中的缓存
 			    redisService.deleteCheckoutList(userId);
@@ -399,6 +400,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 		        return order.getId();
 			}else{
 				logger.warn("订单列表插入失败，无法创建订单{}",insert);
+				QueryWrapper<OrderList> queryWrapper_orderList = new QueryWrapper<>();
+				queryWrapper_orderList.eq("order_id",order.getId());
+				orderListMapper.delete(queryWrapper_orderList);
 				orderMapper.deleteById(order.getId());
 				return -1L;
 			}

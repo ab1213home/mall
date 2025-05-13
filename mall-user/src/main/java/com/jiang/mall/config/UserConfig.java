@@ -155,18 +155,18 @@ public class UserConfig {
         return Boolean.parseBoolean(properties.getProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), UserConfigItems.USER_REDIS_ENCRYPTION.getDefaultValue()));
     }
 
-    public boolean isUserLogCommitStrategyBatch() {
-        String strategy = properties.getProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
-        if (!strategy.equals("SIMPLE") && !strategy.equals("BATCH")){
-            properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
-            return false;
-        }
-        return strategy.equals("BATCH");
-    }
+//    public boolean isUserLogCommitStrategyBatch() {
+//        String strategy = properties.getProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
+//        if (!strategy.equals("SIMPLE") && !strategy.equals("BATCH")){
+//            properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), UserConfigItems.USER_LOG_COMMIT_STRATEGY.getDefaultValue());
+//            return false;
+//        }
+//        return strategy.equals("BATCH");
+//    }
 
-    public int getUserLogBatchFlushSize() {
-        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getDefaultValue()));
-    }
+//    public int getUserLogBatchFlushSize() {
+//        return Integer.parseInt(properties.getProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getDefaultValue()));
+//    }
 
     public void updateUserMaxTry(int num) {
         properties.setProperty(UserConfigItems.USER_MAX_TRY.getKey(), String.valueOf(num));
@@ -192,16 +192,16 @@ public class UserConfig {
         properties.setProperty(UserConfigItems.USER_REDIS_ENCRYPTION.getKey(), String.valueOf(encryption));
     }
 
-    public void updateUserLogCommitStrategy(@NotNull String strategy) {
-        if (!strategy.equals("BATCH") && !strategy.equals("SIMPLE")){
-            return;
-        }
-        properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), strategy);
-    }
-
-    public void updateUserLogBatchFlushSize(int size) {
-        properties.setProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), String.valueOf(size));
-    }
+//    public void updateUserLogCommitStrategy(@NotNull String strategy) {
+//        if (!strategy.equals("BATCH") && !strategy.equals("SIMPLE")){
+//            return;
+//        }
+//        properties.setProperty(UserConfigItems.USER_LOG_COMMIT_STRATEGY.getKey(), strategy);
+//    }
+//
+//    public void updateUserLogBatchFlushSize(int size) {
+//        properties.setProperty(UserConfigItems.USER_LOG_BATCH_FLUSH_SIZE.getKey(), String.valueOf(size));
+//    }
 
     public @NotNull UserSettingVo getSetting() {
         UserSettingVo settingVo = new UserSettingVo();

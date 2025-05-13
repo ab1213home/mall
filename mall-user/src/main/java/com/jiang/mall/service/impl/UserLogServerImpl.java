@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -172,7 +173,9 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	        userLog.setProperties(JSON.toJSONString(properties));
 	    }
 	    // 将日志对象插入数据库，如果插入成功则返回true，否则返回false
-	    return userLogMapper.insert(userLog) > 0;
+//	    return userLogMapper.insert(userLog) > 0;
+		defaultLogToMq(username, clientIp, fingerprint, status, properties);
+		return true;
 	}
 
 	@Override
@@ -192,6 +195,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    if (properties!=null){
 	        userLog.setProperties(JSON.toJSONString(properties));
 	    }
+		userLog.setTriggerTime(LocalDateTime.now());
 		producer.sendUserLog(userLog);
 	}
 

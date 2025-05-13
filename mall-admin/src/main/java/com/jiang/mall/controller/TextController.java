@@ -14,9 +14,12 @@
 package com.jiang.mall.controller;
 
 import com.jiang.mall.domain.ResponseResult;
+import com.jiang.mall.domain.enums.UserStatus;
+import com.jiang.mall.service.IUserLogService;
 import com.jiang.mall.util.NetworkUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -29,6 +32,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("/text")
 public class TextController {
+
+    private IUserLogService userLogService;
+
+    @Autowired
+    public void setLoginRecordService(IUserLogService userLogService) {
+        this.userLogService = userLogService;
+    }
+
+    @GetMapping("/log")
+    public ResponseResult<Object> getLog(@RequestParam(defaultValue = "100") Integer number) {
+        //随机生成参数
+        String username = "text";
+        for (int i = 0; i < number; i++) {
+            userLogService.defaultLog(username, "192.168.1.1", "text_"+i,  UserStatus.SUCCESS_LOGIN,new HashMap<>());
+        }
+        return ResponseResult.okResult();
+    }
 
 	@GetMapping("/time")
 	public ResponseResult<Object> time(@RequestParam(defaultValue = "1") Double time) {

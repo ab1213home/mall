@@ -22,16 +22,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserLogProducer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserLogConsumer.class);
+
+    private KafkaTemplate<String, String> kafkaTemplate;
 
 	@Autowired
-	public UserLogProducer(KafkaTemplate<String, String> kafkaTemplate) {
+	public void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate) {
 		this.kafkaTemplate = kafkaTemplate;
 	}
 
     public void sendUserLog(UserLog log) {
         String message = JSON.toJSONString(log);
-        kafkaTemplate.send("user-log", message);
+	    kafkaTemplate.send("user-log-text", message);
     }
 
 }
