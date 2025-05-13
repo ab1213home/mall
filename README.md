@@ -128,7 +128,7 @@ Navicat Premium Lite 版本17.1.5(简体中文)
 3. MySQL版本：8.0.36
 4. Redis版本：6.2.16(Docker)
 5. Elasticsearch版本：8.15.0(需要ik中文分词插件)
-6. Kafka版本：3.8.0
+6. Kafka版本：3.7.1
 7. Docker版本：27.3.1
 8. Docker-compose版本：v2.29.7
 

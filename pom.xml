@@ -75,7 +75,7 @@
         <libphonenumber.version>8.13.55</libphonenumber.version>
         <springfox.version>3.0.0</springfox.version>
         <springdoc.version>2.8.6</springdoc.version>
-        <kafka.version>3.8.0</kafka.version>
+        <kafka.version>3.7.1</kafka.version>
         <jsch.version>0.2.24</jsch.version>
         <elasticsearch.version>8.15.0</elasticsearch.version>
 	</properties>
@@ -314,6 +314,12 @@
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-client</artifactId>
                 <version>${elasticsearch.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- 高性能的JSON库 -->
@@ -380,9 +386,15 @@
 
             <!-- 微信支付 -->
             <dependency>
-              <groupId>com.github.wechatpay-apiv3</groupId>
-              <artifactId>wechatpay-java</artifactId>
-              <version>${wechatpay.version}</version>
+                <groupId>com.github.wechatpay-apiv3</groupId>
+                <artifactId>wechatpay-java</artifactId>
+                <version>${wechatpay.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- 获取系统信息 -->
@@ -522,17 +534,16 @@
             </dependency>
 
             <!-- Kafka -->
-<!--            <dependency>-->
-<!--                <groupId>org.apache.kafka</groupId>-->
-<!--                <artifactId>kafka-clients</artifactId>-->
-<!--                <version>${kafka.version}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springframework.kafka</groupId>
                 <artifactId>spring-kafka</artifactId>
-<!--                <version>${spring-boot.version}</version>-->
-                <version>3.2.8</version>
+                <version>3.3.5</version>
             </dependency>
 
             <dependency>
@@ -613,11 +624,11 @@
                 <version>${mall.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.jiang</groupId>
-                <artifactId>mall-shop</artifactId>
-                <version>${mall.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.jiang</groupId>-->
+<!--                <artifactId>mall-shop</artifactId>-->
+<!--                <version>${mall.version}</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <groupId>com.jiang</groupId>

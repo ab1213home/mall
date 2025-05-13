@@ -197,6 +197,7 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 
 	@Override
 	@Transactional
+	@Deprecated
 	public void oauthLoginLog(String username, @NotNull UserStatus status) {
 		UserLog userLog = new UserLog();
 		// 设置日志中的用户名
@@ -211,7 +212,6 @@ public class UserLogServerImpl extends ServiceImpl<UserLogMapper, UserLog> imple
 	    userLogMapper.insert(userLog);
 	}
 
-	//获取登录用户的登录日志50条
 	@Transactional
 	@Override
 	public List<UserLogVo> getUserLoginLog(@NotNull UserCache userCache) {
