@@ -13,7 +13,9 @@
 
 package com.jiang.mall.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jiang.mall.dao.GroupMapper;
+import com.jiang.mall.domain.entity.Group;
 import com.jiang.mall.domain.enums.UserConfigItems;
 import com.jiang.mall.domain.vo.UserSettingVo;
 import jakarta.annotation.PostConstruct;
@@ -75,9 +77,17 @@ public class UserConfig {
                     }
                     if (item.getKey().equals(UserConfigItems.USER_DEFAULT_GROUP.getKey())) {
                         // 获取默认用户组
-                        long defaultGroup = Long.parseLong(properties.getProperty(item.getKey(), item.getDefaultValue()));
-                        if (groupMapper.selectById(defaultGroup) == null) {
-                            logger.warn("默认用户组不存在，新用户不关联用户组");
+                        try {
+                            Long defaultGroup = Long.parseLong(properties.getProperty(item.getKey(), item.getDefaultValue()));
+                            QueryWrapper<Group> queryWrapper = new QueryWrapper<>();
+                            queryWrapper.eq("id", defaultGroup);
+                            if (groupMapper.selectCount(queryWrapper) != 1) {
+                                logger.warn("默认用户组不存在，新用户不关联用户组");
+                                properties.setProperty(item.getKey(), "-1");
+                                saveProperties();
+                            }
+                        } catch (NumberFormatException e) {
+	                        logger.error("默认用户组ID转换错误");
                             properties.setProperty(item.getKey(), "-1");
                             saveProperties();
                         }

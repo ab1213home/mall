@@ -137,7 +137,7 @@ public class WechatInterceptor implements HandlerInterceptor {
 	                            return false;
 	                        }
 	                    } else if (wechat.value() == PermissionType.ADMIN){
-	                        if (permissionInterceptor.checkPermission(user, wechat.permission())){
+	                        if (permissionInterceptor.hasPermission(user, wechat.permission())){
 	                            return true;
 	                        }else {
 	                            generalInterceptor.redirectInApi(response, i18nService.getMessage("user.checkAdmin.noAdmin"), HttpServletResponse.SC_FORBIDDEN);

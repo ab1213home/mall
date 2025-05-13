@@ -285,19 +285,17 @@ public class PermissionInterceptor implements HandlerInterceptor {
         String[] patternParts = pattern.split(":");
         String[] targetParts = target.split(":");
 
-        if (patternParts.length != 2 || targetParts.length != 2) {
+		// 确保两个权限字符串有相同的层级数
+        if (patternParts.length > targetParts.length) {
             return false;
         }
 
-        String patternModule = patternParts[0];
-        String patternAction = patternParts[1];
+        for (int i = 0; i < patternParts.length; i++) {
+            if (!patternParts[i].equals("*") && !patternParts[i].equals(targetParts[i])) {
+                return false;
+            }
+        }
 
-        String targetModule = targetParts[0];
-        String targetAction = targetParts[1];
-
-        boolean moduleMatch = patternModule.equals("*") || patternModule.equals(targetModule);
-        boolean actionMatch = patternAction.equals("*") || patternAction.equals(targetAction);
-
-        return moduleMatch && actionMatch;
+        return true;
     }
 }
